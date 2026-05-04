@@ -1,0 +1,13 @@
+{
+  "itemGroup.shakenstir": "Example Mod Tab",
+  "block.shakenstir.example_block": "Example Block",
+  "item.shakenstir.example_item": "Example Item",
+
+  "shakenstir.configuration.title": "Shake n Stir Configs",
+  "shakenstir.configuration.section.shakenstir.common.toml": "Shake n Stir Configs",
+  "shakenstir.configuration.section.shakenstir.common.toml.title": "Shake n Stir Configs",
+  "shakenstir.configuration.items": "Item List",
+  "shakenstir.configuration.logDirtBlock": "Log Dirt Block",
+  "shakenstir.configuration.magicNumberIntroduction": "Magic Number Text",
+  "shakenstir.configuration.magicNumber": "Magic Number"
+}

@@ -1,0 +1,169 @@
+package io.github.hawah.shakenstir.datagen.lang;
+
+import io.github.hawah.shakenstir.ShakenStir;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+
+import javax.annotation.Nullable;
+import java.util.List;
+
+@SuppressWarnings("unused")
+public enum LangData {
+    TITLE_BLACKBOARD_NAMETAG("title.blackboard_name_tag", "You decide to name your structure as...", 0),
+
+    WARN_STRUCTURE_PLACED_OVERSIZE("warn.structure_placed_oversize", "Structure size exceeds server limit!", 0),
+
+    INFO_NO_SELECTION("client_message.info_no_selection","No Selection",0),
+    INFO_ALARM_NO_NAME("client_message.info_alarm_no_name","You must name your structure!",0),
+    INFO_WAND_LOCKED("client_message.info_wand_locked","You need [Left Click] to unlock your wand",0),
+    INFO_NO_ANCHOR("client_message.info_no_anchor","No anchor selected",0),
+    INFO_CREATE_FILE_SUCCESS("client_message.info_create_file_success","Saved as %1$s",1),
+    INFO_CONTAINER_BUILD_CAPABILITY("client_message.info_container_build_capability","Items in the container can build up to %s structures.",1),
+    INFO_CONTAINER_BUILD_CAPABILITY_WITH_INVENTORY("client_message.info_container_build_capability_with_inventory","Items in the container plus your inventory can build up to %s structures.",1),
+    INFO_TELEPHONE_BLOCK_CAPABILITY("client_message.info_telephone_block_capability","Capacity: %s",1),
+    INFO_NO_UPLOAD_PERMISSION("client_message.info_no_upload_permission","You do not have permission to upload files.",0),
+
+    SHIFT("tooltip_shift", "-[Shift]-", 0, ChatFormatting.DARK_GRAY , ChatFormatting.ITALIC),
+
+    TOOLTIP_BUTTON_OPEN_FOLDER("tooltip.button.open_folder", "Open Folder", 0),
+    TOOLTIP_BUTTON_REFRESH("tooltip.button.refresh", "Refresh", 0),
+    TOOLTIP_BUTTON_DELETE("tooltip.button.delete", "Discard Temporary", 0),
+    TOOLTIP_BUTTON_UPDATE("tooltip.button.update", "Update All", 0),
+    TOOLTIP_BUTTON_NO_UPDATE("tooltip.button.no_update", "Disable Updates", 0),
+    TOOLTIP_BUTTON_REPLACE("tooltip.button.replace", "Replace", 0),
+    TOOLTIP_BUTTON_PADDING("tooltip.button.padding", "Padding", 0),
+    TOOLTIP_BUTTON_BOUNDS_VISIBLE("tooltip.button.bounds_visible", "Show Bounds", 0),
+    TOOLTIP_BUTTON_BOUNDS_HIDDEN("tooltip.button.bounds_hidden", "Hide Bounds", 0),
+    TOOLTIP_BUTTON_LOCK("tooltip.button.lock", "Lock", 0),
+    TOOLTIP_BUTTON_UNLOCK("tooltip.button.unlock", "Unlock", 0),
+    TOOLTIP_BUTTON_ROTATE_LOCK("tooltip.button.rotate_lock", "Lock Rotation", 0),
+    TOOLTIP_BUTTON_ROTATE_UNLOCK("tooltip.button.rotate_unlock", "Unlock Rotation", 0),
+    TOOLTIP_BUTTON_MATERIAL("tooltip.button.material", "Material", 0),
+    TOOLTIP_BUTTON_PREVIEW("tooltip.button.preview", "Statistics", 0),
+    TOOLTIP_BUTTON_CLIP("tooltip.button.clip", "Clip", 0),
+
+    HUD_TIP_BLACKBOARD_SELECT_FIRST_POINT("hud.blackboard_select_first_point", "Select the first point", 0),
+    HUD_TIP_BLACKBOARD_SELECT_SECOND_POINT("hud.blackboard_select_second_point","Select the second point", 0),
+    HUD_TIP_BLACKBOARD_CLEAR_AND_SELECT_FIRST("hud.blackboard_clear_and_select_first","Clear and Select First Point", 0),
+    HUD_TIP_BLACKBOARD_SELECT_ANCHOR("hud.blackboard_select_anchor","Set Anchor", 0),
+    HUD_TIP_BLACKBOARD_DELETE_ALL("hud.blackboard_delete_all","Delete All", 0),
+    HUD_TIP_BLACKBOARD_DELETE_ANCHOR("hud.blackboard_delete_anchor","Delete Anchor", 0),
+    HUD_TIP_BLACKBOARD_SHOW_ALL_FACES("hud.blackboard_show_all_faces","Show All Faces", 0),
+    HUD_TIP_BLACKBOARD_PICK_AIR_CENTER("hud.blackboard_pick_air_center","Pick Air Center", 0),
+    HUD_TIP_BLACKBOARD_PICK_AIR_POINT("hud.blackboard_pick_air_point","Pick Air Point", 0),
+    HUD_TIP_BLACKBOARD_CHANGE_DISTANCE("hud.blackboard_change_distance","Change Reach Distance", 0),
+    HUD_TIP_BLACKBOARD_SELECT_OPPOSITE_FACE("hud.blackboard_select_opposite_face","Select Opposite Face", 0),
+    HUD_TIP_BLACKBOARD_PUSH_OR_PULL_FACE("hud.blackboard_push_or_pull_face","Push/Pull Face", 0),
+
+    HUD_TIP_STRUCTURE_WAND_SWITCH("hud.structure_wand_switch","Switch Structure", 0),
+    HUD_TIP_STRUCTURE_WAND_ROTATE("hud.structure_wand_rotate","Rotate Structure", 0),
+    HUD_TIP_STRUCTURE_WAND_MOVE_LOCK("hud.structure_wand_move_lock","Move Structure", 0),
+    HUD_TIP_STRUCTURE_WAND_PLACE("hud.structure_wand_place","Place Structure", 0),
+    HUD_TIP_STRUCTURE_WAND_OPENC_ONFIG("hud.structure_wand_open_config","Open Settings", 0),
+    HUD_TIP_STRUCTURE_WAND_LOCK_UNLOCK("hud.structure_wand_lock_unlock","Lock/Unlock", 0),
+    HUD_TIP_STRUCTURE_WAND_LOCK("hud.structure_wand_lock","Lock", 0),
+    HUD_TIP_STRUCTURE_WAND_UNLOCK("hud.structure_wand_unlock","Unlock", 0),
+    HUD_TIP_STRUCTURE_WAND_RESET_MODIFIER("hud.structure_wand_reset_modifier","Reset Modifier", 0),
+
+    HUD_TIP_RULER_SELECT_POINT("hud.ruler_select_point","Select Point", 0),
+    HUD_TIP_RULER_SWAP("hud.ruler_swap", "Swap", 0),
+    HUD_TIP_RULER_OPEN_SCREEN("hud.ruler_open_screen","Open Screen", 0),
+    HUD_TIP_RULER_CLEAR("hud.ruler_clear","Clear", 0),
+    HUD_TIP_RULER_PLACE("hud.ruler_place","Place", 0),
+    HUD_TIP_RULER_FIXED_PLACE("hud.ruler_fixed_place","Fixed Place", 0),
+
+    GUI_PAGE_TOTAL_BUILD("gui.page_total_build","You can build up to %s of this structure.",1),
+    GUI_PAGE_BOTTLENECK_MATERIAL("gui.page_bottleneck_material","The current bottleneck material is:",0),
+
+    HUD_BLACKBOARD_SELECTION("hud.blackboard_selection", "Size (%1$s, %2$s, %3$s) (%4$s)", 4),
+
+    ERROR_AREA_TOO_LARGE("error.area_too_large","Selection is too large!",0, ChatFormatting.RED),
+    ERROR_ANCHOR_OUT_OF_BOUNDS("error.anchor_out_of_bounds","Anchor is out of bounds!",0, ChatFormatting.RED),
+
+    WARN_STRUCTURE_WAND_NOT_ENOUGH_ITEM("error.structure_wand_not_enough_item","Missing %1$s %2$s(s)",2),
+    WARN_STRUCTURE_WAND_NOT_ENOUGH_ITEM_TOO_LONG("error.structure_wand_not_enough_item_too_long","Not enough itemIds",0),
+
+    CONFIG_STRUCTURE_WAND_UPDATE_FLAG("config.structure_wand_update_flag","-Update Mode- :%s",1),
+    CONFIG_STRUCTURE_WAND_REPLACE_AIR("config.structure_wand_replace_air","-Replace Air- :%s",1),
+    CONFIG_STRUCTURE_WAND_RENDER_BOUND("config.structure_wand_render_bound","-Render Bound- :%s",1),
+    CONFIG_STRUCTURE_WAND_UPDATE_ALL("config.structure_wand_update_all","-Update All-",0),
+    CONFIG_STRUCTURE_WAND_NO_UPDATE("config.structure_wand_no_update","-Disable Updates-",0),
+    CONFIG_STRUCTURE_WAND_CLEAR_AREA("config.structure_wand_clear_area","-Clear Area-",0),
+    CONFIG_STRUCTURE_WAND_KEEP_AREA("config.structure_wand_keep_area","-Keep Area-",0),
+    CONFIG_STRUCTURE_WAND_RENDER_BOUNDS("config.structure_wand_render_bounds","-Show Bounds-",0),
+    CONFIG_STRUCTURE_WAND_RENDER_NONE("config.structure_wand_render_none","-Hide Bounds-",0),
+
+    MESSAGE_TELEPHONE_CHANNEL_NOT_FOUND("message.telephone_channel_not_found","§kFound No Channel",0),
+
+    CONFIGURATION_BLACKBOARD_ANIMATION_TYPE("configuration.blackboard_animation_type","Blackboard Animation Type",0),
+    CONFIGURATION_BLACKBOARD_ANIMATION_TYPE_TOOLTIP("configuration.blackboard_animation_type.tooltip","Selects the animation type used when interacting with the Blackboard.",0),
+    CONFIGURATION_STRUCTURE_SIZE_LIMIT_X("configuration.structure_size_limit_x","Structure Size Limit (X)",0),
+    CONFIGURATION_STRUCTURE_RECORD_SIZE_LIMIT_Y("configuration.structure_size_limit_y","Structure Size Limit (Y)",0),
+    CONFIGURATION_STRUCTURE_SIZE_LIMIT_Z("configuration.structure_size_limit_z","Structure Size Limit (Z)",0),
+    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_X_TOOLTIP("configuration.structure_size_limit_x.tooltip","Maximum X dimension of structures. -1 for no limit.",0),
+    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_Y_TOOLTIP("configuration.structure_size_limit_y.tooltip","Maximum Y dimension of structures. -1 for no limit.",0),
+    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_Z_TOOLTIP("configuration.structure_size_limit_z.tooltip","Maximum Z dimension of structures. -1 for no limit.",0),
+    CONFIGURATION_STRUCTURE_SIZE_LIMIT_VOLUME("configuration.structure_size_limit_volume","Structure Volume Limit",0),
+    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_VOLUME_TOOLTIP("configuration.structure_size_limit_volume.tooltip","Maximum volume of structures. -1 for no limit.",0),
+    CONFIGURATION_STRUCTURE_PLACE_DISTANCE("configuration.structure_place_distance","Placement Distance Multiplier",0),
+    CONFIGURATION_STRUCTURE_PLACE_DISTANCE_TOOLTIP("configuration.structure_place_distance.tooltip","Defines the maximum placement distance (as a multiple of the player's reach) when using the Structure Wand in survival mode.",0),
+    CONFIGURATION_PREVIEW_UNLOCK_DISTANCE("configuration.preview_unlock_distance","Preview Unlock Distance",0),
+    CONFIGURATION_PREVIEW_UNLOCK_DISTANCE_TOOLTIP("configuration.preview_unlock_distance.tooltip","Defines the maximum distance a locked structure can remain locked.",0),
+    CONFIGURATION_STRUCTURE_PLACE_MODE("configuration.structure_place_mode","NBT Placement Mode",0),
+    CONFIGURATION_STRUCTURE_PLACE_MODE_TOOLTIP("configuration.structure_place_mode.tooltip","Defines how NBT data is handled when placing blocks: ALL applies NBT to all blocks; IGNORE_NBT ignores all NBT data (may break structures); BLACKLIST ignores NBT only for blocks in the blacklist.",0),
+    CONFIGURATION_STRUCTURE_BLACKLIST("configuration.structure_blacklist","NBT Ignore List",0),
+    CONFIGURATION_RENDER_TELEPHONE_BOOST_POSITION("configuration.render_telephone_boost_position","Render Telephone Boost Position",0),
+    CONFIGURATION_UPLOAD_WAIT_TIME("configuration.upload_wait_time","Upload Wait Time",0),
+    CONFIGURATION_UPLOAD_WAIT_TIME_TOOLTIP("configuration.upload_wait_time.tooltip","Server wait ticks for client structure upload.",0),
+    CONFIGURATION_UPLOAD_VALIDATION("configuration.upload_validation","Structure Upload Validation",0),
+    CONFIGURATION_UPLOAD_VALIDATION_TOOLTIP("configuration.upload_validation.tooltip","Defines who has the permission to upload local structure to server.",0),
+    CONFIGURATION_RULER_SHADOW_TOOL("configuration.ruler_shadow_tool","Ruler Shadow Tool",0),
+    CONFIGURATION_RULER_SHADOW_TOOL_TOOLTIP("configuration.ruler_shadow_tool.tooltip","Defines the shadow tool used by the Ruler.",0),
+
+    CONFIGURATION_MATERIAL_LIST_SCATTERED_ENABLED("configuration.material_list_scattered_enabled","Scatterable Material List",0),
+
+    ;
+
+    public final String key;
+    public final String def;
+    private final int arg;
+    private final ChatFormatting[] format;
+
+    LangData(String key, String def, int arg, @Nullable ChatFormatting... format) {
+        this.key = ShakenStir.MODID + "." + key;
+        this.def = def;
+        this.arg = arg;
+        this.format = format;
+    }
+
+    private static List<LangData> getTitleLang(){
+        return List.of(LangData.values());
+    }
+
+    public MutableComponent get(Object... args) {
+        if (args.length != arg) {
+            throw new IllegalArgumentException("for " + name() + ": expect " + arg + " parameters, got " + args.length);
+        }
+        MutableComponent ans = Component.translatable(key, args);
+        if (format != null) {
+            return ans.withStyle(format);
+        }
+        return ans;
+    }
+
+    public static MutableComponent getFromTag(String tag) {
+        List<LangData> titleLang = getTitleLang();
+        for (LangData data : titleLang){
+            if (data.key.equals(ShakenStir.MODID + ".tooltip."+tag)){
+                MutableComponent ans = Component.translatable(data.key);
+                if (data.format != null) {
+                    return ans.withStyle(data.format);
+                }
+                return ans;
+            }
+        }
+        return Component.literal("Error").withStyle(ChatFormatting.DARK_RED).withStyle(ChatFormatting.ITALIC);
+    }
+
+}

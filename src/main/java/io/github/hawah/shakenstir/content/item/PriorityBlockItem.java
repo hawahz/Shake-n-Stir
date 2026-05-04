@@ -1,0 +1,36 @@
+package io.github.hawah.shakenstir.content.item;
+
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
+import io.github.hawah.shakenstir.content.block.IPlacePriority;
+import net.minecraft.util.TriState;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.block.Block;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@EventBusSubscriber
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
+public class PriorityBlockItem extends BlockItem {
+    public PriorityBlockItem(Block block, Properties properties) {
+        super(block, properties);
+    }
+
+    @Override
+    public InteractionResult useOn(UseOnContext context) {
+        return super.useOn(context);
+    }
+
+    @SubscribeEvent
+    public static void onBlockPlacedWhenInteractFirst(PlayerInteractEvent.RightClickBlock event) {
+        if (event.getItemStack().getItem() instanceof PriorityBlockItem blockItem && blockItem.getBlock() instanceof IPlacePriority priority && priority.isPriority(event))
+            event.setUseBlock(TriState.FALSE);
+    }
+
+
+}

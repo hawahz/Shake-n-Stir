@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "io.github.hawah.shakenstir.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": [
+    "ScreenAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

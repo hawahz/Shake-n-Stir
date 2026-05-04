@@ -1,0 +1,73 @@
+package io.github.hawah.shakenstir.lib.client.gui;
+
+import com.mojang.blaze3d.platform.Window;
+import io.github.hawah.shakenstir.lib.client.KeyBinding;
+import io.github.hawah.shakenstir.util.Textures;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.neoforged.neoforge.client.gui.GuiLayer;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
+public class KeyTipHUD extends Screen implements GuiLayer {
+
+    private boolean initialized = false;
+
+    public KeyTipHUD() {
+        super(Component.literal("key_tip_hud"));
+    }
+
+    @Override
+    public void render(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
+
+        Window mainWindow = Minecraft.getInstance().getWindow();
+        if (!initialized) {
+            init(mainWindow.getGuiScaledWidth(), mainWindow.getGuiScaledHeight());
+            initialized = true;
+        }
+
+//        int startY = Math.max(mainWindow.getGuiScaledWidth() - 32, 0);
+        int startY = mainWindow.getGuiScaledHeight() - 36;
+
+        for (KeyBinding bindedKey : KeyBinding.values()) {
+            int startX = Math.max(mainWindow.getGuiScaledWidth() - 32, 0);
+            if (!bindedKey.canDisplay()) {
+                continue;
+            }
+            for (KeyBinding.KeyNode key : bindedKey.flipedKeys) {
+                if (key.isActive() && !key.isEnd()) {
+                    continue;
+                }
+                Textures.Builder builder = Textures.KEYMAP.builder();
+                builder.variant(key.ordinal());
+                BaseScreen.blit(
+                        guiGraphics,
+                        builder.getResource(),
+                        startX,
+                        startY,
+                        builder.getStartX(),
+                        builder.getStartY(),
+                        builder.getWidth(),
+                        builder.getHeight()
+                );
+                startX -= 16;
+            }
+            Font font = Minecraft.getInstance().font;
+            Component validDescription = bindedKey.getValidDescription();
+            guiGraphics.text(
+                    font,
+                    validDescription,
+                    startX - font.width(validDescription) + 10,
+                    startY + 8 - font.lineHeight/2,
+                    0xFFFFFF,
+                    true
+            );
+            startY -= 20;
+        }
+    }
+}
