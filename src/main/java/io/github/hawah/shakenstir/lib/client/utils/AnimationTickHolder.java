@@ -3,10 +3,15 @@ package io.github.hawah.shakenstir.lib.client.utils;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.LevelAccessor;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 
 /**
  * Code from Create Ponder
  * */
+@EventBusSubscriber(value = Dist.CLIENT)
 public class AnimationTickHolder {
 
     private static int ticks;
@@ -69,5 +74,10 @@ public class AnimationTickHolder {
         Minecraft mc = Minecraft.getInstance();
         float delta = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
         return ignorePaused? ShakenStirClient.TIMER_NORMAL.getGameTimeDeltaPartialTick(true): delta;
+    }
+
+    @SubscribeEvent
+    public static void onClientTick(ClientTickEvent.Pre event) {
+        tick();
     }
 }

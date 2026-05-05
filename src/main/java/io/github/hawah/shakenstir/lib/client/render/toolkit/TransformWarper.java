@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.lib.client.render.toolkit;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.logging.LogUtils;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -37,10 +38,13 @@ public class TransformWarper {
     }
 
     public TransformWarper end() {
+        if (poseStack == null || poseStack.isEmpty()) {
+            return this;
+        }
         try {
             poseStack.popPose();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            LogUtils.getLogger().error("Error while applying pose matrix", e);
         } finally {
             poseStack = null;
         }

@@ -1,0 +1,69 @@
+{
+  "model": {
+      "type": "minecraft:condition",
+      "property": "shakenstir:has_cup",
+      "on_true": {
+        "type": "minecraft:select",
+        "property": "minecraft:display_context",
+        "cases": [
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "shakenstir:block/shake_overall"
+            },
+            "when": [
+              "gui",
+              "ground",
+              "fixed",
+              "on_shelf"
+            ]
+          }
+        ],
+        "fallback": {
+          "type": "minecraft:special",
+          "base": "shakenstir:shake_overall",
+          "model": {
+            "type": "shakenstir:shake_special",
+            "texture": "shakenstir:test",
+            "transform": {
+              "rotation": [0, 0, 0],
+              "translation": [0, 0, 0],
+              "scale": [1, 1, 1]
+            }
+          }
+        }
+      },
+      "on_false": {
+        "type": "minecraft:select",
+        "property": "minecraft:display_context",
+        "cases": [
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "shakenstir:block/shake_body"
+            },
+            "when": [
+              "gui",
+              "ground",
+              "fixed",
+              "on_shelf"
+            ]
+          }
+        ],
+        "fallback": {
+          "type": "minecraft:special",
+          "base": "shakenstir:shake_overall",
+          "model": {
+            "type": "shakenstir:shake_special",
+            "texture": "shakenstir:test",
+            "transform": {
+              "rotation": [0, 0, 0],
+              "translation": [0, 0, 0],
+              "scale": [1, 1, 1]
+            }
+          }
+        }
+      }
+
+  }
+}

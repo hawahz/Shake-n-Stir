@@ -1,16 +1,89 @@
 package io.github.hawah.shakenstir.client;
 
+import com.mojang.math.Transformation;
+import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.ShakenStirClient;
+import io.github.hawah.shakenstir.client.render.item.ShakeItemSpecialRenderer;
+import io.github.hawah.shakenstir.content.HasCup;
+import io.github.hawah.shakenstir.content.block.BlockRegistries;
+import io.github.hawah.shakenstir.util.Result;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.SpecialBlockModelWrapper;
+import net.minecraft.client.renderer.special.TridentSpecialRenderer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.*;
+
+import java.util.Optional;
+import java.util.function.BiFunction;
 
 @EventBusSubscriber(value = Dist.CLIENT)
 public class ClientEvents {
     @SubscribeEvent
     public static void onRenderWorld(RenderLevelStageEvent.AfterTranslucentParticles event) {
         ShakenStirClient.TIMER_NORMAL.warp(Minecraft.getInstance().getDeltaTracker());
+    }
+
+    @SubscribeEvent
+    public static void registerSpecialRenderers(RegisterSpecialModelRendererEvent event) {
+        event.register(
+                Identifier.fromNamespaceAndPath(ShakenStir.MODID, "shake_special"),
+                ShakeItemSpecialRenderer.Unbaked.MAP_CODEC
+        );
+    }
+
+    @SubscribeEvent
+    public static void modifyFov(ComputeFovModifierEvent event) {
+        if (Minecraft.getInstance().level == null) {
+            return;
+        }
+        BlockPos pos = ClientDataHolder.Picker.pos();
+        if (pos == null) {
+            return;
+        }
+        BlockState state = Minecraft.getInstance().level.getBlockState(pos);
+        if (state.is(Blocks.GLASS) && Minecraft.getInstance().hasAltDown()) {
+            event.setNewFovModifier(event.getFovModifier() / 2);
+
+        }
+    }
+
+    @SubscribeEvent
+    public static void modifyTurnSensitivity(CalculatePlayerTurnEvent event) {
+    }
+    @SubscribeEvent
+    public static void registerSpecialBlockRenderers(RegisterBlockModelsEvent event) {
+//        event.register(
+//                new SpecialBlockModelWrapper.Unbaked<>(
+//                        new ShakeItemSpecialRenderer.Unbaked(Transformation.IDENTITY),
+//                        Optional.empty()
+//                ),
+//                BlockRegistries.SHAKE_BLOCK.get()
+//        );
+    }
+
+    @SubscribeEvent // on the mod event bus only on the physical client
+    public static void registerConditionalProperties(RegisterConditionalItemModelPropertyEvent event) {
+        event.register(
+                // The name to reference as the type
+                Identifier.fromNamespaceAndPath(ShakenStir.MODID, "has_cup"),
+                // The map codec
+                HasCup.MAP_CODEC
+        );
+    }
+
+    public static Result onMouseMove(final double yaw, final double pitch) {
+        for (BiFunction<Double, Double, Result> mouseMove : ClickInteractions.mouseMoves) {
+            Result result = mouseMove.apply(yaw, -pitch);
+            if (result.cancelled()) {
+                return result;
+            }
+        }
+        return Result.empty();
     }
 }

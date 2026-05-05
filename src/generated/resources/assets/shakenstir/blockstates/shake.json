@@ -1,0 +1,25 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "shakenstir:block/shake_body"
+    },
+    "facing=east": {
+      "model": "shakenstir:block/shake_fall",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "shakenstir:block/shake_fall"
+    },
+    "facing=south": {
+      "model": "shakenstir:block/shake_fall",
+      "y": 180
+    },
+    "facing=up": {
+      "model": "shakenstir:block/shake"
+    },
+    "facing=west": {
+      "model": "shakenstir:block/shake_fall",
+      "y": 270
+    }
+  }
+}

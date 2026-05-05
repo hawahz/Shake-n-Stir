@@ -1,7 +1,13 @@
 package io.github.hawah.shakenstir;
 
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
+import io.github.hawah.shakenstir.content.blockentity.BlockEntityRegistries;
+import io.github.hawah.shakenstir.content.datacomponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -18,6 +24,8 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 
+import java.util.function.Supplier;
+
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(ShakenStir.MODID)
 public class ShakenStir {
@@ -25,24 +33,34 @@ public class ShakenStir {
     public static final String MODID = "shakenstir";
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
-
-    // The constructor for the mod class is the first code that is run when your mod is loaded.
-    // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
+    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(BuiltInRegistries.CREATIVE_MODE_TAB, MODID);
+    //CREATIVE_MODE_TABS is a DeferredRegister<CreativeModeTab>
+    public static final Supplier<CreativeModeTab> SHAKENSTIR_TAB = CREATIVE_MODE_TABS.register("example", () -> CreativeModeTab.builder()
+            //Set the title of the tab. Don't forget to add a translation!
+            .title(Component.translatable("itemGroup." + MODID + ".example"))
+            //Set the icon of the tab.
+            .icon(() -> new ItemStack(ItemRegistries.SHAKE.get()))
+            //Add your items to the tab.
+            .displayItems((params, output) -> {
+                output.accept(ItemRegistries.SHAKE.get());
+                output.accept(ItemRegistries.SHAKE_CUP.get());
+            })
+            .build()
+    );
     public ShakenStir(IEventBus modEventBus, ModContainer modContainer) {
-        // Register the commonSetup method for modloading
+
         modEventBus.addListener(this::commonSetup);
-        // Register the Deferred Register to the mod event bus so items get registered
+
         ItemRegistries.register(modEventBus);
         BlockRegistries.register(modEventBus);
-        // Register ourselves for server and other game events we are interested in.
-        // Note that this is necessary if and only if we want *this* class (ShakenStir) to respond directly to events.
-        // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
+        BlockEntityRegistries.register(modEventBus);
+        DataComponentTypeRegistries.register(modEventBus);
+        CREATIVE_MODE_TABS.register(modEventBus);
+
         NeoForge.EVENT_BUS.register(this);
 
-        // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
 
-        // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 

@@ -1,0 +1,139 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+	"texture_size": [32, 32],
+	"textures": {
+		"0": "shakenstir:block/texture",
+		"particle": "shakenstir:block/texture"
+	},
+	"elements": [
+		{
+			"from": [5, 8, 5],
+			"to": [11, 9, 11],
+			"rotation": {"angle": 0, "axis": "y", "origin": [6, 9, 6]},
+			"faces": {
+				"north": {"uv": [9.5, 7, 12.5, 7.5], "texture": "#0"},
+				"east": {"uv": [9.5, 7.5, 12.5, 8], "texture": "#0"},
+				"south": {"uv": [9.5, 8, 12.5, 8.5], "texture": "#0"},
+				"west": {"uv": [9.5, 8.5, 12.5, 9], "texture": "#0"},
+				"up": {"uv": [6, 3, 3, 0], "texture": "#0"},
+				"down": {"uv": [6, 3, 3, 6], "texture": "#0"}
+			}
+		},
+		{
+			"from": [7, 10, 7],
+			"to": [9, 11, 9],
+			"rotation": {"angle": 0, "axis": "y", "origin": [6, 12, 6]},
+			"faces": {
+				"north": {"uv": [5, 6, 6, 6.5], "texture": "#0"},
+				"east": {"uv": [0, 10.5, 1, 11], "texture": "#0"},
+				"south": {"uv": [10.5, 0, 11.5, 0.5], "texture": "#0"},
+				"west": {"uv": [10.5, 0.5, 11.5, 1], "texture": "#0"},
+				"up": {"uv": [10.5, 10, 9.5, 9], "texture": "#0"},
+				"down": {"uv": [3, 10, 2, 11], "texture": "#0"}
+			}
+		},
+		{
+			"from": [6, 9, 6],
+			"to": [10, 10, 10],
+			"rotation": {"angle": 0, "axis": "y", "origin": [6, 11, 6]},
+			"faces": {
+				"north": {"uv": [3, 10, 5, 10.5], "texture": "#0"},
+				"east": {"uv": [5, 10, 7, 10.5], "texture": "#0"},
+				"south": {"uv": [7, 10, 9, 10.5], "texture": "#0"},
+				"west": {"uv": [9, 10, 11, 10.5], "texture": "#0"},
+				"up": {"uv": [2, 10.5, 0, 8.5], "texture": "#0"},
+				"down": {"uv": [10.5, 0, 8.5, 2], "texture": "#0"}
+			}
+		},
+		{
+			"from": [5.5, 3, 5.5],
+			"to": [10.5, 7, 10.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [6.5, 4, 6.5]},
+			"faces": {
+				"north": {"uv": [2.5, 6, 5, 8], "texture": "#0"},
+				"east": {"uv": [6, 2.5, 8.5, 4.5], "texture": "#0"},
+				"south": {"uv": [6, 4.5, 8.5, 6.5], "texture": "#0"},
+				"west": {"uv": [5, 6.5, 7.5, 8.5], "texture": "#0"},
+				"up": {"uv": [2.5, 8.5, 0, 6], "texture": "#0"},
+				"down": {"uv": [8.5, 0, 6, 2.5], "texture": "#0"}
+			}
+		},
+		{
+			"from": [6, 0, 6],
+			"to": [10, 3, 10],
+			"rotation": {"angle": 0, "axis": "y", "origin": [7, 0, 7]},
+			"faces": {
+				"north": {"uv": [8.5, 2, 10.5, 3.5], "texture": "#0"},
+				"east": {"uv": [8.5, 3.5, 10.5, 5], "texture": "#0"},
+				"south": {"uv": [4.5, 8.5, 6.5, 10], "texture": "#0"},
+				"west": {"uv": [8.5, 5, 10.5, 6.5], "texture": "#0"},
+				"up": {"uv": [9.5, 8.5, 7.5, 6.5], "texture": "#0"},
+				"down": {"uv": [4.5, 8, 2.5, 10], "texture": "#0"}
+			}
+		},
+		{
+			"from": [5, 7, 5],
+			"to": [11, 8, 11],
+			"rotation": {"angle": 0, "axis": "y", "origin": [6, 9, 6]},
+			"faces": {
+				"north": {"uv": [6.5, 8.5, 9.5, 9], "texture": "#0"},
+				"east": {"uv": [6.5, 9, 9.5, 9.5], "texture": "#0"},
+				"south": {"uv": [6.5, 9.5, 9.5, 10], "texture": "#0"},
+				"west": {"uv": [9.5, 6.5, 12.5, 7], "texture": "#0"},
+				"up": {"uv": [3, 3, 0, 0], "texture": "#0"},
+				"down": {"uv": [3, 3, 0, 6], "texture": "#0"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [50.25, 0, 0],
+			"translation": [-1.25, 3.25, 4.25],
+			"scale": [0.74023, 0.74023, 0.74023]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [50.25, 0, 0],
+			"translation": [-1.25, 3.25, 4.25],
+			"scale": [0.74023, 0.74023, 0.74023]
+		},
+		"firstperson_righthand": {
+			"translation": [0, 5.25, -0.75],
+			"scale": [0.74609, 0.74609, 0.74609]
+		},
+		"firstperson_lefthand": {
+			"translation": [0, 5.25, -0.75],
+			"scale": [0.74609, 0.74609, 0.74609]
+		},
+		"ground": {
+			"rotation": [-16.71, -1.28, 8.81],
+			"translation": [0, 2, 0],
+			"scale": [0.61914, 0.61914, 0.61914]
+		},
+		"gui": {
+			"rotation": [27.25, 19.56, -22.09],
+			"translation": [1.5, 3.25, -2.5],
+			"scale": [1.31055, 1.31055, 1.31055]
+		},
+		"fixed": {
+			"rotation": [-27.25, 19.56, 22.09],
+			"translation": [-1, 1.25, -2.5]
+		}
+	},
+	"groups": [
+		{
+			"name": "Cup",
+			"origin": [6, 9, 6],
+			"scope": 0,
+			"color": 0,
+			"children": [0, 1, 2]
+		},
+		{
+			"name": "Body",
+			"origin": [6.5, 4, 6.5],
+			"scope": 0,
+			"color": 0,
+			"children": [3, 4, 5]
+		}
+	]
+}
