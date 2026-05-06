@@ -2,7 +2,7 @@ package io.github.hawah.shakenstir.client.hanlder;
 
 import io.github.hawah.shakenstir.client.ClickInteractions;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
-import io.github.hawah.shakenstir.content.datacomponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ShakeItem;
 import io.github.hawah.shakenstir.lib.client.handler.IHandler;
 import io.github.hawah.shakenstir.lib.client.render.EaseHelper;
@@ -88,7 +88,7 @@ public class ShakeHandler implements IHandler {
         assert player != null;
         return Minecraft.getInstance().mouseHandler.isRightPressed() &&
                 player.getMainHandItem().getItem() instanceof ShakeItem &&
-                ClientDataHolder.Picker.hitResult.getType().equals(HitResult.Type.MISS) &&
+                ClientDataHolder.Picker.type().equals(HitResult.Type.MISS) &&
                 !player.getCooldowns().isOnCooldown(player.getMainHandItem()) &&
                 player.getMainHandItem().getOrDefault(DataComponentTypeRegistries.HAS_CUP, false);
     }

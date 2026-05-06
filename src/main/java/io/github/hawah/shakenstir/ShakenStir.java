@@ -1,8 +1,8 @@
 package io.github.hawah.shakenstir;
 
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
-import io.github.hawah.shakenstir.content.blockentity.BlockEntityRegistries;
-import io.github.hawah.shakenstir.content.datacomponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
+import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;

@@ -1,4 +1,4 @@
-package io.github.hawah.shakenstir.mixin;
+package io.github.hawah.shakenstir.foundation.mixin;
 
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;

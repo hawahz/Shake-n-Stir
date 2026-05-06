@@ -2,12 +2,13 @@ package io.github.hawah.shakenstir.content.block;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.serialization.MapCodec;
-import io.github.hawah.shakenstir.content.blockentity.ShakeBlockEntity;
-import io.github.hawah.shakenstir.content.datacomponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
+import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.lib.VoxelShapeMaker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -22,6 +23,7 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -98,14 +100,11 @@ public class Shake extends FallingBlock implements EntityBlock {
         ItemStack itemInHand = context.getItemInHand();
         return this.defaultBlockState().setValue(FACING, itemInHand.getOrDefault(DataComponentTypeRegistries.HAS_CUP, true)? Direction.UP: Direction.DOWN);
     }
+
     @Override
     public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, ItemStack toolStack, boolean willHarvest, FluidState fluid) {
         if (!player.isCreative()) {
-            ItemStack instance = ItemRegistries.SHAKE.get().getDefaultInstance();
-            instance.set(DataComponentTypeRegistries.HAS_CUP, state.getValue(FACING).equals(Direction.UP));
-            ItemEntity drop = new ItemEntity(level, pos.getCenter().x(), pos.getCenter().y(), pos.getCenter().z(), instance);
-            drop.setPickUpDelay(20);
-            level.addFreshEntity(drop);
+            holdOrAddItem(player, getDrop(state, level, pos), level, pos);
         }
         return super.onDestroyedByPlayer(state, level, pos, player, toolStack, willHarvest, fluid);
     }
@@ -189,9 +188,7 @@ public class Shake extends FallingBlock implements EntityBlock {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (player.isShiftKeyDown() && player.getMainHandItem().isEmpty()) {
-            ItemStack stack = ItemRegistries.SHAKE.toStack();
-            stack.set(DataComponentTypeRegistries.HAS_CUP, state.getValue(FACING).equals(Direction.UP));
-            holdOrAddItem(player, stack);
+            holdOrAddItem(player, getDrop(state, level, pos), level, pos);
             level.removeBlock(pos, false);
             return InteractionResult.SUCCESS;
         }
@@ -205,7 +202,7 @@ public class Shake extends FallingBlock implements EntityBlock {
                     1,
                     1
             );
-            holdOrAddItem(player, ItemRegistries.SHAKE_CUP.toStack());
+            holdOrAddItem(player, ItemRegistries.SHAKE_CUP.toStack(), level, pos);
             return InteractionResult.SUCCESS;
         }
 
@@ -225,24 +222,35 @@ public class Shake extends FallingBlock implements EntityBlock {
         return super.useWithoutItem(state, level, pos, player, hitResult);
     }
 
-    public static void holdOrAddItem(Player player, ItemStack itemStack) {
-        if (player.getMainHandItem().isEmpty()) {
-            player.setItemInHand(InteractionHand.MAIN_HAND, itemStack);
-        } else {
-            player.addItem(itemStack);
-        }
+    public static void holdOrAddItem(Player player, ItemStack itemStack, Level level, BlockPos orSpawn) {
+        holdOrAddItem(player, itemStack, level, orSpawn, InteractionHand.MAIN_HAND);
     }
 
-    public static void holdOrAddItem(Player player, ItemStack itemStack, InteractionHand hand) {
+    public static void holdOrAddItem(Player player, ItemStack itemStack, Level level, BlockPos orSpawn, InteractionHand hand) {
         if (player.getItemInHand(hand).isEmpty()) {
             player.setItemInHand(hand, itemStack);
-        } else {
-            player.addItem(itemStack);
+        } else if (!player.addItem(itemStack)) {
+            ItemEntity drop = new ItemEntity(level, orSpawn.getX(), orSpawn.getY(), orSpawn.getZ(), itemStack);
+            drop.setPickUpDelay(20);
+            level.addFreshEntity(drop);
         }
     }
 
     @Override
     protected InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (itemStack.is(ItemRegistries.SHAKE_CUP)) {
+            return tryPlaceCup(itemStack, state, level, pos, player);
+        }
+        if (state.getValue(FACING).equals(Direction.DOWN) && !itemStack.isEmpty()) {
+            if (level.getBlockEntity(pos) instanceof ShakeBlockEntity blockEntity) {
+                blockEntity.putItem(itemStack);
+                return InteractionResult.SUCCESS;
+            }
+        }
+        return InteractionResult.TryEmptyHandInteraction.TRY_WITH_EMPTY_HAND;
+    }
+
+    private static InteractionResult tryPlaceCup(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player) {
         if (!itemStack.is(ItemRegistries.SHAKE_CUP) || state.getValue(FACING).equals(Direction.UP) || player.isShiftKeyDown())
             return InteractionResult.TryEmptyHandInteraction.TRY_WITH_EMPTY_HAND;
         if (!player.isCreative()) {
@@ -260,6 +268,7 @@ public class Shake extends FallingBlock implements EntityBlock {
         return InteractionResult.SUCCESS;
     }
 
+
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
@@ -274,5 +283,14 @@ public class Shake extends FallingBlock implements EntityBlock {
     protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
         BlockState blockState = level.getBlockState(pos.below());
         return blockState.isFaceSturdy(level, pos, Direction.UP) || blockState.isEmpty();
+    }
+
+    protected ItemStack getDrop(BlockState state, Level level, BlockPos pos) {
+        ItemStack stack = ItemRegistries.SHAKE.toStack();
+        stack.set(DataComponentTypeRegistries.HAS_CUP, state.getValue(FACING).equals(Direction.UP));
+        if (level.getBlockEntity(pos) instanceof ShakeBlockEntity blockEntity) {
+            stack.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(blockEntity.getItemToRender()));
+        }
+        return stack;
     }
 }

@@ -1,4 +1,4 @@
-package io.github.hawah.shakenstir.datagen.lang;
+package io.github.hawah.shakenstir.foundation.datagen.lang;
 
 import io.github.hawah.shakenstir.ShakenStir;
 import net.minecraft.ChatFormatting;

@@ -1,4 +1,4 @@
-package io.github.hawah.shakenstir.networking;
+package io.github.hawah.shakenstir.foundation.networking;
 
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.lib.networking.BasePacketPayload;

@@ -1,4 +1,4 @@
-package io.github.hawah.shakenstir.mixin;
+package io.github.hawah.shakenstir.foundation.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import io.github.hawah.shakenstir.client.ClientEvents;

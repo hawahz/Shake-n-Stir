@@ -1,0 +1,90 @@
+package io.github.hawah.shakenstir.client.render.block;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
+import com.mojang.math.Axis;
+import io.github.hawah.shakenstir.client.render.block.renderstate.ShakeBlockEntityRenderState;
+import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
+import it.unimi.dsi.fastutil.HashCommon;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
+public class ShakeBlockEntityRenderer implements BlockEntityRenderer<ShakeBlockEntity, ShakeBlockEntityRenderState> {
+
+    final ItemModelResolver itemModelResolver;
+
+    public ShakeBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+        itemModelResolver = context.itemModelResolver();
+    }
+
+    @Override
+    public ShakeBlockEntityRenderState createRenderState() {
+        return new ShakeBlockEntityRenderState();
+    }
+
+    @Override
+    public void extractRenderState(ShakeBlockEntity blockEntity, ShakeBlockEntityRenderState state, float partialTicks, Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
+        BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
+        NonNullList<ItemStack> itemToRender = blockEntity.getItemToRender();
+        int size = itemToRender.size();
+        int seed = HashCommon.long2int(blockEntity.getBlockPos().asLong());
+        for (int slot = 0; slot < itemToRender.size(); slot++) {
+            ItemStack itemStack = itemToRender.get(slot);
+            if (!itemStack.isEmpty()) {
+                ItemStackRenderState itemStackRenderState = new ItemStackRenderState();
+                this.itemModelResolver
+                        .updateForTopItem(itemStackRenderState, itemStack, ItemDisplayContext.NONE, blockEntity.getLevel(), blockEntity, seed + slot);
+                state.items[slot] = itemStackRenderState;
+            }
+        }
+    }
+
+    @Override
+    public void submit(ShakeBlockEntityRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+        for (int slot = 0; slot < state.items.length; slot++) {
+            ItemStackRenderState itemStackRenderState = state.items[slot];
+            if (itemStackRenderState != null) {
+                this.submitItem(state, itemStackRenderState, poseStack, submitNodeCollector, slot);
+            }
+        }
+    }
+
+    private void submitItem(
+            ShakeBlockEntityRenderState state, ItemStackRenderState itemStackRenderState, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int slot
+    ) {
+//        float itemSlotPosition = (slot - 1) * 0.1F;
+//        Vec3 itemOffset = new Vec3(0, 0, 0.3125F-itemSlotPosition);
+        double offsetY = 1/16.0 * 0.5;
+        poseStack.pushPose();
+        poseStack.translate(0.5F, 0.5F, 0.5F);
+        poseStack.translate(0, -(0.5 - 1/16f) + offsetY * slot, 0);
+        poseStack.mulPose(Axis.XP.rotationDegrees(90));
+        poseStack.mulPose(Axis.ZN.rotationDegrees(slot * 100));
+        float scale = 0.25F;
+        poseStack.scale(scale, scale, scale);
+//        poseStack.mulPose(Axis.YP.rotationDegrees(slot * 100));
+//        poseStack.mulPose(Axis.XP.rotationDegrees(90));
+//        poseStack.translate(itemOffset);
+//        poseStack.scale(0.25F, 0.25F, 0.25F);
+//        offsetY += -(box.maxY - box.minY) / 2.0;
+//
+//        poseStack.translate(0.0, offsetY, 0.0);
+        itemStackRenderState.submit(poseStack, submitNodeCollector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+        poseStack.popPose();
+    }
+}

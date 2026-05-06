@@ -15,10 +15,4 @@ public record Result(boolean cancelled) {
         final Result otherEvent = (Result) obj;
         return otherEvent.cancelled == this.cancelled;
     }
-
-    public record MouseMove(boolean cancelled, double mouseX, double mouseY) {
-        public static MouseMove empty() {
-            return new MouseMove(false, 0, 0);
-        }
-    }
 }

@@ -1,9 +1,8 @@
 package io.github.hawah.shakenstir.content;
 
 import com.mojang.serialization.MapCodec;
-import io.github.hawah.shakenstir.content.datacomponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.block.model.properties.conditional.ConditionalBlockModelProperty;
 import net.minecraft.client.renderer.item.properties.conditional.ConditionalItemModelProperty;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;

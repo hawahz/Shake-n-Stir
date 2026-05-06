@@ -1,4 +1,4 @@
-package io.github.hawah.shakenstir.content.datacomponent;
+package io.github.hawah.shakenstir.content.dataComponent;
 
 import com.mojang.serialization.Codec;
 import io.github.hawah.shakenstir.ShakenStir;

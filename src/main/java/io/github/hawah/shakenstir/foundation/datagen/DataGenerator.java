@@ -1,4 +1,4 @@
-package io.github.hawah.shakenstir.datagen;
+package io.github.hawah.shakenstir.foundation.datagen;
 
 import io.github.hawah.shakenstir.ShakenStir;
 import net.neoforged.bus.api.SubscribeEvent;

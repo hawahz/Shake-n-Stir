@@ -2,7 +2,7 @@ package io.github.hawah.shakenstir.lib.client.gui;
 
 import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.lib.signal.InstantSignal;
-import io.github.hawah.shakenstir.mixin.ScreenAccessor;
+import io.github.hawah.shakenstir.foundation.mixin.ScreenAccessor;
 import io.github.hawah.shakenstir.util.Textures;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;

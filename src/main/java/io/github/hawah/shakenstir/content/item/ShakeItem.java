@@ -3,7 +3,7 @@ package io.github.hawah.shakenstir.content.item;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.block.Shake;
-import io.github.hawah.shakenstir.content.datacomponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -30,7 +30,7 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem{
             InteractionHand otherHand = hand.equals(InteractionHand.MAIN_HAND) ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
             if (shakeItem.getOrDefault(DataComponentTypeRegistries.HAS_CUP, false)){
                 shakeItem.set(DataComponentTypeRegistries.HAS_CUP, false);
-                Shake.holdOrAddItem(player, ItemRegistries.SHAKE_CUP.toStack(), otherHand);
+                Shake.holdOrAddItem(player, ItemRegistries.SHAKE_CUP.toStack(), level, player.blockPosition(), otherHand);
                 return InteractionResult.PASS;
             } else if (player.getItemInHand(otherHand).is(ItemRegistries.SHAKE_CUP)) {
                 player.getItemInHand(otherHand).shrink(1);
@@ -76,4 +76,6 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem{
         stack.remove(DataComponentTypeRegistries.SHAKING);
         super.onStopUsing(stack, entity, count);
     }
+
+
 }
