@@ -51,8 +51,8 @@ public class ShakenStir {
 
         modEventBus.addListener(this::commonSetup);
 
-        ItemRegistries.register(modEventBus);
         BlockRegistries.register(modEventBus);
+        ItemRegistries.register(modEventBus);
         BlockEntityRegistries.register(modEventBus);
         DataComponentTypeRegistries.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);

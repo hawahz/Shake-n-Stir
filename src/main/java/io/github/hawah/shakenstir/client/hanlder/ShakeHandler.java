@@ -1,5 +1,6 @@
 package io.github.hawah.shakenstir.client.hanlder;
 
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.client.ClickInteractions;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
@@ -8,16 +9,23 @@ import io.github.hawah.shakenstir.lib.client.handler.IHandler;
 import io.github.hawah.shakenstir.lib.client.render.EaseHelper;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import io.github.hawah.shakenstir.util.Result;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.HitResult;
+import net.neoforged.neoforge.client.gui.GuiLayer;
 import org.joml.Vector2d;
 
-public class ShakeHandler implements IHandler {
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
+public class ShakeHandler implements IHandler, GuiLayer {
 
     private boolean wasActive = false;
     private int lastSuccessTick = -1;
@@ -111,7 +119,6 @@ public class ShakeHandler implements IHandler {
             return Result.empty();
         }
         if (!wasActive) {
-            firstShakeTick = AnimationTickHolder.getTicks();
             init();
         }
         oVx = vx;
@@ -128,5 +135,14 @@ public class ShakeHandler implements IHandler {
         wasActive = true;
         tick();
         return new Result(isActive());
+    }
+
+    @Override
+    public void render(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
+        if (!isActive()) {
+            return;
+        }
+        double process = AnimationTickHolder.getRenderTime() - firstShakeTick;
+        double fadeInProcess = Mth.clamp(process / 20, 0, 1);
     }
 }

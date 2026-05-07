@@ -18,11 +18,16 @@ public class BlockRegistries {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(ShakenStir.MODID);
     public static final DeferredBlock<Shake> SHAKE_BLOCK = register("shake", Shake::new);
     public static final DeferredBlock<ShakeCup> SHAKE_CUP_BLOCK = register("shake_cup", ShakeCup::new);
+    public static final DeferredBlock<CenteredSpiritBlock> GIN = register("gin", CenteredSpiritBlock::new);
 
     public static final DeferredRegister<MapCodec<? extends Block>> REGISTRAR = DeferredRegister.create(BuiltInRegistries.BLOCK_TYPE, ShakenStir.MODID);
     public static final Supplier<MapCodec<Shake>> SHAKE_CODEC = REGISTRAR.register(
             "simple",
             () -> BlockBehaviour.simpleCodec(Shake::new)
+    );
+    public static final Supplier<MapCodec<CenteredSpiritBlock>> CENTERED_SPIRIT_CODEC = REGISTRAR.register(
+            "centered_spirit",
+            () -> BlockBehaviour.simpleCodec(CenteredSpiritBlock::new)
     );
 
     public static void register(IEventBus eventBus) {

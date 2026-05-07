@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.hawah.shakenstir.ShakenStir;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.resources.model.geometry.QuadCollection;
 import net.minecraft.resources.Identifier;
@@ -31,8 +32,12 @@ public enum Models {
     }
 
     public void render(PoseStack poseStack, int lightCoords, int overlayCoords) {
+        render(poseStack, lightCoords, overlayCoords, RenderTypes.translucentMovingBlock());
+    }
+
+    public void render(PoseStack poseStack, int lightCoords, int overlayCoords, RenderType renderType) {
         QuadCollection gin = Minecraft.getInstance().getModelManager().getStandaloneModel(key);
-        VertexConsumer consumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderTypes.translucentMovingBlock());
+        VertexConsumer consumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(renderType);
         QuadInstance instance = new QuadInstance();
         instance.setLightCoords(lightCoords);
         instance.setOverlayCoords(overlayCoords);

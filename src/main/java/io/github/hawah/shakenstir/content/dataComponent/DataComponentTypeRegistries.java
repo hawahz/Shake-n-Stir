@@ -6,6 +6,7 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.UnaryOperator;
@@ -24,6 +25,11 @@ public class DataComponentTypeRegistries {
     public static final DataComponentType<Boolean> SHAKING = register(
             "shake_shaking",
             builder -> builder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
+    );
+
+    public static final DataComponentType<FluidStack> SPIRIT_CONTENT = register(
+            "spirit_content",
+            builder -> builder.persistent(FluidStack.CODEC).networkSynchronized(FluidStack.STREAM_CODEC)
     );
 
     public static void register(IEventBus eventBus) {

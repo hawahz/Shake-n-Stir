@@ -15,6 +15,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jspecify.annotations.NonNull;
 
@@ -43,6 +44,7 @@ public class ModModelProvider extends ModelProvider {
                                 .select(Direction.WEST, getMultiVariant("block/shake_fall").with(BlockModelGenerators.Y_ROT_270))
                 )
         );
+        registerRotatedBlockModel(blockModels, "block/gin", BlockRegistries.GIN.get());
     }
 
     private static @NonNull MultiVariant getMultiVariant(String path) {
@@ -61,5 +63,20 @@ public class ModModelProvider extends ModelProvider {
                 )
         );
     }
+
+    private static void registerRotatedBlockModel(BlockModelGenerators blockModels, String modelPath, Block block) {
+        blockModels.blockStateOutput.accept(
+                MultiVariantGenerator.dispatch(
+                        block
+                ).with(
+                        PropertyDispatch.initial(HorizontalDirectionalBlock.FACING)
+                                .select(Direction.NORTH, getMultiVariant(modelPath))
+                                .select(Direction.EAST, getMultiVariant(modelPath).with(BlockModelGenerators.Y_ROT_90))
+                                .select(Direction.SOUTH, getMultiVariant(modelPath).with(BlockModelGenerators.Y_ROT_180))
+                                .select(Direction.WEST, getMultiVariant(modelPath).with(BlockModelGenerators.Y_ROT_270))
+                )
+        );
+    }
+
 
 }

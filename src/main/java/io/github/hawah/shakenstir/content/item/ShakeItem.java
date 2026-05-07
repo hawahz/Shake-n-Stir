@@ -4,6 +4,9 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.block.Shake;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
+import io.github.hawah.shakenstir.foundation.item.IPickMarkedItem;
+import io.github.hawah.shakenstir.foundation.item.PriorityBlockItem;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -17,10 +20,16 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem{
+public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem {
 
     public ShakeItem(Properties properties) {
-        super(BlockRegistries.SHAKE_BLOCK.get(), properties.useCooldown(1.0F).stacksTo(1).component(DataComponents.CONTAINER, ItemContainerContents.EMPTY));
+        super(BlockRegistries.SHAKE_BLOCK.get(),
+                properties
+                        .useCooldown(1.0F)
+                        .stacksTo(1)
+                        .component(DataComponents.CONTAINER, ItemContainerContents.EMPTY)
+                        .component(DataComponentTypeRegistries.HAS_CUP, true)
+        );
     }
 
     @Override
@@ -30,7 +39,7 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem{
             InteractionHand otherHand = hand.equals(InteractionHand.MAIN_HAND) ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
             if (shakeItem.getOrDefault(DataComponentTypeRegistries.HAS_CUP, false)){
                 shakeItem.set(DataComponentTypeRegistries.HAS_CUP, false);
-                Shake.holdOrAddItem(player, ItemRegistries.SHAKE_CUP.toStack(), level, player.blockPosition(), otherHand);
+                ITakeUpBlock.holdOrAddItem(player, ItemRegistries.SHAKE_CUP.toStack(), level, player.blockPosition(), otherHand);
                 return InteractionResult.PASS;
             } else if (player.getItemInHand(otherHand).is(ItemRegistries.SHAKE_CUP)) {
                 player.getItemInHand(otherHand).shrink(1);

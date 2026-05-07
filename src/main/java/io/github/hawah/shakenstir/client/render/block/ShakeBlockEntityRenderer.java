@@ -41,7 +41,6 @@ public class ShakeBlockEntityRenderer implements BlockEntityRenderer<ShakeBlockE
     public void extractRenderState(ShakeBlockEntity blockEntity, ShakeBlockEntityRenderState state, float partialTicks, Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
         NonNullList<ItemStack> itemToRender = blockEntity.getItemToRender();
-        int size = itemToRender.size();
         int seed = HashCommon.long2int(blockEntity.getBlockPos().asLong());
         for (int slot = 0; slot < itemToRender.size(); slot++) {
             ItemStack itemStack = itemToRender.get(slot);
@@ -56,6 +55,10 @@ public class ShakeBlockEntityRenderer implements BlockEntityRenderer<ShakeBlockE
 
     @Override
     public void submit(ShakeBlockEntityRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+        submitContents(state, poseStack, submitNodeCollector);
+    }
+
+    private void submitContents(ShakeBlockEntityRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector) {
         for (int slot = 0; slot < state.items.length; slot++) {
             ItemStackRenderState itemStackRenderState = state.items[slot];
             if (itemStackRenderState != null) {

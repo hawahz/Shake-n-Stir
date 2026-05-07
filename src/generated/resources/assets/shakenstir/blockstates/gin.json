@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "shakenstir:block/gin",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "shakenstir:block/gin"
+    },
+    "facing=south": {
+      "model": "shakenstir:block/gin",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "shakenstir:block/gin",
+      "y": 270
+    }
+  }
+}

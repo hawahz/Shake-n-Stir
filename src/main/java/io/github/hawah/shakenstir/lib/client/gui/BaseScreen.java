@@ -8,8 +8,10 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
 import org.joml.Matrix3x2fStack;
@@ -150,32 +152,69 @@ public abstract class BaseScreen extends Screen {
     protected void renderWindowPre(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, float partialTick) {}
     protected void renderWindowPost(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, float partialTick) {}
 
-    public static void blit(GuiGraphicsExtractor GuiGraphicsExtractor,
-                            @Nullable Identifier resource,
+    public static void blit(GuiGraphicsExtractor guiGraphics,
+                            Identifier texture,
                             int x,
                             int y,
                             int u,
                             int v,
-                            int textureWidth,
-                            int textureHeight) {
-        if ((textureWidth | textureHeight) == 0) {
-            return;
-        }
-        if (resource == null) {
-            LogUtils.getLogger().warn("Identifier is null at blit()");
-            return;
-        }
-        GuiGraphicsExtractor.blit(
-                resource,
+                            int width,
+                            int height,
+                            int r,
+                            int g,
+                            int b,
+                            int a) {
+        guiGraphics.blit(
+                RenderPipelines.GUI_TEXTURED,
+                texture,
                 x,
                 y,
-                x + textureWidth,
-                y + textureHeight,
                 u,
                 v,
-                textureWidth,
-                textureHeight
+                width,
+                height,
+                256,
+                256,
+                ARGB.color(a, r, g, b)
         );
+    }
+
+    public static void blit(GuiGraphicsExtractor guiGraphics,
+                            Identifier texture,
+                            int x,
+                            int y,
+                            int u,
+                            int v,
+                            int width,
+                            int height,
+                            float r,
+                            float g,
+                            float b,
+                            float a) {
+        blit(guiGraphics, texture, x, y, u, v, width, height, (int) (r * 255), (int) (g * 255), (int) (b * 255), (int) (a * 255));
+    }
+
+    public static void blit(GuiGraphicsExtractor guiGraphics,
+                            Identifier texture,
+                            int x,
+                            int y,
+                            int u,
+                            int v,
+                            int width,
+                            int height) {
+        blit(guiGraphics, texture, x, y, u, v, width, height, 1F, 1, 1, 1);
+    }
+
+    public static void blit(GuiGraphicsExtractor guiGraphics,
+                            Identifier texture,
+                            int x,
+                            int y,
+                            int u,
+                            int v,
+                            int width,
+                            int height,
+                            int argb) {
+        blit(guiGraphics, texture, x, y, u, v, width, height, argb & 0xFF, (argb >> 8) & 0xFF, (argb >> 16) & 0xFF, (argb >> 24) & 0xFF);
     }
 
     public static void line(GuiGraphicsExtractor GuiGraphicsExtractor,

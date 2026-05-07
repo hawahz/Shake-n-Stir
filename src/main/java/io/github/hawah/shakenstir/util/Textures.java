@@ -1,6 +1,8 @@
 package io.github.hawah.shakenstir.util;
 
 import io.github.hawah.shakenstir.ShakenStir;
+import io.github.hawah.shakenstir.lib.client.gui.BaseScreen;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
@@ -9,6 +11,9 @@ import java.util.HashMap;
 public enum Textures {
     NUMBER_SPRITE("textures/gui/general.png", 0, 0, 11, 12, 0),
     KEYMAP("textures/gui/buttons.png", 0, 0, 16, 16, 5, 0, 16, 0, 32, 0, 48, 0, 64, 0, 80),
+    SHAKE_HUD_FRONT("textures/gui/shake_hud.png", 82, 10, 58, 83, 0),
+    SHAKE_HUD_OUTSIDE("textures/gui/shake_hud.png", 11, 10, 58, 83, 0),
+    SHAKE_HUD_INSIDE("textures/gui/shake_hud.png", 11, 96, 58, 83, 0),
     ;
     private final String resource;
     private final int startX;
@@ -34,6 +39,18 @@ public enum Textures {
 
     public Identifier getResource() {
         return resourceCache.computeIfAbsent(resource, p -> Identifier.fromNamespaceAndPath(ShakenStir.MODID, resource));
+    }
+
+    public void blit(GuiGraphicsExtractor guiGraphics, int x, int y, int r, int g, int b ,int a) {
+        BaseScreen.blit(guiGraphics, getResource(), x, y, getStartX(), getStartY(), getWidth(), getHeight(), r, g, b, a);
+    }
+
+    public void blit(GuiGraphicsExtractor guiGraphics, int x, int y) {
+        BaseScreen.blit(guiGraphics, getResource(), x, y, getStartX(), getStartY(), getWidth(), getHeight());
+    }
+
+    public void blit(GuiGraphicsExtractor guiGraphics, int x, int y, int color) {
+        BaseScreen.blit(guiGraphics, getResource(), x, y, getStartX(), getStartY(), getWidth(), getHeight(), color);
     }
 
     public int getStartX() {

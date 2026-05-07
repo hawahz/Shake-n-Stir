@@ -1,7 +1,7 @@
-package io.github.hawah.shakenstir.content.item;
+package io.github.hawah.shakenstir.foundation.item;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
-import io.github.hawah.shakenstir.content.block.IPlacePriority;
+import io.github.hawah.shakenstir.foundation.block.IPlacePriority;
 import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BlockItem;

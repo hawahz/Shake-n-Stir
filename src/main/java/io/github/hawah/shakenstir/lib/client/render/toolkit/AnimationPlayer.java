@@ -1,6 +1,7 @@
 package io.github.hawah.shakenstir.lib.client.render.toolkit;
 
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
+import net.minecraft.util.Mth;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -16,6 +17,7 @@ import java.util.function.Function;
 public class AnimationPlayer {
 
     private static final List<AnimationPlayer> players = new ArrayList<>();
+    private static final Map<Object, AnimationPlayer> playersBySlot = new HashMap<>();
 
     private double lastTickTime = 0;
     private double initialTickTime = -1;
@@ -26,11 +28,71 @@ public class AnimationPlayer {
     private boolean cycle = false;
     private final Map<String, Animation<?>> animations = new HashMap<>();
 
+    public static Builder instance(Object slot) {
+        AnimationPlayer ret = playersBySlot.get(slot);
+        if (ret == null) {
+            return new Builder().warp(new AnimationPlayer());
+        } else {
+            return new Builder(true).warp(ret);
+        }
+    }
+
+    public static class Builder {
+        private AnimationPlayer player;
+        private boolean isConsumer = false;
+        public static Builder CONSUMER = new Builder(true);
+
+        private Builder(boolean isConsumer) {
+            this.isConsumer = isConsumer;
+        }
+
+        public Builder() {
+        }
+
+        private Builder warp(AnimationPlayer player) {
+            this.player = player;
+            return this;
+        }
+
+        public <T> Builder registerAnimation(String name, Function<T, T> modifier, Animation.LerpFunction<T> lerp, T initialValue) {
+            if (!isConsumer) {
+                player.registerAnimation(name, modifier, lerp, initialValue);
+            }
+            return this;
+        }
+
+        public Builder registerAnimation(String name, double initialValue) {
+            if (!isConsumer) {
+                player.registerAnimation(name, initialValue);
+            }
+            return this;
+        }
+        public AnimationPlayer build() {
+            return player;
+        }
+
+        public Builder cycle(boolean flag) {
+            player.cycle = flag;
+            return this;
+        }
+
+        public Builder ignorePaused(boolean flag) {
+            player.ignorePaused = flag;
+            return this;
+        }
+    }
+
     public AnimationPlayer() {
         players.add(this);
     }
     public <T> Animation<T> registerAnimation(String name, Function<T, T> modifier, Animation.LerpFunction<T> lerp, T initialValue) {
         Animation<T> animation = new Animation<>(modifier, lerp, initialValue, this);
+        animations.put(name, animation);
+        return animation;
+    }
+
+    public Animation<Double> registerAnimation(String name, double initialValue) {
+        Animation<Double> animation = new Animation<>(x->x, ((from, to, delta) -> Mth.lerp(delta, from, to)), initialValue, this);
         animations.put(name, animation);
         return animation;
     }

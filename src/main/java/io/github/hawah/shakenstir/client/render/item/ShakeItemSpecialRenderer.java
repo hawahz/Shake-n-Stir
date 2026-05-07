@@ -50,33 +50,76 @@ public record ShakeItemSpecialRenderer(Transformation transformation) implements
     public void submit(@Nullable Vector2f argument, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, int overlayCoords, boolean hasFoil, int outlineColor) {
         poseStack.pushPose();
 
-        BlockStateModel model = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(BlockRegistries.SHAKE_BLOCK.get().defaultBlockState().setValue(Shake.FACING, Minecraft.getInstance().player.getMainHandItem().getOrDefault(DataComponentTypeRegistries.HAS_CUP, false)? Direction.UP: Direction.DOWN));
+        boolean hasCup = Minecraft.getInstance().player.getMainHandItem().getOrDefault(DataComponentTypeRegistries.HAS_CUP, false);
+
+        if (hasCup) {
+            submitWithCup(poseStack, submitNodeCollector, lightCoords, overlayCoords, outlineColor);
+        } else {
+            submitNoCup(poseStack, submitNodeCollector, lightCoords, overlayCoords, outlineColor);
+        }
+
+//        warper.end();
+        poseStack.popPose();
+    }
+
+    private void submitNoCup(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, int overlayCoords, int outlineColor) {
+        BlockStateModel model = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(BlockRegistries.SHAKE_BLOCK.get().defaultBlockState().setValue(Shake.FACING, Direction.DOWN));
         List<BlockStateModelPart> list = new ArrayList<>();
         model.collectParts(RandomSource.create(), list);
-//        TransformWarper warper = TransformWarper.instance(this);
 
-        float renderTime = AnimationTickHolder.getRenderTime();
-        float delta = renderTime % 60 - 10;
+        poseStack.pushPose();
+        submitShake(poseStack, submitNodeCollector, lightCoords, overlayCoords, outlineColor, list);
+        poseStack.pushPose();
 
-        boolean isShaking = ShakenStirClient.SHAKE_HANDLER.isActive();
-        if (isShaking){
-            float liftProcess = EaseHelper.easeOutPow(Mth.clamp((AnimationTickHolder.getRenderTime() - ShakenStirClient.SHAKE_HANDLER.firstTimeShake())/5, 0, 1), 2);
-            if (liftProcess < 1) {
-                poseStack.translate(0, (liftProcess-1) * 2, 0);
-            }
-            poseStack.translate(0, -0.2, 0);
-            poseStack.translate(0, ShakenStirClient.SHAKE_HANDLER.y()/10, ShakenStirClient.SHAKE_HANDLER.x()/10);
-            double mapping = (-ShakenStirClient.SHAKE_HANDLER.y() + 2)/4 * 1.5;
-            poseStack.mulPose(Axis.XP.rotationDegrees((float) ((ShakenStirClient.SHAKE_HANDLER.x() - 1)/2 * 20 * (mapping))));
-        } else {
+        poseStack.mulPose(ARM_TRANSFORM);
 
+        LocalPlayer player = Minecraft.getInstance().player;
+        assert player != null;
+        AvatarRenderer<AbstractClientPlayer> playerRenderer = Minecraft.getInstance().getEntityRenderDispatcher().getPlayerRenderer(player);
+        Identifier skinTexture = player.getSkin().body().texturePath();
+        playerRenderer.renderRightHand(poseStack, submitNodeCollector, lightCoords, skinTexture, player.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE), player);
+        poseStack.popPose();
+    }
+
+    private void submitWithCup(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, int overlayCoords, int outlineColor) {
+        BlockStateModel model = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(BlockRegistries.SHAKE_BLOCK.get().defaultBlockState().setValue(Shake.FACING, Direction.UP));
+        List<BlockStateModelPart> list = new ArrayList<>();
+        model.collectParts(RandomSource.create(), list);
+
+        if (isShaking()){
+            applyShakingTransform(poseStack);
         }
 
         poseStack.pushPose();
 
-        if (isShaking) {
+        if (isShaking()) {
             poseStack.mulPose(SHAKING_SHAKE_TRANSFORM);
         }
+        submitShake(poseStack, submitNodeCollector, lightCoords, overlayCoords, outlineColor, list);
+
+        poseStack.pushPose();
+
+        if (isShaking()) {
+            poseStack.mulPose(SHAKING_ARM_TRANSFORM);
+        }
+
+        poseStack.mulPose(ARM_TRANSFORM);
+
+        LocalPlayer player = Minecraft.getInstance().player;
+        assert player != null;
+        AvatarRenderer<AbstractClientPlayer> playerRenderer = Minecraft.getInstance().getEntityRenderDispatcher().getPlayerRenderer(player);
+        Identifier skinTexture = player.getSkin().body().texturePath();
+        playerRenderer.renderRightHand(poseStack, submitNodeCollector, lightCoords, skinTexture, player.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE), player);
+
+        poseStack.popPose();
+
+        if (isShaking()) {
+            poseStack.mulPose(LEFT_ARM_TRANSFORM);
+            playerRenderer.renderLeftHand(poseStack, submitNodeCollector, lightCoords, skinTexture, player.isModelPartShown(PlayerModelPart.LEFT_SLEEVE), player);
+        }
+    }
+
+    private void submitShake(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, int overlayCoords, int outlineColor, List<BlockStateModelPart> list) {
         poseStack.mulPose(new Transformation(
                 new Vector3f(0, 5.25F/16, -0.75F/16),
                 new Quaternionf(),
@@ -95,30 +138,21 @@ public record ShakeItemSpecialRenderer(Transformation transformation) implements
                 outlineColor
         );
         poseStack.popPose();
+    }
 
-        poseStack.pushPose();
-
-        if (isShaking) {
-            poseStack.mulPose(SHAKING_ARM_TRANSFORM);
+    private static void applyShakingTransform(PoseStack poseStack) {
+        float liftProcess = EaseHelper.easeOutPow(Mth.clamp((AnimationTickHolder.getRenderTime() - ShakenStirClient.SHAKE_HANDLER.firstTimeShake())/5, 0, 1), 2);
+        if (liftProcess < 1) {
+            poseStack.translate(0, (liftProcess-1) * 2, 0);
         }
+        poseStack.translate(0, -0.2, 0);
+        poseStack.translate(0, ShakenStirClient.SHAKE_HANDLER.y()/10, ShakenStirClient.SHAKE_HANDLER.x()/10);
+        double mapping = (-ShakenStirClient.SHAKE_HANDLER.y() + 2)/4 * 1.5;
+        poseStack.mulPose(Axis.XP.rotationDegrees((float) ((ShakenStirClient.SHAKE_HANDLER.x() - 1)/2 * 20 * (mapping))));
+    }
 
-        poseStack.mulPose(ARM_TRANSFORM);
-
-        LocalPlayer player = Minecraft.getInstance().player;
-        assert player != null;
-        AvatarRenderer<AbstractClientPlayer> playerRenderer = Minecraft.getInstance().getEntityRenderDispatcher().getPlayerRenderer(player);
-        Identifier skinTexture = player.getSkin().body().texturePath();
-        playerRenderer.renderRightHand(poseStack, submitNodeCollector, lightCoords, skinTexture, player.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE), player);
-
-        poseStack.popPose();
-
-        if (isShaking) {
-            poseStack.mulPose(LEFT_ARM_TRANSFORM);
-            playerRenderer.renderLeftHand(poseStack, submitNodeCollector, lightCoords, skinTexture, player.isModelPartShown(PlayerModelPart.LEFT_SLEEVE), player);
-        }
-
-//        warper.end();
-        poseStack.popPose();
+    private static boolean isShaking() {
+        return ShakenStirClient.SHAKE_HANDLER.isActive();
     }
 
     @Override

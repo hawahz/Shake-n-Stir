@@ -6,6 +6,7 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 
 @EventBusSubscriber
 public class ShakingEvents {
@@ -19,4 +20,8 @@ public class ShakingEvents {
             entity.stopUsingItem();
         }
     }
+
+//    @SubscribeEvent
+//    public static void onDataPacketRegistries(DataPackRegistryEvent event) {
+//    }
 }

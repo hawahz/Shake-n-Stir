@@ -3,6 +3,8 @@ package io.github.hawah.shakenstir.content.item;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.ShakeContentHolder;
+import io.github.hawah.shakenstir.foundation.item.PriorityBlockItem;
+import io.github.hawah.shakenstir.foundation.item.SpiritBottleItem;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -25,14 +27,18 @@ public class ItemRegistries {
     public static final DeferredItem<PriorityBlockItem> SHAKE = register("shake", (Function<Item.Properties, PriorityBlockItem>) ShakeItem::new);
     public static final DeferredItem<PriorityBlockItem> SHAKE_CUP = register("shake_cup", BlockRegistries.SHAKE_CUP_BLOCK);
 
+    // Spirit
+    public static final DeferredItem<SpiritBottleItem> GIN = registerSpirit("gin", BlockRegistries.GIN, new Item.Properties());
+
     public static <T extends Item> DeferredItem<T> register(String name, Function<Item.Properties, T> supply) {
         return ITEM.register(name, (registryName) -> supply.apply(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName))));
     }
     public static <T extends Block> DeferredItem<PriorityBlockItem> register(String name, DeferredBlock<T> block) {
         return ITEM.register(name, (registryName) -> new PriorityBlockItem(block.get(), new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName))));
     }
-    public static <T extends Block> DeferredItem<PriorityBlockItem> register(String name, T block) {
-        return ITEM.register(name, (registryName) -> new PriorityBlockItem(block, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName))));
+
+    public static <T extends Block> DeferredItem<SpiritBottleItem> registerSpirit(String name, DeferredBlock<T> block, Item.Properties properties) {
+        return ITEM.register(name, (registryName) -> new SpiritBottleItem(block.get(), properties.setId(ResourceKey.create(Registries.ITEM, registryName))));
     }
 
     public static void register(IEventBus eventBus) {

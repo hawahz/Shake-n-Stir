@@ -5,6 +5,7 @@ import com.mojang.serialization.MapCodec;
 import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import io.github.hawah.shakenstir.lib.VoxelShapeMaker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -39,14 +40,13 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jspecify.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Map;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class Shake extends FallingBlock implements EntityBlock {
+public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
 
 
     public static final Map<Direction, VoxelShape> SHAPES = Map.of(
@@ -81,7 +81,7 @@ public class Shake extends FallingBlock implements EntityBlock {
     }
 
     @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
+    public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
         return new ShakeBlockEntity(blockPos, blockState);
     }
 
@@ -104,7 +104,7 @@ public class Shake extends FallingBlock implements EntityBlock {
     @Override
     public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, ItemStack toolStack, boolean willHarvest, FluidState fluid) {
         if (!player.isCreative()) {
-            holdOrAddItem(player, getDrop(state, level, pos), level, pos);
+            ITakeUpBlock.holdOrAddItem(player, getDrop(state, level, pos), level, pos);
         }
         return super.onDestroyedByPlayer(state, level, pos, player, toolStack, willHarvest, fluid);
     }
@@ -187,9 +187,7 @@ public class Shake extends FallingBlock implements EntityBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (player.isShiftKeyDown() && player.getMainHandItem().isEmpty()) {
-            holdOrAddItem(player, getDrop(state, level, pos), level, pos);
-            level.removeBlock(pos, false);
+        if (onUseWithoutItem(state, level, pos, player, hitResult)) {
             return InteractionResult.SUCCESS;
         }
         if (state.getValue(FACING).equals(Direction.UP)) {
@@ -202,7 +200,7 @@ public class Shake extends FallingBlock implements EntityBlock {
                     1,
                     1
             );
-            holdOrAddItem(player, ItemRegistries.SHAKE_CUP.toStack(), level, pos);
+            ITakeUpBlock.holdOrAddItem(player, ItemRegistries.SHAKE_CUP.toStack(), level, pos);
             return InteractionResult.SUCCESS;
         }
 
@@ -222,20 +220,6 @@ public class Shake extends FallingBlock implements EntityBlock {
         return super.useWithoutItem(state, level, pos, player, hitResult);
     }
 
-    public static void holdOrAddItem(Player player, ItemStack itemStack, Level level, BlockPos orSpawn) {
-        holdOrAddItem(player, itemStack, level, orSpawn, InteractionHand.MAIN_HAND);
-    }
-
-    public static void holdOrAddItem(Player player, ItemStack itemStack, Level level, BlockPos orSpawn, InteractionHand hand) {
-        if (player.getItemInHand(hand).isEmpty()) {
-            player.setItemInHand(hand, itemStack);
-        } else if (!player.addItem(itemStack)) {
-            ItemEntity drop = new ItemEntity(level, orSpawn.getX(), orSpawn.getY(), orSpawn.getZ(), itemStack);
-            drop.setPickUpDelay(20);
-            level.addFreshEntity(drop);
-        }
-    }
-
     @Override
     protected InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (itemStack.is(ItemRegistries.SHAKE_CUP)) {
@@ -243,7 +227,7 @@ public class Shake extends FallingBlock implements EntityBlock {
         }
         if (state.getValue(FACING).equals(Direction.DOWN) && !itemStack.isEmpty()) {
             if (level.getBlockEntity(pos) instanceof ShakeBlockEntity blockEntity) {
-                blockEntity.putItem(itemStack);
+                blockEntity.putItem(itemStack, player.isCreative());
                 return InteractionResult.SUCCESS;
             }
         }
@@ -285,7 +269,8 @@ public class Shake extends FallingBlock implements EntityBlock {
         return blockState.isFaceSturdy(level, pos, Direction.UP) || blockState.isEmpty();
     }
 
-    protected ItemStack getDrop(BlockState state, Level level, BlockPos pos) {
+    @Override
+    public ItemStack getDrop(BlockState state, Level level, BlockPos pos) {
         ItemStack stack = ItemRegistries.SHAKE.toStack();
         stack.set(DataComponentTypeRegistries.HAS_CUP, state.getValue(FACING).equals(Direction.UP));
         if (level.getBlockEntity(pos) instanceof ShakeBlockEntity blockEntity) {

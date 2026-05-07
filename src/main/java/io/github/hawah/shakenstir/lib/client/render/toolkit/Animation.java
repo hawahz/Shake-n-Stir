@@ -11,10 +11,10 @@ public class Animation<T> {
     private final Function<T, T> modifier;
     private final LerpFunction<T> lerp;
     private final List<Value<T>> values = new ArrayList<>();
+
     private T value = null;
     private double timelineLength = 0;
     private double offset = 0;
-    private int animePtrBuffer = 0;
     private boolean cycle = false;
     private boolean rewind = false;
     private final AnimationPlayer player;
@@ -27,12 +27,12 @@ public class Animation<T> {
     }
 
     public Animation<T> cycle(boolean flag) {
-        cycle = flag;
+        this.cycle = flag;
         return this;
     }
 
     public Animation<T> rewind(boolean flag) {
-        rewind = flag;
+        this.rewind = flag;
         return this;
     }
 
@@ -56,12 +56,16 @@ public class Animation<T> {
 
     public Value<T> addKeyFrame(double tickTime, T value) {
         Value<T> element = Value.of(tickTime, value);
+
         for (int i = 0; i < values.size(); i++) {
             if (values.get(i).time() > tickTime) {
                 values.add(i, element);
+                timelineLength = Math.max(timelineLength, tickTime);
+                player.expand(timelineLength + offset);
                 return element;
             }
         }
+
         values.add(element);
         timelineLength = Math.max(timelineLength, tickTime);
         player.expand(timelineLength + offset);
@@ -73,39 +77,99 @@ public class Animation<T> {
             return value;
         }
 
-        if (tickTime <= offset) {
-            return values.getFirst().value();
-        }
-
-        tickTime -= offset;
-
-        if (tickTime > timelineLength && !cycle) {
+        // 只有一个关键帧时，直接返回它
+        if (values.size() == 1) {
+            setValue(values.getFirst().value());
             return value;
         }
+
+        // 没有有效时间长度时，避免取模/除零
+        if (timelineLength <= 0) {
+            setValue(values.getFirst().value());
+            return value;
+        }
+
+        double time = tickTime - offset;
+
+        // 偏移前：保持第一帧
+        if (time <= 0) {
+            setValue(values.getFirst().value());
+            return value;
+        }
+
+        // 处理循环/往返
         if (rewind) {
-            tickTime %= timelineLength * 2;
-            tickTime = tickTime > timelineLength? timelineLength * 2 - tickTime : tickTime;
+            double period = timelineLength * 2.0;
+            time %= period;
+            if (time < 0) time += period;
+            if (time > timelineLength) {
+                time = period - time;
+            }
+        } else if (cycle) {
+            time %= timelineLength;
+            if (time < 0) time += timelineLength;
+        } else {
+            // 非循环：超过末尾时保持最后一帧
+            if (time >= timelineLength) {
+                setValue(values.getLast().value());
+                return value;
+            }
         }
-        tickTime %= timelineLength;
 
-        for (int i = animePtrBuffer; i < values.size(); i++) {
-            if (outOfPhase(tickTime, i)) {
-                continue;
-            }
+        // 早于第一关键帧：固定第一帧
+        if (time <= values.getFirst().time()) {
+            setValue(values.getFirst().value());
             return value;
         }
-        for (int i = 0; i < animePtrBuffer; i++) {
-            if (outOfPhase(tickTime, i)) {
-                continue;
-            }
+
+        // 晚于最后关键帧：固定最后帧
+        if (time >= values.getLast().time()) {
+            setValue(values.getLast().value());
             return value;
         }
+
+        // 二分查找所在区间 [i, i+1]
+        int left = 0;
+        int right = values.size() - 2;
+        int idx = 0;
+
+        while (left <= right) {
+            int mid = (left + right) >>> 1;
+            double start = values.get(mid).time();
+            double end = values.get(mid + 1).time();
+
+            if (time < start) {
+                right = mid - 1;
+            } else if (time >= end) {
+                left = mid + 1;
+            } else {
+                idx = mid;
+                break;
+            }
+        }
+
+        Value<T> a = values.get(idx);
+        Value<T> b = values.get(idx + 1);
+
+        double span = b.time() - a.time();
+        if (span <= 0) {
+            setValue(b.value());
+            return value;
+        }
+
+        double phasePast = time - a.time();
+        double delta = Mth.clamp(phasePast / span, 0.0, 1.0);
+        delta = a.mapping().apply(delta);
+
+        setValue(lerp.apply(a.value(), b.value(), delta));
         return value;
     }
 
-
     @SuppressWarnings("unchecked")
     public Class<T> getType() {
+        if (value == null) {
+            throw new IllegalStateException("Animation value is null.");
+        }
         return (Class<T>) value.getClass();
     }
 
@@ -121,7 +185,7 @@ public class Animation<T> {
         }
 
         private Value(double time, T value) {
-            this(time, value, Double::doubleValue);
+            this(time, value, d -> d);
         }
 
         static <T> Value<T> of(double time, T value) {
@@ -170,25 +234,6 @@ public class Animation<T> {
     }
 
     public interface LerpFunction<T> {
-
         T apply(T from, T to, double delta);
-    }
-    private boolean outOfPhase(double time, int i) {
-        if (time < values.get(i).time() || (i + 1 < values.size() && time >= values.get(i + 1).time())) {
-            return true;
-        }
-        if (i < values.size() - 1) {
-            double phaseLength = values.get(i + 1).time() - values.get(i).time();
-            double phasePast = time - values.get(i).time();
-            setValue(lerp.apply(
-                    values.get(i).value(),
-                    values.get(i + 1).value(),
-                    values.get(i).mapping().apply(Mth.clamp(phasePast / phaseLength, 0, 1))
-            ));
-        } else {
-            setValue(values.getLast().value());
-        }
-        animePtrBuffer = i;
-        return false;
     }
 }

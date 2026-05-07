@@ -1,4 +1,4 @@
-package io.github.hawah.shakenstir.content.block;
+package io.github.hawah.shakenstir.foundation.block;
 
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 

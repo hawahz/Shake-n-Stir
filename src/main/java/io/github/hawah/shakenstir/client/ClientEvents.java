@@ -4,8 +4,10 @@ import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.render.block.ShakeBlockEntityRenderer;
 import io.github.hawah.shakenstir.client.render.item.ShakeItemSpecialRenderer;
+import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer;
 import io.github.hawah.shakenstir.content.HasCup;
 import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
+import io.github.hawah.shakenstir.lib.client.render.toolkit.TransformWarper;
 import io.github.hawah.shakenstir.util.Models;
 import io.github.hawah.shakenstir.util.Result;
 import net.minecraft.client.Minecraft;
@@ -45,6 +47,11 @@ public class ClientEvents {
     }
 
     @SubscribeEvent
+    public static void onTick(ClientTickEvent.Pre event) {
+        ShakenStirClient.SHAKE_CONTENT_HUD.tick();
+    }
+
+    @SubscribeEvent
     public static void modifyTurnSensitivity(CalculatePlayerTurnEvent event) {
     }
 
@@ -56,6 +63,10 @@ public class ClientEvents {
             event.register(
                     Identifier.fromNamespaceAndPath(ShakenStir.MODID, "shake_special"),
                     ShakeItemSpecialRenderer.Unbaked.MAP_CODEC
+            );
+            event.register(
+                    Identifier.fromNamespaceAndPath(ShakenStir.MODID, "spirit_special"),
+                    SpiritBottleSpecialRenderer.Unbaked.MAP_CODEC
             );
         }
 
@@ -99,7 +110,11 @@ public class ClientEvents {
                         )
                 );
             }
+        }
 
+        @SubscribeEvent
+        public static void registerHUD(RegisterGuiLayersEvent event) {
+            event.registerAboveAll(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "shake_content_hud"), ShakenStirClient.SHAKE_CONTENT_HUD);
         }
 
     }
