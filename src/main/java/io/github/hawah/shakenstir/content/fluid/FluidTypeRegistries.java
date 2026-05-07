@@ -7,6 +7,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.SoundAction;
 import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.joml.Vector3f;
@@ -30,13 +31,17 @@ public class FluidTypeRegistries {
     // 第一参数name，没什么好说的，第二个参数是对流体的类型的属性进行一些设置  FluidType.Properties这个类就是对属性的一些设置。
     // create返回一个properties实例，lightlevel设置亮度等级2，density设置密度，viscosity设置粘度，sound设置流体声音。
     // 这些数值是直接复制的水的，对于其中的一些具体的效果，就自己调试看看效果把。也可以大家弹幕评论补充
-    public static final Supplier<FluidType> GIN_FLUID_TYPE = register("gin_fluid_type",
-            FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"),
-                    SoundEvents.HONEY_DRINK.value()));
+    public static final DeferredHolder<FluidType, FluidType> GIN_FLUID_TYPE = register("gin_fluid_type", FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
+    public static final DeferredHolder<FluidType, FluidType> VODKA_FLUID_TYPE = register("vodka_fluid_type", FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
+    public static final DeferredHolder<FluidType, FluidType> WHISKY_FLUID_TYPE = register("whisky_fluid_type", FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
+    public static final DeferredHolder<FluidType, FluidType> BRANDY_FLUID_TYPE = register("brandy_fluid_type", FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
+    public static final DeferredHolder<FluidType, FluidType> RUM_FLUID_TYPE = register("rum_fluid_type", FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
+    public static final DeferredHolder<FluidType, FluidType> TEQUILA_FLUID_TYPE = register("tequila_fluid_type", FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
+
 
     // 这个是我们自己写的注册的方法
     // 并没有什么特殊的，直接返回了new baseFludType的supplier方法。
-    private static Supplier<FluidType> register(String name, FluidType.Properties properties) {
+    private static DeferredHolder<FluidType, FluidType> register(String name, FluidType.Properties properties) {
         return FLUID_TYPES.register(name, () -> new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, MY_FLUID_RL,
                 0xA1E038D0, new Vector3f(224f / 255f, 56f / 255f, 208f / 255f), properties));
     }
