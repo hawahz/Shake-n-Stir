@@ -7,7 +7,6 @@ public enum ShakeIngredient {
     SPIRIT,
     BUBBLES,
     JUICE,
-    GINGER,
     WATER,
     ;
     ShakeIngredient() {
