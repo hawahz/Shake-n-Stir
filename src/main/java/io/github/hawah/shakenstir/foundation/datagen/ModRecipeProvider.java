@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.foundation.datagen;
 
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.content.recipe.ingredient.FluidIngredient;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -25,7 +26,7 @@ public class ModRecipeProvider extends RecipeProvider {
         new ShakeRecipeBuilder(
                 new ItemStackTemplate(ItemRegistries.GIN),
                 List.of(
-                        new FluidStack(FluidRegistries.GIN_SOURCE_FLUID_BLOCK.get(), 1000)
+                        new FluidIngredient(FluidRegistries.GIN_SOURCE_FLUID_BLOCK.getId(), 1000)
                 ),
                 List.of(
                         Ingredient.of(ItemRegistries.SHAKE)

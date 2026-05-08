@@ -1,0 +1,15 @@
+{
+  "type": "shakenstir:shake_recipe",
+  "inputFluids": [
+    {
+      "amount": 1000,
+      "fluidId": "shakenstir:gin_fluid"
+    }
+  ],
+  "inputItems": [
+    "shakenstir:shake"
+  ],
+  "result": {
+    "id": "shakenstir:gin"
+  }
+}

@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.foundation.datagen;
 
 import io.github.hawah.shakenstir.content.recipe.ShakeRecipe;
 import io.github.hawah.shakenstir.content.recipe.ShakeRecipeInput;
+import io.github.hawah.shakenstir.content.recipe.ingredient.FluidIngredient;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -16,10 +17,11 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 public class ShakeRecipeBuilder implements RecipeBuilder {
     protected final ItemStackTemplate result;
-    private final List<FluidStack> inputFluid;
+    private final List<FluidIngredient> inputFluid;
     private final List<Ingredient> inputItem;
     protected String group = "";
     protected boolean showNotification = true;
@@ -28,7 +30,7 @@ public class ShakeRecipeBuilder implements RecipeBuilder {
     // 如果使用此方法，构建器还必须指定一个 `RecipeCategory` 来确定输出文件夹。
     protected final RecipeUnlockAdvancementBuilder advancementBuilder;
 
-    public ShakeRecipeBuilder(ItemStackTemplate result, List<FluidStack> inputFluid, List<Ingredient> inputItem, RecipeCategory category) {
+    public ShakeRecipeBuilder(ItemStackTemplate result, List<FluidIngredient> inputFluid, List<Ingredient> inputItem, RecipeCategory category) {
         this.result = result;
         this.inputFluid = inputFluid;
         this.inputItem = inputItem;

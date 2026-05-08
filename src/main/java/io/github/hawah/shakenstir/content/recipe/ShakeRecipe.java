@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.content.recipe;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.hawah.shakenstir.content.recipe.ingredient.FluidIngredient;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -19,12 +20,12 @@ import java.util.stream.Collectors;
 /**
  * @param inputFluids private final ShakeRecipeInput.BlockBookInfo bookInfo;
  */
-public record ShakeRecipe(CommonInfo commonInfo, List<FluidStack> inputFluids, List<Ingredient> inputItems,
+public record ShakeRecipe(CommonInfo commonInfo, List<FluidIngredient> inputFluids, List<Ingredient> inputItems,
                           ItemStackTemplate result) implements Recipe<ShakeRecipeInput> {
 
     public static final MapCodec<ShakeRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             CommonInfo.MAP_CODEC.forGetter(ShakeRecipe::commonInfo),
-            FluidStack.CODEC.listOf(1, 6).fieldOf("inputFluids").forGetter(ShakeRecipe::inputFluids),
+            FluidIngredient.CODEC.listOf(1, 6).fieldOf("inputFluids").forGetter(ShakeRecipe::inputFluids),
             Ingredient.CODEC.listOf(1, 6).fieldOf("inputItems").forGetter(ShakeRecipe::inputItems),
             ItemStackTemplate.MAP_CODEC.fieldOf("result").forGetter(ShakeRecipe::result)
     ).apply(inst, ShakeRecipe::new));
@@ -32,7 +33,7 @@ public record ShakeRecipe(CommonInfo commonInfo, List<FluidStack> inputFluids, L
     public static final StreamCodec<RegistryFriendlyByteBuf, ShakeRecipe> STREAM_CODEC = StreamCodec.composite(
             CommonInfo.STREAM_CODEC,
             ShakeRecipe::commonInfo,
-            FluidStack.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            FluidIngredient.STREAM_CODEC.apply(ByteBufCodecs.list()),
             ShakeRecipe::inputFluids,
             Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs.list()),
             ShakeRecipe::inputItems,
@@ -46,6 +47,12 @@ public record ShakeRecipe(CommonInfo commonInfo, List<FluidStack> inputFluids, L
             ShakeRecipe::result,
             ShakeRecipe::new
     );
+
+    public List<FluidStack> getFluidStacks() {
+        return this.inputFluids.stream()
+                .map(FluidIngredient::toFluidStack)
+                .collect(Collectors.toList());
+    }
 
     @Override
     public boolean matches(ShakeRecipeInput input, Level level) {
@@ -65,7 +72,7 @@ public record ShakeRecipe(CommonInfo commonInfo, List<FluidStack> inputFluids, L
 
         // 2. 流体无序匹配：同样逻辑，只看流体类型和组件，忽略数量
         List<FluidStack> remainingFluids = new ArrayList<>(input.fluidStacks());
-        for (FluidStack required : this.inputFluids) {
+        for (FluidStack required : this.getFluidStacks()) {
             Optional<FluidStack> matched = remainingFluids.stream()
                     .filter(fs -> FluidStack.isSameFluidSameComponents(fs, required))
                     .findFirst();
