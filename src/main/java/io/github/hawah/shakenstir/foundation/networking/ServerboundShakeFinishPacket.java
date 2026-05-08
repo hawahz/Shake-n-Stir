@@ -53,8 +53,9 @@ public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem,
         List<ItemStack> itemData = new ArrayList<>(shakeItem.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY).allItemsCopyStream().toList());
         List<FluidStack> fluidData = new ArrayList<>(shakeItem.getOrDefault(DataComponentTypeRegistries.SHAKE_CONTENT, ShakeFluidDataComponent.EMPTY).fluidStacks());
         ItemStack predicatedImmProduct;
-        if ((predicatedImmProduct = itemData.getFirst())!=null && predicatedImmProduct.is(ItemRegistries.CONTENT_HOLDER) && predicatedImmProduct.has(DataComponentTypeRegistries.SHAKE_SUCCESS_TIMES)) {
+        if (!itemData.isEmpty() && (predicatedImmProduct = itemData.getFirst())!=null && predicatedImmProduct.is(ItemRegistries.CONTENT_HOLDER) && predicatedImmProduct.has(DataComponentTypeRegistries.SHAKE_SUCCESS_TIMES)) {
             ItemContainerContents item = predicatedImmProduct.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
+            itemData.removeFirst();
             item.allItemsCopyStream().forEach(itemData::add);
             ShakeFluidDataComponent fluid = predicatedImmProduct.getOrDefault(DataComponentTypeRegistries.SHAKE_CONTENT, ShakeFluidDataComponent.EMPTY);
             fluidData.addAll(fluid.fluidStacks());
@@ -73,7 +74,7 @@ public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem,
             mainHandItem.remove(DataComponents.CONTAINER);
             ItemStack holder = ItemRegistries.CONTENT_HOLDER.get().getDefaultInstance();
             holder.set(DataComponentTypeRegistries.SHAKE_CONTENT, new ShakeFluidDataComponent(fluidData));
-            holder.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(List.of(holder)));
+            holder.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(itemData));
             holder.set(DataComponentTypeRegistries.SHAKE_SUCCESS_TIMES, shakeSuccessTimes);
             mainHandItem.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(List.of(holder)));
             return;

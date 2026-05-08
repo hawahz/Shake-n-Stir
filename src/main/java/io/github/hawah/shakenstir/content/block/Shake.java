@@ -207,6 +207,14 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
         );
         level.setBlockAndUpdate(pos, state.setValue(FACING, direction));
         if (level.getBlockEntity(pos) instanceof ShakeBlockEntity blockEntity) {
+            if (blockEntity.holdingProduct()) {
+                ItemStack product = blockEntity.getProduct();
+                if (product.getOrDefault(DataComponentTypeRegistries.SHAKE_BUBBLES, false)) {
+                    level.explode(null, null, null, pos.getCenter(), 1, false, Level.ExplosionInteraction.BLOCK);
+                    Player player = level.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 2, false);
+                    AdvancementHooks.onShakeBubbleExplode(player);
+                }
+            }
             blockEntity.reset();
         }
     }
