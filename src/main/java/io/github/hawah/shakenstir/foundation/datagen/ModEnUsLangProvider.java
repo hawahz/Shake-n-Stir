@@ -7,10 +7,12 @@ import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 
+import static io.github.hawah.shakenstir.ShakenStir.MODID;
+
 public class ModEnUsLangProvider extends LanguageProvider {
 
     public ModEnUsLangProvider(PackOutput output) {
-        super(output, ShakenStir.MODID, "en_us");
+        super(output, MODID, "en_us");
     }
 
     @Override
@@ -19,6 +21,7 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add(ItemRegistries.SHAKE.get(), "Shake");
         add(ItemRegistries.SHAKE_CUP.get(), "Shake Cup");
         add("itemGroup.shakenstir", "Shake n Stir");
+        add("itemGroup." + MODID + ".tab", "Shake n Stir");
 
         genLang(this);
     }

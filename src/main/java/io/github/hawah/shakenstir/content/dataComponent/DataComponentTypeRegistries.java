@@ -32,6 +32,11 @@ public class DataComponentTypeRegistries {
             builder -> builder.persistent(FluidStackDataComponent.CODEC).networkSynchronized(FluidStackDataComponent.STREAM_CODEC)
     );
 
+    public static final DataComponentType<ShakeFluidDataComponent> SHAKE_CONTENT = register(
+            "shake_content",
+            builder -> builder.persistent(ShakeFluidDataComponent.CODEC).networkSynchronized(ShakeFluidDataComponent.STREAM_CODEC)
+    );
+
     public static void register(IEventBus eventBus) {
         DATA_COMPONENT.register(eventBus);
     }

@@ -82,62 +82,64 @@ public class ShakeContentHud implements GuiLayer {
             double fadeProcess = (renderTime - lastVisibleTime) / FADE_TIME;
             float fadeIn = EaseHelper.easeOutPow((float) Mth.clamp(fadeProcess, 0, 1), 2);
 
-            Textures.SHAKE_HUD_INSIDE.blit(
-                    guiGraphics,
-                    x,
-                    y,
-                    255,
-                    255,
-                    255,
-                    (int) (255 * fadeIn)
-            );
-            if (wasVisible){
-                height = Mth.lerp(
-                        ShakenStirClient.ANI_DELTAF * deltaTracker.getGameTimeDeltaPartialTick(false) * 0.1,
-                        height,
-                        getLiquidHeight()
+            if (canLookThrough) {
+                Textures.SHAKE_HUD_INSIDE.blit(
+                        guiGraphics,
+                        x,
+                        y,
+                        255,
+                        255,
+                        255,
+                        (int) (255 * fadeIn)
                 );
-            } else {
-                height = getLiquidHeight();
-            }
-
-            if (cachedBE != null) {
-                for (int i = 0; i < cachedBE.getItemToRender().size(); i++) {
-                    ItemStack itemStack = cachedBE.getItemToRender().get(i);
-                    if (itemStack.isEmpty()) {
-                        break;
-                    }
-                    guiGraphics.item(
-                            itemStack,
-                            x + 21 ,
-                            y + 53 - i * 16
+                if (wasVisible) {
+                    height = Mth.lerp(
+                            ShakenStirClient.ANI_DELTAF * deltaTracker.getGameTimeDeltaPartialTick(false) * 0.1,
+                            height,
+                            getLiquidHeight()
                     );
+                } else {
+                    height = getLiquidHeight();
                 }
+
+                if (cachedBE != null) {
+                    for (int i = 0; i < cachedBE.getItemToRender().size(); i++) {
+                        ItemStack itemStack = cachedBE.getItemToRender().get(i);
+                        if (itemStack.isEmpty()) {
+                            break;
+                        }
+                        guiGraphics.item(
+                                itemStack,
+                                x + 21,
+                                y + 53 - i * 16
+                        );
+                    }
+                }
+
+                guiGraphics.fill(
+                        x + 8,
+                        y + 77 - 2 - (int) height,
+                        x + Textures.SHAKE_HUD_INSIDE.getWidth() - 8,
+                        y + 77,
+                        ARGB.color((int) Mth.clamp(100 * fadeIn, 0, 255), 160, 216, 239)
+                );
+                guiGraphics.horizontalLine(
+                        x + 8,
+                        x + Textures.SHAKE_HUD_INSIDE.getWidth() - 8,
+                        y + 77 - 2 - (int) height,
+                        ARGB.color(160, 216, 239, (int) Mth.clamp(255 * fadeIn, 0, 255))
+                );
+
+                Textures.SHAKE_HUD_OUTSIDE.blit(
+                        guiGraphics,
+                        x,
+                        y,
+                        255,
+                        255,
+                        255,
+                        (int) (255 * fadeIn)
+                );
             }
-
-            guiGraphics.fill(
-                    x + 8,
-                    y + 77 - 2 - (int) height,
-                    x + Textures.SHAKE_HUD_INSIDE.getWidth() - 8,
-                    y + 77,
-                    ARGB.color((int)Mth.clamp(100 * fadeIn, 0, 255), 160, 216, 239)
-            );
-            guiGraphics.horizontalLine(
-                    x + 8,
-                    x + Textures.SHAKE_HUD_INSIDE.getWidth() - 8,
-                    y + 77 - 2 - (int) height,
-                    ARGB.color(160, 216, 239, (int)Mth.clamp(255 * fadeIn, 0, 255))
-            );
-
-            Textures.SHAKE_HUD_OUTSIDE.blit(
-                    guiGraphics,
-                    x,
-                    y,
-                    255,
-                    255,
-                    255,
-                    (int) (255 * fadeIn)
-            );
 
             if (!canLookThrough) {
                 Textures.SHAKE_HUD_FRONT.blit(

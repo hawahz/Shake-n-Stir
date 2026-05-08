@@ -6,6 +6,7 @@ import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.FluidStackDataComponent;
+import io.github.hawah.shakenstir.content.dataComponent.ShakeFluidDataComponent;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import io.github.hawah.shakenstir.lib.VoxelShapeMaker;
@@ -34,6 +35,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
@@ -46,6 +49,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Map;
 
@@ -68,6 +72,20 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
     public Shake(Properties properties) {
         super(properties.sound(SoundType.METAL).pushReaction(PushReaction.PUSH_ONLY));
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.UP));
+    }
+
+    private static <E extends BlockEntity, A extends BlockEntity> @Nullable BlockEntityTicker<A> createTickerHelper(
+            BlockEntityType<A> type, BlockEntityType<E> checkedType, BlockEntityTicker<? super E> ticker
+    ) {
+        return checkedType == type ? (BlockEntityTicker<A>) ticker : null;
+    }
+
+    @Override
+    public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        // You can return different tickers here, depending on whatever factors you want. A common use case would be
+        // to return different tickers on the client or server, only tick one side to begin with,
+        // or only return a ticker for some blockstates (e.g. when using a "my machine is working" blockstate property).
+        return createTickerHelper(type, BlockEntityRegistries.SHAKE_BLOCK_ENTITY.get(), ShakeBlockEntity::tick);
     }
 
     @Override
@@ -205,7 +223,9 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
                     1,
                     1
             );
-            ITakeUpBlock.holdOrAddItem(player, ItemRegistries.SHAKE_CUP.toStack(), level, pos);
+            if (!player.getMainHandItem().is(ItemRegistries.SHAKE_CUP) && player.isCreative()) {
+                ITakeUpBlock.holdOrAddItem(player, ItemRegistries.SHAKE_CUP.toStack(), level, pos);
+            }
             return InteractionResult.SUCCESS;
         }
 
@@ -344,6 +364,7 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
         stack.set(DataComponentTypeRegistries.HAS_CUP, state.getValue(FACING).equals(Direction.UP));
         if (level.getBlockEntity(pos) instanceof ShakeBlockEntity blockEntity) {
             stack.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(blockEntity.getItemToRender()));
+            stack.set(DataComponentTypeRegistries.SHAKE_CONTENT, new ShakeFluidDataComponent(blockEntity.getFluidStack()));
         }
         return stack;
     }

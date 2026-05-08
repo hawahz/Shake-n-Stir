@@ -7,6 +7,7 @@ import io.github.hawah.shakenstir.client.render.block.ShakeBlockEntityRenderer;
 import io.github.hawah.shakenstir.client.render.item.ShakeItemSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer;
 import io.github.hawah.shakenstir.content.HasCup;
+import io.github.hawah.shakenstir.content.block.Shake;
 import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
@@ -48,7 +49,7 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void modifyFov(ComputeFovModifierEvent event) {
-        if (Minecraft.getInstance().level == null) {
+        if (Minecraft.getInstance().level == null || Minecraft.getInstance().screen != null) {
             return;
         }
         BlockPos pos = ClientDataHolder.Picker.pos();
@@ -56,7 +57,7 @@ public class ClientEvents {
             return;
         }
         BlockState state = Minecraft.getInstance().level.getBlockState(pos);
-        if (state.is(Blocks.GLASS) && Minecraft.getInstance().hasAltDown()) {
+        if (state.getBlock() instanceof Shake && Minecraft.getInstance().hasAltDown()) {
             event.setNewFovModifier(event.getFovModifier() / 2);
 
         }

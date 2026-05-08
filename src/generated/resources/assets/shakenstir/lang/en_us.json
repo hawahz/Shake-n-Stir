@@ -3,6 +3,7 @@
   "item.shakenstir.shake": "Shake",
   "item.shakenstir.shake_cup": "Shake Cup",
   "itemGroup.shakenstir": "Shake n Stir",
+  "itemGroup.shakenstir.tab": "Shake n Stir",
   "shakenstir.hud.blackboard_change_distance": "Change Reach Distance",
   "shakenstir.hud.blackboard_clear_and_select_first": "Clear and Select First Point",
   "shakenstir.hud.blackboard_delete_all": "Delete All",

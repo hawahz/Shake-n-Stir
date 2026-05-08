@@ -1,20 +1,26 @@
 package io.github.hawah.shakenstir.client.render.block;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.math.Axis;
 import io.github.hawah.shakenstir.client.render.block.renderstate.ShakeBlockEntityRenderState;
 import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
 import it.unimi.dsi.fastutil.HashCommon;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.NonNullList;
+import net.minecraft.util.ARGB;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -51,11 +57,31 @@ public class ShakeBlockEntityRenderer implements BlockEntityRenderer<ShakeBlockE
                 state.items[slot] = itemStackRenderState;
             }
         }
+        state.liquidHeight = Mth.lerp(partialTicks, blockEntity.oAnimationHeight, blockEntity.animationHeight);
     }
 
     @Override
     public void submit(ShakeBlockEntityRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
         submitContents(state, poseStack, submitNodeCollector);
+        if (state.liquidHeight <= 0.01) {
+            return;
+        }
+        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+        VertexConsumer consumer = bufferSource.getBuffer(RenderTypes.debugQuads());
+        final float HEIGHT = 7/16f;
+        final float BOTTOM = 1/16f;
+        final int COLOR = ARGB.color(Mth.clamp(100, 0, 255), 160, 216, 239);
+
+        float height = Mth.lerp(state.liquidHeight, BOTTOM, HEIGHT);
+        consumer.addVertex(poseStack.last(), 3/8f, height, 3/8f)
+                .setColor(COLOR);
+        consumer.addVertex(poseStack.last(), 3/8f, height, 5/8f)
+                .setColor(COLOR);
+        consumer.addVertex(poseStack.last(), 5/8f, height, 5/8f)
+                .setColor(COLOR);
+        consumer.addVertex(poseStack.last(), 5/8f, height, 3/8f)
+                .setColor(COLOR);
+        bufferSource.endBatch();
     }
 
     private void submitContents(ShakeBlockEntityRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector) {

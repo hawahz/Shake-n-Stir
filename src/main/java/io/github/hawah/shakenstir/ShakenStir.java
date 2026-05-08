@@ -10,6 +10,7 @@ import io.github.hawah.shakenstir.content.recipe.RecipeTypeRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
 
@@ -38,9 +39,9 @@ public class ShakenStir {
     public static final Logger LOGGER = LogUtils.getLogger();
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(BuiltInRegistries.CREATIVE_MODE_TAB, MODID);
     //CREATIVE_MODE_TABS is a DeferredRegister<CreativeModeTab>
-    public static final Supplier<CreativeModeTab> SHAKENSTIR_TAB = CREATIVE_MODE_TABS.register("example", () -> CreativeModeTab.builder()
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> SHAKENSTIR_TAB = CREATIVE_MODE_TABS.register("shakenstir_tab", () -> CreativeModeTab.builder()
             //Set the title of the tab. Don't forget to add a translation!
-            .title(Component.translatable("itemGroup." + MODID + ".example"))
+            .title(Component.translatable("itemGroup." + MODID + ".tab"))
             //Set the icon of the tab.
             .icon(() -> new ItemStack(ItemRegistries.SHAKE.get()))
             //Add your items to the tab.
