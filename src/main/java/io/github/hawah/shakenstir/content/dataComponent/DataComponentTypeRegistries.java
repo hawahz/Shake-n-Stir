@@ -37,6 +37,18 @@ public class DataComponentTypeRegistries {
             builder -> builder.persistent(ShakeFluidDataComponent.CODEC).networkSynchronized(ShakeFluidDataComponent.STREAM_CODEC)
     );
 
+    // Product Above
+
+    public static final DataComponentType<Boolean> SHAKE_BUBBLES = register(
+            "shake_bubbles",
+            builder -> builder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
+    );
+
+    public static final DataComponentType<Integer> SHAKE_SUCCESS_TIMES = register(
+            "shake_success_times",
+            builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
+    );
+
     public static void register(IEventBus eventBus) {
         DATA_COMPONENT.register(eventBus);
     }

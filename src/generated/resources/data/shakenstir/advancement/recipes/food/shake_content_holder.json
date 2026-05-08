@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "shakenstir:gin"
+        "recipe": "shakenstir:shake_content_holder"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "shakenstir:gin"
+      "shakenstir:shake_content_holder"
     ]
   }
 }

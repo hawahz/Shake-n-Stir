@@ -10,6 +10,7 @@ import io.github.hawah.shakenstir.content.dataComponent.ShakeFluidDataComponent;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import io.github.hawah.shakenstir.lib.VoxelShapeMaker;
+import io.github.hawah.shakenstir.util.AdvancementHooks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -31,6 +32,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
@@ -48,6 +50,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.fluids.FluidStack;
+import org.jspecify.annotations.NonNull;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -214,19 +217,7 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
             return InteractionResult.SUCCESS;
         }
         if (state.getValue(FACING).equals(Direction.UP)) {
-            level.setBlockAndUpdate(pos, state.setValue(FACING, Direction.DOWN));
-            level.playSound(
-                    null,
-                    pos,
-                    SoundEvents.METAL_STEP,
-                    SoundSource.BLOCKS,
-                    1,
-                    1
-            );
-            if (!player.getMainHandItem().is(ItemRegistries.SHAKE_CUP) && player.isCreative()) {
-                ITakeUpBlock.holdOrAddItem(player, ItemRegistries.SHAKE_CUP.toStack(), level, pos);
-            }
-            return InteractionResult.SUCCESS;
+            return openShake(state, level, pos, player);
         }
 
         if (state.getValue(FACING).equals(Direction.DOWN) && level.getBlockEntity(pos) instanceof ShakeBlockEntity blockEntity) {
@@ -251,6 +242,29 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
         }
 
         return super.useWithoutItem(state, level, pos, player, hitResult);
+    }
+
+    private static InteractionResult openShake(BlockState state, Level level, BlockPos pos, Player player) {
+        level.setBlockAndUpdate(pos, state.setValue(FACING, Direction.DOWN));
+        level.playSound(
+                null,
+                pos,
+                SoundEvents.METAL_STEP,
+                SoundSource.BLOCKS,
+                1,
+                1
+        );
+        if (!player.getMainHandItem().is(ItemRegistries.SHAKE_CUP) && player.isCreative()) {
+            ITakeUpBlock.holdOrAddItem(player, ItemRegistries.SHAKE_CUP.toStack(), level, pos);
+        }
+        if (level.getBlockEntity(pos) instanceof ShakeBlockEntity blockEntity && blockEntity.holdingProduct()) {
+            ItemStack product = blockEntity.getProduct();
+            if (product.getOrDefault(DataComponentTypeRegistries.SHAKE_BUBBLES, false)) {
+                level.explode(null, null, null, pos.getCenter(), 1, false, Level.ExplosionInteraction.BLOCK);
+                AdvancementHooks.onShakeBubbleExplode(player);
+            }
+        }
+        return InteractionResult.SUCCESS;
     }
 
     public static boolean canInsert(ItemStack itemStack) {

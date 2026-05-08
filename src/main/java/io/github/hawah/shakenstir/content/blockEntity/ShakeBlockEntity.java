@@ -8,6 +8,7 @@ import io.github.hawah.shakenstir.content.block.Shake;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.FluidStackDataComponent;
 import io.github.hawah.shakenstir.content.dataComponent.ShakeFluidDataComponent;
+import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import io.github.hawah.shakenstir.util.FluidStackWithSlot;
 import net.minecraft.core.BlockPos;
@@ -76,12 +77,26 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
         }
     }
 
+    public boolean holdingProduct() {
+        return itemHandler.getResource(0).is(ItemRegistries.CONTENT_HOLDER.get());
+    }
+
+    public ItemStack getProduct() {
+        if (!holdingProduct()) {
+            return ItemStack.EMPTY;
+        }
+        return itemHandler.getResource(0).toStack();
+    }
+
     public NonNullList<ItemStack> getItemToRender() {
+        if (holdingProduct()) {
+            return NonNullList.withSize(itemHandler.size(), ItemStack.EMPTY);
+        }
         return NonNullList.copyOf(itemHandler.itemHolder);
     }
 
     public boolean putItem(ItemStack itemStack, boolean isCreative) {
-        if (itemStack.isEmpty()) {
+        if (itemStack.isEmpty() || holdingProduct()) {
             return false;
         }
         try (Transaction transaction = Transaction.openRoot()) {
@@ -98,11 +113,11 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
             int top;
             ItemResource resource = ItemResource.EMPTY;
             for (top = itemHandler.size() - 1; top >= 0; top--) {
-                if (!(resource = itemHandler.getResource(top)).isEmpty()) {
+                if (!(resource = itemHandler.getResource(top)).isEmpty() && !resource.is(ItemRegistries.CONTENT_HOLDER.get())) {
                     break;
                 }
             }
-            if (top == -1 || resource.isEmpty()) {
+            if (top == -1 || resource.isEmpty() || resource.is(ItemRegistries.CONTENT_HOLDER.get())) {
                 return ItemStack.EMPTY;
             }
             int inserted = itemHandler.extract(resource, 1, transaction);
@@ -111,7 +126,7 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
     }
 
     public boolean pourLiquid(FluidStack fluid, boolean isCreative) {
-        if (fluid.isEmpty()) {
+        if (fluid.isEmpty() || holdingProduct()) {
             return false;
         }
         try (Transaction transaction = Transaction.openRoot()) {
@@ -124,6 +139,9 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
     }
 
     public int getFluidAmount() {
+        if (holdingProduct()) {
+            return 1000;
+        }
         int sum = 0;
         for (int i = 0; i < fluidHandler.size(); i++) {
             sum += fluidHandler.getAmountAsInt(i);
@@ -275,7 +293,7 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
             int validSlot = -1;
             int sum = 0;
             for (int i = 0; i < MAX_HOLD_FLUIDS; i++) {
-                if ((fluidHolder.get(i).isEmpty() && validSlot < 0) || fluidHolder.get(i).equals(resource)) {
+                if ((fluidHolder.get(i).isEmpty() && validSlot < 0) || resource.is(fluidHolder.get(i).getFluid())) {
                     validSlot = i;
                 }
                 sum += fluidHolder.get(i).getAmount();

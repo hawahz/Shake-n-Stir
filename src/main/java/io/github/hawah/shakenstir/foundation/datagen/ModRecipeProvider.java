@@ -1,14 +1,18 @@
 package io.github.hawah.shakenstir.foundation.datagen;
 
+import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.recipe.ingredient.FluidIngredient;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
@@ -34,7 +38,7 @@ public class ModRecipeProvider extends RecipeProvider {
     protected void buildRecipes() {
 
         new ShakeRecipeBuilder(
-                new ItemStackTemplate(ItemRegistries.GIN, 2),
+                new ItemStackTemplate(ItemRegistries.CONTENT_HOLDER, 1, DataComponentPatch.builder().set(DataComponentTypeRegistries.SHAKE_BUBBLES, true).build()),
                 List.of(
                         new FluidIngredient(FluidRegistries.GIN_SOURCE_FLUID_BLOCK.getId(), 1000)
                 ),

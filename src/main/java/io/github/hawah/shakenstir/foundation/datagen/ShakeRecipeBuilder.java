@@ -1,7 +1,6 @@
 package io.github.hawah.shakenstir.foundation.datagen;
 
 import io.github.hawah.shakenstir.content.recipe.ShakeRecipe;
-import io.github.hawah.shakenstir.content.recipe.ShakeRecipeInput;
 import io.github.hawah.shakenstir.content.recipe.ingredient.FluidIngredient;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.data.recipes.RecipeBuilder;
@@ -12,12 +11,10 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
-import net.neoforged.neoforge.fluids.FluidStack;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Supplier;
 
 public class ShakeRecipeBuilder implements RecipeBuilder {
     protected final ItemStackTemplate result;

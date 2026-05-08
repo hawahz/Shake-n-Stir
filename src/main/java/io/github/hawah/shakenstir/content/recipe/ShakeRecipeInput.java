@@ -10,8 +10,10 @@ public record ShakeRecipeInput(List<ItemStack> items, List<FluidStack> fluidStac
 
     @Override
     public ItemStack getItem(int index) {
-
-        return null;
+        if (index > items.size()) {
+            return null;
+        }
+        return items.get(index);
     }
 
     @Override

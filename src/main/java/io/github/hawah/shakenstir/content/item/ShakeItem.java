@@ -76,6 +76,7 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem {
     public boolean releaseUsing(ItemStack itemStack, Level level, LivingEntity entity, int remainingTime) {
 
         itemStack.remove(DataComponentTypeRegistries.SHAKING);
+        entity.clearFreeze();
 
         return true;
     }

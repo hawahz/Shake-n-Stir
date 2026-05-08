@@ -10,8 +10,10 @@
     "#c:foods/fruit"
   ],
   "result": {
-    "count": 2,
-    "id": "shakenstir:gin"
+    "components": {
+      "shakenstir:shake_bubbles": true
+    },
+    "id": "shakenstir:shake_content_holder"
   },
   "shakeTimes": 20
 }

@@ -5,9 +5,11 @@ import io.github.hawah.shakenstir.client.ClickInteractions;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ShakeItem;
+import io.github.hawah.shakenstir.foundation.networking.ServerboundShakeFinishPacket;
 import io.github.hawah.shakenstir.lib.client.handler.IHandler;
 import io.github.hawah.shakenstir.lib.client.render.EaseHelper;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
+import io.github.hawah.shakenstir.lib.networking.Networking;
 import io.github.hawah.shakenstir.util.Result;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -115,6 +117,9 @@ public class ShakeHandler implements IHandler, GuiLayer {
     }
     public Result onMouseMove(final double yaw, final double pitch) {
         if (!isActive()) {
+            if (wasActive) {
+                finish();
+            }
             wasActive = false;
             return Result.empty();
         }
@@ -144,5 +149,17 @@ public class ShakeHandler implements IHandler, GuiLayer {
         }
         double process = AnimationTickHolder.getRenderTime() - firstShakeTick;
         double fadeInProcess = Mth.clamp(process / 20, 0, 1);
+    }
+
+    public void finish() {
+        if (shakeSuccessTimes == 0) {
+            return;
+        }
+        assert Minecraft.getInstance().player != null;
+        Networking.sendToServer(new ServerboundShakeFinishPacket(
+                Minecraft.getInstance().player.getUUID(),
+                Minecraft.getInstance().player.getMainHandItem(),
+                shakeSuccessTimes
+        ));
     }
 }
