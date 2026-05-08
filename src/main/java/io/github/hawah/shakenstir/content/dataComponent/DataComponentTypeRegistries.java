@@ -27,9 +27,9 @@ public class DataComponentTypeRegistries {
             builder -> builder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
     );
 
-    public static final DataComponentType<FluidStack> SPIRIT_CONTENT = register(
+    public static final DataComponentType<FluidStackDataComponent> SPIRIT_CONTENT = register(
             "spirit_content",
-            builder -> builder.persistent(FluidStack.CODEC).networkSynchronized(FluidStack.STREAM_CODEC)
+            builder -> builder.persistent(FluidStackDataComponent.CODEC).networkSynchronized(FluidStackDataComponent.STREAM_CODEC)
     );
 
     public static void register(IEventBus eventBus) {

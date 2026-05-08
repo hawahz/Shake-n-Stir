@@ -2,8 +2,10 @@ package io.github.hawah.shakenstir.content.block;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.serialization.MapCodec;
+import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.dataComponent.FluidStackDataComponent;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import io.github.hawah.shakenstir.lib.VoxelShapeMaker;
@@ -24,6 +26,7 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -40,6 +43,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Map;
@@ -204,6 +209,14 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
             return InteractionResult.SUCCESS;
         }
 
+        if (state.getValue(FACING).equals(Direction.DOWN) && level.getBlockEntity(pos) instanceof ShakeBlockEntity blockEntity) {
+            ItemStack itemStack = blockEntity.popItem();
+            if (!itemStack.isEmpty()) {
+                ITakeUpBlock.holdOrAddItem(player, itemStack, level, pos);
+                return InteractionResult.SUCCESS;
+            }
+        }
+
         if (state.getValue(FACING).getAxis().isHorizontal()) {
             level.setBlockAndUpdate(pos, state.setValue(FACING, Direction.DOWN));
             level.playSound(
@@ -220,18 +233,74 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
         return super.useWithoutItem(state, level, pos, player, hitResult);
     }
 
+    public static boolean canInsert(ItemStack itemStack) {
+        if (itemStack.tags().anyMatch(Tags.Items.FOODS_FRUIT::equals)) {
+            return true;
+        }
+        if (itemStack.is(Items.SUGAR)) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     protected InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (itemStack.is(ItemRegistries.SHAKE_CUP)) {
             return tryPlaceCup(itemStack, state, level, pos, player);
         }
-        if (state.getValue(FACING).equals(Direction.DOWN) && !itemStack.isEmpty()) {
+        FluidStackDataComponent fluidHolder;
+        if (!player.getCooldowns().isOnCooldown(itemStack) && !(fluidHolder = itemStack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, FluidStackDataComponent.EMPTY)).isEmpty()) {
+            return tryPourLiquid(state, level, pos, player, fluidHolder, itemStack, hitResult);
+        }
+        if (state.getValue(FACING).equals(Direction.DOWN) && !itemStack.isEmpty() && canInsert(itemStack)) {
             if (level.getBlockEntity(pos) instanceof ShakeBlockEntity blockEntity) {
                 blockEntity.putItem(itemStack, player.isCreative());
                 return InteractionResult.SUCCESS;
             }
         }
         return InteractionResult.TryEmptyHandInteraction.TRY_WITH_EMPTY_HAND;
+    }
+
+    private static InteractionResult tryPourLiquid(BlockState state, Level level, BlockPos pos, Player player, FluidStackDataComponent fluidHolder, ItemStack itemStack, BlockHitResult hitResult) {
+        if (state.getValue(FACING).equals(Direction.UP) || player.isShiftKeyDown())
+            return InteractionResult.TryEmptyHandInteraction.TRY_WITH_EMPTY_HAND;
+        FluidStack fluidStack = fluidHolder.fluidStack().copy();
+        boolean success = false;
+        if (level.getBlockEntity(pos, BlockEntityRegistries.SHAKE_BLOCK_ENTITY.get()).get() instanceof ShakeBlockEntity shakeBlockEntity) {
+            success = shakeBlockEntity.pourLiquid(fluidStack, player.isCreative());
+
+        }
+
+        if (!success) {
+            return InteractionResult.TryEmptyHandInteraction.TRY_WITH_EMPTY_HAND;
+        }
+
+        if (itemStack.getCount() == 1) {
+            itemStack.remove(DataComponentTypeRegistries.SPIRIT_CONTENT);
+            if (!fluidStack.isEmpty()) {
+                itemStack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(fluidStack));
+            }
+        }
+        if ((!player.isCreative() || true) && itemStack.getCount() > 1) {
+            itemStack = itemStack.consumeAndReturn(1, player);
+            itemStack.remove(DataComponentTypeRegistries.SPIRIT_CONTENT);
+            if (!fluidStack.isEmpty()){
+                itemStack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(fluidStack));
+            }
+            ITakeUpBlock.holdOrAddItem(player, itemStack, level, pos);
+        }
+
+        level.playSound(
+                null,
+                pos,
+                SoundEvents.WATER_AMBIENT,
+                SoundSource.BLOCKS,
+                1,
+                1
+        );
+        player.getCooldowns().addCooldown(itemStack, 10);
+
+        return InteractionResult.SUCCESS;
     }
 
     private static InteractionResult tryPlaceCup(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player) {

@@ -3,6 +3,7 @@ package io.github.hawah.shakenstir.content.block;
 import com.mojang.serialization.MapCodec;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
+import io.github.hawah.shakenstir.content.recipe.Spirits;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -19,6 +20,7 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -26,7 +28,7 @@ public class BlockRegistries {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(ShakenStir.MODID);
     public static final DeferredBlock<Shake> SHAKE_BLOCK = register("shake", Shake::new);
     public static final DeferredBlock<ShakeCup> SHAKE_CUP_BLOCK = register("shake_cup", ShakeCup::new);
-    public static final DeferredBlock<CenteredSpiritBlock> GIN = register("gin", CenteredSpiritBlock::new);
+    public static final DeferredBlock<CenteredSpiritBlock> GIN = register("gin", CenteredSpiritBlock::new, Spirits.GIN);
     public static final DeferredBlock<LiquidBlock> GIN_LIQUID = registerLiquid("gin_liquid", FluidRegistries.GIN_SOURCE_FLUID_BLOCK);
     public static final DeferredBlock<LiquidBlock> VODKA_LIQUID = registerLiquid("vodka_liquid", FluidRegistries.VODKA_FLOWING_FLUID_BLOCK);
     public static final DeferredBlock<LiquidBlock> WHISKY_LIQUID = registerLiquid("whisky_liquid", FluidRegistries.WHISKY_FLOWING_FLUID_BLOCK);
@@ -53,6 +55,14 @@ public class BlockRegistries {
         return BLOCKS.register(name, registryName ->
                 blockSupplier.apply(
                         BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, registryName))
+                )
+        );
+    }
+    public static <T extends Block> DeferredBlock<T> register(String name, BiFunction<BlockBehaviour.Properties, Spirits, T> blockSupplier, Spirits spirits) {
+        return BLOCKS.register(name, registryName ->
+                blockSupplier.apply(
+                        BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, registryName)),
+                        spirits
                 )
         );
     }

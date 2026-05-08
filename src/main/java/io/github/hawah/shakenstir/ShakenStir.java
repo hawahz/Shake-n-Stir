@@ -6,6 +6,7 @@ import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistr
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import io.github.hawah.shakenstir.content.fluid.FluidTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.content.recipe.RecipeTypeRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
@@ -46,6 +47,7 @@ public class ShakenStir {
             .displayItems((params, output) -> {
                 output.accept(ItemRegistries.SHAKE.get());
                 output.accept(ItemRegistries.SHAKE_CUP.get());
+                output.accept(ItemRegistries.GIN.get());
             })
             .build()
     );
@@ -54,11 +56,12 @@ public class ShakenStir {
         modEventBus.addListener(this::commonSetup);
 
         BlockRegistries.register(modEventBus);
-        ItemRegistries.register(modEventBus);
         BlockEntityRegistries.register(modEventBus);
         DataComponentTypeRegistries.register(modEventBus);
         FluidTypeRegistries.register(modEventBus);
         FluidRegistries.register(modEventBus);
+        ItemRegistries.register(modEventBus);
+        RecipeTypeRegistries.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
 
         NeoForge.EVENT_BUS.register(this);

@@ -1,5 +1,6 @@
 package io.github.hawah.shakenstir.client;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.render.block.ShakeBlockEntityRenderer;
@@ -8,13 +9,25 @@ import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer
 import io.github.hawah.shakenstir.content.HasCup;
 import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
+import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.lib.client.render.toolkit.TransformWarper;
 import io.github.hawah.shakenstir.util.Models;
 import io.github.hawah.shakenstir.util.Result;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.player.PlayerModel;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.player.PlayerModelPart;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;

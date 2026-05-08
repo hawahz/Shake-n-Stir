@@ -9,6 +9,7 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 public class DataGenerator {
     @SubscribeEvent // on the mod event bus
     public static void gatherData(GatherDataEvent.Client event) {
+        event.createProvider(ModRecipeProvider.Runner::new);
         event.createProvider(ModModelProvider::new);
         event.createProvider(ModEnUsLangProvider::new);
     }

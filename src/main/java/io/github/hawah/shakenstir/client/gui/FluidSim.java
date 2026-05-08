@@ -22,9 +22,9 @@ import java.util.Random;
 public class FluidSim {
 
     /* ========== 物理参数（已适配 dt = 1/20 s） ========== */
-    private static final int N = 25;                 // 离散点数
+    private static final int N = 10;                 // 离散点数
     private static final double DX = 1.0;             // 空间步长
-    private static final double C = 2.0;              // 波速
+    private static final double C = 4.0;              // 波速
     private static final double DT = 1.0 / 5.0;      // 固定时间步长 (0.05s)
     private static final double DAMP = 0.01;         // 速度阻尼（已针对 0.05s 步长微调）
     private static final double MAX_STEP = 0.75;       // 左边界每 tick 最大移动量（原 0.6/帧 → 考虑 dt 比例调整）
@@ -82,7 +82,10 @@ public class FluidSim {
         for (int i = 0; i < h.length; i++) {
             h[i] = height;
             hPrev[i] = height;
+            hPrevRender[i] = height;
         }
+        leftHeight = height;
+        leftHeightPrevRender = height;
     }
 
     /**
