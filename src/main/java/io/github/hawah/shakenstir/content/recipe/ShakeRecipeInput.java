@@ -6,7 +6,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.List;
 
-public record ShakeRecipeInput(List<ItemStack> items, List<FluidStack> fluidStacks) implements RecipeInput {
+public record ShakeRecipeInput(List<ItemStack> items, List<FluidStack> fluidStacks, int shakeTime) implements RecipeInput {
 
     @Override
     public ItemStack getItem(int index) {

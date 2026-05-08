@@ -1,5 +1,6 @@
 package io.github.hawah.shakenstir.content.recipe;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.hawah.shakenstir.content.recipe.ingredient.FluidIngredient;
@@ -21,30 +22,28 @@ import java.util.stream.Collectors;
  * @param inputFluids private final ShakeRecipeInput.BlockBookInfo bookInfo;
  */
 public record ShakeRecipe(CommonInfo commonInfo, List<FluidIngredient> inputFluids, List<Ingredient> inputItems,
-                          ItemStackTemplate result) implements Recipe<ShakeRecipeInput> {
+                          ItemStackTemplate result, int shakeTimes) implements Recipe<ShakeRecipeInput> {
 
     public static final MapCodec<ShakeRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             CommonInfo.MAP_CODEC.forGetter(ShakeRecipe::commonInfo),
             FluidIngredient.CODEC.listOf(1, 6).fieldOf("inputFluids").forGetter(ShakeRecipe::inputFluids),
             Ingredient.CODEC.listOf(1, 6).fieldOf("inputItems").forGetter(ShakeRecipe::inputItems),
-            ItemStackTemplate.MAP_CODEC.fieldOf("result").forGetter(ShakeRecipe::result)
+            ItemStackTemplate.MAP_CODEC.fieldOf("result").forGetter(ShakeRecipe::result),
+            Codec.INT.fieldOf("shakeTimes").forGetter(ShakeRecipe::shakeTimes)
     ).apply(inst, ShakeRecipe::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ShakeRecipe> STREAM_CODEC = StreamCodec.composite(
-            CommonInfo.STREAM_CODEC,
-            ShakeRecipe::commonInfo,
-            FluidIngredient.STREAM_CODEC.apply(ByteBufCodecs.list()),
-            ShakeRecipe::inputFluids,
-            Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs.list()),
-            ShakeRecipe::inputItems,
+            CommonInfo.STREAM_CODEC, ShakeRecipe::commonInfo,
+            FluidIngredient.STREAM_CODEC.apply(ByteBufCodecs.list()), ShakeRecipe::inputFluids,
+            Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs.list()), ShakeRecipe::inputItems,
             // 对于 ItemStackTemplate，我们借助 ItemStack 进行转换
             ItemStack.STREAM_CODEC.map(
                     // 解码：将 ItemStack 转为模板（假设有 fromStack 静态方法，否则用构造函数）
                     stack -> new ItemStackTemplate(stack.getItem(), stack.getCount(), stack.getComponentsPatch()),
                     // 编码：从模板创建 ItemStack
                     ItemStackTemplate::create
-            ),
-            ShakeRecipe::result,
+            ), ShakeRecipe::result,
+            ByteBufCodecs.INT, ShakeRecipe::shakeTimes,
             ShakeRecipe::new
     );
 
@@ -81,6 +80,10 @@ public record ShakeRecipe(CommonInfo commonInfo, List<FluidIngredient> inputFlui
             } else {
                 return false;
             }
+        }
+
+        if (shakeTimes() > input.shakeTime()) {
+            return false;
         }
 
         return true;

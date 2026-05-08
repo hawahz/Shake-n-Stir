@@ -29,13 +29,15 @@ public class ShakeRecipeBuilder implements RecipeBuilder {
     // 提供构建配方解锁进度的通用方法。
     // 如果使用此方法，构建器还必须指定一个 `RecipeCategory` 来确定输出文件夹。
     protected final RecipeUnlockAdvancementBuilder advancementBuilder;
+    protected final int shakeTime;
 
-    public ShakeRecipeBuilder(ItemStackTemplate result, List<FluidIngredient> inputFluid, List<Ingredient> inputItem, RecipeCategory category) {
+    public ShakeRecipeBuilder(ItemStackTemplate result, List<FluidIngredient> inputFluid, List<Ingredient> inputItem, int shakeTime, RecipeCategory category) {
         this.result = result;
         this.inputFluid = inputFluid;
         this.inputItem = inputItem;
         this.advancementBuilder = new RecipeUnlockAdvancementBuilder();
         this.category = category;
+        this.shakeTime = shakeTime;
     }
 
     protected final RecipeCategory category;
@@ -62,7 +64,8 @@ public class ShakeRecipeBuilder implements RecipeBuilder {
                 RecipeBuilder.createCraftingCommonInfo(this.showNotification),
                 this.inputFluid,
                 this.inputItem,
-                this.result
+                this.result,
+                shakeTime
         );
         output.accept(
                 location, recipe, this.advancementBuilder.build(output, location, this.category)

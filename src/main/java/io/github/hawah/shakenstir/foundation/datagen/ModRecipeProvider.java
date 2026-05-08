@@ -4,33 +4,44 @@ import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.recipe.ingredient.FluidIngredient;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.level.material.Fluid;
+import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 public class ModRecipeProvider extends RecipeProvider {
+    private final HolderLookup.RegistryLookup<Item> items;
     protected ModRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
         super(registries, output);
+        items = registries.lookupOrThrow(Registries.ITEM);
     }
 
     @Override
     protected void buildRecipes() {
 
         new ShakeRecipeBuilder(
-                new ItemStackTemplate(ItemRegistries.GIN),
+                new ItemStackTemplate(ItemRegistries.GIN, 2),
                 List.of(
                         new FluidIngredient(FluidRegistries.GIN_SOURCE_FLUID_BLOCK.getId(), 1000)
                 ),
                 List.of(
-                        Ingredient.of(ItemRegistries.SHAKE)
+                        Ingredient.of(items.getOrThrow(Tags.Items.FOODS_FRUIT))
                 ),
+                20,
                 RecipeCategory.FOOD
         )
                 .unlockedBy("has_shake", this.has(ItemRegistries.SHAKE))
@@ -51,6 +62,59 @@ public class ModRecipeProvider extends RecipeProvider {
         @Override
         public String getName() {
             return "shake_recipe";
+        }
+    }
+
+    class Builder {
+        private Supplier<Item> result;
+        private int resultAmount = 1;
+        private List<Ingredient> ingredients;
+        private List<FluidIngredient> fluidIngredients;
+        private int shakeTime = 20;
+
+        public Builder result(Supplier<Item> result) {
+            this.result = result;
+            return this;
+        }
+
+        public Builder resultAmount(int amount) {
+            this.resultAmount = amount;
+            return this;
+        }
+
+        public Builder with(ItemLike... ingredient) {
+            this.ingredients.add(Ingredient.of(ingredient));
+            return this;
+        }
+
+        public Builder with(TagKey<Item> tag) {
+            this.ingredients.add(Ingredient.of(items.getOrThrow(tag)));
+            return this;
+        }
+
+        public Builder with(FluidIngredient fluidIngredient) {
+            this.fluidIngredients.add(fluidIngredient);
+            return this;
+        }
+
+        public Builder with(DeferredHolder<Fluid, FlowingFluid> fluid, int amount) {
+            this.fluidIngredients.add(new FluidIngredient(fluid.getId(), amount));
+            return this;
+        }
+
+        public Builder shake(int shakeTime) {
+            this.shakeTime = shakeTime;
+            return this;
+        }
+
+        public ShakeRecipeBuilder build() {
+            return new ShakeRecipeBuilder(
+                    new ItemStackTemplate(result.get(), resultAmount),
+                    fluidIngredients,
+                    ingredients,
+                    shakeTime,
+                    RecipeCategory.FOOD
+            );
         }
     }
 }

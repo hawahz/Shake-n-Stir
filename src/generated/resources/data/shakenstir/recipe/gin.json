@@ -7,9 +7,11 @@
     }
   ],
   "inputItems": [
-    "shakenstir:shake"
+    "#c:foods/fruit"
   ],
   "result": {
+    "count": 2,
     "id": "shakenstir:gin"
-  }
+  },
+  "shakeTimes": 20
 }
