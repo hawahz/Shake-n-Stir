@@ -389,8 +389,8 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
         ItemStack stack = ItemRegistries.SHAKE.toStack();
         stack.set(DataComponentTypeRegistries.HAS_CUP, state.getValue(FACING).equals(Direction.UP));
         if (level.getBlockEntity(pos) instanceof ShakeBlockEntity blockEntity) {
-            stack.set(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, new ShakeItemDataComponent(blockEntity.getActualItems()));
-            stack.set(DataComponentTypeRegistries.SHAKE_CONTENT, new ShakeFluidDataComponent(blockEntity.getFluidStack()));
+            stack.set(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, new ShakeItemDataComponent(blockEntity.getActualItems().stream().filter(itemStack -> !itemStack.isEmpty()).toList()));
+            stack.set(DataComponentTypeRegistries.SHAKE_CONTENT, new ShakeFluidDataComponent(blockEntity.getFluidStack().stream().filter(fluidStack -> !fluidStack.isEmpty()).toList()));
             stack.set(DataComponentTypeRegistries.SHAKE_ICE_CUBES, blockEntity.iceCubeCounts);
         }
         return stack;

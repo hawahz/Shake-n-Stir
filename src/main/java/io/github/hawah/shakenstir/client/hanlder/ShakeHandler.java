@@ -4,6 +4,8 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.client.ClickInteractions;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.dataComponent.ShakeFluidDataComponent;
+import io.github.hawah.shakenstir.content.dataComponent.ShakeItemDataComponent;
 import io.github.hawah.shakenstir.content.item.ShakeItem;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundShakeFinishPacket;
 import io.github.hawah.shakenstir.lib.client.handler.IHandler;
@@ -61,32 +63,35 @@ public class ShakeHandler implements IHandler, GuiLayer {
         assert Minecraft.getInstance().level != null;
         double dot = vec.dot(oVec);
         int shakeCubes = getItem().getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0);
-        if (dot < -0.125 && AnimationTickHolder.getTicks() - lastSuccessTick > 5) {
+        if (dot < -0.125 && AnimationTickHolder.getTicks() - lastSuccessTick > 1) {
+            System.out.println(shakeSuccessTimes);
             int maxValidShakes = shakeCubes * 10;
             float volumeWater = shakeCubes == 0? 1.2F: EaseHelper.easeInPow(Mth.clamp((float) shakeSuccessTimes / maxValidShakes, 0, 0.8F), 6);
 
-            if (shakeCubes != 0)
-
-            Minecraft.getInstance().getSoundManager().play(
-                    new SimpleSoundInstance(
-                            SoundEvents.GLASS_HIT,
-                            SoundSource.PLAYERS,
-                            1.2F - volumeWater,
-                            1,
-                            Minecraft.getInstance().level.getRandom(),
-                            Minecraft.getInstance().player.blockPosition()
-                    )
-            );
-            Minecraft.getInstance().getSoundManager().play(
-                    new SimpleSoundInstance(
-                            SoundEvents.BUCKET_FILL,
-                            SoundSource.PLAYERS,
-                            volumeWater,
-                            1,
-                            Minecraft.getInstance().level.getRandom(),
-                            Minecraft.getInstance().player.blockPosition()
-                    )
-            );
+            if (shakeCubes != 0 || !getItem().getOrDefault(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, ShakeItemDataComponent.EMPTY).itemStacks().isEmpty()){
+                Minecraft.getInstance().getSoundManager().play(
+                        new SimpleSoundInstance(
+                                SoundEvents.GLASS_HIT,
+                                SoundSource.PLAYERS,
+                                1.2F - volumeWater,
+                                1,
+                                Minecraft.getInstance().level.getRandom(),
+                                Minecraft.getInstance().player.blockPosition()
+                        )
+                );
+            }
+            if (!getItem().getOrDefault(DataComponentTypeRegistries.SHAKE_CONTENT, ShakeFluidDataComponent.EMPTY).fluidStacks().isEmpty()) {
+                Minecraft.getInstance().getSoundManager().play(
+                        new SimpleSoundInstance(
+                                SoundEvents.BUCKET_FILL,
+                                SoundSource.PLAYERS,
+                                volumeWater,
+                                1,
+                                Minecraft.getInstance().level.getRandom(),
+                                Minecraft.getInstance().player.blockPosition()
+                        )
+                );
+            }
             lastSuccessTick = AnimationTickHolder.getTicks();
             shakeSuccessTimes ++;
             shakeSuccessTimes = Mth.clamp(shakeSuccessTimes, 0, maxValidShakes);
