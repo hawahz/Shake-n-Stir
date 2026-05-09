@@ -63,6 +63,10 @@ public class ShakeBlockEntityRenderer implements BlockEntityRenderer<ShakeBlockE
     @Override
     public void submit(ShakeBlockEntityRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
         submitContents(state, poseStack, submitNodeCollector);
+        renderLiquidPlane(state, poseStack);
+    }
+
+    private static void renderLiquidPlane(ShakeBlockEntityRenderState state, PoseStack poseStack) {
         if (state.liquidHeight <= 0.01) {
             return;
         }

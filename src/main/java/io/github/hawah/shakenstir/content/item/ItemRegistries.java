@@ -34,6 +34,7 @@ public class ItemRegistries {
     public static final DeferredRegister.Items ITEM = DeferredRegister.createItems(ShakenStir.MODID);
     public static final DeferredItem<PriorityBlockItem> SHAKE = register("shake", (Function<Item.Properties, PriorityBlockItem>) ShakeItem::new);
     public static final DeferredItem<PriorityBlockItem> SHAKE_CUP = register("shake_cup", BlockRegistries.SHAKE_CUP_BLOCK);
+    public static final DeferredItem<Item> ICE_CUBE = register("ice_cube", Item::new);
     public static final DeferredItem<Item> CONTENT_HOLDER = register("shake_content_holder", Item::new);
 
     // Spirit

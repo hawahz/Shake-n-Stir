@@ -1,4 +1,4 @@
-package io.github.hawah.shakenstir.client.render;
+package io.github.hawah.shakenstir.client.render.item.firstPerson;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -26,7 +26,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;

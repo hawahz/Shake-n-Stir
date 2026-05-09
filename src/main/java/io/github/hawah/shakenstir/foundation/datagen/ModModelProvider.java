@@ -15,6 +15,8 @@ import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.renderer.block.dispatch.Variant;
 import net.minecraft.client.renderer.item.ItemModel;
+import net.minecraft.client.renderer.item.RangeSelectItemModel;
+import net.minecraft.client.renderer.item.properties.numeric.Count;
 import net.minecraft.client.renderer.item.properties.select.DisplayContext;
 import net.minecraft.client.renderer.item.properties.select.SelectItemModelProperties;
 import net.minecraft.core.Direction;
@@ -29,6 +31,7 @@ import org.jspecify.annotations.NonNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
+import java.util.Optional;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -42,6 +45,45 @@ public class ModModelProvider extends ModelProvider {
     protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
         // Basic single variant model
         registerCustomBlockModel(blockModels, "block/shake_cup", BlockRegistries.SHAKE_CUP_BLOCK.get());
+        generateShake(blockModels);
+        registerRotatedBlockModel(blockModels, "block/gin", BlockRegistries.GIN.get());
+        registerCustomBlockModel(blockModels, "block/whisky_liquid", BlockRegistries.WHISKY_LIQUID.get());
+        registerCustomBlockModel(blockModels, "block/vodka_liquid", BlockRegistries.VODKA_LIQUID.get());
+        registerCustomBlockModel(blockModels, "block/rum_liquid", BlockRegistries.RUM_LIQUID.get());
+        registerCustomBlockModel(blockModels, "block/tequila_liquid", BlockRegistries.TEQUILA_LIQUID.get());
+        registerCustomBlockModel(blockModels, "block/brandy_liquid", BlockRegistries.BRANDY_LIQUID.get());
+        registerCustomBlockModel(blockModels, "block/gin_liquid", BlockRegistries.GIN_LIQUID.get());
+        generateIceCube(itemModels);
+        generateGin(itemModels);
+    }
+
+    private static void generateIceCube(ItemModelGenerators itemModels) {
+        ItemModel.Unbaked iceCube0 = ItemModelUtils.plainModel(itemModels.createFlatItemModel(ItemRegistries.ICE_CUBE.get(), "_0", ModelTemplates.FLAT_ITEM));
+        ItemModel.Unbaked iceCube1 = ItemModelUtils.plainModel(itemModels.createFlatItemModel(ItemRegistries.ICE_CUBE.get(), "_1", ModelTemplates.FLAT_ITEM));
+        ItemModel.Unbaked iceCube2 = ItemModelUtils.plainModel(itemModels.createFlatItemModel(ItemRegistries.ICE_CUBE.get(), "_2", ModelTemplates.FLAT_ITEM));
+        itemModels.itemModelOutput.accept(
+                ItemRegistries.ICE_CUBE.get(),
+                new RangeSelectItemModel.Unbaked(
+                        Optional.empty(),
+                        new Count(true),
+                        1,
+                        List.of(
+                                new RangeSelectItemModel.Entry(
+                                        0.33F,
+                                        iceCube1
+                                ),
+                                new RangeSelectItemModel.Entry(
+                                        0.66F,
+                                        iceCube2
+                                )
+                        ),
+                        Optional.of(iceCube0)
+                )
+
+        );
+    }
+
+    private static void generateShake(BlockModelGenerators blockModels) {
         blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(BlockRegistries.SHAKE_BLOCK.get())
                 .with(
                         PropertyDispatch.initial(BlockStateProperties.FACING)
@@ -53,13 +95,9 @@ public class ModModelProvider extends ModelProvider {
                                 .select(Direction.WEST, getMultiVariant("block/shake_fall").with(BlockModelGenerators.Y_ROT_270))
                 )
         );
-        registerRotatedBlockModel(blockModels, "block/gin", BlockRegistries.GIN.get());
-        registerCustomBlockModel(blockModels, "block/whisky_liquid", BlockRegistries.WHISKY_LIQUID.get());
-        registerCustomBlockModel(blockModels, "block/vodka_liquid", BlockRegistries.VODKA_LIQUID.get());
-        registerCustomBlockModel(blockModels, "block/rum_liquid", BlockRegistries.RUM_LIQUID.get());
-        registerCustomBlockModel(blockModels, "block/tequila_liquid", BlockRegistries.TEQUILA_LIQUID.get());
-        registerCustomBlockModel(blockModels, "block/brandy_liquid", BlockRegistries.BRANDY_LIQUID.get());
-        registerCustomBlockModel(blockModels, "block/gin_liquid", BlockRegistries.GIN_LIQUID.get());
+    }
+
+    private static void generateGin(ItemModelGenerators itemModels) {
         itemModels.generateItemWithTintedBaseLayer(ItemRegistries.CONTENT_HOLDER.get(), 0xFFFFFF);
         ItemModel.Unbaked flatModel = ItemModelUtils.plainModel(itemModels.createFlatItemModel(ItemRegistries.GIN.get(), ModelTemplates.FLAT_ITEM));
         ItemModel.Unbaked otherModel = ItemModelUtils.specialModel(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "gin"), new SpiritBottleSpecialRenderer.Unbaked());

@@ -5,6 +5,7 @@ import io.github.hawah.shakenstir.ShakenStir;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -47,6 +48,16 @@ public class DataComponentTypeRegistries {
     public static final DataComponentType<Integer> SHAKE_SUCCESS_TIMES = register(
             "shake_success_times",
             builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
+    );
+
+    public static final DataComponentType<Boolean> SHAKE_DIRECT_ITEM_PRODUCT = register(
+            "shake_direct_item_product",
+            builder -> builder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
+    );
+
+    public static final DataComponentType<ItemStack> SHAKE_PRODUCT_DATA_HOLDER = register(
+            "shake_product_data_holder",
+            builder -> builder.persistent(ItemStack.CODEC).networkSynchronized(ItemStack.STREAM_CODEC)
     );
 
     public static void register(IEventBus eventBus) {
