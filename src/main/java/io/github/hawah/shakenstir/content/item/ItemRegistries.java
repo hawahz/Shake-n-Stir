@@ -25,13 +25,18 @@ import java.util.function.Function;
 //@EventBusSubscriber
 public class ItemRegistries {
     public static final DeferredRegister.Items ITEM = DeferredRegister.createItems(ShakenStir.MODID);
-    public static final DeferredItem<PriorityBlockItem> SHAKE = register("shake", (Function<Item.Properties, PriorityBlockItem>) ShakeItem::new);
+    public static final DeferredItem<PriorityBlockItem> SHAKE = register("shake", ShakeItem::new);
     public static final DeferredItem<PriorityBlockItem> SHAKE_CUP = register("shake_cup", BlockRegistries.SHAKE_CUP_BLOCK);
     public static final DeferredItem<Item> ICE_CUBE = register("ice_cube", Item::new);
+
+
     public static final DeferredItem<Item> CONTENT_HOLDER = register("shake_content_holder", Item::new);
 
     // Spirit
     public static final DeferredItem<SpiritBottleItem> GIN = registerSpirit("gin", BlockRegistries.GIN, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(new FluidStack(FluidRegistries.GIN_SOURCE_FLUID_BLOCK, 1000))));
+    public static final DeferredItem<SpiritBottleItem> WHISKY = registerSpirit("whisky", BlockRegistries.WHISKY, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(new FluidStack(FluidRegistries.WHISKY_SOURCE_FLUID_BLOCK, 1000))));
+
+    public static final DeferredItem<SpiritBottleItem> BUBBLE = registerSpirit("bubble", BlockRegistries.BUBBLE, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(new FluidStack(FluidRegistries.BUBBLE_SOURCE_FLUID_BLOCK, 1000))));
 
     public static <T extends Item> DeferredItem<T> register(String name, Function<Item.Properties, T> supply) {
         return ITEM.register(name, (registryName) -> supply.apply(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName))));

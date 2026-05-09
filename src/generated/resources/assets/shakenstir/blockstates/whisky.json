@@ -1,63 +1,63 @@
 {
   "variants": {
     "facing=east,shakenstir_counts=1": {
-      "model": "shakenstir:block/gin",
+      "model": "shakenstir:block/whisky",
       "y": 90
     },
     "facing=east,shakenstir_counts=2": {
-      "model": "shakenstir:block/gin_1",
+      "model": "shakenstir:block/whisky_1",
       "y": 90
     },
     "facing=east,shakenstir_counts=3": {
-      "model": "shakenstir:block/gin_2",
+      "model": "shakenstir:block/whisky_2",
       "y": 90
     },
     "facing=east,shakenstir_counts=4": {
-      "model": "shakenstir:block/gin_3",
+      "model": "shakenstir:block/whisky_3",
       "y": 90
     },
     "facing=north,shakenstir_counts=1": {
-      "model": "shakenstir:block/gin"
+      "model": "shakenstir:block/whisky"
     },
     "facing=north,shakenstir_counts=2": {
-      "model": "shakenstir:block/gin_1"
+      "model": "shakenstir:block/whisky_1"
     },
     "facing=north,shakenstir_counts=3": {
-      "model": "shakenstir:block/gin_2"
+      "model": "shakenstir:block/whisky_2"
     },
     "facing=north,shakenstir_counts=4": {
-      "model": "shakenstir:block/gin_3"
+      "model": "shakenstir:block/whisky_3"
     },
     "facing=south,shakenstir_counts=1": {
-      "model": "shakenstir:block/gin",
+      "model": "shakenstir:block/whisky",
       "y": 180
     },
     "facing=south,shakenstir_counts=2": {
-      "model": "shakenstir:block/gin_1",
+      "model": "shakenstir:block/whisky_1",
       "y": 180
     },
     "facing=south,shakenstir_counts=3": {
-      "model": "shakenstir:block/gin_2",
+      "model": "shakenstir:block/whisky_2",
       "y": 180
     },
     "facing=south,shakenstir_counts=4": {
-      "model": "shakenstir:block/gin_3",
+      "model": "shakenstir:block/whisky_3",
       "y": 180
     },
     "facing=west,shakenstir_counts=1": {
-      "model": "shakenstir:block/gin",
+      "model": "shakenstir:block/whisky",
       "y": 270
     },
     "facing=west,shakenstir_counts=2": {
-      "model": "shakenstir:block/gin_1",
+      "model": "shakenstir:block/whisky_1",
       "y": 270
     },
     "facing=west,shakenstir_counts=3": {
-      "model": "shakenstir:block/gin_2",
+      "model": "shakenstir:block/whisky_2",
       "y": 270
     },
     "facing=west,shakenstir_counts=4": {
-      "model": "shakenstir:block/gin_3",
+      "model": "shakenstir:block/whisky_3",
       "y": 270
     }
   }

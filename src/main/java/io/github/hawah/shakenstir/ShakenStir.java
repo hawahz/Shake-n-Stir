@@ -9,6 +9,7 @@ import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.recipe.RecipeTypeRegistries;
 import io.github.hawah.shakenstir.foundation.networking.NetworkPackets;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -51,6 +52,7 @@ public class ShakenStir {
                 output.accept(ItemRegistries.SHAKE_CUP.get());
                 output.accept(ItemRegistries.ICE_CUBE.get());
                 output.accept(ItemRegistries.GIN.get());
+                output.accept(ItemRegistries.WHISKY.get());
             })
             .build()
     );
@@ -95,5 +97,9 @@ public class ShakenStir {
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
         LOGGER.info("HELLO from server starting");
+    }
+
+    public static Identifier asResource(String path) {
+        return Identifier.fromNamespaceAndPath(MODID, path);
     }
 }

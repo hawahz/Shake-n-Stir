@@ -25,6 +25,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ItemStack;
@@ -47,7 +48,6 @@ public class ShakeRenderer {
     public static final Matrix4f SHAKING_ARM_TRANSFORM = new Matrix4f(0.59046054f, -0.0043104887f, -0.004017652f, 0.0f, 0.005534787f, 0.2675616f, 0.5263646f, 0.0f, -0.0020219171f, -0.52637595f, 0.2675891f, 0.0f, 0.08839527f, 1.0911926f, 0.32556745f, 1.0f);
     public static final Matrix4f SHAKING_SHAKE_TRANSFORM = new Matrix4f(0.99995023f, -0.0072998703f, -0.006803939f, 0.0f, 0.0040740552f, -0.32377687f, 0.94612664f, 0.0f, -0.0091095455f, -0.9461069f, -0.32373095f, 0.0f, 0.013291817f, 1.648548f, 0.02847635f, 1.0f);
     public static final Matrix4f LEFT_ARM_TRANSFORM = new Matrix4f(0.9210611f, -0.38941836f, -7.450581E-9f, 0.0f, 0.3874729f, 0.9164596f, -0.09983347f, 0.0f, 0.038876962f, 0.09195268f, 0.9950044f, 0.0f, -0.317625f, 0.6759194f, 0.2094838f, 1.0f);
-    public static final Matrix4f PRE_TRANSFORM = new Matrix4f(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.4f, -0.3f, -0.4f, 1.0f);
     public static final Matrix4f SHAKE_PRE_TRANSFORM = new Matrix4f(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.1f, -0.20000002f, -0.1f, 1.0f);
 
     @SubscribeEvent
@@ -56,17 +56,28 @@ public class ShakeRenderer {
         if (!itemStack.is(ItemRegistries.SHAKE)) {
             return;
         }
+        LocalPlayer player = Minecraft.getInstance().player;
+        float interpolatedPitch = event.getInterpolatedPitch();
+        boolean isMainHand = event.getHand() == InteractionHand.MAIN_HAND;
+        HumanoidArm arm = isMainHand ? player.getMainArm() : player.getMainArm().getOpposite();
+        boolean isRightArm = arm == HumanoidArm.RIGHT;
+        int invert = isRightArm ? 1 : -1;
+
+        if (!isRightArm) {
+            return;
+        }
+
         event.setCanceled(true);
         SubmitNodeCollector submitNodeCollector = event.getSubmitNodeCollector();
         PoseStack poseStack = event.getPoseStack();
         int packedLight = event.getPackedLight();
         TransformWarper warper = TransformWarper.instance(1);
         poseStack.pushPose();
-//        poseStack.mulPose(PRE_TRANSFORM);
         float inverseArmHeight = event.getEquipProgress();
         float attack = event.getSwingProgress();
-        applyItemArmTransform(poseStack, HumanoidArm.RIGHT, inverseArmHeight);
-        swingArm(attack, poseStack, 1, HumanoidArm.RIGHT);
+        applyItemArmTransform(poseStack, arm, inverseArmHeight);
+        swingArm(attack, poseStack, invert, arm);
+
         if (ShakenStirClient.SHAKE_HANDLER.isActive()) {
             poseStack.mulPose(SHAKE_PRE_TRANSFORM);
         }

@@ -1,5 +1,6 @@
 {
   "fluid_type.shakenstir.gin_fluid_type": "Gin",
+  "fluid_type.shakenstir.whisky_fluid_type": "Whisky",
   "item.shakenstir.gin": "Gin",
   "item.shakenstir.ice_cube": "Ice Cube",
   "item.shakenstir.shake": "Shake",
@@ -26,7 +27,7 @@
   "shakenstir.name.vodka": "Vodka",
   "shakenstir.name.whiskey": "Whiskey",
   "shakenstir.tooltip_shake_content": "Ingredients:",
-  "shakenstir.tooltip_shake_fluid_content": "Fluids:",
+  "shakenstir.tooltip_shake_fluid_content": "Base:",
   "shakenstir.tooltip_shake_shaking": "Shaking...",
   "shakenstir.tooltip_shift": "-[Shift]-",
   "shakenstir.tooltip_spirit_content": "Content: %s",

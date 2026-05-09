@@ -37,6 +37,7 @@ public class FluidTypeRegistries {
     public static final DeferredHolder<FluidType, FluidType> BRANDY_FLUID_TYPE = register("brandy_fluid_type", FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
     public static final DeferredHolder<FluidType, FluidType> RUM_FLUID_TYPE = register("rum_fluid_type", FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
     public static final DeferredHolder<FluidType, FluidType> TEQUILA_FLUID_TYPE = register("tequila_fluid_type", FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
+    public static final DeferredHolder<FluidType, FluidType> BUBBLE_FLUID_TYPE = register("bubble_fluid_type", FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
 
 
     // 这个是我们自己写的注册的方法

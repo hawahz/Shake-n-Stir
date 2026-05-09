@@ -5,7 +5,9 @@ import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer;
 import io.github.hawah.shakenstir.content.HasCup;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
+import io.github.hawah.shakenstir.content.block.SpiritBlock;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.foundation.item.SpiritBottleItem;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
@@ -23,14 +25,17 @@ import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.random.WeightedList;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.neoforged.neoforge.registries.DeferredItem;
 import org.jspecify.annotations.NonNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -42,18 +47,26 @@ public class ModModelProvider extends ModelProvider {
 
     @Override
     protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
+        itemModels.generateItemWithTintedBaseLayer(ItemRegistries.CONTENT_HOLDER.get(), 0xFFFFFF);
         // Basic single variant model
         registerCustomBlockModel(blockModels, "block/shake_cup", BlockRegistries.SHAKE_CUP_BLOCK.get());
         generateShake(blockModels, itemModels);
-        registerRotatedBlockModel(blockModels, "block/gin", BlockRegistries.GIN.get());
+        generateSpirit(blockModels, itemModels, BlockRegistries.GIN, ItemRegistries.GIN, "gin");
+        generateSpirit(blockModels, itemModels, BlockRegistries.WHISKY, ItemRegistries.WHISKY, "whisky");
         registerCustomBlockModel(blockModels, "block/whisky_liquid", BlockRegistries.WHISKY_LIQUID.get());
         registerCustomBlockModel(blockModels, "block/vodka_liquid", BlockRegistries.VODKA_LIQUID.get());
         registerCustomBlockModel(blockModels, "block/rum_liquid", BlockRegistries.RUM_LIQUID.get());
         registerCustomBlockModel(blockModels, "block/tequila_liquid", BlockRegistries.TEQUILA_LIQUID.get());
         registerCustomBlockModel(blockModels, "block/brandy_liquid", BlockRegistries.BRANDY_LIQUID.get());
         registerCustomBlockModel(blockModels, "block/gin_liquid", BlockRegistries.GIN_LIQUID.get());
+        registerCustomBlockModel(blockModels, "block/whiskey_liquid", BlockRegistries.BUBBLE.get());
+        registerCustomBlockModel(blockModels, "block/bubble_liquid", BlockRegistries.BUBBLE_LIQUID.get());
+
+        registerCustomBlockModel(blockModels, "block/vodka", BlockRegistries.VODKA.get());
+        registerCustomBlockModel(blockModels, "block/rum", BlockRegistries.RUM.get());
+        registerCustomBlockModel(blockModels, "block/tequila", BlockRegistries.TEQUILA.get());
+        registerCustomBlockModel(blockModels, "block/brandy", BlockRegistries.BRANDY.get());
         generateIceCube(itemModels);
-        generateGin(itemModels);
     }
 
     private static void generateIceCube(ItemModelGenerators itemModels) {
@@ -96,22 +109,45 @@ public class ModModelProvider extends ModelProvider {
         );
         ItemModel.Unbaked openModel = ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "block/shake_body"));
         ItemModel.Unbaked closedModel = ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "block/shake_overall"));
+        ConditionalItemModel.Unbaked guiModel = new ConditionalItemModel.Unbaked(
+                Optional.empty(),
+                new HasCup(),
+                closedModel,
+                openModel
+        );
         itemModels.itemModelOutput.accept(
                 ItemRegistries.SHAKE.get(),
-                new ConditionalItemModel.Unbaked(
-                        Optional.empty(),
-                        new HasCup(),
-                        closedModel,
-                        openModel
-                )
+                guiModel
         );
     }
 
-    private static void generateGin(ItemModelGenerators itemModels) {
-        itemModels.generateItemWithTintedBaseLayer(ItemRegistries.CONTENT_HOLDER.get(), 0xFFFFFF);
-        ItemModel.Unbaked flatModel = ItemModelUtils.plainModel(itemModels.createFlatItemModel(ItemRegistries.GIN.get(), ModelTemplates.FLAT_ITEM));
+    private static void generateSpirit(BlockModelGenerators blockModels, ItemModelGenerators itemModels, Supplier<SpiritBlock> block, DeferredItem<SpiritBottleItem> item, String root) {
+        blockModels.blockStateOutput.accept(
+                MultiVariantGenerator.dispatch(
+                        block.get()
+                ).with(
+                        PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_FACING, SpiritBlock.COUNTS)
+                                .select(Direction.NORTH , 1, getMultiVariant("block/"+root))
+                                .select(Direction.EAST  , 1, getMultiVariant("block/"+root).with(BlockModelGenerators.Y_ROT_90))
+                                .select(Direction.SOUTH , 1, getMultiVariant("block/"+root).with(BlockModelGenerators.Y_ROT_180))
+                                .select(Direction.WEST  , 1, getMultiVariant("block/"+root).with(BlockModelGenerators.Y_ROT_270))
+                                .select(Direction.NORTH , 2, getMultiVariant("block/"+root+"_1"))
+                                .select(Direction.EAST  , 2, getMultiVariant("block/"+root+"_1").with(BlockModelGenerators.Y_ROT_90))
+                                .select(Direction.SOUTH , 2, getMultiVariant("block/"+root+"_1").with(BlockModelGenerators.Y_ROT_180))
+                                .select(Direction.WEST  , 2, getMultiVariant("block/"+root+"_1").with(BlockModelGenerators.Y_ROT_270))
+                                .select(Direction.NORTH , 3, getMultiVariant("block/"+root+"_2"))
+                                .select(Direction.EAST  , 3, getMultiVariant("block/"+root+"_2").with(BlockModelGenerators.Y_ROT_90))
+                                .select(Direction.SOUTH , 3, getMultiVariant("block/"+root+"_2").with(BlockModelGenerators.Y_ROT_180))
+                                .select(Direction.WEST  , 3, getMultiVariant("block/"+root+"_2").with(BlockModelGenerators.Y_ROT_270))
+                                .select(Direction.NORTH , 4, getMultiVariant("block/"+root+"_3"))
+                                .select(Direction.EAST  , 4, getMultiVariant("block/"+root+"_3").with(BlockModelGenerators.Y_ROT_90))
+                                .select(Direction.SOUTH , 4, getMultiVariant("block/"+root+"_3").with(BlockModelGenerators.Y_ROT_180))
+                                .select(Direction.WEST  , 4, getMultiVariant("block/"+root+"_3").with(BlockModelGenerators.Y_ROT_270))
+                )
+        );
+        ItemModel.Unbaked flatModel = ItemModelUtils.plainModel(itemModels.createFlatItemModel(item.get(), ModelTemplates.FLAT_ITEM));
         ItemModel.Unbaked otherModel = ItemModelUtils.specialModel(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "gin"), new SpiritBottleSpecialRenderer.Unbaked());
-        itemModels.itemModelOutput.accept(ItemRegistries.GIN.get(), ItemModelGenerators.createFlatModelDispatch(flatModel, otherModel));
+        itemModels.itemModelOutput.accept(item.get(), ItemModelGenerators.createFlatModelDispatch(flatModel, otherModel));
     }
 
     private static @NonNull MultiVariant getMultiVariant(String path) {

@@ -3,7 +3,6 @@ package io.github.hawah.shakenstir.client;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.render.block.ShakeBlockEntityRenderer;
-import io.github.hawah.shakenstir.client.render.item.ShakeItemSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer;
 import io.github.hawah.shakenstir.content.HasCup;
 import io.github.hawah.shakenstir.content.block.Shake;
@@ -59,10 +58,6 @@ public class ClientEvents {
 
         @SubscribeEvent
         public static void registerSpecialRenderers(RegisterSpecialModelRendererEvent event) {
-            event.register(
-                    Identifier.fromNamespaceAndPath(ShakenStir.MODID, "shake_special"),
-                    ShakeItemSpecialRenderer.Unbaked.MAP_CODEC
-            );
             event.register(
                     Identifier.fromNamespaceAndPath(ShakenStir.MODID, "spirit_special"),
                     SpiritBottleSpecialRenderer.Unbaked.MAP_CODEC

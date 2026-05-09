@@ -5,11 +5,10 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.math.Transformation;
 import com.mojang.serialization.MapCodec;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
-import io.github.hawah.shakenstir.content.block.CenteredSpiritBlock;
+import io.github.hawah.shakenstir.content.block.SpiritBlock;
 import io.github.hawah.shakenstir.lib.client.render.EaseHelper;
 import io.github.hawah.shakenstir.lib.client.render.toolkit.Animation;
 import io.github.hawah.shakenstir.lib.client.render.toolkit.AnimationPlayer;
-import io.github.hawah.shakenstir.lib.client.render.toolkit.TransformWarper;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -22,16 +21,14 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.PlayerModelPart;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import org.joml.*;
 import org.jspecify.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -82,8 +79,11 @@ public class SpiritBottleSpecialRenderer implements SpecialModelRenderer<Vector2
 
     @Override
     public void submit(@Nullable Vector2f argument, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, int overlayCoords, boolean hasFoil, int outlineColor) {
+        if (!(Minecraft.getInstance().player.getMainHandItem().getItem() instanceof BlockItem blockItem) || blockItem.getBlock().defaultBlockState().getOptionalValue(SpiritBlock.FACING).isEmpty()) {
+            return;
+        }
         poseStack.pushPose();
-        BlockStateModel model = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(BlockRegistries.GIN.get().defaultBlockState().setValue(CenteredSpiritBlock.FACING, Direction.NORTH));
+        BlockStateModel model = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(blockItem.getBlock().defaultBlockState().setValue(SpiritBlock.FACING, Direction.NORTH));
         List<BlockStateModelPart> list = new ArrayList<>();
         model.collectParts(RandomSource.create(), list);
 

@@ -53,10 +53,7 @@ public class ShakingEvents {
         }
         List<ItemStack> itemStacks = shakeStack.getOrDefault(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, ShakeItemDataComponent.EMPTY).itemStacks();
         List<FluidStack> fluidFromShake = shakeStack.getOrDefault(DataComponentTypeRegistries.SHAKE_CONTENT, ShakeFluidDataComponent.EMPTY).fluidStacks();
-        if (itemStacks.isEmpty()) {
-            return;
-        }
-        boolean shaking = itemStacks.getFirst().is(ItemRegistries.CONTENT_HOLDER);
+        boolean shaking = !itemStacks.isEmpty() && itemStacks.getFirst().is(ItemRegistries.CONTENT_HOLDER);
         List<ItemStack> items;
         List<FluidStack> fluidStacks;
         if (shaking) {

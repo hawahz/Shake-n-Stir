@@ -11,9 +11,9 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 public final class FluidStackDataComponent {
-    public static final Codec<FluidStackDataComponent> CODEC = FluidStack.CODEC.xmap(FluidStackDataComponent::new, FluidStackDataComponent::fluidStack);
+    public static final Codec<FluidStackDataComponent> CODEC = FluidStack.OPTIONAL_CODEC.xmap(FluidStackDataComponent::new, FluidStackDataComponent::fluidStack);
     public static final StreamCodec<RegistryFriendlyByteBuf, FluidStackDataComponent> STREAM_CODEC = StreamCodec.composite(
-            FluidStack.STREAM_CODEC,
+            FluidStack.OPTIONAL_STREAM_CODEC,
             FluidStackDataComponent::fluidStack,
             FluidStackDataComponent::new
     );
@@ -33,7 +33,7 @@ public final class FluidStackDataComponent {
     }
 
     public FluidStack fluidStack() {
-        return fluidStack.get();
+        return fluidStack.get().copy();
     }
 
     @Override

@@ -24,6 +24,7 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add(ItemRegistries.ICE_CUBE.get(), "Ice Cube");
 //        add(FluidRegistries.GIN_SOURCE_FLUID_BLOCK.getRegisteredName(), "");
         add(FluidTypeRegistries.GIN_FLUID_TYPE.get().getDescriptionId(), "Gin");
+        add(FluidTypeRegistries.WHISKY_FLUID_TYPE.get().getDescriptionId(), "Whisky");
         genLang(this);
     }
 

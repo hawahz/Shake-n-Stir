@@ -185,7 +185,7 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
         try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(this.problemPath(), LogUtils.getLogger())) {
             TagValueOutput output = TagValueOutput.createWithContext(reporter, registries);
             ContainerHelper.saveAllItems(output, itemHandler.itemHolder, true);
-            saveAllFluids(output, fluidHandler.fluidHolder, false);
+            saveAllFluids(output, fluidHandler.fluidHolder, true);
             var4 = output.buildResult();
         }
 

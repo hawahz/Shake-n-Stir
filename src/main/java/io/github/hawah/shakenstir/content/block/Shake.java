@@ -70,7 +70,7 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
     public static final EnumProperty<Direction> FACING = DirectionalBlock.FACING;
 
     public Shake(Properties properties) {
-        super(properties.sound(SoundType.METAL).pushReaction(PushReaction.PUSH_ONLY));
+        super(properties.sound(SoundType.METAL).pushReaction(PushReaction.PUSH_ONLY).noOcclusion().isViewBlocking((state, level, pos)->false));
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.UP));
     }
 
@@ -293,7 +293,7 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
             return tryPlaceCup(itemStack, state, level, pos, player);
         }
         FluidStackDataComponent fluidHolder;
-        if (!player.getCooldowns().isOnCooldown(itemStack) && !(fluidHolder = itemStack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, FluidStackDataComponent.EMPTY)).isEmpty()) {
+        if (state.getValue(FACING).equals(Direction.DOWN) &&!player.getCooldowns().isOnCooldown(itemStack) && !(fluidHolder = itemStack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, FluidStackDataComponent.EMPTY)).isEmpty()) {
             return tryPourLiquid(state, level, pos, player, fluidHolder, itemStack, hitResult);
         }
         if (state.getValue(FACING).equals(Direction.DOWN) && !itemStack.isEmpty() && canInsert(itemStack)) {

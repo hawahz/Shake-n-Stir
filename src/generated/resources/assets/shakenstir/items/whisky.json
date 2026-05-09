@@ -1,0 +1,27 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "shakenstir:item/whisky"
+        },
+        "when": [
+          "gui",
+          "ground",
+          "fixed",
+          "on_shelf"
+        ]
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:special",
+      "base": "shakenstir:gin",
+      "model": {
+        "type": "shakenstir:spirit_special"
+      }
+    },
+    "property": "minecraft:display_context"
+  }
+}
