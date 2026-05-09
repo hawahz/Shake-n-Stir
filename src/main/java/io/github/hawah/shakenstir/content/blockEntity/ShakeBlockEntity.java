@@ -68,9 +68,14 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
 
     public static void tick(Level level, BlockPos pos, BlockState state, ShakeBlockEntity blockEntity) {
         if (level.isClientSide()) {
+            if (blockEntity.holdingProduct()) {
+                blockEntity.oAnimationHeight = 1;
+                blockEntity.animationHeight = 1;
+                return;
+            }
             blockEntity.oAnimationHeight = blockEntity.animationHeight;
             blockEntity.animationHeight = Mth.lerp(ShakenStirClient.ANI_DELTAF * 0.3F, blockEntity.animationHeight, blockEntity.getFluidAmount() / 1000F);
-            if (!state.getValue(Shake.FACING).equals(Direction.DOWN)) {
+            if (state.getValue(Shake.FACING).getAxis().isHorizontal()) {
                 blockEntity.animationHeight = 0;
                 blockEntity.oAnimationHeight = 0;
             }

@@ -112,7 +112,8 @@
 		},
 		"gui": {
 			"rotation": [27.25, 19.56, -22.09],
-			"translation": [1, 2.5, -2.5]
+			"translation": [1.5, 3.25, -2.5],
+			"scale": [1.31055, 1.31055, 1.31055]
 		},
 		"fixed": {
 			"rotation": [-27.25, 19.56, 22.09],
@@ -128,7 +129,7 @@
 			"children": [0, 1, 2]
 		},
 		{
-			"name": "group",
+			"name": "Body",
 			"origin": [6.5, 4, 6.5],
 			"scope": 0,
 			"color": 0,

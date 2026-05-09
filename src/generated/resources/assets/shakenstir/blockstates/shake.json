@@ -15,7 +15,7 @@
       "y": 180
     },
     "facing=up": {
-      "model": "shakenstir:block/shake"
+      "model": "shakenstir:block/shake_overall"
     },
     "facing=west": {
       "model": "shakenstir:block/shake_fall",

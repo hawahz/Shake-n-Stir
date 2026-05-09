@@ -96,8 +96,6 @@ public class ShakeBlockEntityRenderer implements BlockEntityRenderer<ShakeBlockE
     private void submitItem(
             ShakeBlockEntityRenderState state, ItemStackRenderState itemStackRenderState, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int slot
     ) {
-//        float itemSlotPosition = (slot - 1) * 0.1F;
-//        Vec3 itemOffset = new Vec3(0, 0, 0.3125F-itemSlotPosition);
         double offsetY = 1/16.0 * 0.5;
         poseStack.pushPose();
         poseStack.translate(0.5F, 0.5F, 0.5F);
@@ -106,13 +104,6 @@ public class ShakeBlockEntityRenderer implements BlockEntityRenderer<ShakeBlockE
         poseStack.mulPose(Axis.ZN.rotationDegrees(slot * 100));
         float scale = 0.25F;
         poseStack.scale(scale, scale, scale);
-//        poseStack.mulPose(Axis.YP.rotationDegrees(slot * 100));
-//        poseStack.mulPose(Axis.XP.rotationDegrees(90));
-//        poseStack.translate(itemOffset);
-//        poseStack.scale(0.25F, 0.25F, 0.25F);
-//        offsetY += -(box.maxY - box.minY) / 2.0;
-//
-//        poseStack.translate(0.0, offsetY, 0.0);
         itemStackRenderState.submit(poseStack, submitNodeCollector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
         poseStack.popPose();
     }
