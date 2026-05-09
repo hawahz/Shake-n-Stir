@@ -29,7 +29,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Function;
 
-@EventBusSubscriber
+//@EventBusSubscriber
 public class ItemRegistries {
     public static final DeferredRegister.Items ITEM = DeferredRegister.createItems(ShakenStir.MODID);
     public static final DeferredItem<PriorityBlockItem> SHAKE = register("shake", (Function<Item.Properties, PriorityBlockItem>) ShakeItem::new);
@@ -60,12 +60,12 @@ public class ItemRegistries {
         ITEM.register(eventBus);
     }
 
-    @SubscribeEvent
-    public static void registerCapability(RegisterCapabilitiesEvent event) {
-        event.registerItem(
-                Capabilities.Item.ITEM,
-                (itemStack, itemAccess) -> new ShakeContentHolder(itemAccess, DataComponents.CONTAINER, 6),
-                ItemRegistries.SHAKE
-        );
-    }
+//    @SubscribeEvent
+//    public static void registerCapability(RegisterCapabilitiesEvent event) {
+//        event.registerItem(
+//                Capabilities.Item.ITEM,
+//                (itemStack, itemAccess) -> new ShakeContentHolder(itemAccess, DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, 6),
+//                ItemRegistries.SHAKE
+//        );
+//    }
 }

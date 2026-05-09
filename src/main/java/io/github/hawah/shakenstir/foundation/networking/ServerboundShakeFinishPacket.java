@@ -3,6 +3,7 @@ package io.github.hawah.shakenstir.foundation.networking;
 import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.ShakeFluidDataComponent;
+import io.github.hawah.shakenstir.content.dataComponent.ShakeItemDataComponent;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.recipe.RecipeTypeRegistries;
 import io.github.hawah.shakenstir.content.recipe.ShakeRecipe;
@@ -50,13 +51,13 @@ public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem,
         }
         int shakeSuccessTimes = this.shakeSuccessTimes();
         ItemStack mainHandItem = player.getMainHandItem();
-        List<ItemStack> itemData = new ArrayList<>(shakeItem.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY).allItemsCopyStream().toList());
+        List<ItemStack> itemData = new ArrayList<>(shakeItem.getOrDefault(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, ShakeItemDataComponent.EMPTY).itemStacks());
         List<FluidStack> fluidData = new ArrayList<>(shakeItem.getOrDefault(DataComponentTypeRegistries.SHAKE_CONTENT, ShakeFluidDataComponent.EMPTY).fluidStacks());
         ItemStack predicatedImmProduct;
         if (!itemData.isEmpty() && (predicatedImmProduct = itemData.getFirst())!=null && predicatedImmProduct.is(ItemRegistries.CONTENT_HOLDER) && predicatedImmProduct.has(DataComponentTypeRegistries.SHAKE_SUCCESS_TIMES)) {
-            ItemContainerContents item = predicatedImmProduct.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
+            ShakeItemDataComponent item = predicatedImmProduct.getOrDefault(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, ShakeItemDataComponent.EMPTY);
             itemData.removeFirst();
-            item.allItemsCopyStream().forEach(itemData::add);
+            itemData.addAll(item.itemStacks());
             ShakeFluidDataComponent fluid = predicatedImmProduct.getOrDefault(DataComponentTypeRegistries.SHAKE_CONTENT, ShakeFluidDataComponent.EMPTY);
             fluidData.addAll(fluid.fluidStacks());
             shakeSuccessTimes += predicatedImmProduct.getOrDefault(DataComponentTypeRegistries.SHAKE_SUCCESS_TIMES, 0);
@@ -71,12 +72,12 @@ public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem,
         );
         if (result.isEmpty()) {
             mainHandItem.remove(DataComponentTypeRegistries.SHAKE_CONTENT);
-            mainHandItem.remove(DataComponents.CONTAINER);
+            mainHandItem.remove(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT);
             ItemStack holder = ItemRegistries.CONTENT_HOLDER.get().getDefaultInstance();
             holder.set(DataComponentTypeRegistries.SHAKE_CONTENT, new ShakeFluidDataComponent(fluidData));
-            holder.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(itemData));
+            holder.set(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, new ShakeItemDataComponent(itemData));
             holder.set(DataComponentTypeRegistries.SHAKE_SUCCESS_TIMES, shakeSuccessTimes);
-            mainHandItem.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(List.of(holder)));
+            mainHandItem.set(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, new ShakeItemDataComponent(List.of(holder)));
             return;
         }
         if (!mainHandItem.is(ItemRegistries.SHAKE)) {
@@ -85,8 +86,8 @@ public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem,
         result.map(RecipeHolder::value).ifPresent(recipe -> {
             ItemStack itemStack = recipe.result().create();
             mainHandItem.remove(DataComponentTypeRegistries.SHAKE_CONTENT);
-            mainHandItem.remove(DataComponents.CONTAINER);
-            mainHandItem.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(List.of(itemStack)));
+            mainHandItem.remove(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT);
+            mainHandItem.set(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, new ShakeItemDataComponent(List.of(itemStack)));
         });
     }
 

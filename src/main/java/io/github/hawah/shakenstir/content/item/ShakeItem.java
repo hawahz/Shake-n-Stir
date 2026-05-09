@@ -8,11 +8,13 @@ import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import io.github.hawah.shakenstir.foundation.item.IPickMarkedItem;
 import io.github.hawah.shakenstir.foundation.item.PriorityBlockItem;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.Level;
 
@@ -27,7 +29,6 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem {
                 properties
                         .useCooldown(1.0F)
                         .stacksTo(1)
-                        .component(DataComponents.CONTAINER, ItemContainerContents.EMPTY)
                         .component(DataComponentTypeRegistries.HAS_CUP, true)
         );
     }
@@ -54,6 +55,10 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem {
         if (player.getMainHandItem().getOrDefault(DataComponentTypeRegistries.SHAKING, false) && player.isUsingItem()) {
             return InteractionResult.PASS;
         }
+        ItemStack offhandItem = player.getOffhandItem();
+        if (!offhandItem.isEmpty() && (!offhandItem.is(ItemTags.FREEZE_IMMUNE_WEARABLES) || !offhandItem.is(ItemTags.FOOT_ARMOR))) {
+            return super.use(level, player, hand);
+        }
         player.getMainHandItem().set(DataComponentTypeRegistries.SHAKING, true);
         player.startUsingItem(hand);
 
@@ -67,8 +72,14 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem {
 
     @Override
     public void onUseTick(Level level, LivingEntity livingEntity, ItemStack itemStack, int ticksRemaining) {
+        ItemStack offhandItem = livingEntity.getOffhandItem();
+        if (offhandItem.is(ItemTags.FREEZE_IMMUNE_WEARABLES) && offhandItem.is(ItemTags.FOOT_ARMOR)) {
+            super.onUseTick(level, livingEntity, itemStack, ticksRemaining);
+            return;
+        }
         livingEntity.setIsInPowderSnow(true);
-        livingEntity.setTicksFrozen(Math.min(livingEntity.getTicksRequiredToFreeze(), livingEntity.getTicksFrozen() + 1));
+        int iceCubes = itemStack.getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0);
+        livingEntity.setTicksFrozen(Math.min(livingEntity.getTicksRequiredToFreeze(), livingEntity.getTicksFrozen() + iceCubes));
         super.onUseTick(level, livingEntity, itemStack, ticksRemaining);
     }
 
@@ -76,7 +87,7 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem {
     public boolean releaseUsing(ItemStack itemStack, Level level, LivingEntity entity, int remainingTime) {
 
         itemStack.remove(DataComponentTypeRegistries.SHAKING);
-        entity.clearFreeze();
+        entity.setIsInPowderSnow(true);
 
         return true;
     }

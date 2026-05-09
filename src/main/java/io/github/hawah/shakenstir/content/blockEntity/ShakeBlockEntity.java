@@ -2,17 +2,14 @@ package io.github.hawah.shakenstir.content.blockEntity;
 
 import com.mojang.logging.LogUtils;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
-import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.content.block.Shake;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
-import io.github.hawah.shakenstir.content.dataComponent.FluidStackDataComponent;
 import io.github.hawah.shakenstir.content.dataComponent.ShakeFluidDataComponent;
+import io.github.hawah.shakenstir.content.dataComponent.ShakeItemDataComponent;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
-import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import io.github.hawah.shakenstir.util.FluidStackWithSlot;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponentGetter;
@@ -21,7 +18,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.ContainerHelper;
-import net.minecraft.world.ItemStackWithSlot;
 import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
@@ -40,7 +36,6 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Collections;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -49,12 +44,15 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
     public static final int MAX_FLUID_CAPACITY = 1000;
     public static final int MAX_HOLD_ITEMS = 4;
 
+    // Animation
     public float animationHeight = 0;
     public float oAnimationHeight = 0;
 
+    // Functional
+    public int iceCubeCounts = 0;
+
     private final ShakeFluidResourceResourceHandler fluidHandler = new ShakeFluidResourceResourceHandler();
     private final ShakeItemResourceResourceHandler itemHandler = new ShakeItemResourceResourceHandler();
-
 
     public ShakeBlockEntity(BlockPos worldPosition, BlockState blockState) {
         super(BlockEntityRegistries.SHAKE_BLOCK_ENTITY.get(), worldPosition, blockState);
@@ -63,10 +61,11 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
     public void reset() {
         itemHandler.itemHolder.clear();
         fluidHandler.fluidHolder.clear();
+        iceCubeCounts = 0;
         setChanged();
     }
 
-    public static void tick(Level level, BlockPos pos, BlockState state, ShakeBlockEntity blockEntity) {
+    public static void onAnimationTick(Level level, BlockPos pos, BlockState state, ShakeBlockEntity blockEntity) {
         if (level.isClientSide()) {
             if (blockEntity.holdingProduct()) {
                 blockEntity.oAnimationHeight = 1;
@@ -97,12 +96,23 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
         if (holdingProduct()) {
             return NonNullList.withSize(itemHandler.size(), ItemStack.EMPTY);
         }
+        return getActualItems();
+    }
+
+    public NonNullList<ItemStack> getActualItems() {
         return NonNullList.copyOf(itemHandler.itemHolder);
     }
 
     public boolean putItem(ItemStack itemStack, boolean isCreative) {
         if (itemStack.isEmpty() || holdingProduct()) {
             return false;
+        }
+        if (itemStack.is(ItemRegistries.ICE_CUBE)) {
+            if (iceCubeCounts < 3) {
+                iceCubeCounts++;
+                itemStack.shrink(1);
+            }
+            return true;
         }
         try (Transaction transaction = Transaction.openRoot()) {
             int inserted = itemHandler.insert(ItemResource.of(itemStack), 1, transaction);
@@ -194,11 +204,11 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
     @Override
     protected void applyImplicitComponents(DataComponentGetter components) {
         super.applyImplicitComponents(components);
-        ItemContainerContents itemContents = components.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
+        ShakeItemDataComponent itemContents = components.getOrDefault(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, ShakeItemDataComponent.EMPTY);
         itemHandler.itemHolder.clear();
-        int slots = itemContents.getSlots();
+        int slots = itemContents.size();
         for (int i = 0; i < Math.min(slots, MAX_HOLD_ITEMS); i++) {
-            itemHandler.itemHolder.set(i, itemContents.getStackInSlot(i));
+            itemHandler.itemHolder.set(i, itemContents.itemStacks().get(i));
         }
         ShakeFluidDataComponent shakeFluidData = components.getOrDefault(DataComponentTypeRegistries.SHAKE_CONTENT, ShakeFluidDataComponent.EMPTY);
         fluidHandler.fluidHolder.clear();
@@ -328,7 +338,7 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
     }
     protected class ShakeItemResourceResourceHandler implements ResourceHandler<ItemResource> {
         public final NonNullList<ItemStack> itemHolder = NonNullList.withSize(MAX_HOLD_ITEMS, ItemStack.EMPTY);
-        public final NonNullList<Float> itemInsertTime = NonNullList.withSize(MAX_HOLD_ITEMS, -1F);
+
         @Override
         public int size() {
             return MAX_HOLD_ITEMS;
@@ -381,9 +391,6 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
                 if (itemHolder.get(stackBottom).isEmpty()) {
                     itemHolder.set(stackBottom, resource.toStack());
                     markChanged();
-                    if (level().isClientSide()){
-                        itemInsertTime.set(stackBottom, AnimationTickHolder.getRenderTime());
-                    }
                     return 1;
                 }
                 stackBottom++;

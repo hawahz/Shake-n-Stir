@@ -3,6 +3,7 @@ package io.github.hawah.shakenstir.foundation.datagen;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer;
+import io.github.hawah.shakenstir.content.HasCup;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import net.minecraft.client.data.models.BlockModelGenerators;
@@ -14,16 +15,14 @@ import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.renderer.block.dispatch.Variant;
+import net.minecraft.client.renderer.item.ConditionalItemModel;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.RangeSelectItemModel;
 import net.minecraft.client.renderer.item.properties.numeric.Count;
-import net.minecraft.client.renderer.item.properties.select.DisplayContext;
-import net.minecraft.client.renderer.item.properties.select.SelectItemModelProperties;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.random.WeightedList;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -45,7 +44,7 @@ public class ModModelProvider extends ModelProvider {
     protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
         // Basic single variant model
         registerCustomBlockModel(blockModels, "block/shake_cup", BlockRegistries.SHAKE_CUP_BLOCK.get());
-        generateShake(blockModels);
+        generateShake(blockModels, itemModels);
         registerRotatedBlockModel(blockModels, "block/gin", BlockRegistries.GIN.get());
         registerCustomBlockModel(blockModels, "block/whisky_liquid", BlockRegistries.WHISKY_LIQUID.get());
         registerCustomBlockModel(blockModels, "block/vodka_liquid", BlockRegistries.VODKA_LIQUID.get());
@@ -83,7 +82,7 @@ public class ModModelProvider extends ModelProvider {
         );
     }
 
-    private static void generateShake(BlockModelGenerators blockModels) {
+    private static void generateShake(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
         blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(BlockRegistries.SHAKE_BLOCK.get())
                 .with(
                         PropertyDispatch.initial(BlockStateProperties.FACING)
@@ -93,6 +92,17 @@ public class ModModelProvider extends ModelProvider {
                                 .select(Direction.EAST, getMultiVariant("block/shake_fall").with(BlockModelGenerators.Y_ROT_90))
                                 .select(Direction.SOUTH, getMultiVariant("block/shake_fall").with(BlockModelGenerators.Y_ROT_180))
                                 .select(Direction.WEST, getMultiVariant("block/shake_fall").with(BlockModelGenerators.Y_ROT_270))
+                )
+        );
+        ItemModel.Unbaked openModel = ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "block/shake_body"));
+        ItemModel.Unbaked closedModel = ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "block/shake_overall"));
+        itemModels.itemModelOutput.accept(
+                ItemRegistries.SHAKE.get(),
+                new ConditionalItemModel.Unbaked(
+                        Optional.empty(),
+                        new HasCup(),
+                        closedModel,
+                        openModel
                 )
         );
     }

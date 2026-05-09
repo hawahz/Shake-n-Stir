@@ -7,6 +7,7 @@ import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.FluidStackDataComponent;
 import io.github.hawah.shakenstir.content.dataComponent.ShakeFluidDataComponent;
+import io.github.hawah.shakenstir.content.dataComponent.ShakeItemDataComponent;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import io.github.hawah.shakenstir.lib.VoxelShapeMaker;
@@ -32,7 +33,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
@@ -50,7 +50,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.fluids.FluidStack;
-import org.jspecify.annotations.NonNull;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -88,7 +87,7 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
         // You can return different tickers here, depending on whatever factors you want. A common use case would be
         // to return different tickers on the client or server, only tick one side to begin with,
         // or only return a ticker for some blockstates (e.g. when using a "my machine is working" blockstate property).
-        return createTickerHelper(type, BlockEntityRegistries.SHAKE_BLOCK_ENTITY.get(), ShakeBlockEntity::tick);
+        return createTickerHelper(type, BlockEntityRegistries.SHAKE_BLOCK_ENTITY.get(), ShakeBlockEntity::onAnimationTick);
     }
 
     @Override
@@ -191,14 +190,6 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
             cupItem.setPickUpDelay(20);
             level.addFreshEntity(cupItem);
         }
-        level.playSound(
-                null,
-                pos,
-                SoundEvents.BUCKET_EMPTY,
-                SoundSource.BLOCKS,
-                1,
-                1
-        );
         ParticleUtils.spawnParticleInBlock(
                 level,
                 BlockPos.containing(relative),
@@ -214,6 +205,16 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
                     Player player = level.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 2, false);
                     AdvancementHooks.onShakeBubbleExplode(player);
                 }
+            }
+            if (blockEntity.holdingProduct() || blockEntity.getFluidAmount() != 0) {
+                level.playSound(
+                        null,
+                        pos,
+                        SoundEvents.BUCKET_EMPTY,
+                        SoundSource.BLOCKS,
+                        1,
+                        1
+                );
             }
             blockEntity.reset();
         }
@@ -280,6 +281,9 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
             return true;
         }
         if (itemStack.is(Items.SUGAR)) {
+            return true;
+        }
+        if (itemStack.is(ItemRegistries.ICE_CUBE)) {
             return true;
         }
         return false;
@@ -385,8 +389,9 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
         ItemStack stack = ItemRegistries.SHAKE.toStack();
         stack.set(DataComponentTypeRegistries.HAS_CUP, state.getValue(FACING).equals(Direction.UP));
         if (level.getBlockEntity(pos) instanceof ShakeBlockEntity blockEntity) {
-            stack.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(blockEntity.getItemToRender()));
+            stack.set(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, new ShakeItemDataComponent(blockEntity.getActualItems()));
             stack.set(DataComponentTypeRegistries.SHAKE_CONTENT, new ShakeFluidDataComponent(blockEntity.getFluidStack()));
+            stack.set(DataComponentTypeRegistries.SHAKE_ICE_CUBES, blockEntity.iceCubeCounts);
         }
         return stack;
     }

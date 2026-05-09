@@ -14,6 +14,9 @@ public enum LangData {
     TOOLTIP_SPIRIT_CONTENT("tooltip_spirit_content", "Content: %s", 1),
     TOOLTIP_SPIRIT_EMPTY("tooltip_spirit_empty", "Empty", 0),
     TOOLTIP_SPIRIT_VOLUME("tooltip_spirit_volumn", "Volume: %s mb", 1),
+    TOOLTIP_SHAKE_SHAKING("tooltip_shake_shaking", "Shaking...", 0, ChatFormatting.ITALIC, ChatFormatting.DARK_AQUA),
+    TOOLTIP_SHAKE_CONTENT("tooltip_shake_content", "Ingredients:", 0),
+    TOOLTIP_SHAKE_FLUID_CONTENT("tooltip_shake_fluid_content", "Base:", 0),
 
     HUD_TIP_BLACKBOARD_SELECT_FIRST_POINT("hud.blackboard_select_first_point", "Select the first point", 0),
     HUD_TIP_BLACKBOARD_SELECT_SECOND_POINT("hud.blackboard_select_second_point","Select the second point", 0),

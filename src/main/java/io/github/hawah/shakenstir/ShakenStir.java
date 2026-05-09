@@ -49,6 +49,7 @@ public class ShakenStir {
             .displayItems((params, output) -> {
                 output.accept(ItemRegistries.SHAKE.get());
                 output.accept(ItemRegistries.SHAKE_CUP.get());
+                output.accept(ItemRegistries.ICE_CUBE.get());
                 output.accept(ItemRegistries.GIN.get());
             })
             .build()

@@ -1,6 +1,7 @@
 package io.github.hawah.shakenstir.client.gui;
 
 import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
@@ -83,62 +84,7 @@ public class ShakeContentHud implements GuiLayer {
             float fadeIn = EaseHelper.easeOutPow((float) Mth.clamp(fadeProcess, 0, 1), 2);
 
             if (canLookThrough) {
-                Textures.SHAKE_HUD_INSIDE.blit(
-                        guiGraphics,
-                        x,
-                        y,
-                        255,
-                        255,
-                        255,
-                        (int) (255 * fadeIn)
-                );
-                if (wasVisible) {
-                    height = Mth.lerp(
-                            ShakenStirClient.ANI_DELTAF * deltaTracker.getGameTimeDeltaPartialTick(false) * 0.1,
-                            height,
-                            getLiquidHeight()
-                    );
-                } else {
-                    height = getLiquidHeight();
-                }
-
-                if (cachedBE != null) {
-                    for (int i = 0; i < cachedBE.getItemToRender().size(); i++) {
-                        ItemStack itemStack = cachedBE.getItemToRender().get(i);
-                        if (itemStack.isEmpty()) {
-                            break;
-                        }
-                        guiGraphics.item(
-                                itemStack,
-                                x + 21,
-                                y + 53 - i * 16
-                        );
-                    }
-                }
-
-                guiGraphics.fill(
-                        x + 8,
-                        y + 77 - 2 - (int) height,
-                        x + Textures.SHAKE_HUD_INSIDE.getWidth() - 8,
-                        y + 77,
-                        ARGB.color((int) Mth.clamp(100 * fadeIn, 0, 255), 160, 216, 239)
-                );
-                guiGraphics.horizontalLine(
-                        x + 8,
-                        x + Textures.SHAKE_HUD_INSIDE.getWidth() - 8,
-                        y + 77 - 2 - (int) height,
-                        ARGB.color(160, 216, 239, (int) Mth.clamp(255 * fadeIn, 0, 255))
-                );
-
-                Textures.SHAKE_HUD_OUTSIDE.blit(
-                        guiGraphics,
-                        x,
-                        y,
-                        255,
-                        255,
-                        255,
-                        (int) (255 * fadeIn)
-                );
+                renderShakeWithContent(guiGraphics, deltaTracker, x, y, fadeIn);
             }
 
             if (!canLookThrough) {
@@ -155,6 +101,86 @@ public class ShakeContentHud implements GuiLayer {
 
         }
         wasVisible = isVisible;
+    }
+
+    private void renderShakeWithContent(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker, int x, int y, float fadeIn) {
+        Textures.SHAKE_HUD_INSIDE.blit(
+                guiGraphics,
+                x,
+                y,
+                255,
+                255,
+                255,
+                (int) (255 * fadeIn)
+        );
+        if (wasVisible) {
+            height = Mth.lerp(
+                    ShakenStirClient.ANI_DELTAF * deltaTracker.getGameTimeDeltaPartialTick(false) * 0.1,
+                    height,
+                    getLiquidHeight()
+            );
+        } else {
+            height = getLiquidHeight();
+        }
+
+        if (cachedBE != null) {
+            for (int i = 0; i < cachedBE.getItemToRender().size(); i++) {
+                ItemStack itemStack = cachedBE.getItemToRender().get(i);
+                if (itemStack.isEmpty()) {
+                    break;
+                }
+                guiGraphics.item(
+                        itemStack,
+                        x + 21,
+                        y + 53 - i * 16
+                );
+            }
+        }
+
+        guiGraphics.enableScissor(x + 8, y - 10, x + Textures.SHAKE_HUD_INSIDE.getWidth() - 8, y + 77);
+
+        int iceCubeCounts = cachedBE.iceCubeCounts;
+        float renderTime = height == 0? 0: AnimationTickHolder.getRenderTime() / 10;
+        if (iceCubeCounts > 0) {
+            Textures.ICE_HUD_0.blit(guiGraphics, x + 10, y + 66+ (int) (-height + 2 * Math.sin(renderTime)));
+        }
+        iceCubeCounts --;
+        if (iceCubeCounts > 0) {
+            Textures.ICE_HUD_1.blit(guiGraphics, x + 26, y + 66 + (int) (-height + 2 * Math.sin(renderTime + 1)));
+        }
+        iceCubeCounts --;
+        if (iceCubeCounts > 0) {
+            Textures.ICE_HUD_2.blit(guiGraphics, x + 36, y + 66 + (int) (-height + 2 * Math.sin(renderTime + 2)));
+        }
+
+
+        if (height > 0) {
+            guiGraphics.fill(
+                    x + 8,
+                    y + 77 - 2 - (int) height,
+                    x + Textures.SHAKE_HUD_INSIDE.getWidth() - 8,
+                    y + 77,
+                    ARGB.color((int) Mth.clamp(100 * fadeIn, 0, 255), 160, 216, 239)
+            );
+            guiGraphics.horizontalLine(
+                    x + 8,
+                    x + Textures.SHAKE_HUD_INSIDE.getWidth() - 8,
+                    y + 77 - 2 - (int) height,
+                    ARGB.color(160, 216, 239, (int) Mth.clamp(255 * fadeIn, 0, 255))
+            );
+        }
+
+        guiGraphics.disableScissor();
+
+        Textures.SHAKE_HUD_OUTSIDE.blit(
+                guiGraphics,
+                x,
+                y,
+                255,
+                255,
+                255,
+                (int) (255 * fadeIn)
+        );
     }
 
     private void submitFluidSim(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker, int x, int y, boolean isVisible, float fadeIn) {

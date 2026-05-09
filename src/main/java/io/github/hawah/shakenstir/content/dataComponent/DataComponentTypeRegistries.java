@@ -23,19 +23,31 @@ public class DataComponentTypeRegistries {
             builder -> builder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
     );
 
-    public static final DataComponentType<Boolean> SHAKING = register(
-            "shake_shaking",
-            builder -> builder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
-    );
-
     public static final DataComponentType<FluidStackDataComponent> SPIRIT_CONTENT = register(
             "spirit_content",
             builder -> builder.persistent(FluidStackDataComponent.CODEC).networkSynchronized(FluidStackDataComponent.STREAM_CODEC)
     );
 
+    // Shake
+
+    public static final DataComponentType<Boolean> SHAKING = register(
+            "shake_shaking",
+            builder -> builder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
+    );
+
     public static final DataComponentType<ShakeFluidDataComponent> SHAKE_CONTENT = register(
             "shake_content",
             builder -> builder.persistent(ShakeFluidDataComponent.CODEC).networkSynchronized(ShakeFluidDataComponent.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<ShakeItemDataComponent> SHAKE_ITEM_INGREDIENT = register(
+            "shake_item_ingredient",
+            builder -> builder.persistent(ShakeItemDataComponent.CODEC).networkSynchronized(ShakeItemDataComponent.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<Integer> SHAKE_ICE_CUBES = register(
+            "shake_ice_cubes",
+            builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
     );
 
     // Product Above
@@ -50,14 +62,17 @@ public class DataComponentTypeRegistries {
             builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
     );
 
-    public static final DataComponentType<Boolean> SHAKE_DIRECT_ITEM_PRODUCT = register(
-            "shake_direct_item_product",
+    // 产物是否可以倒出来，也就是当结果为true的时候，产物载体可以倒到鸡尾酒杯当中，所有component都会直接继承到鸡尾酒杯上
+    public static final DataComponentType<Boolean> SHAKE_PRODUCT_POURABLE = register(
+            "shake_product_pourable",
             builder -> builder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
     );
 
-    public static final DataComponentType<ItemStack> SHAKE_PRODUCT_DATA_HOLDER = register(
-            "shake_product_data_holder",
-            builder -> builder.persistent(ItemStack.CODEC).networkSynchronized(ItemStack.STREAM_CODEC)
+    // 调酒后的产品从方块形式变成物品的时候，会变成什么样的物品。如果有此组件，则覆盖 SHAKE_PRODUCT_POURABLE 字段
+    //
+    public static final DataComponentType<ItemStack> SHAKE_PRODUCT_POUR_TAKE_ITEM = register(
+            "shake_product",
+            builder -> builder.persistent(ItemStack.OPTIONAL_CODEC).networkSynchronized(ItemStack.OPTIONAL_STREAM_CODEC)
     );
 
     public static void register(IEventBus eventBus) {

@@ -14,6 +14,10 @@ public enum Textures {
     SHAKE_HUD_FRONT("textures/gui/shake_hud.png", 82, 10, 58, 83, 0),
     SHAKE_HUD_OUTSIDE("textures/gui/shake_hud.png", 11, 10, 58, 83, 0),
     SHAKE_HUD_INSIDE("textures/gui/shake_hud.png", 11, 96, 58, 83, 0),
+    ICE_HUD_0("textures/gui/shake_hud.png", 145, 10,15, 16 , 0),
+    ICE_HUD_1("textures/gui/shake_hud.png", 160, 10,8, 17 , 0),
+    ICE_HUD_2("textures/gui/shake_hud.png", 168, 10,12, 15 , 0),
+
     ;
     private final String resource;
     private final int startX;

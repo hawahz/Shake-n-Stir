@@ -19,9 +19,11 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.client.gui.GuiLayer;
 import org.joml.Vector2d;
+import org.jspecify.annotations.NonNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -33,6 +35,7 @@ public class ShakeHandler implements IHandler, GuiLayer {
     private int lastSuccessTick = -1;
     private int shakeSuccessTimes = 0;
     private int firstShakeTick = -1;
+    private ItemStack item = null;
 
     public void setX(double x) {
         this.x = Mth.lerp(0.2, this.x, Mth.clamp(x, -1, 2));
@@ -57,8 +60,13 @@ public class ShakeHandler implements IHandler, GuiLayer {
         assert Minecraft.getInstance().player != null;
         assert Minecraft.getInstance().level != null;
         double dot = vec.dot(oVec);
+        int shakeCubes = getItem().getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0);
         if (dot < -0.125 && AnimationTickHolder.getTicks() - lastSuccessTick > 5) {
-            float volumeWater = EaseHelper.easeInPow(Mth.clamp((float) shakeSuccessTimes / 50, 0, 0.8F), 6);
+            int maxValidShakes = shakeCubes * 10;
+            float volumeWater = shakeCubes == 0? 1.2F: EaseHelper.easeInPow(Mth.clamp((float) shakeSuccessTimes / maxValidShakes, 0, 0.8F), 6);
+
+            if (shakeCubes != 0)
+
             Minecraft.getInstance().getSoundManager().play(
                     new SimpleSoundInstance(
                             SoundEvents.GLASS_HIT,
@@ -81,6 +89,7 @@ public class ShakeHandler implements IHandler, GuiLayer {
             );
             lastSuccessTick = AnimationTickHolder.getTicks();
             shakeSuccessTimes ++;
+            shakeSuccessTimes = Mth.clamp(shakeSuccessTimes, 0, maxValidShakes);
         }
     }
 
@@ -96,11 +105,29 @@ public class ShakeHandler implements IHandler, GuiLayer {
     public boolean isActive() {
         LocalPlayer player = Minecraft.getInstance().player;
         assert player != null;
-        return Minecraft.getInstance().mouseHandler.isRightPressed() &&
-                player.getMainHandItem().getItem() instanceof ShakeItem &&
+        return player.isUsingItem() &&
+                getItem(player).getItem() instanceof ShakeItem &&
                 ClientDataHolder.Picker.type().equals(HitResult.Type.MISS) &&
-                !player.getCooldowns().isOnCooldown(player.getMainHandItem()) &&
-                player.getMainHandItem().getOrDefault(DataComponentTypeRegistries.HAS_CUP, false);
+                !player.getCooldowns().isOnCooldown(getItem(player)) &&
+                getItem(player).getOrDefault(DataComponentTypeRegistries.HAS_CUP, false);
+    }
+
+    public void end() {
+        item = null;
+    }
+
+    private ItemStack getItem(LocalPlayer player) {
+        if (item != null) {
+            return item;
+        }
+        return item = player.getMainHandItem();
+    }
+
+    private ItemStack getItem() {
+        if (item != null) {
+            return item;
+        }
+        return getItem(Minecraft.getInstance().player);
     }
 
     public int firstTimeShake() {
@@ -121,6 +148,7 @@ public class ShakeHandler implements IHandler, GuiLayer {
                 finish();
             }
             wasActive = false;
+            end();
             return Result.empty();
         }
         if (!wasActive) {
@@ -139,6 +167,7 @@ public class ShakeHandler implements IHandler, GuiLayer {
 
         wasActive = true;
         tick();
+        end();
         return new Result(isActive());
     }
 
@@ -158,7 +187,7 @@ public class ShakeHandler implements IHandler, GuiLayer {
         assert Minecraft.getInstance().player != null;
         Networking.sendToServer(new ServerboundShakeFinishPacket(
                 Minecraft.getInstance().player.getUUID(),
-                Minecraft.getInstance().player.getMainHandItem(),
+                getItem(Minecraft.getInstance().player),
                 shakeSuccessTimes
         ));
     }

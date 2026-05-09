@@ -58,6 +58,7 @@ public class ShakeBlockEntityRenderer implements BlockEntityRenderer<ShakeBlockE
             }
         }
         state.liquidHeight = Mth.lerp(partialTicks, blockEntity.oAnimationHeight, blockEntity.animationHeight);
+        state.iceCubeCounts = blockEntity.iceCubeCounts;
     }
 
     @Override
