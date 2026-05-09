@@ -1,6 +1,5 @@
 package io.github.hawah.shakenstir.foundation.networking;
 
-import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.ShakeFluidDataComponent;
 import io.github.hawah.shakenstir.content.dataComponent.ShakeItemDataComponent;
@@ -10,7 +9,6 @@ import io.github.hawah.shakenstir.content.recipe.ShakeRecipe;
 import io.github.hawah.shakenstir.content.recipe.ShakeRecipeInput;
 import io.github.hawah.shakenstir.lib.networking.ClientToServerPacket;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -18,7 +16,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.neoforged.neoforge.fluids.FluidStack;

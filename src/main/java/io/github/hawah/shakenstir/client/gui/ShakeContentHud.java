@@ -1,7 +1,6 @@
 package io.github.hawah.shakenstir.client.gui;
 
 import com.mojang.blaze3d.platform.Window;
-import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.ClientDataHolder;

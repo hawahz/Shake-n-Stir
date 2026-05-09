@@ -1,8 +1,5 @@
 package io.github.hawah.shakenstir.foundation.datagen;
 
-import io.github.hawah.shakenstir.ShakenStir;
-import io.github.hawah.shakenstir.content.block.BlockRegistries;
-import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import io.github.hawah.shakenstir.content.fluid.FluidTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
