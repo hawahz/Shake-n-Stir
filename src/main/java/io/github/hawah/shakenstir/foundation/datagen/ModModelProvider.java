@@ -53,6 +53,8 @@ public class ModModelProvider extends ModelProvider {
         generateShake(blockModels, itemModels);
         generateSpirit(blockModels, itemModels, BlockRegistries.GIN, ItemRegistries.GIN, "gin");
         generateSpirit(blockModels, itemModels, BlockRegistries.WHISKY, ItemRegistries.WHISKY, "whisky");
+        generateEmptyModel(blockModels, BlockRegistries.LONG_DRINK_GLASSWARE.get());
+        generateEmptyModel(blockModels, BlockRegistries.SHORT_DRINK_GLASSWARE.get());
         registerCustomBlockModel(blockModels, "block/whisky_liquid", BlockRegistries.WHISKY_LIQUID.get());
         registerCustomBlockModel(blockModels, "block/vodka_liquid", BlockRegistries.VODKA_LIQUID.get());
         registerCustomBlockModel(blockModels, "block/rum_liquid", BlockRegistries.RUM_LIQUID.get());
@@ -165,6 +167,10 @@ public class ModModelProvider extends ModelProvider {
                         getMultiVariant(modelPath)
                 )
         );
+    }
+
+    private static void generateEmptyModel(BlockModelGenerators blockModels, Block block) {
+        blockModels.createParticleOnlyBlock(block);
     }
 
     private static void registerRotatedBlockModel(BlockModelGenerators blockModels, String modelPath, Block block) {

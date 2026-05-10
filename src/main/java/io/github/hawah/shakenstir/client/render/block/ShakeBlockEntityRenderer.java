@@ -6,6 +6,7 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.math.Axis;
 import io.github.hawah.shakenstir.client.render.block.renderstate.ShakeBlockEntityRenderState;
 import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
+import io.github.hawah.shakenstir.util.Models;
 import it.unimi.dsi.fastutil.HashCommon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -27,6 +28,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Optional;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault

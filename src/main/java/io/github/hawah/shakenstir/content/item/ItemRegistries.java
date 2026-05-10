@@ -29,6 +29,7 @@ public class ItemRegistries {
     public static final DeferredItem<PriorityBlockItem> SHAKE_CUP = register("shake_cup", BlockRegistries.SHAKE_CUP_BLOCK);
     public static final DeferredItem<Item> ICE_CUBE = register("ice_cube", Item::new);
 
+    public static final DeferredItem<GlasswareItem> LONG_DRINK_GLASSWARE = registerGlass("long_drink_glassware", BlockRegistries.LONG_DRINK_GLASSWARE, new Item.Properties());
 
     public static final DeferredItem<Item> CONTENT_HOLDER = register("shake_content_holder", Item::new);
 
@@ -47,6 +48,10 @@ public class ItemRegistries {
 
     public static <T extends Block> DeferredItem<SpiritBottleItem> registerSpirit(String name, DeferredBlock<T> block, Item.Properties properties) {
         return ITEM.register(name, (registryName) -> new SpiritBottleItem(block.get(), properties.setId(ResourceKey.create(Registries.ITEM, registryName))));
+    }
+
+    public static <T extends Block> DeferredItem<GlasswareItem> registerGlass(String name, DeferredBlock<T> block, Item.Properties properties) {
+        return ITEM.register(name, (registryName) -> new GlasswareItem(block.get(), properties.setId(ResourceKey.create(Registries.ITEM, registryName))));
     }
 
     public static <T extends Block> DeferredItem<SpiritBottleItem> registerSpirit(String name, DeferredBlock<T> block, DeferredHolder<Fluid, FlowingFluid> fluid, Item.Properties properties) {

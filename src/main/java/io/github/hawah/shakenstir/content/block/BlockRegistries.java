@@ -38,7 +38,8 @@ public class BlockRegistries {
     public static final DeferredBlock<SpiritBlock> RUM = register("rum", SpiritBlock::new);
     public static final DeferredBlock<SpiritBlock> TEQUILA = register("tequila", SpiritBlock::new);
     public static final DeferredBlock<SpiritBlock> BRANDY = register("brandy", SpiritBlock::new);
-
+    public static final DeferredBlock<Glassware> LONG_DRINK_GLASSWARE = register("long_drink_glassware", Glassware::new);
+    public static final DeferredBlock<Glassware> SHORT_DRINK_GLASSWARE = register("short_drink_glassware", Glassware::new);
 
 
     public static final DeferredBlock<LiquidBlock> GIN_LIQUID = registerLiquid("gin_liquid", FluidRegistries.GIN_SOURCE_FLUID_BLOCK);
@@ -51,8 +52,12 @@ public class BlockRegistries {
 
     public static final DeferredRegister<MapCodec<? extends Block>> REGISTRAR = DeferredRegister.create(BuiltInRegistries.BLOCK_TYPE, ShakenStir.MODID);
     public static final Supplier<MapCodec<Shake>> SHAKE_CODEC = REGISTRAR.register(
-            "simple",
+            "shake",
             () -> BlockBehaviour.simpleCodec(Shake::new)
+    );
+    public static final Supplier<MapCodec<Glassware>> GLASSWARE_CODEC = REGISTRAR.register(
+            "glassware",
+            () -> BlockBehaviour.simpleCodec(Glassware::new)
     );
     public static final Supplier<MapCodec<SpiritBlock>> CENTERED_SPIRIT_CODEC = REGISTRAR.register(
             "centered_spirit",

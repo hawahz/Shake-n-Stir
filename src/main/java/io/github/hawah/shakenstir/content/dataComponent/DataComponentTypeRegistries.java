@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.content.dataComponent;
 
 import com.mojang.serialization.Codec;
 import io.github.hawah.shakenstir.ShakenStir;
+import io.github.hawah.shakenstir.util.SerializeHelper;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.MutableComponent;
@@ -10,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.apache.logging.log4j.core.config.builder.api.Component;
+import org.joml.Vector2f;
 
 import java.util.function.UnaryOperator;
 
@@ -49,6 +51,16 @@ public class DataComponentTypeRegistries {
     public static final DataComponentType<Integer> SHAKE_ICE_CUBES = register(
             "shake_ice_cubes",
             builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
+    );
+
+    public static final DataComponentType<Vector2f> GLASSWARE_POSITION = register(
+            "glassware_position",
+            builder -> builder.persistent(SerializeHelper.VEC2F_CODEC).networkSynchronized(SerializeHelper.VEC2F_STREAM_CODEC)
+    );
+
+    public static final DataComponentType<Float> GLASSWARE_ROTATION = register(
+            "glassware_rotation",
+            builder -> builder.persistent(Codec.FLOAT).networkSynchronized(ByteBufCodecs.FLOAT)
     );
 
     // Product Above
