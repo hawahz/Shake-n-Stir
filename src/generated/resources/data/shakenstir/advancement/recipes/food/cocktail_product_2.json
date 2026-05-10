@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_shake": {
+    "has_spirit": {
       "conditions": {
         "items": [
           {
-            "items": "shakenstir:shake"
+            "items": "#shakenstir:spirit_item_tag"
           }
         ]
       },
@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "shakenstir:shake_content_holder"
+        "recipe": "shakenstir:cocktail_product_2"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -21,12 +21,12 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_shake"
+      "has_spirit"
     ]
   ],
   "rewards": {
     "recipes": [
-      "shakenstir:shake_content_holder"
+      "shakenstir:cocktail_product_2"
     ]
   }
 }

@@ -14,6 +14,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.ContainerHelper;
@@ -48,6 +50,7 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
 
     // Functional
     public int iceCubeCounts = 0;
+    public boolean isShaking = false;
 
     private final ShakeFluidResourceResourceHandler fluidHandler = new ShakeFluidResourceResourceHandler();
     private final ShakeItemResourceResourceHandler itemHandler = new ShakeItemResourceResourceHandler();
@@ -60,6 +63,7 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
         itemHandler.itemHolder.clear();
         fluidHandler.fluidHolder.clear();
         iceCubeCounts = 0;
+        isShaking = false;
         setChanged();
     }
 
@@ -80,7 +84,11 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
     }
 
     public boolean holdingProduct() {
-        return itemHandler.getResource(0).is(ItemRegistries.CONTENT_HOLDER.get());
+        return itemHandler.getResource(0).is(ItemRegistries.CONTENT_HOLDER.get()) && !isShaking;
+    }
+
+    public boolean isShaking() {
+        return isShaking;
     }
 
     public ItemStack getProduct() {
@@ -110,12 +118,39 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
                 iceCubeCounts++;
                 itemStack.shrink(1);
             }
+            level().playSound(
+                    null,
+                    worldPosition,
+                    SoundEvents.AMETHYST_BLOCK_PLACE,
+                    SoundSource.BLOCKS,
+                    1.0F,
+                    1.0F
+            );
             return true;
         }
         try (Transaction transaction = Transaction.openRoot()) {
             int inserted = itemHandler.insert(ItemResource.of(itemStack), 1, transaction);
             if (!isCreative) {
                 itemStack.shrink(inserted);
+            }
+            if (getFluidAmount() != 0) {
+                level().playSound(
+                        null,
+                        worldPosition,
+                        SoundEvents.SLIME_BLOCK_HIT,
+                        SoundSource.BLOCKS,
+                        1.0F,
+                        1.0F
+                );
+            } else {
+                level().playSound(
+                        null,
+                        worldPosition,
+                        SoundEvents.BONE_BLOCK_HIT,
+                        SoundSource.BLOCKS,
+                        1.0F,
+                        1.0F
+                );
             }
             return inserted != 0;
         }
@@ -177,6 +212,8 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
         super.loadAdditional(input);
         ContainerHelper.loadAllItems(input, itemHandler.itemHolder);
         loadAllFluids(input, fluidHandler.fluidHolder);
+        iceCubeCounts = input.getInt("IceCubes").orElse(0);
+        isShaking = input.getBooleanOr("IsShaking", false);
     }
 
     @Override
@@ -184,8 +221,7 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
         CompoundTag var4;
         try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(this.problemPath(), LogUtils.getLogger())) {
             TagValueOutput output = TagValueOutput.createWithContext(reporter, registries);
-            ContainerHelper.saveAllItems(output, itemHandler.itemHolder, true);
-            saveAllFluids(output, fluidHandler.fluidHolder, true);
+            saveAdditional(output);
             var4 = output.buildResult();
         }
 
@@ -197,6 +233,8 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
         super.saveAdditional(output);
         saveAllFluids(output, fluidHandler.fluidHolder, true);
         ContainerHelper.saveAllItems(output, itemHandler.itemHolder, true);
+        output.putInt("IceCubes", iceCubeCounts);
+        output.putBoolean("IsShaking", isShaking);
     }
 
     @Override
@@ -213,7 +251,8 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
         for (int i = 0; i < Math.min(shakeFluidData.size(), MAX_HOLD_FLUIDS); i++) {
             fluidHandler.fluidHolder.set(i, shakeFluidData.fluidStacks().get(i));
         }
-
+        this.iceCubeCounts = components.getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0);
+        this.isShaking = components.getOrDefault(DataComponentTypeRegistries.SHAKING, false);
     }
 
     @Override

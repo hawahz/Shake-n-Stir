@@ -9,7 +9,9 @@ import io.github.hawah.shakenstir.content.recipe.ShakeRecipe;
 import io.github.hawah.shakenstir.content.recipe.ShakeRecipeInput;
 import io.github.hawah.shakenstir.lib.networking.ClientToServerPacket;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
@@ -82,8 +84,13 @@ public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem,
         }
         result.map(RecipeHolder::value).ifPresent(recipe -> {
             ItemStack itemStack = recipe.result().create();
+            if (itemStack.has(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME)) {
+                MutableComponent name = itemStack.get(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME).getName(fluidData, itemData);
+                itemStack.set(DataComponents.ITEM_NAME, name);
+            }
             mainHandItem.remove(DataComponentTypeRegistries.SHAKE_CONTENT);
             mainHandItem.remove(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT);
+            mainHandItem.remove(DataComponentTypeRegistries.SHAKE_ICE_CUBES);
             mainHandItem.set(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, new ShakeItemDataComponent(List.of(itemStack)));
         });
     }

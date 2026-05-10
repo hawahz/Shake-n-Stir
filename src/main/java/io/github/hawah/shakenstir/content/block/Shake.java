@@ -10,6 +10,7 @@ import io.github.hawah.shakenstir.content.dataComponent.ShakeFluidDataComponent;
 import io.github.hawah.shakenstir.content.dataComponent.ShakeItemDataComponent;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
+import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
 import io.github.hawah.shakenstir.lib.VoxelShapeMaker;
 import io.github.hawah.shakenstir.util.AdvancementHooks;
 import net.minecraft.core.BlockPos;
@@ -275,16 +276,7 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
     }
 
     public static boolean canInsert(ItemStack itemStack) {
-        if (itemStack.tags().anyMatch(Tags.Items.FOODS_FRUIT::equals)) {
-            return true;
-        }
-        if (itemStack.is(Items.SUGAR)) {
-            return true;
-        }
-        if (itemStack.is(ItemRegistries.ICE_CUBE)) {
-            return true;
-        }
-        return false;
+        return itemStack.is(SnsItemTags.SHAKE_PLACABLE) || itemStack.is(ItemRegistries.ICE_CUBE);
     }
 
     @Override
@@ -390,6 +382,7 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
             stack.set(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, new ShakeItemDataComponent(blockEntity.getActualItems().stream().filter(itemStack -> !itemStack.isEmpty()).toList()));
             stack.set(DataComponentTypeRegistries.SHAKE_CONTENT, new ShakeFluidDataComponent(blockEntity.getFluidStack().stream().filter(fluidStack -> !fluidStack.isEmpty()).toList()));
             stack.set(DataComponentTypeRegistries.SHAKE_ICE_CUBES, blockEntity.iceCubeCounts);
+            stack.set(DataComponentTypeRegistries.SHAKING, blockEntity.isShaking);
         }
         return stack;
     }

@@ -26,8 +26,8 @@ public record ShakeRecipe(CommonInfo commonInfo, List<FluidIngredient> inputFlui
 
     public static final MapCodec<ShakeRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             CommonInfo.MAP_CODEC.forGetter(ShakeRecipe::commonInfo),
-            FluidIngredient.CODEC.listOf(1, 6).fieldOf("inputFluids").forGetter(ShakeRecipe::inputFluids),
-            Ingredient.CODEC.listOf(1, 6).fieldOf("inputItems").forGetter(ShakeRecipe::inputItems),
+            FluidIngredient.CODEC.listOf(0, 6).fieldOf("inputFluids").forGetter(ShakeRecipe::inputFluids),
+            Ingredient.CODEC.listOf(0, 6).fieldOf("inputItems").forGetter(ShakeRecipe::inputItems),
             ItemStackTemplate.MAP_CODEC.fieldOf("result").forGetter(ShakeRecipe::result),
             Codec.INT.fieldOf("shakeTimes").forGetter(ShakeRecipe::shakeTimes)
     ).apply(inst, ShakeRecipe::new));
@@ -47,12 +47,6 @@ public record ShakeRecipe(CommonInfo commonInfo, List<FluidIngredient> inputFlui
             ShakeRecipe::new
     );
 
-    public List<FluidStack> getFluidStacks() {
-        return this.inputFluids.stream()
-                .map(FluidIngredient::toFluidStack)
-                .collect(Collectors.toList());
-    }
-
     @Override
     public boolean matches(ShakeRecipeInput input, Level level) {
         // 1. 物品无序匹配：每找到一个匹配就从输入中移除一个
@@ -71,9 +65,9 @@ public record ShakeRecipe(CommonInfo commonInfo, List<FluidIngredient> inputFlui
 
         // 2. 流体无序匹配：同样逻辑，只看流体类型和组件，忽略数量
         List<FluidStack> remainingFluids = new ArrayList<>(input.fluidStacks());
-        for (FluidStack required : this.getFluidStacks()) {
+        for (FluidIngredient required : inputFluids) {
             Optional<FluidStack> matched = remainingFluids.stream()
-                    .filter(fs -> FluidStack.isSameFluidSameComponents(fs, required))
+                    .filter(required::match)
                     .findFirst();
             if (matched.isPresent()) {
                 remainingFluids.remove(matched.get());

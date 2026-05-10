@@ -1,0 +1,17 @@
+{
+  "type": "shakenstir:shake_recipe",
+  "inputFluids": [
+    {
+      "amount": 250,
+      "fluidId": "#shakenstir:bubble_like"
+    }
+  ],
+  "inputItems": [],
+  "result": {
+    "components": {
+      "shakenstir:shake_bubbles": true
+    },
+    "id": "shakenstir:shake_content_holder"
+  },
+  "shakeTimes": 5
+}

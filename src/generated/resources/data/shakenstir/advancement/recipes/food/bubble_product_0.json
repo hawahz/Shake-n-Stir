@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_bubble": {
+      "conditions": {
+        "items": [
+          {
+            "items": "shakenstir:shake"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "shakenstir:bubble_product_0"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_bubble"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "shakenstir:bubble_product_0"
+    ]
+  }
+}

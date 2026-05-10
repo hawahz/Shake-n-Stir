@@ -1,13 +1,8 @@
 {
   "type": "shakenstir:shake_recipe",
-  "inputFluids": [
-    {
-      "amount": 1000,
-      "fluidId": "shakenstir:gin_fluid"
-    }
-  ],
+  "inputFluids": [],
   "inputItems": [
-    "#c:foods/fruit"
+    "#shakenstir:bubble_like_item_tag"
   ],
   "result": {
     "components": {
@@ -15,5 +10,5 @@
     },
     "id": "shakenstir:shake_content_holder"
   },
-  "shakeTimes": 20
+  "shakeTimes": 5
 }

@@ -4,10 +4,12 @@ import com.mojang.serialization.Codec;
 import io.github.hawah.shakenstir.ShakenStir;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import org.apache.logging.log4j.core.config.builder.api.Component;
 
 import java.util.function.UnaryOperator;
 
@@ -72,6 +74,11 @@ public class DataComponentTypeRegistries {
     public static final DataComponentType<ItemStack> SHAKE_PRODUCT_POUR_TAKE_ITEM = register(
             "shake_product",
             builder -> builder.persistent(ItemStack.OPTIONAL_CODEC).networkSynchronized(ItemStack.OPTIONAL_STREAM_CODEC)
+    );
+
+    public static final DataComponentType<ShakeProductDeferredName> SHAKE_PRODUCT_DEFERRED_NAME = register(
+            "shake_product_deferred_name",
+            builder -> builder.persistent(ShakeProductDeferredName.CODEC).networkSynchronized(ShakeProductDeferredName.STREAM_CODEC)
     );
 
     public static void register(IEventBus eventBus) {

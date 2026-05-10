@@ -53,16 +53,23 @@ public class ShakingEvents {
         }
         List<ItemStack> itemStacks = shakeStack.getOrDefault(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, ShakeItemDataComponent.EMPTY).itemStacks();
         List<FluidStack> fluidFromShake = shakeStack.getOrDefault(DataComponentTypeRegistries.SHAKE_CONTENT, ShakeFluidDataComponent.EMPTY).fluidStacks();
-        boolean shaking = !itemStacks.isEmpty() && itemStacks.getFirst().is(ItemRegistries.CONTENT_HOLDER);
+        boolean shaking = shakeStack.getOrDefault(DataComponentTypeRegistries.SHAKING, false);
+        boolean holdingProduct = !itemStacks.isEmpty() && itemStacks.getFirst().is(ItemRegistries.CONTENT_HOLDER);
+        boolean validShaking = holdingProduct && shaking;
         List<ItemStack> items;
         List<FluidStack> fluidStacks;
-        if (shaking) {
+        if (validShaking) {
             event.addTooltipLines(LangData.TOOLTIP_SHAKE_SHAKING.get());
             items = itemStacks.getFirst().getOrDefault(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, ShakeItemDataComponent.EMPTY).itemStacks();
             fluidStacks = itemStacks.getFirst().getOrDefault(DataComponentTypeRegistries.SHAKE_CONTENT, ShakeFluidDataComponent.EMPTY).fluidStacks();
         } else {
             items = itemStacks;
             fluidStacks = fluidFromShake;
+        }
+        if (holdingProduct && !shaking) {
+            ItemStack first = itemStacks.getFirst();
+            event.addTooltipLines(first.getHoverName());
+            return;
         }
         if (!fluidStacks.isEmpty()) {
             event.addTooltipLines(LangData.TOOLTIP_SHAKE_FLUID_CONTENT.get());

@@ -1,0 +1,23 @@
+{
+  "type": "shakenstir:shake_recipe",
+  "inputFluids": [
+    {
+      "amount": 500,
+      "fluidId": "#shakenstir:spirit_tag"
+    },
+    {
+      "amount": 250,
+      "fluidId": "#shakenstir:bitter"
+    }
+  ],
+  "inputItems": [
+    "#shakenstir:sweet_item_tag"
+  ],
+  "result": {
+    "components": {
+      "shakenstir:shake_product_deferred_name": "{Fluid} {Ingredient} Cocktail"
+    },
+    "id": "shakenstir:shake_content_holder"
+  },
+  "shakeTimes": 10
+}
