@@ -26,6 +26,7 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
         state.position.set(blockEntity.position);
         state.rotate = blockEntity.rotation;
+        state.model = blockEntity.getModel();
     }
 
     @Override
@@ -34,7 +35,7 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
         poseStack.translate(state.position.x, 0, state.position.y);
         poseStack.mulPose(Axis.YP.rotationDegrees(state.rotate));
         poseStack.translate(-0.5, 0, -0.5);
-        Models.MARTINI_GLASS.submit(submitNodeCollector, poseStack, state.lightCoords, OverlayTexture.NO_OVERLAY, RenderTypes.translucentMovingBlock());
+        state.model.submit(submitNodeCollector, poseStack, state.lightCoords, OverlayTexture.NO_OVERLAY, RenderTypes.translucentMovingBlock());
         poseStack.popPose();
     }
 

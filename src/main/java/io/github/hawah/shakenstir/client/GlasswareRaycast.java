@@ -15,15 +15,10 @@ import org.joml.Vector2f;
 public record GlasswareRaycast(
         Vector2f localPosition,
         float rotation,
-        float minX,
-        float maxX,
-        float minZ,
-        float maxZ,
-        float minY,
-        float maxY,
         Direction direction,
         boolean present
 ) {
+    public static VoxelShape shape;
     public static GlasswareRaycast checkHitGlasswareDirect(Level level,
                                                            BlockPos blockPos,
                                                            Vec3 source,
@@ -34,7 +29,7 @@ public record GlasswareRaycast(
         if (level.getBlockEntity(blockPos) instanceof GlasswareBlockEntity blockEntity) {
             return checkHitGlasswareDirect(blockEntity, blockPos, source, hitPos);
         }
-        return cache = new GlasswareRaycast(null, 0, 0, 0, 0, 0, 0, 0, null, false);
+        return cache = new GlasswareRaycast(null, 0, null, false);
     }
     public static GlasswareRaycast checkHitGlasswareDirect(GlasswareBlockEntity blockEntity,
                                                            BlockPos blockPos,
@@ -68,39 +63,21 @@ public record GlasswareRaycast(
 
         AABB worldBox = localBox.move(center);
 
-        float minX = (float) localBox.minX * 16;
-        float maxX = (float) localBox.maxX * 16;
-        float minZ = (float) localBox.minZ * 16;
-        float maxZ = (float) localBox.maxZ * 16;
-        float minY = (float) localBox.minY * 16;
-        float maxY = (float) localBox.maxY * 16;
-
-
         Direction direction = RaycastHelper.intersectRayWithBox(
                 worldBox,
                 source,
                 source.add(hitPos.subtract(source).multiply(10, 10, 10))
         );
-        return cache = new GlasswareRaycast(localPosition, rotation, minX, maxX, minZ, maxZ, minY, maxY, direction, true);
-    }
-
-    public static VoxelShape getShape() {
-        if (cache == null) {
-            return Shapes.block();
-        }
-        return Block.box(
-                cache.minX,
-                cache.minY,
-                cache.minZ,
-                cache.maxX,
-                cache.maxY,
-                cache.maxZ
-        );
+        return cache = new GlasswareRaycast(localPosition, rotation, direction, true);
     }
 
     public static GlasswareRaycast cache = null;
 
     public static void clearCache() {
         cache = null;
+    }
+
+    public static VoxelShape getShape() {
+        return shape;
     }
 }

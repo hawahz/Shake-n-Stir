@@ -2,6 +2,8 @@ package io.github.hawah.shakenstir.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import io.github.hawah.shakenstir.client.GlasswareRaycast;
+import io.github.hawah.shakenstir.util.IModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.ShapeRenderer;
@@ -10,7 +12,6 @@ import net.minecraft.client.renderer.state.level.BlockOutlineRenderState;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.ARGB;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.CustomBlockOutlineRenderer;
 import org.joml.Vector2f;
@@ -18,12 +19,7 @@ import org.joml.Vector2f;
 public record GlasswareOutlineRenderer(
         Vector2f position,
         float rotation,
-        float minX,
-        float minY,
-        float minZ,
-        float maxX,
-        float maxY,
-        float maxZ
+        IModel model
 ) implements CustomBlockOutlineRenderer {
 
     @Override
@@ -39,10 +35,12 @@ public record GlasswareOutlineRenderer(
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
         poseStack.translate(-(pos.getX() - camX), 0, -(pos.getZ() - camZ));
 
+        GlasswareRaycast.shape = model.getShape();
+
         ShapeRenderer.renderShape(
                 poseStack,
                 buffer.getBuffer(RenderTypes.lines()),
-                Block.box(minX, minY, minZ, maxX, maxY, maxZ),
+                model.getShape(),
                 pos.getX() - camX,
                 pos.getY() - camY,
                 pos.getZ() - camZ,

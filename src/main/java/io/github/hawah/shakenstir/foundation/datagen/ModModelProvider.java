@@ -14,13 +14,13 @@ import net.minecraft.client.data.models.ModelProvider;
 import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
-import net.minecraft.client.data.models.model.ItemModelUtils;
-import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.data.models.model.*;
 import net.minecraft.client.renderer.block.dispatch.Variant;
 import net.minecraft.client.renderer.item.ConditionalItemModel;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.RangeSelectItemModel;
 import net.minecraft.client.renderer.item.properties.numeric.Count;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
@@ -56,6 +56,7 @@ public class ModModelProvider extends ModelProvider {
         generateSpirit(blockModels, itemModels, BlockRegistries.WHISKY, ItemRegistries.WHISKY, "whisky");
         generateEmptyModel(blockModels, BlockRegistries.LONG_DRINK_GLASSWARE.get(), Blocks.GLASS);
         generateEmptyModel(blockModels, BlockRegistries.SHORT_DRINK_GLASSWARE.get(), Blocks.GLASS);
+
         registerCustomBlockModel(blockModels, "block/whisky_liquid", BlockRegistries.WHISKY_LIQUID.get());
         registerCustomBlockModel(blockModels, "block/vodka_liquid", BlockRegistries.VODKA_LIQUID.get());
         registerCustomBlockModel(blockModels, "block/rum_liquid", BlockRegistries.RUM_LIQUID.get());
@@ -70,6 +71,12 @@ public class ModModelProvider extends ModelProvider {
         registerCustomBlockModel(blockModels, "block/tequila", BlockRegistries.TEQUILA.get());
         registerCustomBlockModel(blockModels, "block/brandy", BlockRegistries.BRANDY.get());
         generateIceCube(itemModels);
+        generateLongDrinkGlassware(itemModels);
+    }
+
+    private static void generateLongDrinkGlassware(ItemModelGenerators itemModels) {
+        ItemModel.Unbaked unbaked = ItemModelUtils.plainModel(ModelTemplates.FLAT_ITEM.create(ModelLocationUtils.getModelLocation(ItemRegistries.LONG_DRINK_GLASSWARE.get()), TextureMapping.layer0(new Material(ShakenStir.asResource("item/collins_glass"))), itemModels.modelOutput));
+        itemModels.itemModelOutput.accept(ItemRegistries.LONG_DRINK_GLASSWARE.get(), unbaked);
     }
 
     private static void generateIceCube(ItemModelGenerators itemModels) {

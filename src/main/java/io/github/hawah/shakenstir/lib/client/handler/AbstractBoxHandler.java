@@ -222,7 +222,7 @@ public abstract class AbstractBoxHandler implements IHandler{
     }
 
     /**
-     * Discard present handler data and outline data. Usually cause a fade and discard on the current binded outline
+     * Discard present handler voxelShape and outline voxelShape. Usually cause a fade and discard on the current binded outline
      * */
     public void discard() {
         outlineSlot = new Object();

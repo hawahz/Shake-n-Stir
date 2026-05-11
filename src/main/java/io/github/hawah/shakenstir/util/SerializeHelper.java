@@ -1,10 +1,14 @@
 package io.github.hawah.shakenstir.util;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.Encoder;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.joml.Vector2f;
@@ -34,5 +38,12 @@ public class SerializeHelper {
         float x = (data & 0xFFFF) / 1000f;
         float y = (data >> 16 & 0xFFFF) / 1000f;
         dst.set(x, y);
+    }
+
+    public static <T extends Enum<T>> Codec<T> ofEnum(Class<T> enumClass) {
+        return Codec.INT.xmap(
+                ordinal -> enumClass.getEnumConstants()[Math.min(ordinal, enumClass.getEnumConstants().length - 1)],
+                Enum::ordinal
+        );
     }
 }

@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "shakenstir:block/long_drink_glassware"
+    "model": "shakenstir:item/long_drink_glassware"
   }
 }

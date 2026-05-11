@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.foundation.mixin;
 
 import io.github.hawah.shakenstir.client.GlasswareRaycast;
 import io.github.hawah.shakenstir.content.block.Glassware;
+import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
@@ -10,8 +11,9 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
+
+import java.util.Optional;
 
 @Mixin(ClientLevel.class)
 public class ClientLevelMixin {
@@ -23,8 +25,8 @@ public class ClientLevelMixin {
             )
     )
     private VoxelShape redirectGetShape(BlockState blockState, BlockGetter blockGetter, BlockPos pos) {
-        if (blockState.getBlock() instanceof Glassware) {
-            return GlasswareRaycast.getShape();
+        if (blockState.getBlock() instanceof Glassware && blockGetter.getBlockEntity(pos) instanceof GlasswareBlockEntity blockEntity) {
+            return Optional.ofNullable(GlasswareRaycast.getShape()).orElse(Shapes.empty());
         }
         return blockState.getShape(blockGetter, pos);
     }

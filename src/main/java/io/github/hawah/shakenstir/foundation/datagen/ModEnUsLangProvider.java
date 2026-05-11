@@ -22,6 +22,9 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add("itemGroup.shakenstir", "Shake n Stir");
         add("itemGroup." + MODID + ".tab", "Shake n Stir");
         add(ItemRegistries.ICE_CUBE.get(), "Ice Cube");
+        add(ItemRegistries.LONG_DRINK_GLASSWARE.get(), "Long Drink Glassware");
+        add(ItemRegistries.SHORT_DRINK_GLASSWARE.get(), "Short Drink Glassware");
+        add(ItemRegistries.WHISKY.get(), "Whisky");
 //        add(FluidRegistries.GIN_SOURCE_FLUID_BLOCK.getRegisteredName(), "");
         add(FluidTypeRegistries.GIN_FLUID_TYPE.get().getDescriptionId(), "Gin");
         add(FluidTypeRegistries.WHISKY_FLUID_TYPE.get().getDescriptionId(), "Whisky");

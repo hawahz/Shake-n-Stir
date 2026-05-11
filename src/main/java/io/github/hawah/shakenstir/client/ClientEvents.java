@@ -69,7 +69,7 @@ public class ClientEvents {
 
             if (result.direction() != null) {
 //
-                event.addCustomRenderer(new GlasswareOutlineRenderer(result.localPosition(), result.rotation(), result.minX(), result.minY(), result.minZ(), result.maxX(), result.maxY(), result.maxZ()));
+                event.addCustomRenderer(new GlasswareOutlineRenderer(result.localPosition(), result.rotation(), blockEntity.getModel()));
             } else {
                 event.setCanceled(true);
             }

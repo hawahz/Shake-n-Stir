@@ -25,6 +25,7 @@ public class SnsCreativeTab {
                 output.accept(ItemRegistries.ICE_CUBE.get());
                 output.accept(ItemRegistries.GIN.get());
                 output.accept(ItemRegistries.WHISKY.get());
+                output.accept(ItemRegistries.LONG_DRINK_GLASSWARE.get());
             })
             .build()
     );

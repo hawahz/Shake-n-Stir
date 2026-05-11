@@ -1,30 +1,28 @@
 package io.github.hawah.shakenstir.util;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.QuadInstance;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.hawah.shakenstir.ShakenStir;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.client.resources.model.geometry.QuadCollection;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
+import org.joml.Vector3f;
 
 import java.util.*;
 
 public enum Models implements IModel{
-    GIN("gin", "block/gin"),
     MARTINI_GLASS("martini_glass", "block/martini_glass"),
     MARGARITA_GLASS("margarita_glass", "block/margarita_glass"),
     COLLINS_GLASS("collins_glass", "block/collins_glass"),
     ;
     private final StandaloneModelKey<QuadCollection> key;
     private final Identifier location;
+    private final ModelData<VoxelShape> voxelShape = new ModelData<>();
     Models(String name, String location) {
         this.key = new StandaloneModelKey<>(
                 () -> {
@@ -70,7 +68,12 @@ public enum Models implements IModel{
         return location;
     }
 
-    public record Mutable(StandaloneModelKey<QuadCollection> key, Identifier location) implements IModel{
+    public ModelData<VoxelShape> voxelShape() {
+        return voxelShape;
+    };
+
+    public record Mutable(StandaloneModelKey<QuadCollection> key, Identifier location,ModelData<VoxelShape> voxelShape) implements IModel{
+
         public Mutable(String key) {
             this(new StandaloneModelKey<>(
                     () -> {
@@ -78,40 +81,35 @@ public enum Models implements IModel{
                         // Can be any string, but it should contain the mod id
                         return ShakenStir.MODID + ':' + key;
                     }
-            ), Identifier.fromNamespaceAndPath(ShakenStir.MODID, "sns/" + key));
+            ), Identifier.fromNamespaceAndPath(ShakenStir.MODID, "sns/" + key), new ModelData<>());
         }
 
         @Override
-        public void submit(SubmitNodeCollector submitNodeCollector, PoseStack poseStack, int lightCoords, int overlayCoords, RenderType renderType, int color) {
-
+        public ModelData<VoxelShape> voxelShape() {
+            return voxelShape;
         }
     }
-} interface IModel {
-    StandaloneModelKey<QuadCollection> key();
 
-    default void submit(SubmitNodeCollector submitNodeCollector, PoseStack poseStack, int lightCoords, int overlayCoords) {
-        submit(submitNodeCollector, poseStack, lightCoords, overlayCoords, RenderTypes.translucentMovingBlock());
-    };
-    default void submit(SubmitNodeCollector submitNodeCollector, PoseStack poseStack, int lightCoords, int overlayCoords, RenderType renderType) {
-        submit(submitNodeCollector, poseStack, lightCoords, overlayCoords, renderType, 0xFFFFFFFF);
-    };
-    default void submit(SubmitNodeCollector submitNodeCollector, PoseStack poseStack, int lightCoords, int overlayCoords, RenderType renderType, int color) {
-        QuadCollection gin = Minecraft.getInstance().getModelManager().getStandaloneModel(key());
-        if (gin == null) {
-            return;
+    public static class ModelData<T> {
+
+        private T value = null;
+
+        public ModelData() {
         }
-        submitNodeCollector.submitCustomGeometry(
-                poseStack,
-                renderType,
-                (pose, buffer) -> {
-                    QuadInstance instance = new QuadInstance();
-                    instance.setLightCoords(lightCoords);
-                    instance.setOverlayCoords(overlayCoords);
-                    instance.setColor(color);
-                    gin.getAll().forEach(quad ->
-                            buffer.putBakedQuad(pose, quad, instance)
-                    );
-                }
-        );
+
+        public T get() {
+            return value;
+        }
+
+        boolean mutable() {
+            return value == null;
+        }
+
+        void setValue(T value) {
+            if (!mutable()) {
+                return;
+            }
+            this.value = value;
+        }
     }
 }
