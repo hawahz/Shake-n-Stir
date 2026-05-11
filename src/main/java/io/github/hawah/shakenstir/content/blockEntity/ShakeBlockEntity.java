@@ -20,6 +20,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.ItemOwner;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -109,7 +110,7 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
         return NonNullList.copyOf(itemHandler.itemHolder);
     }
 
-    public boolean putItem(ItemStack itemStack, boolean isCreative) {
+    public boolean putItem(ItemStack itemStack, Player player) {
         if (itemStack.isEmpty() || holdingProduct()) {
             return false;
         }
@@ -130,8 +131,12 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
         }
         try (Transaction transaction = Transaction.openRoot()) {
             int inserted = itemHandler.insert(ItemResource.of(itemStack), 1, transaction);
-            if (!isCreative) {
+            if (!player.isCreative()) {
                 itemStack.shrink(inserted);
+                if (itemStack.getCraftingRemainder() != null) {
+                    ItemStack remains = itemStack.getCraftingRemainder().create();
+                    player.addItem(remains);
+                }
             }
             if (getFluidAmount() != 0) {
                 level().playSound(

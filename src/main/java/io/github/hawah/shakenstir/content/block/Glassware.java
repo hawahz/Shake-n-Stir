@@ -1,23 +1,21 @@
 package io.github.hawah.shakenstir.content.block;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
-import com.mojang.serialization.MapCodec;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
-import io.github.hawah.shakenstir.content.blockEntity.SpiritBlockEntity;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.FallingBlock;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -32,7 +30,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class Glassware extends FallingBlock implements ITakeUpBlock, EntityBlock {
+public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
 
     public static final BooleanProperty LONG_DRINK = BooleanProperty.create("long_drink");
 
@@ -66,6 +64,33 @@ public class Glassware extends FallingBlock implements ITakeUpBlock, EntityBlock
     }
 
     @Override
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return Shapes.empty();
+    }
+
+    @Override
+    protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+        BlockState blockState = level.getBlockState(pos.below());
+        return blockState.isSolidRender() && blockState.isFaceSturdy(level, pos.below(), Direction.UP);
+    }
+
+    @Override
+    protected BlockState updateShape(
+            BlockState state,
+            LevelReader level,
+            ScheduledTickAccess ticks,
+            BlockPos pos,
+            Direction directionToNeighbour,
+            BlockPos neighbourPos,
+            BlockState neighbourState,
+            RandomSource random
+    ) {
+        return directionToNeighbour == Direction.DOWN && !this.canSurvive(state, level, pos)
+                ? Blocks.AIR.defaultBlockState()
+                : super.updateShape(state, level, ticks, pos, directionToNeighbour, neighbourPos, neighbourState, random);
+    }
+
+    @Override
     protected InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         return super.useItemOn(itemStack, state, level, pos, player, hand, hitResult);
     }
@@ -75,13 +100,6 @@ public class Glassware extends FallingBlock implements ITakeUpBlock, EntityBlock
         return new GlasswareBlockEntity(worldPosition, blockState);
     }
 
-    @Override
-    public void onLand(Level level, BlockPos pos, BlockState state, BlockState replacedBlock, FallingBlockEntity entity) {
-        if (level.getBlockState(pos.below()).isSolidRender()){
-            level.destroyBlock(pos, false);
-        }
-        super.onLand(level, pos, state, replacedBlock, entity);
-    }
 
     @Override
     protected VoxelShape getVisualShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
@@ -98,14 +116,4 @@ public class Glassware extends FallingBlock implements ITakeUpBlock, EntityBlock
         return true;
     }
 
-
-    @Override
-    protected MapCodec<? extends FallingBlock> codec() {
-        return BlockRegistries.GLASSWARE_CODEC.get();
-    }
-
-    @Override
-    public int getDustColor(BlockState blockState, BlockGetter level, BlockPos pos) {
-        return 0;
-    }
 }

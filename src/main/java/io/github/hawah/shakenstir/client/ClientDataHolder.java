@@ -1,10 +1,13 @@
 package io.github.hawah.shakenstir.client;
 
+import io.github.hawah.shakenstir.content.block.Shake;
+import io.github.hawah.shakenstir.lib.client.KeyBinding;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -13,7 +16,10 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import org.intellij.lang.annotations.MagicConstant;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Optional;
 
 @EventBusSubscriber(value = Dist.CLIENT)
@@ -24,22 +30,38 @@ public class ClientDataHolder {
     }
 
     public static class Picker {
-        public static HitResult hitResult = null;
-        public static BlockPos pos() {
-            if (hitResult == null)
+        public static final int FLAG_BLOCK_POS = 1;
+        public static final int FLAG_DIRECTION = 2;
+        public static final int FLAG_BLOCK_STATE = 4;
+        @MagicConstant(flags = {FLAG_BLOCK_POS, FLAG_DIRECTION, FLAG_BLOCK_STATE})
+        public @interface CachedFlags {}
+        public static @CachedFlags int cachedFlags = 0;
+        public static @Nullable HitResult hitResult = null;
+        public static @Nullable BlockPos cachedPos = null;
+        public static @Nullable Direction cachedDirection = null;
+        public static @Nullable BlockState cachedBlockState = null;
+        public static @Nullable BlockPos pos() {
+            if ((cachedFlags & FLAG_BLOCK_POS) != 0) {
+                return cachedPos;
+            }
+            cachedFlags |= FLAG_BLOCK_POS;
+            if (hitResult == null) {
+                cachedPos = null;
                 return null;
-            return hitResult instanceof BlockHitResult blockHitResult ?
+            }
+            return cachedPos =  hitResult instanceof BlockHitResult blockHitResult ?
                     blockHitResult.getBlockPos() :
                     BlockPos.containing(hitResult.getLocation());
         }
 
-        public static Vec3 location() {
-            if (hitResult == null)
+        public static @Nullable Vec3 location() {
+            if (hitResult == null) {
                 return null;
+            }
             return hitResult.getLocation();
         }
 
-        public static Direction direction() {
+        public static @Nullable Direction direction() {
             if (hitResult == null)
                 return null;
             return hitResult instanceof BlockHitResult blockHitResult ?
@@ -47,41 +69,53 @@ public class ClientDataHolder {
                     Direction.fromYRot(hitResult.getLocation().y);
         }
 
-        public static HitResult.Type type() {
+        public static @Nonnull HitResult.Type type() {
             if (hitResult == null)
                 return HitResult.Type.MISS;
             return hitResult.getType();
         }
 
         public static Optional<BlockState> blockState() {
+            if ((cachedFlags & FLAG_BLOCK_STATE) != 0) {
+                return Optional.ofNullable(cachedBlockState);
+            }
+            cachedFlags |= FLAG_BLOCK_STATE;
             if (hitResult == null) {
+                cachedBlockState = null;
                 return Optional.empty();
             }
-            return hitResult instanceof BlockHitResult blockHitResult ?
-                    Optional.of(Minecraft.getInstance().level.getBlockState(blockHitResult.getBlockPos())) :
-                    Optional.empty();
+            cachedBlockState = pos() != null && Minecraft.getInstance().level != null && hitResult.getType().equals(HitResult.Type.BLOCK)?
+                    Minecraft.getInstance().level.getBlockState(pos()):
+                    null;
+            return Optional.ofNullable(cachedBlockState);
         }
 
         public static Optional<Block> block() {
-            if (hitResult == null) {
-                return Optional.empty();
-            }
-            return hitResult instanceof BlockHitResult blockHitResult ?
-                    Optional.of(Minecraft.getInstance().level.getBlockState(blockHitResult.getBlockPos()).getBlock()) :
-                    Optional.empty();
+            return blockState().map(BlockBehaviour.BlockStateBase::getBlock);
         }
 
         public static void tick() {
+            clearCache();
             LocalPlayer player = Minecraft.getInstance().player;
             if (player == null) {
                 return;
             }
-//            if (!(player.getMainHandItem().getItem() instanceof IPickMarkedItem)) {
-//                return;
-//            }
-
             hitResult = player.pick(4.5D, 0.0F, false);
         }
+
+        public static void clearCache() {
+            cachedFlags = 0;
+            cachedBlockState = null;
+            cachedDirection = null;
+            cachedPos = null;
+        }
+    }
+
+    public static boolean shouldModifyView() {
+        if (Minecraft.getInstance().level == null || Minecraft.getInstance().screen != null) {
+            return false;
+        }
+        return Picker.block().isPresent() && Picker.block().get() instanceof Shake && KeyBinding.hasAltDown();
     }
 
     @SubscribeEvent

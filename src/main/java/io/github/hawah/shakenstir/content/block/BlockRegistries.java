@@ -3,8 +3,6 @@ package io.github.hawah.shakenstir.content.block;
 import com.mojang.serialization.MapCodec;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
-import io.github.hawah.shakenstir.content.fluid.FluidTypeRegistries;
-import io.github.hawah.shakenstir.content.recipe.Spirits;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -54,10 +52,6 @@ public class BlockRegistries {
     public static final Supplier<MapCodec<Shake>> SHAKE_CODEC = REGISTRAR.register(
             "shake",
             () -> BlockBehaviour.simpleCodec(Shake::new)
-    );
-    public static final Supplier<MapCodec<Glassware>> GLASSWARE_CODEC = REGISTRAR.register(
-            "glassware",
-            () -> BlockBehaviour.simpleCodec(Glassware::new)
     );
     public static final Supplier<MapCodec<SpiritBlock>> CENTERED_SPIRIT_CODEC = REGISTRAR.register(
             "centered_spirit",

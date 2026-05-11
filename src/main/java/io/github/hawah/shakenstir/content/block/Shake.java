@@ -264,6 +264,8 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
         );
         if (!player.getMainHandItem().is(ItemRegistries.SHAKE_CUP) && player.isCreative()) {
             ITakeUpBlock.holdOrAddItem(player, ItemRegistries.SHAKE_CUP.toStack(), level, pos);
+        } else if (!player.isCreative()) {
+            ITakeUpBlock.holdOrAddItem(player, player.getMainHandItem(), level, pos);
         }
         if (level.getBlockEntity(pos) instanceof ShakeBlockEntity blockEntity && blockEntity.holdingProduct()) {
             ItemStack product = blockEntity.getProduct();
@@ -290,7 +292,7 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
         }
         if (state.getValue(FACING).equals(Direction.DOWN) && !itemStack.isEmpty() && canInsert(itemStack)) {
             if (level.getBlockEntity(pos) instanceof ShakeBlockEntity blockEntity) {
-                blockEntity.putItem(itemStack, player.isCreative());
+                blockEntity.putItem(itemStack, player);
                 return InteractionResult.SUCCESS;
             }
         }

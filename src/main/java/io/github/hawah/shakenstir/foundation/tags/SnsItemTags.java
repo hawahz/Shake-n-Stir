@@ -35,4 +35,9 @@ public class SnsItemTags {
             Registries.ITEM,
             ShakenStir.asResource("shake_placable_item_tag")
     );
+
+    public static final TagKey<Item> GLASSWARE = TagKey.create(
+            Registries.ITEM,
+            ShakenStir.asResource("glassware_item_tag")
+    );
 }

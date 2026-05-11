@@ -6,6 +6,7 @@ import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistr
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import io.github.hawah.shakenstir.content.fluid.FluidTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.content.item.SnsCreativeTab;
 import io.github.hawah.shakenstir.content.recipe.RecipeTypeRegistries;
 import io.github.hawah.shakenstir.foundation.networking.NetworkPackets;
 import net.minecraft.network.chat.Component;
@@ -39,23 +40,7 @@ public class ShakenStir {
     public static final String MODID = "shakenstir";
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
-    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(BuiltInRegistries.CREATIVE_MODE_TAB, MODID);
-    //CREATIVE_MODE_TABS is a DeferredRegister<CreativeModeTab>
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> SHAKENSTIR_TAB = CREATIVE_MODE_TABS.register("shakenstir_tab", () -> CreativeModeTab.builder()
-            //Set the title of the tab. Don't forget to add a translation!
-            .title(Component.translatable("itemGroup." + MODID + ".tab"))
-            //Set the icon of the tab.
-            .icon(() -> new ItemStack(ItemRegistries.SHAKE.get()))
-            //Add your items to the tab.
-            .displayItems((params, output) -> {
-                output.accept(ItemRegistries.SHAKE.get());
-                output.accept(ItemRegistries.SHAKE_CUP.get());
-                output.accept(ItemRegistries.ICE_CUBE.get());
-                output.accept(ItemRegistries.GIN.get());
-                output.accept(ItemRegistries.WHISKY.get());
-            })
-            .build()
-    );
+
     public ShakenStir(IEventBus modEventBus, ModContainer modContainer) {
 
         modEventBus.addListener(this::commonSetup);
@@ -67,7 +52,7 @@ public class ShakenStir {
         FluidRegistries.register(modEventBus);
         ItemRegistries.register(modEventBus);
         RecipeTypeRegistries.register(modEventBus);
-        CREATIVE_MODE_TABS.register(modEventBus);
+        SnsCreativeTab.register(modEventBus);
 
         NetworkPackets.register();
 

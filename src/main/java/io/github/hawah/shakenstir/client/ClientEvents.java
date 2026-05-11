@@ -8,7 +8,6 @@ import io.github.hawah.shakenstir.client.render.block.ShakeBlockEntityRenderer;
 import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer;
 import io.github.hawah.shakenstir.content.HasCup;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
-import io.github.hawah.shakenstir.content.block.Shake;
 import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.lib.client.render.outliner.Outliner;
@@ -41,27 +40,22 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void modifyFov(ComputeFovModifierEvent event) {
-        if (Minecraft.getInstance().level == null || Minecraft.getInstance().screen != null) {
-            return;
-        }
-        BlockPos pos = ClientDataHolder.Picker.pos();
-        if (pos == null) {
-            return;
-        }
-        BlockState state = Minecraft.getInstance().level.getBlockState(pos);
-        if (state.getBlock() instanceof Shake && Minecraft.getInstance().hasAltDown()) {
+        if (ClientDataHolder.shouldModifyView()) {
             event.setNewFovModifier(event.getFovModifier() / 2);
+        }
+    }
 
+    @SubscribeEvent
+    public static void modifyTurnSensitivity(CalculatePlayerTurnEvent event) {
+        if (ClientDataHolder.shouldModifyView()) {
+            event.setCinematicCameraEnabled(true);
         }
     }
 
     @SubscribeEvent
     public static void onTick(ClientTickEvent.Pre event) {
+        GlasswareRaycast.clearCache();
         ShakenStirClient.SHAKE_CONTENT_HUD.tick();
-    }
-
-    @SubscribeEvent
-    public static void modifyTurnSensitivity(CalculatePlayerTurnEvent event) {
     }
 
     @SubscribeEvent
@@ -130,7 +124,7 @@ public class ClientEvents {
         public static void registerModels(ModelEvent.RegisterStandalone event) {
             for (Models value : Models.values()) {
                 event.register(
-                        value.getKey(),
+                        value.key(),
                         SimpleUnbakedStandaloneModel.quadCollection(
                                 // The model id, relative to `assets/<namespace>/models/<path>.json`
                                 value.getLocation()

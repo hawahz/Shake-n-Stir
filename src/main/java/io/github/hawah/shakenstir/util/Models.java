@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.hawah.shakenstir.ShakenStir;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.resources.model.geometry.QuadCollection;
@@ -14,11 +15,9 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 
-import java.awt.*;
 import java.util.*;
-import java.util.List;
 
-public enum Models {
+public enum Models implements IModel{
     GIN("gin", "block/gin"),
     MARTINI_GLASS("martini_glass", "block/martini_glass"),
     MARGARITA_GLASS("margarita_glass", "block/margarita_glass"),
@@ -60,46 +59,18 @@ public enum Models {
         );
     }
 
-    public StandaloneModelKey<QuadCollection> getKey() {
+    public StandaloneModelKey<QuadCollection> key() {
         return key;
     }
-
-    public void render(PoseStack poseStack, int lightCoords, int overlayCoords) {
-        render(poseStack, lightCoords, overlayCoords, RenderTypes.translucentMovingBlock());
-    }
-
     public static Optional<Mutable> getModel(String key) {
         return Optional.ofNullable(resourcePackModels.get(key));
-    }
-
-    public void render(PoseStack poseStack, int lightCoords, int overlayCoords, RenderType renderType) {
-        QuadCollection gin = Minecraft.getInstance().getModelManager().getStandaloneModel(key);
-        VertexConsumer consumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(renderType);
-        QuadInstance instance = new QuadInstance();
-        instance.setLightCoords(lightCoords);
-        instance.setOverlayCoords(overlayCoords);
-        gin.getAll().forEach(quad ->
-                consumer.putBakedQuad(poseStack.last(), quad, instance)
-        );
-    }
-
-    public void render(PoseStack poseStack, int lightCoords, int overlayCoords, RenderType renderType, int color) {
-        QuadCollection gin = Minecraft.getInstance().getModelManager().getStandaloneModel(key);
-        VertexConsumer consumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(renderType);
-        QuadInstance instance = new QuadInstance();
-        instance.setLightCoords(lightCoords);
-        instance.setOverlayCoords(overlayCoords);
-        instance.setColor(color);
-        gin.getAll().forEach(quad ->
-                consumer.putBakedQuad(poseStack.last(), quad, instance)
-        );
     }
 
     public Identifier getLocation() {
         return location;
     }
 
-    public record Mutable(StandaloneModelKey<QuadCollection> key, Identifier location) {
+    public record Mutable(StandaloneModelKey<QuadCollection> key, Identifier location) implements IModel{
         public Mutable(String key) {
             this(new StandaloneModelKey<>(
                     () -> {
@@ -110,31 +81,37 @@ public enum Models {
             ), Identifier.fromNamespaceAndPath(ShakenStir.MODID, "sns/" + key));
         }
 
-        public void render(PoseStack poseStack, int lightCoords, int overlayCoords) {
-            render(poseStack, lightCoords, overlayCoords, RenderTypes.translucentMovingBlock());
-        }
+        @Override
+        public void submit(SubmitNodeCollector submitNodeCollector, PoseStack poseStack, int lightCoords, int overlayCoords, RenderType renderType, int color) {
 
-        public void render(PoseStack poseStack, int lightCoords, int overlayCoords, RenderType renderType) {
-            QuadCollection gin = Minecraft.getInstance().getModelManager().getStandaloneModel(key);
-            VertexConsumer consumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(renderType);
-            QuadInstance instance = new QuadInstance();
-            instance.setLightCoords(lightCoords);
-            instance.setOverlayCoords(overlayCoords);
-            gin.getAll().forEach(quad ->
-                    consumer.putBakedQuad(poseStack.last(), quad, instance)
-            );
         }
+    }
+} interface IModel {
+    StandaloneModelKey<QuadCollection> key();
 
-        public void render(PoseStack poseStack, int lightCoords, int overlayCoords, RenderType renderType, int color) {
-            QuadCollection gin = Minecraft.getInstance().getModelManager().getStandaloneModel(key);
-            VertexConsumer consumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(renderType);
-            QuadInstance instance = new QuadInstance();
-            instance.setLightCoords(lightCoords);
-            instance.setOverlayCoords(overlayCoords);
-            instance.setColor(color);
-            gin.getAll().forEach(quad ->
-                    consumer.putBakedQuad(poseStack.last(), quad, instance)
-            );
+    default void submit(SubmitNodeCollector submitNodeCollector, PoseStack poseStack, int lightCoords, int overlayCoords) {
+        submit(submitNodeCollector, poseStack, lightCoords, overlayCoords, RenderTypes.translucentMovingBlock());
+    };
+    default void submit(SubmitNodeCollector submitNodeCollector, PoseStack poseStack, int lightCoords, int overlayCoords, RenderType renderType) {
+        submit(submitNodeCollector, poseStack, lightCoords, overlayCoords, renderType, 0xFFFFFFFF);
+    };
+    default void submit(SubmitNodeCollector submitNodeCollector, PoseStack poseStack, int lightCoords, int overlayCoords, RenderType renderType, int color) {
+        QuadCollection gin = Minecraft.getInstance().getModelManager().getStandaloneModel(key());
+        if (gin == null) {
+            return;
         }
+        submitNodeCollector.submitCustomGeometry(
+                poseStack,
+                renderType,
+                (pose, buffer) -> {
+                    QuadInstance instance = new QuadInstance();
+                    instance.setLightCoords(lightCoords);
+                    instance.setOverlayCoords(overlayCoords);
+                    instance.setColor(color);
+                    gin.getAll().forEach(quad ->
+                            buffer.putBakedQuad(pose, quad, instance)
+                    );
+                }
+        );
     }
 }

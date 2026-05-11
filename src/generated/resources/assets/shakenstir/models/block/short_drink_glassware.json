@@ -1,5 +1,5 @@
 {
   "textures": {
-    "particle": "shakenstir:block/short_drink_glassware"
+    "particle": "minecraft:block/glass"
   }
 }

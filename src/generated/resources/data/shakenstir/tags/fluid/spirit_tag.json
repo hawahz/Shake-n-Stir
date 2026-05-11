@@ -1,16 +1,10 @@
 {
   "values": [
-    "shakenstir:gin_fluid",
-    "shakenstir:gin_fluid_flow",
-    "shakenstir:vodka_fluid",
-    "shakenstir:vodka_fluid_flow",
-    "shakenstir:whiskey_fluid",
-    "shakenstir:whiskey_fluid_flow",
-    "shakenstir:branky_fluid",
-    "shakenstir:branky_fluid_flow",
-    "shakenstir:rum_fluid",
-    "shakenstir:rum_fluid_flow",
-    "shakenstir:tequila_fluid",
-    "shakenstir:tequila_fluid_flow"
+    "#shakenstir:gin",
+    "#shakenstir:vodka",
+    "#shakenstir:whisky",
+    "#shakenstir:brandy",
+    "#shakenstir:rum",
+    "#shakenstir:tequila"
   ]
 }

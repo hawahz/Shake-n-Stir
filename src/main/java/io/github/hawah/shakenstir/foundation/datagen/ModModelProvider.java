@@ -27,6 +27,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -53,8 +54,8 @@ public class ModModelProvider extends ModelProvider {
         generateShake(blockModels, itemModels);
         generateSpirit(blockModels, itemModels, BlockRegistries.GIN, ItemRegistries.GIN, "gin");
         generateSpirit(blockModels, itemModels, BlockRegistries.WHISKY, ItemRegistries.WHISKY, "whisky");
-        generateEmptyModel(blockModels, BlockRegistries.LONG_DRINK_GLASSWARE.get());
-        generateEmptyModel(blockModels, BlockRegistries.SHORT_DRINK_GLASSWARE.get());
+        generateEmptyModel(blockModels, BlockRegistries.LONG_DRINK_GLASSWARE.get(), Blocks.GLASS);
+        generateEmptyModel(blockModels, BlockRegistries.SHORT_DRINK_GLASSWARE.get(), Blocks.GLASS);
         registerCustomBlockModel(blockModels, "block/whisky_liquid", BlockRegistries.WHISKY_LIQUID.get());
         registerCustomBlockModel(blockModels, "block/vodka_liquid", BlockRegistries.VODKA_LIQUID.get());
         registerCustomBlockModel(blockModels, "block/rum_liquid", BlockRegistries.RUM_LIQUID.get());
@@ -170,7 +171,11 @@ public class ModModelProvider extends ModelProvider {
     }
 
     private static void generateEmptyModel(BlockModelGenerators blockModels, Block block) {
-        blockModels.createParticleOnlyBlock(block);
+        generateEmptyModel(blockModels, block, block);
+    }
+
+    private static void generateEmptyModel(BlockModelGenerators blockModels, Block block, Block particle) {
+        blockModels.createParticleOnlyBlock(block, particle);
     }
 
     private static void registerRotatedBlockModel(BlockModelGenerators blockModels, String modelPath, Block block) {

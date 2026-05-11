@@ -34,7 +34,7 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
         poseStack.translate(state.position.x, 0, state.position.y);
         poseStack.mulPose(Axis.YP.rotationDegrees(state.rotate));
         poseStack.translate(-0.5, 0, -0.5);
-        Models.MARTINI_GLASS.render(poseStack, state.lightCoords, OverlayTexture.NO_OVERLAY, RenderTypes.translucentMovingBlock());
+        Models.MARTINI_GLASS.submit(submitNodeCollector, poseStack, state.lightCoords, OverlayTexture.NO_OVERLAY, RenderTypes.translucentMovingBlock());
         poseStack.popPose();
     }
 

@@ -26,14 +26,18 @@ public class ModItemTagsProvider extends ItemTagsProvider {
                 );
         this.tag(SnsItemTags.SOUR)
                 .add(Items.ROTTEN_FLESH)
-                ;
+                .addTag(Tags.Items.FOODS_FRUIT);
 
         this.tag(SnsItemTags.SWEET)
-                .add(Items.SUGAR)
-                .addTag(Tags.Items.FOODS_FRUIT);
+                .addTag(Tags.Items.DRINKS_HONEY)
+                .addTag(Tags.Items.FOODS_BERRY)
+                //.addTag(Tags.Items.FOODS_CANDY)
+                .add(Items.HONEYCOMB)
+                .add(Items.SUGAR);
 
         this.tag(SnsItemTags.BITTER)
                 .add(Items.SPIDER_EYE)
+                .addTag(Tags.Items.DRINKS_OMINOUS)
                 ;
         this.tag(SnsItemTags.SHAKE_PLACABLE)
                 .addTags(SnsItemTags.SOUR, SnsItemTags.SWEET, SnsItemTags.BITTER)
