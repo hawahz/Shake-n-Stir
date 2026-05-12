@@ -1,5 +1,7 @@
 package io.github.hawah.shakenstir.client;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.render.GlasswareOutlineRenderer;
@@ -15,9 +17,12 @@ import io.github.hawah.shakenstir.util.Models;
 import io.github.hawah.shakenstir.util.Result;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockTintSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
@@ -34,8 +39,23 @@ public class ClientEvents {
     @SubscribeEvent
     public static void onRenderWorld(RenderLevelStageEvent.AfterTranslucentParticles event) {
         ShakenStirClient.TIMER_NORMAL.warp(Minecraft.getInstance().getDeltaTracker());
-
         Outliner.renderInto(event.getPoseStack(), Minecraft.getInstance().renderBuffers().bufferSource(), Minecraft.getInstance().player.getEyePosition(), Minecraft.getInstance().getDeltaTracker());
+    }
+
+    @SubscribeEvent
+    public static void onExtractLevelStage(ExtractLevelRenderStateEvent event) {
+    }
+
+    @SubscribeEvent
+    public static void onSubmitLevel(SubmitCustomGeometryEvent event) {
+        SubmitNodeCollector submitNodeCollector = event.getSubmitNodeCollector();
+        PoseStack poseStack = event.getPoseStack();
+        LevelRenderState levelRenderState = event.getLevelRenderState();
+
+        poseStack.pushPose();
+
+        ShakenStirClient.GLASSWARE_HANDLER.submit(submitNodeCollector, poseStack, levelRenderState);
+        poseStack.popPose();
     }
 
     @SubscribeEvent
@@ -54,25 +74,13 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void onTick(ClientTickEvent.Pre event) {
-        GlasswareRaycast.clearCache();
         ShakenStirClient.SHAKE_CONTENT_HUD.tick();
     }
 
     @SubscribeEvent
     public static void onRenderOutline(ExtractBlockOutlineRenderStateEvent event) {
         if (event.getLevel().getBlockEntity(event.getBlockPos()) instanceof GlasswareBlockEntity blockEntity) {
-            Vec3 hitLocation = event.getHitResult().getLocation();
-            BlockPos blockPos = event.getBlockPos();
-            Vec3 source = event.getCamera().position();
-
-            GlasswareRaycast result = GlasswareRaycast.checkHitGlasswareDirect(blockEntity, blockPos, source, hitLocation);
-
-            if (result.direction() != null) {
-//
-                event.addCustomRenderer(new GlasswareOutlineRenderer(result.localPosition(), result.rotation(), blockEntity.getModel()));
-            } else {
-                event.setCanceled(true);
-            }
+            event.addCustomRenderer(new GlasswareOutlineRenderer(blockEntity));
         }
     }
 

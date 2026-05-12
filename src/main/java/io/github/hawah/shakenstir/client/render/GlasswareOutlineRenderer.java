@@ -3,6 +3,7 @@ package io.github.hawah.shakenstir.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.hawah.shakenstir.client.GlasswareRaycast;
+import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.util.IModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -17,13 +18,16 @@ import net.neoforged.neoforge.client.CustomBlockOutlineRenderer;
 import org.joml.Vector2f;
 
 public record GlasswareOutlineRenderer(
-        Vector2f position,
-        float rotation,
-        IModel model
+        GlasswareBlockEntity blockEntity
 ) implements CustomBlockOutlineRenderer {
 
     @Override
     public boolean render(BlockOutlineRenderState renderState, MultiBufferSource.BufferSource buffer, PoseStack poseStack, boolean translucentPass, LevelRenderState levelRenderState) {
+        Vector2f position = blockEntity.position;
+        float rotation = blockEntity.rotation;
+        IModel model = blockEntity.getModel();
+
+
         poseStack.pushPose();
         BlockPos pos = renderState.pos();
         Vec3 camPos = levelRenderState.cameraRenderState.pos;
@@ -32,7 +36,7 @@ public record GlasswareOutlineRenderer(
         float camZ = (float) camPos.z();
         poseStack.translate(position.x(), 0, position.y());
         poseStack.translate(pos.getX() - camX, 0, pos.getZ() - camZ);
-        poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
+        poseStack.mulPose(Axis.YN.rotationDegrees(rotation));
         poseStack.translate(-(pos.getX() - camX), 0, -(pos.getZ() - camZ));
 
         GlasswareRaycast.shape = model.getShape();

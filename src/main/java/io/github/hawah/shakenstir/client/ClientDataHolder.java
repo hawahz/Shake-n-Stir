@@ -40,39 +40,43 @@ public class ClientDataHolder {
         public static @Nullable BlockPos cachedPos = null;
         public static @Nullable Direction cachedDirection = null;
         public static @Nullable BlockState cachedBlockState = null;
+        
+        public static HitResult hitResult() {
+            return Minecraft.getInstance().hitResult;
+        }
         public static @Nullable BlockPos pos() {
             if ((cachedFlags & FLAG_BLOCK_POS) != 0) {
                 return cachedPos;
             }
             cachedFlags |= FLAG_BLOCK_POS;
-            if (hitResult == null) {
+            if (hitResult() == null) {
                 cachedPos = null;
                 return null;
             }
-            return cachedPos =  hitResult instanceof BlockHitResult blockHitResult ?
+            return cachedPos = hitResult() instanceof BlockHitResult blockHitResult ?
                     blockHitResult.getBlockPos() :
-                    BlockPos.containing(hitResult.getLocation());
+                    BlockPos.containing(hitResult().getLocation());
         }
 
         public static @Nullable Vec3 location() {
-            if (hitResult == null) {
+            if (hitResult() == null) {
                 return null;
             }
-            return hitResult.getLocation();
+            return hitResult().getLocation();
         }
 
         public static @Nullable Direction direction() {
-            if (hitResult == null)
+            if (hitResult() == null)
                 return null;
-            return hitResult instanceof BlockHitResult blockHitResult ?
+            return hitResult() instanceof BlockHitResult blockHitResult ?
                     blockHitResult.getDirection() :
-                    Direction.fromYRot(hitResult.getLocation().y);
+                    Direction.fromYRot(hitResult().getLocation().y);
         }
 
         public static @Nonnull HitResult.Type type() {
-            if (hitResult == null)
+            if (hitResult() == null)
                 return HitResult.Type.MISS;
-            return hitResult.getType();
+            return hitResult().getType();
         }
 
         public static Optional<BlockState> blockState() {
@@ -80,11 +84,11 @@ public class ClientDataHolder {
                 return Optional.ofNullable(cachedBlockState);
             }
             cachedFlags |= FLAG_BLOCK_STATE;
-            if (hitResult == null) {
+            if (hitResult() == null) {
                 cachedBlockState = null;
                 return Optional.empty();
             }
-            cachedBlockState = pos() != null && Minecraft.getInstance().level != null && hitResult.getType().equals(HitResult.Type.BLOCK)?
+            cachedBlockState = pos() != null && Minecraft.getInstance().level != null && hitResult().getType().equals(HitResult.Type.BLOCK)?
                     Minecraft.getInstance().level.getBlockState(pos()):
                     null;
             return Optional.ofNullable(cachedBlockState);
@@ -96,11 +100,6 @@ public class ClientDataHolder {
 
         public static void tick() {
             clearCache();
-            LocalPlayer player = Minecraft.getInstance().player;
-            if (player == null) {
-                return;
-            }
-            hitResult = player.pick(4.5D, 0.0F, false);
         }
 
         public static void clearCache() {

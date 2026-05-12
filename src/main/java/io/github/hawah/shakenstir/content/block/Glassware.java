@@ -3,6 +3,7 @@ package io.github.hawah.shakenstir.content.block;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
+import io.github.hawah.shakenstir.util.IModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
@@ -63,6 +64,15 @@ public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
         return super.useWithoutItem(state, level, pos, player, hitResult);
     }
 
+    public boolean onUseWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        if (!player.getMainHandItem().isEmpty()) {
+            return false;
+        }
+        ITakeUpBlock.holdOrAddItem(player, getDrop(state, level, pos), level, pos);
+        level.removeBlock(pos, false);
+        return true;
+    }
+
     @Override
     protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return Shapes.empty();
@@ -72,6 +82,15 @@ public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
     protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
         BlockState blockState = level.getBlockState(pos.below());
         return blockState.isSolidRender() && blockState.isFaceSturdy(level, pos.below(), Direction.UP);
+    }
+
+    @Override
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        if (level.getBlockEntity(pos) instanceof GlasswareBlockEntity blockEntity && blockEntity.getLevel().isClientSide()) {
+            IModel model = blockEntity.getModel();
+            return model.getShape().move(blockEntity.position.x(), 0, blockEntity.position.y());
+        }
+        return super.getShape(state, level, pos, context);
     }
 
     @Override
@@ -105,6 +124,8 @@ public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
     protected VoxelShape getVisualShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return Shapes.empty();
     }
+
+
 
     @Override
     protected float getShadeBrightness(BlockState state, BlockGetter level, BlockPos pos) {

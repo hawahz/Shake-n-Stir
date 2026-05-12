@@ -10,6 +10,7 @@ import io.github.hawah.shakenstir.content.item.SnsCreativeTab;
 import io.github.hawah.shakenstir.content.recipe.RecipeTypeRegistries;
 import io.github.hawah.shakenstir.foundation.networking.NetworkPackets;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.context.ContextKey;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -79,5 +80,8 @@ public class ShakenStir {
 
     public static Identifier asResource(String path) {
         return Identifier.fromNamespaceAndPath(MODID, path);
+    }
+    public static <T> ContextKey<T> asContextKey(String name) {
+        return new ContextKey<>(Identifier.fromNamespaceAndPath(MODID, name));
     }
 }
