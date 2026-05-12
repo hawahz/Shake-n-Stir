@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -22,6 +23,14 @@ public class GlasswareItem extends PriorityBlockItem {
             return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
         return super.place(placeContext);
+    }
+
+    @Override
+    public InteractionResult useOn(UseOnContext context) {
+        InteractionResult interactionResult = super.useOn(context);
+        context.getItemInHand().remove(DataComponentTypeRegistries.GLASSWARE_POSITION);
+        context.getItemInHand().remove(DataComponentTypeRegistries.GLASSWARE_ROTATION);
+        return interactionResult;
     }
 
     @Override

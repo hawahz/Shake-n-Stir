@@ -16,6 +16,7 @@ import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.*;
 import net.minecraft.client.renderer.block.dispatch.Variant;
+import net.minecraft.client.renderer.item.ClientItem;
 import net.minecraft.client.renderer.item.ConditionalItemModel;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.RangeSelectItemModel;
@@ -56,6 +57,9 @@ public class ModModelProvider extends ModelProvider {
         generateSpirit(blockModels, itemModels, BlockRegistries.WHISKY, ItemRegistries.WHISKY, "whisky");
         generateEmptyModel(blockModels, BlockRegistries.LONG_DRINK_GLASSWARE.get(), Blocks.GLASS);
         generateEmptyModel(blockModels, BlockRegistries.SHORT_DRINK_GLASSWARE.get(), Blocks.GLASS);
+        generateUnregisteredItemModel("martini_glass", itemModels);
+        generateUnregisteredItemModel("collins_glass", itemModels);
+        generateUnregisteredItemModel("margarita_glass", itemModels);
 
         registerCustomBlockModel(blockModels, "block/whisky_liquid", BlockRegistries.WHISKY_LIQUID.get());
         registerCustomBlockModel(blockModels, "block/vodka_liquid", BlockRegistries.VODKA_LIQUID.get());
@@ -71,12 +75,19 @@ public class ModModelProvider extends ModelProvider {
         registerCustomBlockModel(blockModels, "block/tequila", BlockRegistries.TEQUILA.get());
         registerCustomBlockModel(blockModels, "block/brandy", BlockRegistries.BRANDY.get());
         generateIceCube(itemModels);
-        generateLongDrinkGlassware(itemModels);
+//        generateLongDrinkGlassware(itemModels);
     }
 
-    private static void generateLongDrinkGlassware(ItemModelGenerators itemModels) {
-        ItemModel.Unbaked unbaked = ItemModelUtils.plainModel(ModelTemplates.FLAT_ITEM.create(ModelLocationUtils.getModelLocation(ItemRegistries.LONG_DRINK_GLASSWARE.get()), TextureMapping.layer0(new Material(ShakenStir.asResource("item/collins_glass"))), itemModels.modelOutput));
-        itemModels.itemModelOutput.accept(ItemRegistries.LONG_DRINK_GLASSWARE.get(), unbaked);
+    private static void generateUnregisteredItemModel(String modelNTexturePath, ItemModelGenerators itemModels) {
+        Identifier identifier = ModelTemplates.FLAT_ITEM.create(
+                ShakenStir.asResource("item/" + modelNTexturePath),
+                new TextureMapping().put(TextureSlot.LAYER0, new Material(ShakenStir.asResource("item/" + modelNTexturePath))),
+                itemModels.modelOutput
+        );
+        ItemModel.Unbaked model = ItemModelUtils.plainModel(identifier);
+        itemModels.itemModelOutput.register(
+                ShakenStir.asResource(modelNTexturePath), new ClientItem(model, ClientItem.Properties.DEFAULT)
+        );
     }
 
     private static void generateIceCube(ItemModelGenerators itemModels) {

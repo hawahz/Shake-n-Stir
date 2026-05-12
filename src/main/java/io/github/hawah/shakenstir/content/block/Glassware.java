@@ -1,11 +1,16 @@
 package io.github.hawah.shakenstir.content.block;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
+import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
+import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
+import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import io.github.hawah.shakenstir.util.IModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -53,7 +58,24 @@ public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
 
     @Override
     public ItemStack getDrop(BlockState state, Level level, BlockPos pos) {
-        return ITakeUpBlock.super.getDrop(state, level, pos);
+        ItemStack drop = ITakeUpBlock.super.getDrop(state, level, pos);
+        return drop;
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData, Player player) {
+        ItemStack drop = this.asItem().getDefaultInstance();
+        if (level.getBlockEntity(pos) instanceof GlasswareBlockEntity blockEntity){
+            if (blockEntity.model != null){
+                drop.set(DataComponents.ITEM_MODEL, blockEntity.model);
+            } else {
+                drop.set(DataComponents.ITEM_MODEL, ShakenStir.asResource(drop.is(ItemRegistries.SHORT_DRINK_GLASSWARE)?"martini_glass": "collins_glass"));
+            }
+            if (blockEntity.pureName != null) {
+                drop.set(DataComponents.ITEM_NAME, blockEntity.pureName);
+            }
+        }
+        return drop;
     }
 
     @Override
@@ -65,7 +87,7 @@ public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
     }
 
     public boolean onUseWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (!player.getMainHandItem().isEmpty()) {
+        if (!player.getMainHandItem().isEmpty() || player.isShiftKeyDown()) {
             return false;
         }
         ITakeUpBlock.holdOrAddItem(player, getDrop(state, level, pos), level, pos);

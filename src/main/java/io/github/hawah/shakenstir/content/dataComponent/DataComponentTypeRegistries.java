@@ -2,18 +2,13 @@ package io.github.hawah.shakenstir.content.dataComponent;
 
 import com.mojang.serialization.Codec;
 import io.github.hawah.shakenstir.ShakenStir;
-import io.github.hawah.shakenstir.lib.StreamCodecUtil;
-import io.github.hawah.shakenstir.util.Models;
 import io.github.hawah.shakenstir.util.SerializeHelper;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import org.apache.logging.log4j.core.config.builder.api.Component;
 import org.joml.Vector2f;
 
 import java.util.function.UnaryOperator;
@@ -66,16 +61,6 @@ public class DataComponentTypeRegistries {
     public static final DataComponentType<Float> GLASSWARE_ROTATION = register(
             "glassware_rotation",
             builder -> builder.persistent(Codec.FLOAT).networkSynchronized(ByteBufCodecs.FLOAT)
-    );
-
-    public static final DataComponentType<String> CUSTOM_GLASSWARE_MODEL = register(
-            "custom_glassware_model",
-            builder -> builder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.stringUtf8(64))
-    );
-
-    public static final DataComponentType<Integer> GLASSWARE_MODEL = register(
-            "glassware_model",
-            builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
     );
 
     // Product Above

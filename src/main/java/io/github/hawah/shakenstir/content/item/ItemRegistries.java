@@ -8,7 +8,9 @@ import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import io.github.hawah.shakenstir.foundation.item.PriorityBlockItem;
 import io.github.hawah.shakenstir.foundation.item.SpiritBottleItem;
 import io.github.hawah.shakenstir.util.Models;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -30,8 +32,8 @@ public class ItemRegistries {
     public static final DeferredItem<PriorityBlockItem> SHAKE_CUP = register("shake_cup", BlockRegistries.SHAKE_CUP_BLOCK);
     public static final DeferredItem<Item> ICE_CUBE = register("ice_cube", Item::new);
 
-    public static final DeferredItem<GlasswareItem> LONG_DRINK_GLASSWARE = registerGlass("long_drink_glassware", BlockRegistries.LONG_DRINK_GLASSWARE, new Item.Properties().component(DataComponentTypeRegistries.GLASSWARE_MODEL, 2));
-    public static final DeferredItem<GlasswareItem> SHORT_DRINK_GLASSWARE = registerGlass("short_drink_glassware", BlockRegistries.SHORT_DRINK_GLASSWARE, new Item.Properties().component(DataComponentTypeRegistries.GLASSWARE_MODEL, 0));
+    public static final DeferredItem<GlasswareItem> LONG_DRINK_GLASSWARE = registerGlass("long_drink_glassware", BlockRegistries.LONG_DRINK_GLASSWARE, new Item.Properties());
+    public static final DeferredItem<GlasswareItem> SHORT_DRINK_GLASSWARE = registerGlass("short_drink_glassware", BlockRegistries.SHORT_DRINK_GLASSWARE, new Item.Properties());
 
     public static final DeferredItem<Item> CONTENT_HOLDER = register("shake_content_holder", Item::new);
 

@@ -3,7 +3,6 @@ package io.github.hawah.shakenstir.client;
 import io.github.hawah.shakenstir.content.block.Shake;
 import io.github.hawah.shakenstir.lib.client.KeyBinding;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
@@ -36,7 +35,6 @@ public class ClientDataHolder {
         @MagicConstant(flags = {FLAG_BLOCK_POS, FLAG_DIRECTION, FLAG_BLOCK_STATE})
         public @interface CachedFlags {}
         public static @CachedFlags int cachedFlags = 0;
-        public static @Nullable HitResult hitResult = null;
         public static @Nullable BlockPos cachedPos = null;
         public static @Nullable Direction cachedDirection = null;
         public static @Nullable BlockState cachedBlockState = null;

@@ -9,7 +9,10 @@ import io.github.hawah.shakenstir.util.SerializeHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -20,13 +23,15 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.joml.Vector2f;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class GlasswareBlockEntity extends BlockEntity {
 
     // To Save
     public final Vector2f position = new Vector2f();
     public float rotation;
-    public Either<String, Integer> model = Either.right(0);
+    public Identifier model = null;
+    public Component pureName = null;
     // End Save
 
     public GlasswareBlockEntity(BlockPos worldPosition, BlockState blockState) {
@@ -42,8 +47,8 @@ public class GlasswareBlockEntity extends BlockEntity {
         super.loadAdditional(input);
         SerializeHelper.loadVector2f(input, position);
         rotation = input.getFloatOr("Rot", 0.0f);
-        input.getInt("Model").ifPresent(model -> this.model = Either.right(model));
-        input.getString("Model").ifPresent(model -> this.model = Either.left(model));
+        model = input.getString("Model").map(Identifier::tryParse).orElse(null);
+        pureName = input.getString("PureName").map(Component::translatable).orElse(null);
     }
 
     @Override
@@ -62,7 +67,12 @@ public class GlasswareBlockEntity extends BlockEntity {
         super.saveAdditional(output);
         SerializeHelper.saveVector2f(output, position);
         output.putFloat("Rot", rotation);
-        model.ifLeft(model -> output.putString("Model", model)).ifRight(model -> output.putInt("Model", model));
+        if (model != null) {
+            output.putString("Model", model.toString());
+        }
+        if (pureName != null) {
+            output.putString("PureName", pureName.getString());
+        }
     }
 
     @Override
@@ -70,14 +80,19 @@ public class GlasswareBlockEntity extends BlockEntity {
         super.applyImplicitComponents(components);
         position.set(components.getOrDefault(DataComponentTypeRegistries.GLASSWARE_POSITION, new Vector2f()));
         rotation = components.getOrDefault(DataComponentTypeRegistries.GLASSWARE_ROTATION, 0.0f);
-        if (components.has(DataComponentTypeRegistries.GLASSWARE_MODEL)) {
-            model = Either.right(components.get(DataComponentTypeRegistries.GLASSWARE_MODEL));
-        } else if (components.has(DataComponentTypeRegistries.CUSTOM_GLASSWARE_MODEL)) {
-            model = Either.left(components.get(DataComponentTypeRegistries.CUSTOM_GLASSWARE_MODEL));
+        if (components.has(DataComponents.ITEM_MODEL)) {
+            model = components.get(DataComponents.ITEM_MODEL);
+        }
+        if (components.has(DataComponents.ITEM_NAME)) {
+            pureName = components.get(DataComponents.ITEM_NAME);
         }
     }
 
     public IModel getModel() {
-        return model.map(Models::getModel, (modelName) -> Optional.of(Models.values()[modelName])).orElseThrow();
+        return new Supplier() {
+            @Override
+            public IModel get() {
+                return Models.getModel(model).orElse(Models.COLLINS_GLASS);
+            }}.get();
     }
 }

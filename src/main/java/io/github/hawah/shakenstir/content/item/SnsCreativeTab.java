@@ -1,6 +1,8 @@
 package io.github.hawah.shakenstir.content.item;
 
 import io.github.hawah.shakenstir.ShakenStir;
+import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -9,6 +11,8 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.IModBusEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+
+import java.util.function.Supplier;
 
 public class SnsCreativeTab {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(BuiltInRegistries.CREATIVE_MODE_TAB, ShakenStir.MODID);
@@ -25,10 +29,26 @@ public class SnsCreativeTab {
                 output.accept(ItemRegistries.ICE_CUBE.get());
                 output.accept(ItemRegistries.GIN.get());
                 output.accept(ItemRegistries.WHISKY.get());
-                output.accept(ItemRegistries.LONG_DRINK_GLASSWARE.get());
+                output.accept(createLongDrink("collins_glass"));
+                output.accept(createShortDrink("martini_glass"));
+                output.accept(createShortDrink("margarita_glass"));
             })
             .build()
     );
+
+    public static ItemStack createLongDrink(String path) {
+        ItemStack stack = ItemRegistries.LONG_DRINK_GLASSWARE.toStack();
+        stack.set(DataComponents.ITEM_MODEL, ShakenStir.asResource(path));
+        stack.set(DataComponents.ITEM_NAME, LangData.getFromItem(path));
+        return stack;
+    }
+
+    public static ItemStack createShortDrink(String path) {
+        ItemStack stack = ItemRegistries.SHORT_DRINK_GLASSWARE.toStack();
+        stack.set(DataComponents.ITEM_MODEL, ShakenStir.asResource(path));
+        stack.set(DataComponents.ITEM_NAME, LangData.getFromItem(path));
+        return stack;
+    }
 
     public static void register(IEventBus event) {
         CREATIVE_MODE_TABS.register(event);

@@ -33,6 +33,10 @@ public enum LangData {
 
     HUD_BLACKBOARD_SELECTION("hud.blackboard_selection", "Size (%1$s, %2$s, %3$s) (%4$s)", 4),
 
+    ITEM_NAME_MARTINI_GLASS("name.martini_glass", "Martini Glass", 0),
+    ITEM_NAME_COLLINS_GLASS("name.collins_glass", "Collins Glass", 0),
+    ITEM_NAME_MARGARITA_GLASS("name.margarita_glass", "Margarita Glass", 0),
+
     VODKA("name.vodka", "Vodka", 0),
     WHISKEY("name.whiskey", "Whiskey", 0),
     GIN("name.gin", "Gin", 0),
@@ -72,6 +76,20 @@ public enum LangData {
         List<LangData> titleLang = getTitleLang();
         for (LangData data : titleLang){
             if (data.key.equals(ShakenStir.MODID + ".tooltip."+tag)){
+                MutableComponent ans = Component.translatable(data.key);
+                if (data.format != null) {
+                    return ans.withStyle(data.format);
+                }
+                return ans;
+            }
+        }
+        return Component.literal("Error").withStyle(ChatFormatting.DARK_RED).withStyle(ChatFormatting.ITALIC);
+    }
+
+    public static MutableComponent getFromItem(String tag) {
+        List<LangData> titleLang = getTitleLang();
+        for (LangData data : titleLang){
+            if (data.key.equals(ShakenStir.MODID + ".name."+tag)){
                 MutableComponent ans = Component.translatable(data.key);
                 if (data.format != null) {
                     return ans.withStyle(data.format);

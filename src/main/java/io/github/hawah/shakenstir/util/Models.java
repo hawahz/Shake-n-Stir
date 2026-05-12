@@ -25,25 +25,24 @@ public enum Models implements IModel{
     private final ModelData<VoxelShape> voxelShape = new ModelData<>();
     Models(String name, String location) {
         this.key = new StandaloneModelKey<>(
-                () -> {
-                    // A name for the standalone model
-                    // Can be any string, but it should contain the mod id
-                    return ShakenStir.MODID + ':' + name;
-                }
+                () -> ShakenStir.MODID + ':' + name
         );
         this.location = Identifier.fromNamespaceAndPath(ShakenStir.MODID, location);
     }
 
-    public static Map<String, Mutable> resourcePackModels = new HashMap<>();
+    public static final Map<Identifier, Mutable> resourcePackModels = new HashMap<>();
 
-    public static void registerModel(String path) {
-        resourcePackModels.put(path, new Mutable(path));
+    public static void registerModel(Identifier path) {
+        resourcePackModels.put(path, new Mutable(ShakenStir.asResource("glassware/" + path.getPath())));
     }
 
     public static void buildModelsFromResourcePack() {
+        for (Models model : Models.values()) {
+            model.voxelShape.value = null;
+        }
         resourcePackModels.clear();
         ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
-        FileToIdConverter MODEL_LISTER = FileToIdConverter.json("models/sns");
+        FileToIdConverter MODEL_LISTER = FileToIdConverter.json("models/glassware");
         Map<Identifier, Resource> resources = MODEL_LISTER.listMatchingResources(resourceManager);
         Models.resourcePackModels.clear();
         resources.forEach(
@@ -52,7 +51,7 @@ public enum Models implements IModel{
                         return;
                     }
                     String key = id.getPath().substring(MODEL_LISTER.prefix().length() + 1, id.getPath().length() - MODEL_LISTER.extension().length());
-                    Models.registerModel(key);
+                    Models.registerModel(ShakenStir.asResource(key));
                 }
         );
     }
@@ -60,7 +59,7 @@ public enum Models implements IModel{
     public StandaloneModelKey<QuadCollection> key() {
         return key;
     }
-    public static Optional<Mutable> getModel(String key) {
+    public static Optional<IModel> getModel(Identifier key) {
         return Optional.ofNullable(resourcePackModels.get(key));
     }
 
@@ -74,14 +73,12 @@ public enum Models implements IModel{
 
     public record Mutable(StandaloneModelKey<QuadCollection> key, Identifier location,ModelData<VoxelShape> voxelShape) implements IModel{
 
-        public Mutable(String key) {
+        public Mutable(Identifier key) {
+            // A name for the standalone model
+            // Can be any string, but it should contain the mod id
             this(new StandaloneModelKey<>(
-                    () -> {
-                        // A name for the standalone model
-                        // Can be any string, but it should contain the mod id
-                        return ShakenStir.MODID + ':' + key;
-                    }
-            ), Identifier.fromNamespaceAndPath(ShakenStir.MODID, "sns/" + key), new ModelData<>());
+                    key::toString
+            ), key, new ModelData<>());
         }
 
         @Override
