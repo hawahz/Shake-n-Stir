@@ -137,12 +137,15 @@ public class DecoratePlaceHandler implements IHandler {
                 pos.getY(),
                 pos.getZ() + blockEntity.position.y()
         );
-        poseStack.mulPose(Axis.YP.rotationDegrees(blockEntity.rotation));
-        poseStack.translate(
-                -(blockEntity.position.x() + pos.getX()   ),
-                -(pos.getY()                              ),
-                -(blockEntity.position.y() + pos.getZ())  );
-        poseStack.translate(location.x(), location.y() + y, location.z());
+        poseStack.mulPose(Axis.YN.rotationDegrees(blockEntity.rotation));
+
+        Vec3 vec3 = location.subtract(
+                (blockEntity.position.x() + pos.getX()   ),
+                (pos.getY()                              ),
+                (blockEntity.position.y() + pos.getZ())  )
+                .yRot((float) Math.toRadians(blockEntity.rotation));
+
+        poseStack.translate(vec3.x(), vec3.y() + y, vec3.z());
         poseStack.mulPose(quaternionf);
         poseStack.translate(-0.5 * scale, 0 * scale, -0.5 * scale);
         poseStack.scale(scale, scale, scale);
@@ -189,7 +192,7 @@ public class DecoratePlaceHandler implements IHandler {
                     blockEntity.position.x() + pos.getX(),
                     pos.getY() - y,
                     blockEntity.position.y() + pos.getZ()
-            );
+            ).yRot((float) Math.toRadians(blockEntity.rotation));
             blockEntity.insertDecoration(new GlasswareBlockEntity.Decoration(location, new Quaternionf(quaternionf), getItem().copyWithCount(1)));
         }
         return false;
