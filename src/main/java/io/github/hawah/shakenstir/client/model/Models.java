@@ -1,7 +1,9 @@
-package io.github.hawah.shakenstir.util;
+package io.github.hawah.shakenstir.client.model;
 
 import io.github.hawah.shakenstir.ShakenStir;
-import io.github.hawah.shakenstir.client.model.GlasswareQuadCollection;
+import io.github.hawah.shakenstir.client.model.glassware.GlasswareQuadCollection;
+import io.github.hawah.shakenstir.client.render.glassware.vertexConsumer.AbstractWarpedVC;
+import io.github.hawah.shakenstir.util.IModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.geometry.QuadCollection;
 import net.minecraft.resources.FileToIdConverter;
@@ -13,7 +15,7 @@ import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 
 import java.util.*;
 
-public enum Models implements IModel<QuadCollection>{
+public enum Models implements IModel<QuadCollection> {
     MARTINI_GLASS("martini_glass", "block/martini_glass"),
     MARGARITA_GLASS("margarita_glass", "block/margarita_glass"),
     COLLINS_GLASS("collins_glass", "block/collins_glass"),
@@ -94,14 +96,14 @@ public enum Models implements IModel<QuadCollection>{
         }
     }
 
-    public record Glassware(StandaloneModelKey<GlasswareQuadCollection> key, Identifier location, ModelData<VoxelShape> voxelShape) implements IModel<GlasswareQuadCollection>{
+    public record Glassware(StandaloneModelKey<GlasswareQuadCollection> key, Identifier location, ModelData<VoxelShape> voxelShape, List<AbstractWarpedVC> warper) implements IModel<GlasswareQuadCollection>{
 
         public Glassware(Identifier key) {
             // A name for the standalone model
             // Can be any string, but it should contain the mod id
             this(new StandaloneModelKey<>(
                     key::toString
-            ), key, new ModelData<>());
+            ), key, new ModelData<>(), new ArrayList<>());
         }
 
         @Override
@@ -121,11 +123,11 @@ public enum Models implements IModel<QuadCollection>{
             return value;
         }
 
-        boolean mutable() {
+        public boolean mutable() {
             return value == null;
         }
 
-        void setValue(T value) {
+        public void setValue(T value) {
             if (!mutable()) {
                 return;
             }

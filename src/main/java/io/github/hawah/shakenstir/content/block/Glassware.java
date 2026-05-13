@@ -5,6 +5,7 @@ import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
+import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
@@ -63,6 +64,9 @@ public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
     @Override
     public ItemStack getDrop(BlockState state, Level level, BlockPos pos) {
         ItemStack drop = ITakeUpBlock.super.getDrop(state, level, pos);
+        if (level.getBlockEntity(pos) instanceof GlasswareBlockEntity blockEntity) {
+            drop.set(DataComponentTypeRegistries.DRINK_DATA, blockEntity.contentComponents);
+        }
         return drop;
     }
 

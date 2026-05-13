@@ -1,7 +1,6 @@
-package io.github.hawah.shakenstir.client.model;
+package io.github.hawah.shakenstir.client.model.glassware;
 
 import io.github.hawah.shakenstir.ShakenStir;
-import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.client.model.generators.template.CustomLoaderBuilder;
 import net.neoforged.neoforge.client.model.generators.template.ExtendedModelTemplateBuilder;
 

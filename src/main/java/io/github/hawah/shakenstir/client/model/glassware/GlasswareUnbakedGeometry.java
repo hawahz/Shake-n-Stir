@@ -1,4 +1,4 @@
-package io.github.hawah.shakenstir.client.model;
+package io.github.hawah.shakenstir.client.model.glassware;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;

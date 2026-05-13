@@ -1,15 +1,12 @@
 package io.github.hawah.shakenstir.client.render.block;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import io.github.hawah.shakenstir.client.model.GlasswareQuadCollection;
+import io.github.hawah.shakenstir.client.model.glassware.GlasswareQuadCollection;
 import io.github.hawah.shakenstir.client.render.block.renderstate.GlasswareBlockEntityRenderState;
+import io.github.hawah.shakenstir.client.render.glassware.vertexConsumer.VerticalGradientVertexConsumer;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
-import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
-import io.github.hawah.shakenstir.util.Models;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -17,15 +14,17 @@ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.cuboid.FaceBakery;
-import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.Direction;
+import net.minecraft.util.ARGB;
+import net.minecraft.util.Ease;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector3dc;
-import org.joml.Vector3f;
 import org.jspecify.annotations.Nullable;
+
+import java.awt.*;
+import java.util.List;
 
 public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<GlasswareBlockEntity, GlasswareBlockEntityRenderState> {
     public GlasswareBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
@@ -38,6 +37,7 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
         state.rotate = blockEntity.rotation;
         state.model = blockEntity.getModel();
         state.height = Mth.lerp(partialTicks, blockEntity.oHeight, blockEntity.height);
+        state.color = blockEntity.getColor();
     }
 
     @Override
@@ -46,7 +46,16 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
         poseStack.translate(state.position.x, 0, state.position.y);
         poseStack.mulPose(Axis.YN.rotationDegrees(state.rotate));
         poseStack.translate(-0.5, 0, -0.5);
-        state.model.submit(submitNodeCollector, poseStack, state.lightCoords, OverlayTexture.NO_OVERLAY, RenderTypes.cutoutMovingBlock());
+        VerticalGradientVertexConsumer vc = new VerticalGradientVertexConsumer();
+        vc.setGradientStyle(Ease::outCirc);
+        double bottom = state.model.getShape().min(Direction.Axis.Y);
+        double top = state.model.getShape().max(Direction.Axis.Y);
+        vc.setMinY((float) (bottom + (top - bottom) * 0.15));
+        vc.setMaxY((float) (top - (top - bottom) * 0.1));
+        vc.setSourceAlpha((int) (80 * state.height));
+        vc.setTargetAlpha((int) (120 * state.height));
+        vc.setModulate(state.color);
+        state.model.submit(submitNodeCollector, poseStack, List.of(vc), state.lightCoords, OverlayTexture.NO_OVERLAY, RenderTypes.cutoutMovingBlock());
         if (state.height > 0 && state.model.getModel() instanceof GlasswareQuadCollection quadCollection) {
             Vector3dc start = quadCollection.start();
             Vector3dc end = quadCollection.end();
@@ -66,9 +75,9 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
 
                         Matrix4f mat = pose.pose();
 
-                        int r = 255;
-                        int g = 0;
-                        int b = 0;
+                        int r = ARGB.red(state.color);
+                        int g = ARGB.green(state.color);
+                        int b = ARGB.blue(state.color);
                         int a = 80;
 
                         // DOWN

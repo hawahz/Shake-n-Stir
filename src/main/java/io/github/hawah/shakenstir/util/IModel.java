@@ -2,6 +2,8 @@ package io.github.hawah.shakenstir.util;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.QuadInstance;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import io.github.hawah.shakenstir.client.model.Models;
 import io.github.hawah.shakenstir.client.render.glassware.vertexConsumer.AbstractWarpedVC;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -11,19 +13,16 @@ import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.client.resources.model.geometry.QuadCollection;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.client.extensions.IVertexConsumerExtension;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public interface IModel<T> {
     StandaloneModelKey<T> key();
 
     Models.ModelData<VoxelShape> voxelShape();
-
-    default void warpBy(AbstractWarpedVC vc) {
-    }
 
     default VoxelShape getShape() {
         if (voxelShape().mutable()) {
@@ -61,12 +60,21 @@ public interface IModel<T> {
     }
 
     default void submit(SubmitNodeCollector submitNodeCollector, PoseStack poseStack, int lightCoords, int overlayCoords) {
-        submit(submitNodeCollector, poseStack, lightCoords, overlayCoords, RenderTypes.translucentMovingBlock());
+        submit(submitNodeCollector, poseStack, List.of(), lightCoords, overlayCoords);
+    };
+    default void submit(SubmitNodeCollector submitNodeCollector, PoseStack poseStack, List<AbstractWarpedVC> warps, int lightCoords, int overlayCoords) {
+        submit(submitNodeCollector, poseStack, warps, lightCoords, overlayCoords, RenderTypes.translucentMovingBlock());
     };
     default void submit(SubmitNodeCollector submitNodeCollector, PoseStack poseStack, int lightCoords, int overlayCoords, RenderType renderType) {
-        submit(submitNodeCollector, poseStack, lightCoords, overlayCoords, renderType, 0xFFFFFFFF);
+        submit(submitNodeCollector, poseStack, List.of(), lightCoords, overlayCoords, renderType);
+    };
+    default void submit(SubmitNodeCollector submitNodeCollector, PoseStack poseStack, List<AbstractWarpedVC> warps, int lightCoords, int overlayCoords, RenderType renderType) {
+        submit(submitNodeCollector, poseStack, warps, lightCoords, overlayCoords, renderType, 0xFFFFFFFF);
     };
     default void submit(SubmitNodeCollector submitNodeCollector, PoseStack poseStack, int lightCoords, int overlayCoords, RenderType renderType, int color) {
+        submit(submitNodeCollector, poseStack, new ArrayList<>(), lightCoords, overlayCoords, renderType, color);
+    }
+    default void submit(SubmitNodeCollector submitNodeCollector, PoseStack poseStack, List<AbstractWarpedVC> warps, int lightCoords, int overlayCoords, RenderType renderType, int color) {
         T model = Minecraft.getInstance().getModelManager().getStandaloneModel(key());
         if (model == null) {
             return;
@@ -81,8 +89,15 @@ public interface IModel<T> {
                     instance.setOverlayCoords(overlayCoords);
                     instance.setColor(color);
 
+                    VertexConsumer vc = buffer;
+
+                    for (AbstractWarpedVC abstractWarpedVC : warps) {
+                        vc = abstractWarpedVC.warp(vc);
+                    }
+
+                    final VertexConsumer finalVc = vc;
                     provider.getAll().forEach(quad ->
-                            buffer.putBakedQuad(pose, quad, instance)
+                            finalVc.putBakedQuad(pose, quad, instance)
                     );
                 }
         );

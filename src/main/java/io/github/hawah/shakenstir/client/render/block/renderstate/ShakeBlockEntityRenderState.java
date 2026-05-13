@@ -8,7 +8,7 @@ import org.jspecify.annotations.Nullable;
 
 public class ShakeBlockEntityRenderState extends BlockEntityRenderState {
     public final @Nullable ItemStackRenderState[] items = new ItemStackRenderState[ShakeBlockEntity.MAX_HOLD_ITEMS];
-    public Vector3f color = new Vector3f(1, 1, 1);
+    public int color = 0xFFFFFFFF;
     public float liquidHeight = 0;
     public int iceCubeCounts = 0;
 }

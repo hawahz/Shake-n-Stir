@@ -2,23 +2,34 @@ package io.github.hawah.shakenstir.content.item;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
+import io.github.hawah.shakenstir.content.block.Shake;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
+import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.dataComponent.FluidStackDataComponent;
+import io.github.hawah.shakenstir.content.dataComponent.ShakeFluidDataComponent;
 import io.github.hawah.shakenstir.content.dataComponent.ShakeItemDataComponent;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import io.github.hawah.shakenstir.foundation.item.IPickMarkedItem;
 import io.github.hawah.shakenstir.foundation.item.PriorityBlockItem;
+import io.github.hawah.shakenstir.foundation.item.SpiritBottleItem;
+import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickAction;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -84,6 +95,67 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem {
         }
         return super.useOn(context);
     }
+
+    @Override
+    public boolean overrideOtherStackedOnMe(ItemStack self, ItemStack other, Slot slot, ClickAction clickAction, Player player, SlotAccess carriedItem) {
+        if (self.getOrDefault(DataComponentTypeRegistries.HAS_CUP, true)) {
+            if (other.isEmpty() && clickAction.equals(ClickAction.SECONDARY)) {
+                self.set(DataComponentTypeRegistries.HAS_CUP, false);
+                carriedItem.set(ItemRegistries.SHAKE_CUP.toStack());
+                return true;
+            }
+            return false;
+        }
+        if (other.is(ItemRegistries.SHAKE_CUP)) {
+            self.set(DataComponentTypeRegistries.HAS_CUP, true);
+            other.shrink(1);
+            return true;
+        }
+        if (other.is(ItemRegistries.ICE_CUBE) && self.getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0) < 3) {
+            self.set(DataComponentTypeRegistries.SHAKE_ICE_CUBES, self.getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0) + 1);
+            other.shrink(1);
+            return true;
+        }
+        if (other.is(SnsItemTags.SHAKE_PLACABLE) && self.getOrDefault(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, ShakeItemDataComponent.EMPTY).size() < ShakeBlockEntity.MAX_HOLD_ITEMS) {
+            ArrayList<ItemStack> itemStacks = new ArrayList<>(self.getOrDefault(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, ShakeItemDataComponent.EMPTY).itemStacks());
+            itemStacks.add(other.split(1));
+            self.set(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, new ShakeItemDataComponent(itemStacks));
+            return true;
+        }
+        FluidStackDataComponent fluidStackDataComponent;
+        if (
+                other.getItem() instanceof SpiritBottleItem &&
+                        !(fluidStackDataComponent = other.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, FluidStackDataComponent.EMPTY)).isEmpty()) {
+            ArrayList<FluidStack> fluidStacks = new ArrayList<>(self.getOrDefault(DataComponentTypeRegistries.SHAKE_CONTENT, ShakeFluidDataComponent.EMPTY).fluidStacks());
+            int sum = fluidStacks.stream().mapToInt(FluidStack::getAmount).sum();
+            FluidStack fluidStack = fluidStackDataComponent.fluidStack();
+            int find = -1;
+            for (int i = 0; i < fluidStacks.size(); i++) {
+                if (fluidStacks.get(i).is(fluidStack.getFluid())) {
+                    find = i;
+                    break;
+                }
+            }
+
+            if (sum >= ShakeBlockEntity.MAX_FLUID_CAPACITY) {
+                return false;
+            }
+
+            if (find == -1) {
+                fluidStacks.add(fluidStack.split(250));
+            } else {
+                fluidStacks.get(find).grow(250);
+                fluidStack.shrink(250);
+            }
+
+            other.set(DataComponentTypeRegistries.SPIRIT_CONTENT, fluidStack.isEmpty()? FluidStackDataComponent.EMPTY: new FluidStackDataComponent(fluidStack));
+            self.set(DataComponentTypeRegistries.SHAKE_CONTENT, new ShakeFluidDataComponent(fluidStacks));
+            return true;
+        }
+        return super.overrideOtherStackedOnMe(self, other, slot, clickAction, player, carriedItem);
+    }
+
+
 
     @Override
     public int getUseDuration(ItemStack itemStack, LivingEntity user) {

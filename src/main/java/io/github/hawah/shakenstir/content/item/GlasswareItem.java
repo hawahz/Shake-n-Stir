@@ -3,10 +3,17 @@ package io.github.hawah.shakenstir.content.item;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.foundation.item.PriorityBlockItem;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -34,6 +41,15 @@ public class GlasswareItem extends PriorityBlockItem {
     }
 
     @Override
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
+        ItemStack itemInHand = player.getItemInHand(hand);
+        if (!itemInHand.getOrDefault(DataComponentTypeRegistries.DRINK_DATA, DataComponentMap.EMPTY).isEmpty()) {
+            player.startUsingItem(hand);
+        }
+        return super.use(level, player, hand);
+    }
+
+    @Override
     protected boolean placeBlock(BlockPlaceContext placeContext, BlockState placementState) {
         if (!Direction.UP.equals(placeContext.getClickedFace())) {
             return false;
@@ -52,5 +68,30 @@ public class GlasswareItem extends PriorityBlockItem {
             return true;
         };
         return false;
+    }
+
+    @Override
+    public int getUseDuration(ItemStack itemStack, LivingEntity user) {
+        return itemStack.getOrDefault(DataComponentTypeRegistries.DRINK_DATA, DataComponentMap.EMPTY).isEmpty()? 0: 32;
+    }
+
+    @Override
+    public ItemStack finishUsingItem(ItemStack itemStack, Level level, LivingEntity entity) {
+        DataComponentMap map;
+        if (!(map = itemStack.getOrDefault(DataComponentTypeRegistries.DRINK_DATA, DataComponentMap.EMPTY)).isEmpty()) {
+            itemStack.remove(DataComponentTypeRegistries.DRINK_DATA);
+            applyDrinkToEntity(map, level, entity);
+            return itemStack;
+        }
+        return super.finishUsingItem(itemStack, level, entity);
+    }
+
+    public static void applyDrinkToEntity(DataComponentMap dataComponents, Level level, LivingEntity entity) {
+
+    }
+
+    @Override
+    public ItemUseAnimation getUseAnimation(ItemStack itemStack) {
+        return ItemUseAnimation.DRINK;
     }
 }

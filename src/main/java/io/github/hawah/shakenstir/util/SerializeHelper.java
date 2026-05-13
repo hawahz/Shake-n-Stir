@@ -6,6 +6,10 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Encoder;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.PatchedDataComponentMap;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
@@ -39,6 +43,15 @@ public class SerializeHelper {
         float y = (data >> 16 & 0xFFFF) / 1000f;
         dst.set(x, y);
     }
+
+    public static final Codec<PatchedDataComponentMap> DATA_COMPONENT_MAP_CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            PatchedDataComponentMap.CODEC.fieldOf("data").forGetter(PatchedDataComponentMap::toImmutableMap)
+    ).apply(inst, PatchedDataComponentMap::new));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, PatchedDataComponentMap> DATA_COMPONENT_MAP_STREAM_CODEC = StreamCodec.composite(
+            DataComponentPatch.STREAM_CODEC, PatchedDataComponentMap::asPatch,
+            (prototype) -> PatchedDataComponentMap.fromPatch(DataComponentMap.EMPTY, prototype)
+    );
 
     public static <T extends Enum<T>> Codec<T> ofEnum(Class<T> enumClass) {
         return Codec.INT.xmap(

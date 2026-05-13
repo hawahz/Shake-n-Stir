@@ -1,4 +1,4 @@
-package io.github.hawah.shakenstir.client.model;
+package io.github.hawah.shakenstir.client.model.glassware;
 
 import net.minecraft.client.resources.model.geometry.UnbakedGeometry;
 import net.minecraft.util.context.ContextMap;

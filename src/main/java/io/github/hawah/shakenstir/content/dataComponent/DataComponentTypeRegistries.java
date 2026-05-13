@@ -3,9 +3,16 @@ package io.github.hawah.shakenstir.content.dataComponent;
 import com.mojang.serialization.Codec;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.util.SerializeHelper;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -93,6 +100,11 @@ public class DataComponentTypeRegistries {
             builder -> builder.persistent(ShakeProductDeferredName.CODEC).networkSynchronized(ShakeProductDeferredName.STREAM_CODEC)
     );
 
+    public static final DataComponentType<PatchedDataComponentMap> DRINK_DATA = register(
+            "drink_data",
+            builder -> builder.persistent(SerializeHelper.DATA_COMPONENT_MAP_CODEC).networkSynchronized(SerializeHelper.DATA_COMPONENT_MAP_STREAM_CODEC)
+    );
+
     public static void register(IEventBus eventBus) {
         DATA_COMPONENT.register(eventBus);
     }
@@ -102,4 +114,5 @@ public class DataComponentTypeRegistries {
         DATA_COMPONENT.register(name, () -> type);
         return type;
     }
+
 }

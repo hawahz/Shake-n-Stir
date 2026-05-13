@@ -5,7 +5,7 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.util.IModel;
-import io.github.hawah.shakenstir.util.Models;
+import io.github.hawah.shakenstir.client.model.Models;
 import io.github.hawah.shakenstir.util.SerializeHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -16,6 +16,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,6 +26,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.joml.Vector2f;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.awt.*;
 import java.util.function.Supplier;
 
 @ParametersAreNonnullByDefault
@@ -34,6 +36,7 @@ public class GlasswareBlockEntity extends BlockEntity {
     // To Save
     public final Vector2f position = new Vector2f();
     public float rotation;
+    // Item
     public Identifier model = null;
     public Component pureName = null;
     public PatchedDataComponentMap contentComponents = new PatchedDataComponentMap(DataComponentMap.EMPTY);
@@ -53,7 +56,7 @@ public class GlasswareBlockEntity extends BlockEntity {
     }
 
     public int getColor() {
-        return 0;
+        return (contentComponents.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFFFF))).rgb();
     }
 
     public boolean pourProduct(ItemStack itemStack) {
@@ -125,6 +128,15 @@ public class GlasswareBlockEntity extends BlockEntity {
         }
         if (components.has(DataComponents.ITEM_NAME)) {
             pureName = components.get(DataComponents.ITEM_NAME);
+        }
+        if (components.has(DataComponentTypeRegistries.DRINK_DATA)) {
+            this.contentComponents.clearPatch();;
+            this.contentComponents.setAll(components.getOrDefault(DataComponentTypeRegistries.DRINK_DATA, DataComponentMap.EMPTY));
+            if (!contentComponents.isEmpty()) {
+                heightRate = 1.0F;
+                height = 1.0F;
+                oHeight = 1.0F;
+            }
         }
     }
 

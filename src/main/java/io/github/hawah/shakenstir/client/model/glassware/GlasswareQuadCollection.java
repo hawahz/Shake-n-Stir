@@ -1,4 +1,4 @@
-package io.github.hawah.shakenstir.client.model;
+package io.github.hawah.shakenstir.client.model.glassware;
 
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.util.IModel;

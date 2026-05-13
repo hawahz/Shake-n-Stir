@@ -9,7 +9,7 @@ import io.github.hawah.shakenstir.lib.client.KeyBinding;
 import io.github.hawah.shakenstir.lib.client.handler.IHandler;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import io.github.hawah.shakenstir.util.IModel;
-import io.github.hawah.shakenstir.util.Models;
+import io.github.hawah.shakenstir.client.model.Models;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;

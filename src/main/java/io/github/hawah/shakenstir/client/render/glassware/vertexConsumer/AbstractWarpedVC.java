@@ -5,7 +5,15 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 public abstract class AbstractWarpedVC implements VertexConsumer {
-    protected final VertexConsumer source;
+    protected VertexConsumer source;
+
+    public AbstractWarpedVC() {
+    }
+
+    public VertexConsumer warp(VertexConsumer source) {
+        this.source = source;
+        return this;
+    }
 
     public AbstractWarpedVC(VertexConsumer source) {
         this.source = source;

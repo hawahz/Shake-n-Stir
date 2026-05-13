@@ -1,4 +1,4 @@
-package io.github.hawah.shakenstir.client.model;
+package io.github.hawah.shakenstir.client.model.glassware;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.*;
@@ -12,7 +12,6 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.neoforged.neoforge.client.model.StandardModelParameters;
 import net.neoforged.neoforge.client.model.UnbakedModelLoader;
-import net.neoforged.neoforge.client.model.standalone.StandaloneModelLoader;
 import org.joml.Vector3d;
 
 import javax.annotation.ParametersAreNonnullByDefault;
