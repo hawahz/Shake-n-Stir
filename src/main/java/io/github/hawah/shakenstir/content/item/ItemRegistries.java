@@ -5,6 +5,7 @@ import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.FluidStackDataComponent;
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
+import io.github.hawah.shakenstir.foundation.item.DecorateItem;
 import io.github.hawah.shakenstir.foundation.item.PriorityBlockItem;
 import io.github.hawah.shakenstir.foundation.item.SpiritBottleItem;
 import net.minecraft.core.registries.Registries;
@@ -33,6 +34,8 @@ public class ItemRegistries {
     public static final DeferredItem<GlasswareItem> SHORT_DRINK_GLASSWARE = registerGlass("short_drink_glassware", BlockRegistries.SHORT_DRINK_GLASSWARE, new Item.Properties());
 
     public static final DeferredItem<Item> CONTENT_HOLDER = register("shake_content_holder", Item::new);
+
+    public static final DeferredItem<DecorateItem> LEMON_SLICE = register("lemon_slice", DecorateItem::new);
 
     // Spirit
     public static final DeferredItem<SpiritBottleItem> GIN = registerSpirit("gin", BlockRegistries.GIN, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(new FluidStack(FluidRegistries.GIN_SOURCE_FLUID_BLOCK, 1000))));

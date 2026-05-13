@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "shakenstir:item/lemon_slice",
+    "layer1": "shakenstir:item/lemon_slice_overlay"
+  }
+}

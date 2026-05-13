@@ -2,22 +2,18 @@ package io.github.hawah.shakenstir.content.dataComponent;
 
 import com.mojang.serialization.Codec;
 import io.github.hawah.shakenstir.ShakenStir;
+import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.util.SerializeHelper;
-import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.joml.Vector2f;
 
+import java.util.List;
 import java.util.function.UnaryOperator;
 
 public class DataComponentTypeRegistries {
@@ -68,6 +64,11 @@ public class DataComponentTypeRegistries {
     public static final DataComponentType<Float> GLASSWARE_ROTATION = register(
             "glassware_rotation",
             builder -> builder.persistent(Codec.FLOAT).networkSynchronized(ByteBufCodecs.FLOAT)
+    );
+
+    public static final DataComponentType<List<GlasswareBlockEntity.Decoration>> GLASSWARE_DECORATIONS = register(
+            "glassware_decorations",
+            builder -> builder.persistent(GlasswareBlockEntity.Decoration.CODEC.listOf()).networkSynchronized(GlasswareBlockEntity.Decoration.STREAM_CODEC.apply(ByteBufCodecs.list()))
     );
 
     // Product Above

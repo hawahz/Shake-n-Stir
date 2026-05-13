@@ -7,8 +7,6 @@ import io.github.hawah.shakenstir.lib.client.KeyBinding;
 import io.github.hawah.shakenstir.lib.client.handler.IHandler;
 import io.github.hawah.shakenstir.util.Result;
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 
 public class GlasswareBlockEntityHandler implements IHandler {
     private boolean wasActive = false;
@@ -34,10 +32,10 @@ public class GlasswareBlockEntityHandler implements IHandler {
 
     @Override
     public boolean isActive() {
-        if (getPlayer() == null) {
+        if (PACKAGE.getPlayer() == null) {
             return false;
         }
-        return getPlayer().getMainHandItem().isEmpty() &&
+        return PACKAGE.getPlayer().getMainHandItem().isEmpty() &&
                 ClientDataHolder.Picker.block().isPresent() &&
                 ClientDataHolder.Picker.block().get() instanceof Glassware &&
                 KeyBinding.hasShiftDown() &&
@@ -52,13 +50,5 @@ public class GlasswareBlockEntityHandler implements IHandler {
             return new Result(true);
         }
         return Result.empty();
-    }
-
-    public static Player getPlayer() {
-        return Minecraft.getInstance().player;
-    }
-
-    public static ItemStack getItem() {
-        return getPlayer().getMainHandItem();
     }
 }

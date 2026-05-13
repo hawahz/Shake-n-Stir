@@ -1,9 +1,6 @@
 package io.github.hawah.shakenstir.util;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.DynamicOps;
-import com.mojang.serialization.Encoder;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.component.DataComponentMap;
@@ -12,9 +9,9 @@ import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import org.joml.Quaternionf;
 import org.joml.Vector2f;
 
 public class SerializeHelper {
@@ -59,4 +56,11 @@ public class SerializeHelper {
                 Enum::ordinal
         );
     }
+
+    public static final Codec<Quaternionf> QUATERNIONF_CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            Codec.FLOAT.fieldOf("x").forGetter(Quaternionf::x),
+            Codec.FLOAT.fieldOf("y").forGetter(Quaternionf::y),
+            Codec.FLOAT.fieldOf("z").forGetter(Quaternionf::z),
+            Codec.FLOAT.fieldOf("w").forGetter(Quaternionf::w)
+    ).apply(inst, Quaternionf::new));
 }

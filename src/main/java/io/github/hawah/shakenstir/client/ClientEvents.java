@@ -1,5 +1,6 @@
 package io.github.hawah.shakenstir.client;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.ShakenStirClient;
@@ -19,6 +20,7 @@ import io.github.hawah.shakenstir.client.model.Models;
 import io.github.hawah.shakenstir.util.Result;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockTintSource;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
@@ -48,6 +50,7 @@ public class ClientEvents {
                 GlasswareHandlerRenderState.ctxKey,
                 new GlasswareHandlerRenderState(event.getDeltaTracker())
         );
+        ShakenStirClient.DECORATE_PLACE_HANDLER.extract(event);
     }
 
     @SubscribeEvent
@@ -59,6 +62,7 @@ public class ClientEvents {
         poseStack.pushPose();
 
         ShakenStirClient.GLASSWARE_HANDLER.submit(submitNodeCollector, poseStack, levelRenderState);
+        ShakenStirClient.DECORATE_PLACE_HANDLER.submit(submitNodeCollector, poseStack, levelRenderState);
         poseStack.popPose();
     }
 
@@ -83,6 +87,15 @@ public class ClientEvents {
         }
         ShakenStirClient.SHAKE_CONTENT_HUD.tick();
         ShakenStirClient.GLASSWARE_HANDLER.tick();
+    }
+
+    @SubscribeEvent
+    public static void onMouseButton(InputEvent.MouseButton.Pre event) {
+        int button = event.getButton();
+        boolean down = event.getAction() == InputConstants.PRESS;
+        if (ShakenStirClient.DECORATE_PLACE_HANDLER.onMousePressed(button, down)) {
+            event.setCanceled(true);
+        };
     }
 
     @SubscribeEvent

@@ -1,5 +1,6 @@
 package io.github.hawah.shakenstir.client;
 
+import io.github.hawah.shakenstir.content.block.Glassware;
 import io.github.hawah.shakenstir.content.block.Shake;
 import io.github.hawah.shakenstir.lib.client.KeyBinding;
 import net.minecraft.client.Minecraft;
@@ -112,7 +113,8 @@ public class ClientDataHolder {
         if (Minecraft.getInstance().level == null || Minecraft.getInstance().screen != null) {
             return false;
         }
-        return Picker.block().isPresent() && Picker.block().get() instanceof Shake && KeyBinding.hasAltDown();
+        Block block = Picker.block().orElse(null);
+        return (block instanceof Shake || block instanceof Glassware) && KeyBinding.hasAltDown();
     }
 
     @SubscribeEvent

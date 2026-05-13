@@ -2,8 +2,14 @@ package io.github.hawah.shakenstir.content.blockEntity;
 
 import com.mojang.logging.LogUtils;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.foundation.networking.NetworkPackets;
+import io.github.hawah.shakenstir.foundation.networking.ServerboundInsertDecorationPacket;
+import io.github.hawah.shakenstir.lib.StreamCodecUtil;
+import io.github.hawah.shakenstir.lib.networking.Networking;
 import io.github.hawah.shakenstir.util.IModel;
 import io.github.hawah.shakenstir.client.model.Models;
 import io.github.hawah.shakenstir.util.SerializeHelper;
@@ -11,7 +17,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.*;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.ProblemReporter;
@@ -23,10 +31,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
 import org.joml.Vector2f;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 @ParametersAreNonnullByDefault
@@ -40,6 +52,8 @@ public class GlasswareBlockEntity extends BlockEntity {
     public Identifier model = null;
     public Component pureName = null;
     public PatchedDataComponentMap contentComponents = new PatchedDataComponentMap(DataComponentMap.EMPTY);
+
+    public List<Decoration> decorationsList = new ArrayList<>();
 
     public float heightRate = 0;
     // End Save
@@ -57,6 +71,19 @@ public class GlasswareBlockEntity extends BlockEntity {
 
     public int getColor() {
         return (contentComponents.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFFFF))).rgb();
+    }
+
+    public boolean hasContent() {
+        return !contentComponents.isEmpty() || true;
+    }
+
+    public boolean insertDecoration(Decoration decoration) {
+        this.decorationsList.add(decoration);
+        if (level.isClientSide()) {
+            Networking.sendToServer(new ServerboundInsertDecorationPacket(decoration, worldPosition));
+        }
+        setChanged();
+        return true;
     }
 
     public boolean pourProduct(ItemStack itemStack) {
@@ -89,6 +116,13 @@ public class GlasswareBlockEntity extends BlockEntity {
             height = 1.0F;
             oHeight = 1.0F;
         }
+        Optional<ValueInput.ValueInputList> decorations = input.childrenList("Decorations");
+        decorationsList.clear();
+        if (decorations.isPresent()) {
+            for (ValueInput valueInput : decorations.get()) {
+                valueInput.read("Decoration", Decoration.CODEC).ifPresent(decorationsList::add);
+            }
+        }
     }
 
     @Override
@@ -116,6 +150,10 @@ public class GlasswareBlockEntity extends BlockEntity {
         if (!contentComponents.isEmpty()) {
             output.storeNullable("Content", DataComponentMap.CODEC, contentComponents);
         }
+        ValueOutput.ValueOutputList decorations = output.childrenList("Decorations");
+        for (Decoration decoration : decorationsList) {
+            decorations.addChild().store("Decoration", Decoration.CODEC, decoration);
+        }
     }
 
     @Override
@@ -138,6 +176,10 @@ public class GlasswareBlockEntity extends BlockEntity {
                 oHeight = 1.0F;
             }
         }
+
+        if (components.has(DataComponentTypeRegistries.GLASSWARE_DECORATIONS)) {
+            this.decorationsList.addAll(components.getOrDefault(DataComponentTypeRegistries.GLASSWARE_DECORATIONS, List.of()));
+        }
     }
 
     @SuppressWarnings("Convert2Lambda")
@@ -147,5 +189,20 @@ public class GlasswareBlockEntity extends BlockEntity {
             public IModel<?> get() {
                 return Models.getModel(model).orElse(Models.COLLINS_GLASS);
             }}.get();
+    }
+
+    public record Decoration(Vec3 position, Quaternionf quaternionf, ItemStack itemStack) {
+        public static final StreamCodec<RegistryFriendlyByteBuf, Decoration> STREAM_CODEC = StreamCodec.composite(
+                Vec3.STREAM_CODEC, Decoration::position,
+                StreamCodecUtil.QUATERNION, Decoration::quaternionf,
+                ItemStack.OPTIONAL_STREAM_CODEC, Decoration::itemStack,
+                Decoration::new
+        );
+
+        public static final Codec<Decoration> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+                Vec3.CODEC.fieldOf("position").forGetter(Decoration::position),
+                SerializeHelper.QUATERNIONF_CODEC.fieldOf("quaternionf").forGetter(Decoration::quaternionf),
+                ItemStack.OPTIONAL_CODEC.fieldOf("itemStack").forGetter(Decoration::itemStack)
+        ).apply(inst, Decoration::new));
     }
 }

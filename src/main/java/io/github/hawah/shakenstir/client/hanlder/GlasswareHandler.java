@@ -20,7 +20,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -80,12 +79,12 @@ public class GlasswareHandler implements IHandler {
 
     @Override
     public boolean isActive() {
-        if (getPlayer() == null) {
+        if (PACKAGE.getPlayer() == null) {
             return false;
         }
         BlockState state;
         BlockPos pos;
-        return getPlayer().getMainHandItem().getItem() instanceof GlasswareItem &&
+        return PACKAGE.getPlayer().getMainHandItem().getItem() instanceof GlasswareItem &&
                 ClientDataHolder.Picker.block().isPresent() &&
                 Direction.UP.equals(ClientDataHolder.Picker.direction()) &&
                 (pos = ClientDataHolder.Picker.pos()) != null &&
@@ -97,13 +96,7 @@ public class GlasswareHandler implements IHandler {
                 KeyBinding.hasControlDown();
     }
 
-    public static Player getPlayer() {
-        return Minecraft.getInstance().player;
-    }
 
-    public static ItemStack getItem() {
-        return getPlayer().getMainHandItem();
-    }
 
     public static Optional<IModel<?>> parseItemStack(ItemStack itemStack) {
         return itemStack.has(DataComponents.ITEM_MODEL)?
@@ -112,7 +105,7 @@ public class GlasswareHandler implements IHandler {
     }
 
     public IModel<?> getModel() {
-        return parseItemStack(getItem()).orElse(Models.MARGARITA_GLASS);
+        return parseItemStack(PACKAGE.getItem()).orElse(Models.MARGARITA_GLASS);
     }
 
     public void submit(SubmitNodeCollector submitNodeCollector, PoseStack poseStack, LevelRenderState levelRenderState) {

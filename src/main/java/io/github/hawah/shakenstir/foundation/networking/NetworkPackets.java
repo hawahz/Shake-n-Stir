@@ -14,6 +14,7 @@ import java.util.Locale;
 public enum NetworkPackets implements BasePacketPayload.PacketTypeProvider {
     //C2S
     SHAKE_FINISH(ServerboundShakeFinishPacket.class, ServerboundShakeFinishPacket.STREAM_CODEC),
+    INSERT_DECORATION(ServerboundInsertDecorationPacket.class, ServerboundInsertDecorationPacket.STREAM_CODEC),
     //S2C
     ;
     private final PacketRegistry.PacketHolder<?> type;

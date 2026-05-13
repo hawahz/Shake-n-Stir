@@ -6,6 +6,7 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.math.Axis;
 import io.github.hawah.shakenstir.client.render.block.renderstate.ShakeBlockEntityRenderState;
 import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
+import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import it.unimi.dsi.fastutil.HashCommon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -50,6 +51,9 @@ public class ShakeBlockEntityRenderer implements BlockEntityRenderer<ShakeBlockE
         int seed = HashCommon.long2int(blockEntity.getBlockPos().asLong());
         for (int slot = 0; slot < itemToRender.size(); slot++) {
             ItemStack itemStack = itemToRender.get(slot);
+            if (itemStack.is(ItemRegistries.CONTENT_HOLDER)) {
+                continue;
+            }
             if (!itemStack.isEmpty()) {
                 ItemStackRenderState itemStackRenderState = new ItemStackRenderState();
                 this.itemModelResolver

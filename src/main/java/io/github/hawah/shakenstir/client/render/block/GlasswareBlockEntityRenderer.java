@@ -7,23 +7,32 @@ import io.github.hawah.shakenstir.client.model.glassware.GlasswareQuadCollection
 import io.github.hawah.shakenstir.client.render.block.renderstate.GlasswareBlockEntityRenderState;
 import io.github.hawah.shakenstir.client.render.glassware.vertexConsumer.VerticalGradientVertexConsumer;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Ease;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3dc;
 import org.jspecify.annotations.Nullable;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<GlasswareBlockEntity, GlasswareBlockEntityRenderState> {
@@ -38,6 +47,7 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
         state.model = blockEntity.getModel();
         state.height = Mth.lerp(partialTicks, blockEntity.oHeight, blockEntity.height);
         state.color = blockEntity.getColor();
+        state.decorations.addAll(blockEntity.decorationsList);
     }
 
     @Override
@@ -129,6 +139,39 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
                                 r, g, b, a);
                     }
             );
+        }
+        poseStack.popPose();
+
+        poseStack.pushPose();
+        poseStack.translate(state.position.x, 0, state.position.y);
+        poseStack.mulPose(Axis.YN.rotationDegrees(state.rotate));
+//        poseStack.translate(-0.5, 0, -0.5);
+        for (GlasswareBlockEntity.Decoration decoration : state.decorations) {
+            ItemStack itemStack = decoration.itemStack();
+            if (itemStack.getItem() instanceof BlockItem blockItem) {
+                BlockState decorationState = blockItem.getBlock().defaultBlockState();
+                BlockStateModel blockStateModel = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(decorationState);
+                List<BlockStateModelPart> parts = new ArrayList<>();
+                blockStateModel.collectParts(Minecraft.getInstance().level.getRandom(), parts);
+                double size = decorationState.getShape(Minecraft.getInstance().level, BlockPos.ZERO).bounds().getSize();
+                float scale = (float) (0.225F / size);
+                poseStack.pushPose();
+                poseStack.translate(decoration.position().x, decoration.position().y, decoration.position().z);
+                poseStack.mulPose(new Quaternionf(decoration.quaternionf()));
+                poseStack.translate(-0.5 * scale, 0 * scale, -0.5 * scale);
+                poseStack.scale(scale, scale, scale);
+
+                submitNodeCollector.submitBlockModel(
+                        poseStack,
+                        RenderTypes.cutoutMovingBlock(),
+                        parts,
+                        new int[]{0},
+                        state.lightCoords,
+                        OverlayTexture.NO_OVERLAY,
+                        0
+                );
+                poseStack.popPose();
+            }
         }
         poseStack.popPose();
     }

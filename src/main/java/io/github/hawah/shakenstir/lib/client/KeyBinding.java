@@ -1,5 +1,6 @@
 package io.github.hawah.shakenstir.lib.client;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -272,6 +273,10 @@ public enum KeyBinding {
         return KeyNode.SHIFT.isActive();
     }
 
+    public static boolean hasTabDown() {
+        return InputConstants.isKeyDown(Minecraft.getInstance().getWindow(), InputConstants.KEY_TAB);
+    }
+
     @SubscribeEvent
     public static void onTickPre(ClientTickEvent.Pre event) {
         KeyBinding.tick();
@@ -286,6 +291,12 @@ public enum KeyBinding {
         boolean pressed = event.getAction() != 0;
         if (KeyBinding.KeyBuffer.onMousePressed(button, pressed)) {
             event.setCanceled(true);
+        }
+    }
+    @SubscribeEvent
+    public static void onButtonPressed(InputEvent.MouseButton.Post event) {
+        if (Minecraft.getInstance().screen != null) {
+            return;
         }
     }
 }

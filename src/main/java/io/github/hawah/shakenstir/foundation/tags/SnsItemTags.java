@@ -40,4 +40,9 @@ public class SnsItemTags {
             Registries.ITEM,
             ShakenStir.asResource("glassware_item_tag")
     );
+
+    public static final TagKey<Item> DRINK_DECORATION = TagKey.create(
+            Registries.ITEM,
+            ShakenStir.asResource("drink_decoration_item_tag")
+    );
 }
