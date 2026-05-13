@@ -2,7 +2,6 @@ package io.github.hawah.shakenstir.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import io.github.hawah.shakenstir.client.GlasswareRaycast;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.util.IModel;
 import net.minecraft.client.Minecraft;
@@ -25,7 +24,7 @@ public record GlasswareOutlineRenderer(
     public boolean render(BlockOutlineRenderState renderState, MultiBufferSource.BufferSource buffer, PoseStack poseStack, boolean translucentPass, LevelRenderState levelRenderState) {
         Vector2f position = blockEntity.position;
         float rotation = blockEntity.rotation;
-        IModel model = blockEntity.getModel();
+        IModel<?> model = blockEntity.getModel();
 
 
         poseStack.pushPose();
@@ -38,8 +37,6 @@ public record GlasswareOutlineRenderer(
         poseStack.translate(pos.getX() - camX, 0, pos.getZ() - camZ);
         poseStack.mulPose(Axis.YN.rotationDegrees(rotation));
         poseStack.translate(-(pos.getX() - camX), 0, -(pos.getZ() - camZ));
-
-        GlasswareRaycast.shape = model.getShape();
 
         ShapeRenderer.renderShape(
                 poseStack,

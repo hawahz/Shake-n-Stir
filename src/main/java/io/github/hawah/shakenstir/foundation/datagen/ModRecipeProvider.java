@@ -14,6 +14,7 @@ import io.github.hawah.shakenstir.foundation.tags.SnsSharedTags;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeBuilder;
@@ -21,10 +22,12 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.parsing.packrat.Atom;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.material.FlowingFluid;
@@ -34,6 +37,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jspecify.annotations.NonNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -79,7 +83,7 @@ public class ModRecipeProvider extends RecipeProvider {
 
         getBuilder()
                 .result(ItemRegistries.CONTENT_HOLDER)
-                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName("{Fluid} {Ingredient} Sour")).build())
+                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName("{Fluid} {Ingredient} Sour")).set(DataComponents.DYED_COLOR, new DyedItemColor(new Color(0xCC7F00).getRGB())).set(DataComponentTypeRegistries.SHAKE_PRODUCT_POURABLE, true).build())
                 .withFluid(SnsFluidTags.SPIRIT, 500)
                 .orWith(SnsSharedTags.SWEET)
                 .orWith(SnsSharedTags.SOUR)

@@ -72,6 +72,7 @@ public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem,
         if (result.isEmpty()) {
             mainHandItem.remove(DataComponentTypeRegistries.SHAKE_CONTENT);
             mainHandItem.remove(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT);
+            mainHandItem.set(DataComponentTypeRegistries.SHAKING, true);
             ItemStack holder = ItemRegistries.CONTENT_HOLDER.get().getDefaultInstance();
             holder.set(DataComponentTypeRegistries.SHAKE_CONTENT, new ShakeFluidDataComponent(fluidData));
             holder.set(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, new ShakeItemDataComponent(itemData));
@@ -91,6 +92,7 @@ public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem,
             mainHandItem.remove(DataComponentTypeRegistries.SHAKE_CONTENT);
             mainHandItem.remove(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT);
             mainHandItem.remove(DataComponentTypeRegistries.SHAKE_ICE_CUBES);
+            mainHandItem.remove(DataComponentTypeRegistries.SHAKING);
             mainHandItem.set(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, new ShakeItemDataComponent(List.of(itemStack)));
         });
     }

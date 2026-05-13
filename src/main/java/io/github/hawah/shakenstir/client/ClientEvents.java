@@ -1,10 +1,11 @@
 package io.github.hawah.shakenstir.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.hanlder.GlasswareHandlerRenderState;
+import io.github.hawah.shakenstir.client.model.GlasswareQuadCollection;
+import io.github.hawah.shakenstir.client.model.GlasswareUnbakedModelLoader;
 import io.github.hawah.shakenstir.client.render.GlasswareOutlineRenderer;
 import io.github.hawah.shakenstir.client.render.block.GlasswareBlockEntityRenderer;
 import io.github.hawah.shakenstir.client.render.block.ShakeBlockEntityRenderer;
@@ -18,18 +19,12 @@ import io.github.hawah.shakenstir.util.Models;
 import io.github.hawah.shakenstir.util.Result;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockTintSource;
-import net.minecraft.client.multiplayer.ClientChunkCache;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
-import net.minecraft.client.renderer.chunk.ChunkSectionsToRender;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -142,6 +137,11 @@ public class ClientEvents {
         }
 
         @SubscribeEvent
+        public static void registerModelLoader(ModelEvent.RegisterLoaders event) {
+            event.register(GlasswareUnbakedModelLoader.ID, GlasswareUnbakedModelLoader.INSTANCE);
+        }
+
+        @SubscribeEvent
         public static void registerModels(ModelEvent.RegisterStandalone event) {
             for (Models value : Models.values()) {
                 event.register(
@@ -159,6 +159,12 @@ public class ClientEvents {
                         SimpleUnbakedStandaloneModel.quadCollection(
                                 resourcePackModel.location()
                         )
+                );
+            }
+            for (Models.Glassware glasswareModel : Models.glasswareModels.values()) {
+                event.register(
+                        glasswareModel.key(),
+                        GlasswareQuadCollection.collect(glasswareModel.location())
                 );
             }
         }

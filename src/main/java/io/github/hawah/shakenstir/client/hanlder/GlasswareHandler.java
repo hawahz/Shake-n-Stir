@@ -93,6 +93,7 @@ public class GlasswareHandler implements IHandler {
                 (state = ClientDataHolder.Picker.blockState().orElse(null)) != null &&
                 state.isSolidRender() &&
                 state.isFaceSturdy(Minecraft.getInstance().level, pos, Direction.UP) &&
+                Minecraft.getInstance().level.getBlockState(pos.above()).isEmpty() &&
                 KeyBinding.hasControlDown();
     }
 
@@ -104,13 +105,13 @@ public class GlasswareHandler implements IHandler {
         return getPlayer().getMainHandItem();
     }
 
-    public static Optional<IModel> parseItemStack(ItemStack itemStack) {
+    public static Optional<IModel<?>> parseItemStack(ItemStack itemStack) {
         return itemStack.has(DataComponents.ITEM_MODEL)?
                 Models.getModel(itemStack.get(DataComponents.ITEM_MODEL)) :
                 Optional.of(Models.COLLINS_GLASS);
     }
 
-    public IModel getModel() {
+    public IModel<?> getModel() {
         return parseItemStack(getItem()).orElse(Models.MARGARITA_GLASS);
     }
 

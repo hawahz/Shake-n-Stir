@@ -43,5 +43,7 @@ public class ModItemTagsProvider extends ItemTagsProvider {
                 .addTags(SnsItemTags.SOUR, SnsItemTags.SWEET, SnsItemTags.BITTER)
                 .add(ItemRegistries.ICE_CUBE.get())
                 ;
+        this.tag(SnsItemTags.BUBBLE_LIKE);
+        this.tag(SnsItemTags.GLASSWARE);
     }
 }

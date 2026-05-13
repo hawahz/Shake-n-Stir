@@ -2,7 +2,9 @@ package io.github.hawah.shakenstir.content.block;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStir;
+import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
+import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
@@ -23,6 +25,8 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -158,5 +162,23 @@ public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
     protected boolean propagatesSkylightDown(BlockState state) {
         return true;
     }
+
+    @Override
+    public <T extends BlockEntity> @javax.annotation.Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        // You can return different tickers here, depending on whatever factors you want. A common use case would be
+        // to return different tickers on the client or server, only tick one side to begin with,
+        // or only return a ticker for some blockstates (e.g. when using a "my machine is working" blockstate property).
+        if (!level.isClientSide()) {
+            return null;
+        }
+        return createTickerHelper(type, BlockEntityRegistries.GLASSWARE_BLOCK_ENTITY.get(), GlasswareBlockEntity::onAnimationTick);
+    }
+
+    private static <E extends BlockEntity, A extends BlockEntity> @javax.annotation.Nullable BlockEntityTicker<A> createTickerHelper(
+            BlockEntityType<A> type, BlockEntityType<E> checkedType, BlockEntityTicker<? super E> ticker
+    ) {
+        return checkedType == type ? (BlockEntityTicker<A>) ticker : null;
+    }
+
 
 }

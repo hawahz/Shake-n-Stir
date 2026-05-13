@@ -2,16 +2,20 @@ package io.github.hawah.shakenstir.content.item;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
+import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.dataComponent.ShakeItemDataComponent;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import io.github.hawah.shakenstir.foundation.item.IPickMarkedItem;
 import io.github.hawah.shakenstir.foundation.item.PriorityBlockItem;
+import net.minecraft.core.BlockPos;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -48,17 +52,37 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem {
         if (!player.getItemInHand(hand).getOrDefault(DataComponentTypeRegistries.HAS_CUP, false)) {
             return InteractionResult.PASS;
         }
-        if (player.getMainHandItem().getOrDefault(DataComponentTypeRegistries.SHAKING, false) && player.isUsingItem()) {
+        if (player.isUsingItem()) {
             return InteractionResult.PASS;
         }
         ItemStack offhandItem = player.getOffhandItem();
         if (!offhandItem.isEmpty() && (!offhandItem.is(ItemTags.FREEZE_IMMUNE_WEARABLES) || !offhandItem.is(ItemTags.FOOT_ARMOR))) {
             return super.use(level, player, hand);
         }
-        player.getMainHandItem().set(DataComponentTypeRegistries.SHAKING, true);
         player.startUsingItem(hand);
 
         return InteractionResult.PASS;
+    }
+
+    @Override
+    public InteractionResult useOn(UseOnContext context) {
+        ItemStack shake = context.getItemInHand();
+        ShakeItemDataComponent item;
+        ItemStack contentHolder;
+        Level level = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+        if (
+                level.getBlockEntity(pos) instanceof GlasswareBlockEntity blockEntity &&
+                (item = shake.getOrDefault(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, ShakeItemDataComponent.EMPTY)).size() == 1 &&
+                        (contentHolder = item.itemStacks().getFirst()).is(ItemRegistries.CONTENT_HOLDER) &&
+                        contentHolder.getOrDefault(DataComponentTypeRegistries.SHAKE_PRODUCT_POURABLE, false)
+        ) {
+            if (blockEntity.pourProduct(contentHolder)) {
+                shake.remove(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT);
+                return InteractionResult.SUCCESS;
+            };
+        }
+        return super.useOn(context);
     }
 
     @Override
@@ -81,8 +105,6 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem {
 
     @Override
     public boolean releaseUsing(ItemStack itemStack, Level level, LivingEntity entity, int remainingTime) {
-
-        itemStack.remove(DataComponentTypeRegistries.SHAKING);
         entity.setIsInPowderSnow(true);
 
         return true;

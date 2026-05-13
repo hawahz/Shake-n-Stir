@@ -12,7 +12,9 @@
   ],
   "result": {
     "components": {
-      "shakenstir:shake_product_deferred_name": "{Fluid} {Ingredient} Sour"
+      "minecraft:dyed_color": -3375360,
+      "shakenstir:shake_product_deferred_name": "{Fluid} {Ingredient} Sour",
+      "shakenstir:shake_product_pourable": true
     },
     "id": "shakenstir:shake_content_holder"
   },
