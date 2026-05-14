@@ -33,7 +33,8 @@ public enum LangData {
 
     HUD_BLACKBOARD_SELECTION("hud.blackboard_selection", "Size (%1$s, %2$s, %3$s) (%4$s)", 4),
 
-
+    NAME_SOUR("name.sour", "{Fluid} {Ingredient} Sour", 0),
+    NAME_COCKTAIL("name.cocktail", "{Fluid} {Ingredient} Cocktail", 0)
     ;
 
     public final String key;

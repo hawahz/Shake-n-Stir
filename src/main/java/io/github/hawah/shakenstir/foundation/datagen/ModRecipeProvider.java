@@ -4,10 +4,9 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.ShakeProductDeferredName;
-import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
-import io.github.hawah.shakenstir.content.fluid.FluidTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.recipe.ingredient.FluidIngredient;
+import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import io.github.hawah.shakenstir.foundation.tags.SnsFluidTags;
 import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
 import io.github.hawah.shakenstir.foundation.tags.SnsSharedTags;
@@ -22,24 +21,18 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.ARGB;
-import net.minecraft.util.parsing.packrat.Atom;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
-import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredHolder;
-import org.jspecify.annotations.NonNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
@@ -83,7 +76,7 @@ public class ModRecipeProvider extends RecipeProvider {
 
         getBuilder()
                 .result(ItemRegistries.CONTENT_HOLDER)
-                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName("{Fluid} {Ingredient} Sour")).set(DataComponents.DYED_COLOR, new DyedItemColor(new Color(0xCC7F00).getRGB())).set(DataComponentTypeRegistries.SHAKE_PRODUCT_POURABLE, true).build())
+                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName(LangData.NAME_SOUR)).set(DataComponents.DYED_COLOR, new DyedItemColor(new Color(0xCC7F00).getRGB())).set(DataComponentTypeRegistries.SHAKE_PRODUCT_POURABLE, true).build())
                 .withFluid(SnsFluidTags.SPIRIT, 500)
                 .orWith(SnsSharedTags.SWEET)
                 .orWith(SnsSharedTags.SOUR)
@@ -94,7 +87,7 @@ public class ModRecipeProvider extends RecipeProvider {
 
         getBuilder()
                 .result(ItemRegistries.CONTENT_HOLDER)
-                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName("{Fluid} {Ingredient} Cocktail")).build())
+                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName(LangData.NAME_COCKTAIL)).build())
                 .withFluid(SnsFluidTags.SPIRIT, 500)
                 .orWith(SnsSharedTags.BITTER)
                 .orWith(SnsSharedTags.SWEET)
