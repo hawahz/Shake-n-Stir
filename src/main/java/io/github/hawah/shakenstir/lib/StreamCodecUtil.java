@@ -30,7 +30,9 @@ public class StreamCodecUtil {
                 ByteBufCodecs.INT, Enum::ordinal,
                 (ordinal) -> {
                     for (final T enumValue : enumClass.getEnumConstants()) {
-                        return enumValue;
+                        if (enumValue.ordinal() == ordinal) {
+                            return enumValue;
+                        }
                     }
                     throw new IllegalArgumentException("Invalid ordinal");
                 }
