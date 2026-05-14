@@ -33,16 +33,7 @@ public enum LangData {
 
     HUD_BLACKBOARD_SELECTION("hud.blackboard_selection", "Size (%1$s, %2$s, %3$s) (%4$s)", 4),
 
-    ITEM_NAME_MARTINI_GLASS("name.martini_glass", "Martini Glass", 0),
-    ITEM_NAME_COLLINS_GLASS("name.collins_glass", "Collins Glass", 0),
-    ITEM_NAME_MARGARITA_GLASS("name.margarita_glass", "Margarita Glass", 0),
 
-    VODKA("name.vodka", "Vodka", 0),
-    WHISKEY("name.whiskey", "Whiskey", 0),
-    GIN("name.gin", "Gin", 0),
-    RUM("name.rum", "Rum", 0),
-    TEQUILA("name.tequila", "Tequila", 0),
-    BRANDY("name.brandy", "Brandy", 0),
     ;
 
     public final String key;

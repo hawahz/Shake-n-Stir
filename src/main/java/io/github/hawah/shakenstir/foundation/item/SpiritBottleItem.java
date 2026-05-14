@@ -3,22 +3,17 @@ package io.github.hawah.shakenstir.foundation.item;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.FluidStackDataComponent;
-import io.github.hawah.shakenstir.content.recipe.Spirits;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import io.github.hawah.shakenstir.lib.util.Scheduler;
 import io.github.hawah.shakenstir.util.ShakeClientHooks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.LavaFluid;
 import net.minecraft.world.level.material.WaterFluid;
@@ -27,16 +22,12 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.common.util.AttributeTooltipContext;
 import net.neoforged.neoforge.event.AddAttributeTooltipsEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 
 import java.awt.*;
-import java.util.function.Consumer;
 
 public class SpiritBottleItem extends BlockItem implements ITooltipItem {
     public SpiritBottleItem(Block block, Properties properties) {
@@ -82,7 +73,7 @@ public class SpiritBottleItem extends BlockItem implements ITooltipItem {
         if (content.fluidStack().isEmpty()) {
             event.addTooltipLines(LangData.TOOLTIP_SPIRIT_EMPTY.get());
         } else {
-            event.addTooltipLines(LangData.TOOLTIP_SPIRIT_CONTENT.get(Spirits.fromFluid(content.fluidStack().getFluidType()).getTranslatable()));
+            event.addTooltipLines(LangData.TOOLTIP_SPIRIT_CONTENT.get(content.fluidStack().getHoverName()));
             event.addTooltipLines(LangData.TOOLTIP_SPIRIT_VOLUME.get(content.fluidStack().getAmount()));
         }
     }

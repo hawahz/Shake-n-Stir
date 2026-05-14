@@ -1,12 +1,13 @@
 package io.github.hawah.shakenstir.foundation.networking;
 
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
-import io.github.hawah.shakenstir.content.dataComponent.ShakeFluidDataComponent;
-import io.github.hawah.shakenstir.content.dataComponent.ShakeItemDataComponent;
+import io.github.hawah.shakenstir.content.dataComponent.IFluidDataHolder;
+import io.github.hawah.shakenstir.content.dataComponent.IItemDataHolder;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.recipe.RecipeTypeRegistries;
 import io.github.hawah.shakenstir.content.recipe.ShakeRecipe;
 import io.github.hawah.shakenstir.content.recipe.ShakeRecipeInput;
+import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.lib.networking.ClientToServerPacket;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponents;
@@ -50,14 +51,14 @@ public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem,
         }
         int shakeSuccessTimes = this.shakeSuccessTimes();
         ItemStack mainHandItem = player.getMainHandItem();
-        List<ItemStack> itemData = new ArrayList<>(shakeItem.getOrDefault(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, ShakeItemDataComponent.EMPTY).itemStacks());
-        List<FluidStack> fluidData = new ArrayList<>(shakeItem.getOrDefault(DataComponentTypeRegistries.SHAKE_CONTENT, ShakeFluidDataComponent.EMPTY).fluidStacks());
+        List<ItemStack> itemData = new ArrayList<>(ShakeUtil.getItemStacks(shakeItem));
+        List<FluidStack> fluidData = new ArrayList<>(ShakeUtil.getFluidStacks(shakeItem));
         ItemStack predicatedImmProduct;
         if (!itemData.isEmpty() && (predicatedImmProduct = itemData.getFirst())!=null && predicatedImmProduct.is(ItemRegistries.CONTENT_HOLDER) && predicatedImmProduct.has(DataComponentTypeRegistries.SHAKE_SUCCESS_TIMES)) {
-            ShakeItemDataComponent item = predicatedImmProduct.getOrDefault(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, ShakeItemDataComponent.EMPTY);
+            IItemDataHolder item = ShakeUtil.getItemData(predicatedImmProduct);
             itemData.removeFirst();
             itemData.addAll(item.itemStacks());
-            ShakeFluidDataComponent fluid = predicatedImmProduct.getOrDefault(DataComponentTypeRegistries.SHAKE_CONTENT, ShakeFluidDataComponent.EMPTY);
+            IFluidDataHolder fluid = ShakeUtil.getFluidData(predicatedImmProduct);
             fluidData.addAll(fluid.fluidStacks());
             shakeSuccessTimes += predicatedImmProduct.getOrDefault(DataComponentTypeRegistries.SHAKE_SUCCESS_TIMES, 0);
         }
@@ -70,14 +71,14 @@ public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem,
                 level
         );
         if (result.isEmpty()) {
-            mainHandItem.remove(DataComponentTypeRegistries.SHAKE_CONTENT);
-            mainHandItem.remove(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT);
+            ShakeUtil.clearFluidData(shakeItem);
+            ShakeUtil.clearItemData(shakeItem);
             mainHandItem.set(DataComponentTypeRegistries.SHAKING, true);
             ItemStack holder = ItemRegistries.CONTENT_HOLDER.get().getDefaultInstance();
-            holder.set(DataComponentTypeRegistries.SHAKE_CONTENT, new ShakeFluidDataComponent(fluidData));
-            holder.set(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, new ShakeItemDataComponent(itemData));
+            ShakeUtil.setFluidData(holder, fluidData);
+            ShakeUtil.setItemData(holder, itemData);
             holder.set(DataComponentTypeRegistries.SHAKE_SUCCESS_TIMES, shakeSuccessTimes);
-            mainHandItem.set(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, new ShakeItemDataComponent(List.of(holder)));
+            ShakeUtil.setItemData(mainHandItem, List.of(holder));
             return;
         }
         if (!mainHandItem.is(ItemRegistries.SHAKE)) {
@@ -89,11 +90,11 @@ public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem,
                 MutableComponent name = itemStack.get(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME).getName(fluidData, itemData);
                 itemStack.set(DataComponents.ITEM_NAME, name);
             }
-            mainHandItem.remove(DataComponentTypeRegistries.SHAKE_CONTENT);
-            mainHandItem.remove(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT);
+            ShakeUtil.clearFluidData(mainHandItem);
+            ShakeUtil.clearItemData(mainHandItem);
             mainHandItem.remove(DataComponentTypeRegistries.SHAKE_ICE_CUBES);
             mainHandItem.remove(DataComponentTypeRegistries.SHAKING);
-            mainHandItem.set(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, new ShakeItemDataComponent(List.of(itemStack)));
+            ShakeUtil.setItemData(mainHandItem, List.of(itemStack));
         });
     }
 

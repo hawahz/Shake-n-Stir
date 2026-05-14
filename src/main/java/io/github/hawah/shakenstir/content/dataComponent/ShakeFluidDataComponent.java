@@ -9,7 +9,8 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.List;
 
-public record ShakeFluidDataComponent(List<FluidStack> fluidStacks) {
+@Deprecated
+public record ShakeFluidDataComponent(List<FluidStack> fluidStacks) implements IFluidDataHolder{
 
     public static final ShakeFluidDataComponent EMPTY = new ShakeFluidDataComponent(NonNullList.of(FluidStack.EMPTY));
 
@@ -19,7 +20,7 @@ public record ShakeFluidDataComponent(List<FluidStack> fluidStacks) {
             ShakeFluidDataComponent::new
     );
 
-    public int size() {
+    public int fluidVolume() {
         return fluidStacks.size();
     }
 }

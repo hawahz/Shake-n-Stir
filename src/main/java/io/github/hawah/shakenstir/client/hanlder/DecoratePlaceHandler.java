@@ -139,13 +139,13 @@ public class DecoratePlaceHandler implements IHandler {
         );
         poseStack.mulPose(Axis.YN.rotationDegrees(blockEntity.rotation));
 
-        Vec3 vec3 = location.subtract(
+        Vec3 localPos = location.subtract(
                 (blockEntity.position.x() + pos.getX()   ),
                 (pos.getY()                              ),
                 (blockEntity.position.y() + pos.getZ())  )
                 .yRot((float) Math.toRadians(blockEntity.rotation));
 
-        poseStack.translate(vec3.x(), vec3.y() + y, vec3.z());
+        poseStack.translate(localPos.x(), localPos.y() + y, localPos.z());
         poseStack.mulPose(quaternionf);
         poseStack.translate(-0.5 * scale, 0 * scale, -0.5 * scale);
         poseStack.scale(scale, scale, scale);

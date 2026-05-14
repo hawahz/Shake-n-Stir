@@ -39,14 +39,9 @@ public class DataComponentTypeRegistries {
             builder -> builder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
     );
 
-    public static final DataComponentType<ShakeFluidDataComponent> SHAKE_CONTENT = register(
+    public static final DataComponentType<ShakeContentHolder> SHAKE_CONTENT = register(
             "shake_content",
-            builder -> builder.persistent(ShakeFluidDataComponent.CODEC).networkSynchronized(ShakeFluidDataComponent.STREAM_CODEC)
-    );
-
-    public static final DataComponentType<ShakeItemDataComponent> SHAKE_ITEM_INGREDIENT = register(
-            "shake_item_ingredient",
-            builder -> builder.persistent(ShakeItemDataComponent.CODEC).networkSynchronized(ShakeItemDataComponent.STREAM_CODEC)
+            builder -> builder.persistent(ShakeContentHolder.CODEC).networkSynchronized(ShakeContentHolder.STREAM_CODEC)
     );
 
     public static final DataComponentType<Integer> SHAKE_ICE_CUBES = register(

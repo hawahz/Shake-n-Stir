@@ -9,7 +9,8 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
-public record ShakeItemDataComponent(List<ItemStack> itemStacks) {
+@Deprecated
+public record ShakeItemDataComponent(List<ItemStack> itemStacks) implements IItemDataHolder{
     public static final ShakeItemDataComponent EMPTY = new ShakeItemDataComponent(NonNullList.of(ItemStack.EMPTY));
 
     public static final Codec<ShakeItemDataComponent> CODEC = ItemStack.CODEC.listOf().xmap(ShakeItemDataComponent::new, ShakeItemDataComponent::itemStacks);
@@ -18,7 +19,7 @@ public record ShakeItemDataComponent(List<ItemStack> itemStacks) {
             ShakeItemDataComponent::new
     );
 
-    public int size() {
+    public int itemCount() {
         return itemStacks.size();
     }
 }

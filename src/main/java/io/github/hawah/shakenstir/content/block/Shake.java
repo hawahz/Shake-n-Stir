@@ -6,11 +6,10 @@ import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.FluidStackDataComponent;
-import io.github.hawah.shakenstir.content.dataComponent.ShakeFluidDataComponent;
-import io.github.hawah.shakenstir.content.dataComponent.ShakeItemDataComponent;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
+import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.lib.VoxelShapeMaker;
 import io.github.hawah.shakenstir.util.AdvancementHooks;
 import net.minecraft.core.BlockPos;
@@ -29,7 +28,6 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -47,7 +45,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
@@ -381,8 +378,8 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
         ItemStack stack = ItemRegistries.SHAKE.toStack();
         stack.set(DataComponentTypeRegistries.HAS_CUP, state.getValue(FACING).equals(Direction.UP));
         if (level.getBlockEntity(pos) instanceof ShakeBlockEntity blockEntity) {
-            stack.set(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, new ShakeItemDataComponent(blockEntity.getActualItems().stream().filter(itemStack -> !itemStack.isEmpty()).toList()));
-            stack.set(DataComponentTypeRegistries.SHAKE_CONTENT, new ShakeFluidDataComponent(blockEntity.getFluidStack().stream().filter(fluidStack -> !fluidStack.isEmpty()).toList()));
+            ShakeUtil.setItemData(stack, blockEntity.getActualItems());
+            ShakeUtil.setFluidData(stack, blockEntity.getFluidStack());
             stack.set(DataComponentTypeRegistries.SHAKE_ICE_CUBES, blockEntity.iceCubeCounts);
             stack.set(DataComponentTypeRegistries.SHAKING, blockEntity.isShaking);
         }

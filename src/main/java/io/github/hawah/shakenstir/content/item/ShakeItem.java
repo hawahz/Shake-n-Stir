@@ -2,18 +2,17 @@ package io.github.hawah.shakenstir.content.item;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
-import io.github.hawah.shakenstir.content.block.Shake;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.FluidStackDataComponent;
-import io.github.hawah.shakenstir.content.dataComponent.ShakeFluidDataComponent;
-import io.github.hawah.shakenstir.content.dataComponent.ShakeItemDataComponent;
+import io.github.hawah.shakenstir.content.dataComponent.IItemDataHolder;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import io.github.hawah.shakenstir.foundation.item.IPickMarkedItem;
 import io.github.hawah.shakenstir.foundation.item.PriorityBlockItem;
 import io.github.hawah.shakenstir.foundation.item.SpiritBottleItem;
 import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
+import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
@@ -78,20 +77,20 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem {
     @Override
     public InteractionResult useOn(UseOnContext context) {
         ItemStack shake = context.getItemInHand();
-        ShakeItemDataComponent item;
+        IItemDataHolder item;
         ItemStack contentHolder;
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         if (
                 level.getBlockEntity(pos) instanceof GlasswareBlockEntity blockEntity &&
-                (item = shake.getOrDefault(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, ShakeItemDataComponent.EMPTY)).size() == 1 &&
+                (item = ShakeUtil.getItemData(shake)).itemCount() == 1 &&
                         (contentHolder = item.itemStacks().getFirst()).is(ItemRegistries.CONTENT_HOLDER) &&
                         contentHolder.getOrDefault(DataComponentTypeRegistries.SHAKE_PRODUCT_POURABLE, false)
         ) {
             if (blockEntity.pourProduct(contentHolder)) {
-                shake.remove(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT);
+                ShakeUtil.clearItemData(shake);
                 return InteractionResult.SUCCESS;
-            };
+            }
         }
         return super.useOn(context);
     }
@@ -116,17 +115,17 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem {
             other.shrink(1);
             return true;
         }
-        if (other.is(SnsItemTags.SHAKE_PLACABLE) && self.getOrDefault(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, ShakeItemDataComponent.EMPTY).size() < ShakeBlockEntity.MAX_HOLD_ITEMS) {
-            ArrayList<ItemStack> itemStacks = new ArrayList<>(self.getOrDefault(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, ShakeItemDataComponent.EMPTY).itemStacks());
+        if (other.is(SnsItemTags.SHAKE_PLACABLE) && ShakeUtil.getItemData(self).itemCount() < ShakeBlockEntity.MAX_HOLD_ITEMS) {
+            ArrayList<ItemStack> itemStacks = new ArrayList<>(ShakeUtil.getItemStacks(self));
             itemStacks.add(other.split(1));
-            self.set(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, new ShakeItemDataComponent(itemStacks));
+            ShakeUtil.setItemData(self, itemStacks);
             return true;
         }
         FluidStackDataComponent fluidStackDataComponent;
         if (
                 other.getItem() instanceof SpiritBottleItem &&
                         !(fluidStackDataComponent = other.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, FluidStackDataComponent.EMPTY)).isEmpty()) {
-            ArrayList<FluidStack> fluidStacks = new ArrayList<>(self.getOrDefault(DataComponentTypeRegistries.SHAKE_CONTENT, ShakeFluidDataComponent.EMPTY).fluidStacks());
+            ArrayList<FluidStack> fluidStacks = new ArrayList<>(ShakeUtil.getFluidStacks(self));
             int sum = fluidStacks.stream().mapToInt(FluidStack::getAmount).sum();
             FluidStack fluidStack = fluidStackDataComponent.fluidStack();
             int find = -1;
@@ -149,7 +148,7 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem {
             }
 
             other.set(DataComponentTypeRegistries.SPIRIT_CONTENT, fluidStack.isEmpty()? FluidStackDataComponent.EMPTY: new FluidStackDataComponent(fluidStack));
-            self.set(DataComponentTypeRegistries.SHAKE_CONTENT, new ShakeFluidDataComponent(fluidStacks));
+            ShakeUtil.setFluidData(self, fluidStacks);
             return true;
         }
         return super.overrideOtherStackedOnMe(self, other, slot, clickAction, player, carriedItem);

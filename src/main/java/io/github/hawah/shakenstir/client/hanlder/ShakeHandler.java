@@ -4,10 +4,9 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.client.ClickInteractions;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
-import io.github.hawah.shakenstir.content.dataComponent.ShakeFluidDataComponent;
-import io.github.hawah.shakenstir.content.dataComponent.ShakeItemDataComponent;
 import io.github.hawah.shakenstir.content.item.ShakeItem;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundShakeFinishPacket;
+import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.lib.client.handler.IHandler;
 import io.github.hawah.shakenstir.lib.client.render.EaseHelper;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
@@ -25,7 +24,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.client.gui.GuiLayer;
 import org.joml.Vector2d;
-import org.jspecify.annotations.NonNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -68,7 +66,7 @@ public class ShakeHandler implements IHandler, GuiLayer {
             int maxValidShakes = shakeCubes * 10;
             float volumeWater = shakeCubes == 0? 1.2F: EaseHelper.easeInPow(Mth.clamp((float) shakeSuccessTimes / maxValidShakes, 0, 0.8F), 6);
 
-            if (shakeCubes != 0 || !getItem().getOrDefault(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, ShakeItemDataComponent.EMPTY).itemStacks().isEmpty()){
+            if (shakeCubes != 0 || ShakeUtil.hasItem(getItem())){
                 Minecraft.getInstance().getSoundManager().play(
                         new SimpleSoundInstance(
                                 SoundEvents.GLASS_HIT,
@@ -80,7 +78,7 @@ public class ShakeHandler implements IHandler, GuiLayer {
                         )
                 );
             }
-            if (!getItem().getOrDefault(DataComponentTypeRegistries.SHAKE_CONTENT, ShakeFluidDataComponent.EMPTY).fluidStacks().isEmpty()) {
+            if (ShakeUtil.hasFluid(getItem())) {
                 Minecraft.getInstance().getSoundManager().play(
                         new SimpleSoundInstance(
                                 SoundEvents.BUCKET_FILL,

@@ -5,9 +5,10 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.content.block.Shake;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
-import io.github.hawah.shakenstir.content.dataComponent.ShakeFluidDataComponent;
-import io.github.hawah.shakenstir.content.dataComponent.ShakeItemDataComponent;
+import io.github.hawah.shakenstir.content.dataComponent.IFluidDataHolder;
+import io.github.hawah.shakenstir.content.dataComponent.IItemDataHolder;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.util.FluidStackWithSlot;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -245,15 +246,15 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
     @Override
     protected void applyImplicitComponents(DataComponentGetter components) {
         super.applyImplicitComponents(components);
-        ShakeItemDataComponent itemContents = components.getOrDefault(DataComponentTypeRegistries.SHAKE_ITEM_INGREDIENT, ShakeItemDataComponent.EMPTY);
+        IItemDataHolder itemContents = ShakeUtil.getItemData(components);
         itemHandler.itemHolder.clear();
-        int slots = itemContents.size();
+        int slots = itemContents.itemCount();
         for (int i = 0; i < Math.min(slots, MAX_HOLD_ITEMS); i++) {
             itemHandler.itemHolder.set(i, itemContents.itemStacks().get(i));
         }
-        ShakeFluidDataComponent shakeFluidData = components.getOrDefault(DataComponentTypeRegistries.SHAKE_CONTENT, ShakeFluidDataComponent.EMPTY);
+        IFluidDataHolder shakeFluidData = ShakeUtil.getFluidData(components);
         fluidHandler.fluidHolder.clear();
-        for (int i = 0; i < Math.min(shakeFluidData.size(), MAX_HOLD_FLUIDS); i++) {
+        for (int i = 0; i < Math.min(shakeFluidData.fluidVolume(), MAX_HOLD_FLUIDS); i++) {
             fluidHandler.fluidHolder.set(i, shakeFluidData.fluidStacks().get(i));
         }
         this.iceCubeCounts = components.getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0);
