@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.client.model.glassware.GlasswareQuadCollection;
+import io.github.hawah.shakenstir.client.render.IGlasswareRenderState;
 import io.github.hawah.shakenstir.client.render.block.renderstate.GlasswareBlockEntityRenderState;
 import io.github.hawah.shakenstir.client.render.glassware.vertexConsumer.VerticalGradientVertexConsumer;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
@@ -86,7 +87,7 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
         vc.setTargetAlpha((int) (255 * state.height));
         vc.setModulate(state.color);
         state.model.submit(submitNodeCollector, poseStack, List.of(vc), state.lightCoords, OverlayTexture.NO_OVERLAY, RenderTypes.cutoutMovingBlock());
-        submitLiquid(state, poseStack, submitNodeCollector);
+        submitLiquid(state, poseStack, submitNodeCollector, state.lightCoords);
         poseStack.popPose();
 
         poseStack.pushPose();
@@ -152,8 +153,8 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
         poseStack.popPose();
     }
 
-    private static void submitLiquid(GlasswareBlockEntityRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector) {
-        if (state.height > 0 && state.model.getModel() instanceof GlasswareQuadCollection quadCollection) {
+    public static void submitLiquid(IGlasswareRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords) {
+        if (state.height() > 0 && state.model().getModel() instanceof GlasswareQuadCollection quadCollection) {
             Vector3dc start = quadCollection.start();
             Vector3dc end = quadCollection.end();
 
@@ -162,7 +163,7 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
             float minZ = (float) Math.min(start.z(), end.z());
 
             float maxX = (float) Math.max(start.x(), end.x());
-            float maxY = ((float) Math.max(start.y(), end.y()) - minY) * state.height + minY;
+            float maxY = ((float) Math.max(start.y(), end.y()) - minY) * state.height() + minY;
             float maxZ = (float) Math.max(start.z(), end.z());
 
             submitNodeCollector.submitCustomGeometry(
@@ -172,11 +173,10 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
 
                         Matrix4f mat = pose.pose();
 
-                        int r = ARGB.red(state.color);
-                        int g = ARGB.green(state.color);
-                        int b = ARGB.blue(state.color);
+                        int r = ARGB.red(state.color());
+                        int g = ARGB.green(state.color());
+                        int b = ARGB.blue(state.color());
                         int a = 200;
-                        int lightCoords = state.lightCoords;
 
                         // DOWN
                         quad(buffer, mat, pose,

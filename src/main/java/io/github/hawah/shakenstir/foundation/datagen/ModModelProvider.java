@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.foundation.datagen;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStir;
+import io.github.hawah.shakenstir.client.render.item.GlasswareSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer;
 import io.github.hawah.shakenstir.content.HasCup;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
@@ -217,7 +218,7 @@ public class ModModelProvider extends ModelProvider {
                 ItemModelUtils.plainModel(plainModel)
         );
 
-        ItemModel.Unbaked otherModel = ItemModelUtils.specialModel(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "glassware"), new SpiritBottleSpecialRenderer.Unbaked());
+        ItemModel.Unbaked otherModel = ItemModelUtils.specialModel(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "glassware_special"), new GlasswareSpecialRenderer.Unbaked());
 
         itemModels.itemModelOutput
                 .register(
