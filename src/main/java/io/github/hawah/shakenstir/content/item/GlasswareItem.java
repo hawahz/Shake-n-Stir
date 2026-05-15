@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.content.item;
 
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
+import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import io.github.hawah.shakenstir.foundation.item.PriorityBlockItem;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentMap;
@@ -84,6 +85,7 @@ public class GlasswareItem extends PriorityBlockItem {
         if (!(map = split.getOrDefault(DataComponentTypeRegistries.DRINK_DATA, DataComponentMap.EMPTY)).isEmpty()) {
             split.remove(DataComponentTypeRegistries.DRINK_DATA);
             split.remove(DataComponents.DYED_COLOR);
+            split.set(DataComponents.ITEM_NAME, split.getOrDefault(DataComponentTypeRegistries.GLASSWARE_NAME, LangData.ERROR));
             applyDrinkToEntity(map, level, entity);
             if (entity instanceof Player player) {
                 ITakeUpBlock.holdOrAddItem(player, split, level, player.blockPosition());

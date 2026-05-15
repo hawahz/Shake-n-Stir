@@ -35,6 +35,7 @@ public class ItemRegistries {
 
     public static final DeferredItem<Item> CONTENT_HOLDER = register("shake_content_holder", Item::new);
 
+    public static final DeferredItem<Item> LEMON = register("lemon", Item::new);
     public static final DeferredItem<DecorateItem> LEMON_SLICE = register("lemon_slice", DecorateItem::new);
 
     // Spirit

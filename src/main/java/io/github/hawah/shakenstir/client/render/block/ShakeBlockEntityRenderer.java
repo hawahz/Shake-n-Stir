@@ -7,6 +7,7 @@ import com.mojang.math.Axis;
 import io.github.hawah.shakenstir.client.render.block.renderstate.ShakeBlockEntityRenderState;
 import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import it.unimi.dsi.fastutil.HashCommon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -20,6 +21,7 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.NonNullList;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -57,7 +59,7 @@ public class ShakeBlockEntityRenderer implements BlockEntityRenderer<ShakeBlockE
             if (!itemStack.isEmpty()) {
                 ItemStackRenderState itemStackRenderState = new ItemStackRenderState();
                 this.itemModelResolver
-                        .updateForTopItem(itemStackRenderState, itemStack, ItemDisplayContext.NONE, blockEntity.getLevel(), blockEntity, seed + slot);
+                        .updateForTopItem(itemStackRenderState, itemStack, ItemDisplayContext.GUI, blockEntity.getLevel(), blockEntity, seed + slot);
                 state.items[slot] = itemStackRenderState;
             }
         }
@@ -76,20 +78,45 @@ public class ShakeBlockEntityRenderer implements BlockEntityRenderer<ShakeBlockE
             return;
         }
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-        VertexConsumer consumer = bufferSource.getBuffer(RenderTypes.debugQuads());
+        VertexConsumer consumer = bufferSource.getBuffer(RenderTypes.entityTranslucent(Identifier.withDefaultNamespace("textures/block/water_still.png")));
         final float HEIGHT = 7/16f;
         final float BOTTOM = 1/16f;
-        final int COLOR = ARGB.color(Mth.clamp(100, 0, 255), 160, 216, 239);
+        final int COLOR = ARGB.color(Mth.clamp(255, 0, 255), 160, 216, 239);
+        float v = ( (int) (AnimationTickHolder.getTicks())) % 32 / 32f;
+        final float STEP = 1/32f;
 
         float height = Mth.lerp(state.liquidHeight, BOTTOM, HEIGHT);
         consumer.addVertex(poseStack.last(), 3/8f, height, 3/8f)
-                .setColor(COLOR);
+                .setColor(COLOR)
+                .setUv(0, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(state.lightCoords)
+                .setNormal(poseStack.last(), 0, 1, 0)
+        ;
+
         consumer.addVertex(poseStack.last(), 3/8f, height, 5/8f)
-                .setColor(COLOR);
+                .setColor(COLOR)
+                .setUv(0, v + STEP)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(state.lightCoords)
+                .setNormal(poseStack.last(), 0, 1, 0)
+        ;
+
         consumer.addVertex(poseStack.last(), 5/8f, height, 5/8f)
-                .setColor(COLOR);
+                .setColor(COLOR)
+                .setUv(1, v + STEP)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(state.lightCoords)
+                .setNormal(poseStack.last(), 0, 1, 0)
+        ;
+
         consumer.addVertex(poseStack.last(), 5/8f, height, 3/8f)
-                .setColor(COLOR);
+                .setColor(COLOR)
+                .setUv(1, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(state.lightCoords)
+                .setNormal(poseStack.last(), 0, 1, 0)
+        ;
         bufferSource.endBatch();
     }
 

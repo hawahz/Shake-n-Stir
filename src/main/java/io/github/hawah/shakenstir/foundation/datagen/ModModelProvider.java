@@ -52,7 +52,8 @@ public class ModModelProvider extends ModelProvider {
     @Override
     protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
         itemModels.generateItemWithTintedBaseLayer(ItemRegistries.CONTENT_HOLDER.get(), 0xFFFFFF);
-        itemModels.generateItemWithTintedBaseLayer(ItemRegistries.LEMON_SLICE.get(), 0xFFFFFF);
+        itemModels.generateFlatItem(ItemRegistries.LEMON.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ItemRegistries.LEMON_SLICE.get(), ModelTemplates.FLAT_ITEM);
         // Basic single variant model
         registerCustomBlockModel(blockModels, "block/shake_cup", BlockRegistries.SHAKE_CUP_BLOCK.get());
         generateShake(blockModels, itemModels);
@@ -60,10 +61,9 @@ public class ModModelProvider extends ModelProvider {
         generateSpirit(blockModels, itemModels, BlockRegistries.WHISKY, ItemRegistries.WHISKY, "whisky");
         generateEmptyModel(blockModels, BlockRegistries.LONG_DRINK_GLASSWARE.get(), Blocks.GLASS);
         generateEmptyModel(blockModels, BlockRegistries.SHORT_DRINK_GLASSWARE.get(), Blocks.GLASS);
-        generateTwoLayerDyedItem(ShakenStir.asResource("martini_glass"), itemModels);
-        //generateUnregisteredItemModel("martini_glass", itemModels);
-        generateUnregisteredItemModel("collins_glass", itemModels);
-        generateUnregisteredItemModel("margarita_glass", itemModels);
+        generateGlassware(ShakenStir.asResource("martini_glass"), itemModels);
+        generateGlassware(ShakenStir.asResource("collins_glass"), itemModels);
+        generateGlassware(ShakenStir.asResource("margarita_glass"), itemModels);
 
         registerCustomBlockModel(blockModels, "block/whisky_liquid", BlockRegistries.WHISKY_LIQUID.get());
         registerCustomBlockModel(blockModels, "block/vodka_liquid", BlockRegistries.VODKA_LIQUID.get());
@@ -202,6 +202,27 @@ public class ModModelProvider extends ModelProvider {
                                 ItemModelUtils.tintedModel(dyedModel, ItemModelGenerators.BLANK_LAYER, new Dye(0)),
                                 ItemModelUtils.plainModel(plainModel)
                         )
+                );
+    }
+
+    public void generateGlassware(Identifier base, ItemModelGenerators itemModels) {
+        Material baseLayer = new Material(base.withPrefix("item/")); // texture/base
+        Material tintedLayer = new Material(base.withPrefix("item/").withSuffix("_overlay")); // texture/base_overlay
+        Identifier plainModel = ModelTemplates.FLAT_ITEM.create(base.withPrefix("item/"), TextureMapping.layer0(baseLayer), itemModels.modelOutput); //  texture
+        Identifier dyedModel = base.withPrefix("item/").withSuffix("_dyed"); //  model/base_dyed
+        ModelTemplates.TWO_LAYERED_ITEM.create(dyedModel, TextureMapping.layered(baseLayer, tintedLayer), itemModels.modelOutput);
+        ItemModel.Unbaked guiModel = ItemModelUtils.conditional(
+                ItemModelUtils.hasComponent(DataComponents.DYED_COLOR),
+                ItemModelUtils.tintedModel(dyedModel, ItemModelGenerators.BLANK_LAYER, new Dye(0)),
+                ItemModelUtils.plainModel(plainModel)
+        );
+
+        ItemModel.Unbaked otherModel = ItemModelUtils.specialModel(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "glassware"), new SpiritBottleSpecialRenderer.Unbaked());
+
+        itemModels.itemModelOutput
+                .register(
+                        base,
+                        new ClientItem(ItemModelGenerators.createFlatModelDispatch(guiModel, otherModel), ClientItem.Properties.DEFAULT)
                 );
     }
 

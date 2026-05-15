@@ -37,8 +37,8 @@ public class Outliner {
         if (INSTANCE == null) {
             return;
         }
-        INSTANCE.render(poseStack, bufferSource, cameraPos, partialTick);
-        INSTANCE.renderOverlay(poseStack, bufferSource, cameraPos, partialTick);
+//        INSTANCE.render(poseStack, bufferSource, cameraPos, partialTick);
+//        INSTANCE.renderOverlay(poseStack, bufferSource, cameraPos, partialTick);
     }
 
     public OutlineElement<?> thickBox(Object slot) {

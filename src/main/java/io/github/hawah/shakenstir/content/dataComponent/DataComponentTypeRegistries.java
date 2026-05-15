@@ -7,6 +7,8 @@ import io.github.hawah.shakenstir.util.SerializeHelper;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
@@ -64,6 +66,11 @@ public class DataComponentTypeRegistries {
     public static final DataComponentType<List<GlasswareBlockEntity.Decoration>> GLASSWARE_DECORATIONS = register(
             "glassware_decorations",
             builder -> builder.persistent(GlasswareBlockEntity.Decoration.CODEC.listOf()).networkSynchronized(GlasswareBlockEntity.Decoration.STREAM_CODEC.apply(ByteBufCodecs.list()))
+    );
+
+    public static final DataComponentType<Component> GLASSWARE_NAME = register(
+            "glassware_name",
+            builder -> builder.persistent(ComponentSerialization.CODEC).networkSynchronized(ComponentSerialization.STREAM_CODEC)
     );
 
     // Product Above

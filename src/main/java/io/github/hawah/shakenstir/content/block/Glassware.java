@@ -72,6 +72,9 @@ public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
             if (!blockEntity.decorationsList.isEmpty()){
                 drop.set(DataComponentTypeRegistries.GLASSWARE_DECORATIONS, blockEntity.decorationsList);
             }
+            if (blockEntity.defaultName != null) {
+                drop.set(DataComponentTypeRegistries.GLASSWARE_NAME, blockEntity.defaultName);
+            }
             if (blockEntity.contentComponents.has(DataComponents.DYED_COLOR)) {
                 drop.set(DataComponents.DYED_COLOR, blockEntity.contentComponents.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0)));
                 drop.set(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT.withHidden(DataComponents.DYED_COLOR, true));

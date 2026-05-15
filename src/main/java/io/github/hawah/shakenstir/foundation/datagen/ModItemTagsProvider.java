@@ -45,11 +45,18 @@ public class ModItemTagsProvider extends ItemTagsProvider {
                 ;
         this.tag(SnsItemTags.BUBBLE_LIKE);
         this.tag(SnsItemTags.GLASSWARE);
-        this.tag(SnsItemTags.DRINK_DECORATION)
+        this.tag(SnsItemTags.BLOCK_LIKE_DRINK_DECORATION)
                 .addTag(Tags.Items.FLOWERS_SMALL)
+
+                ;
+        this.tag(SnsItemTags.ITEM_LIKE_DRINK_DECORATION)
                 .add(Items.MELON_SLICE)
                 .add(Items.SWEET_BERRIES)
                 .add(Items.GLOW_BERRIES)
+                .add(Items.BAMBOO)
+                .add(ItemRegistries.LEMON_SLICE.get())
                 .add();
+        this.tag(SnsItemTags.DRINK_DECORATION)
+                .addTags(SnsItemTags.BLOCK_LIKE_DRINK_DECORATION, SnsItemTags.ITEM_LIKE_DRINK_DECORATION);
     }
 }

@@ -22,6 +22,8 @@ public class SnsItemTags {
     public static final TagKey<Item> GLASSWARE = sns("glasswares");
 
     public static final TagKey<Item> DRINK_DECORATION = sns("drink_decorations");
+    public static final TagKey<Item> BLOCK_LIKE_DRINK_DECORATION = sns("block_like_drink_decorations");
+    public static final TagKey<Item> ITEM_LIKE_DRINK_DECORATION = sns("item_like_drink_decorations");
 
     private static TagKey<Item> common(String name) {
         return ItemTags.create(Identifier.fromNamespaceAndPath("c", name));

@@ -18,7 +18,6 @@ import io.github.hawah.shakenstir.content.ShakeTooltipComponent;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
-import io.github.hawah.shakenstir.lib.client.render.outliner.Outliner;
 import io.github.hawah.shakenstir.util.Result;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockTintSource;
@@ -42,7 +41,7 @@ public class ClientEvents {
     @SubscribeEvent
     public static void onRenderWorld(RenderLevelStageEvent.AfterTranslucentParticles event) {
         ShakenStirClient.TIMER_NORMAL.warp(Minecraft.getInstance().getDeltaTracker());
-        Outliner.renderInto(event.getPoseStack(), Minecraft.getInstance().renderBuffers().bufferSource(), Minecraft.getInstance().player.getEyePosition(), Minecraft.getInstance().getDeltaTracker());
+        //Outliner.renderInto(event.getPoseStack(), Minecraft.getInstance().renderBuffers().bufferSource(), Minecraft.getInstance().player.getEyePosition(), Minecraft.getInstance().getDeltaTracker());
     }
 
     @SubscribeEvent

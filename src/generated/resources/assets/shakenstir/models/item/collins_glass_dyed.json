@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "shakenstir:item/collins_glass",
+    "layer1": "shakenstir:item/collins_glass_overlay"
+  }
+}

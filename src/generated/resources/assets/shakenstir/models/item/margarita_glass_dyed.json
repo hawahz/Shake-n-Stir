@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "shakenstir:item/margarita_glass",
+    "layer1": "shakenstir:item/margarita_glass_overlay"
+  }
+}

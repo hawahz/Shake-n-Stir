@@ -57,6 +57,8 @@ public enum LangData {
         return List.of(LangData.values());
     }
 
+    public static final Component ERROR = Component.literal("Error").withStyle(ChatFormatting.DARK_RED).withStyle(ChatFormatting.ITALIC);
+
     public MutableComponent get(Object... args) {
         if (args.length != arg) {
             throw new IllegalArgumentException("for " + name() + ": expect " + arg + " parameters, got " + args.length);

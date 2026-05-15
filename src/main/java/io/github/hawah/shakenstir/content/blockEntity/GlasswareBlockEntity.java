@@ -5,20 +5,23 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.hawah.shakenstir.ShakenStirClient;
+import io.github.hawah.shakenstir.client.model.Models;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
-import io.github.hawah.shakenstir.foundation.networking.NetworkPackets;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundInsertDecorationPacket;
 import io.github.hawah.shakenstir.lib.StreamCodecUtil;
 import io.github.hawah.shakenstir.lib.networking.Networking;
 import io.github.hawah.shakenstir.util.IModel;
-import io.github.hawah.shakenstir.client.model.Models;
 import io.github.hawah.shakenstir.util.SerializeHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.*;
+import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
@@ -51,6 +54,7 @@ public class GlasswareBlockEntity extends BlockEntity {
     // Item
     public Identifier model = null;
     public Component pureName = null;
+    public Component defaultName = null;
     public PatchedDataComponentMap contentComponents = new PatchedDataComponentMap(DataComponentMap.EMPTY);
 
     public List<Decoration> decorationsList = new ArrayList<>();
@@ -107,7 +111,8 @@ public class GlasswareBlockEntity extends BlockEntity {
         SerializeHelper.loadVector2f(input, position);
         rotation = input.getFloatOr("Rot", 0.0f);
         model = input.getString("Model").map(Identifier::tryParse).orElse(null);
-        pureName = input.getString("PureName").map(Component::translatable).orElse(null);
+        pureName = input.read("PureName", ComponentSerialization.CODEC).orElse(null);
+        defaultName = input.read("DefaultName", ComponentSerialization.CODEC).orElse(null);
         contentComponents.clearPatch();
         DataComponentMap content = input.read("Content", DataComponentMap.CODEC).orElse(DataComponentMap.EMPTY);
         contentComponents.setAll(content);
@@ -145,10 +150,13 @@ public class GlasswareBlockEntity extends BlockEntity {
             output.putString("Model", model.toString());
         }
         if (pureName != null) {
-            output.putString("PureName", pureName.getString());
+            output.store("PureName", ComponentSerialization.CODEC, pureName);
         }
         if (!contentComponents.isEmpty()) {
             output.storeNullable("Content", DataComponentMap.CODEC, contentComponents);
+        }
+        if (defaultName != null) {
+            output.store("DefaultName", ComponentSerialization.CODEC, defaultName);
         }
         ValueOutput.ValueOutputList decorations = output.childrenList("Decorations");
         for (Decoration decoration : decorationsList) {
@@ -167,6 +175,10 @@ public class GlasswareBlockEntity extends BlockEntity {
         if (components.has(DataComponents.ITEM_NAME)) {
             pureName = components.get(DataComponents.ITEM_NAME);
         }
+        if (components.has(DataComponentTypeRegistries.GLASSWARE_NAME)) {
+            defaultName = components.get(DataComponentTypeRegistries.GLASSWARE_NAME);
+        }
+
         if (components.has(DataComponentTypeRegistries.DRINK_DATA)) {
             this.contentComponents.clearPatch();;
             this.contentComponents.setAll(components.getOrDefault(DataComponentTypeRegistries.DRINK_DATA, DataComponentMap.EMPTY));

@@ -1,6 +1,7 @@
 package io.github.hawah.shakenstir.content.item;
 
 import io.github.hawah.shakenstir.ShakenStir;
+import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -8,11 +9,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.event.IModBusEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
-
-import java.util.function.Supplier;
 
 public class SnsCreativeTab {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(BuiltInRegistries.CREATIVE_MODE_TAB, ShakenStir.MODID);
@@ -40,6 +38,7 @@ public class SnsCreativeTab {
         ItemStack stack = ItemRegistries.LONG_DRINK_GLASSWARE.toStack();
         stack.set(DataComponents.ITEM_MODEL, ShakenStir.asResource(path));
         stack.set(DataComponents.ITEM_NAME, LangData.getFromItem(path));
+        stack.set(DataComponentTypeRegistries.GLASSWARE_NAME, LangData.getFromItem(path));
         return stack;
     }
 
@@ -47,6 +46,7 @@ public class SnsCreativeTab {
         ItemStack stack = ItemRegistries.SHORT_DRINK_GLASSWARE.toStack();
         stack.set(DataComponents.ITEM_MODEL, ShakenStir.asResource(path));
         stack.set(DataComponents.ITEM_NAME, LangData.getFromItem(path));
+        stack.set(DataComponentTypeRegistries.GLASSWARE_NAME, LangData.getFromItem(path));
         return stack;
     }
 

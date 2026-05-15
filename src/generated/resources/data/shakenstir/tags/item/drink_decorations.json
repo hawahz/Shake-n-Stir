@@ -1,8 +1,6 @@
 {
   "values": [
-    "#c:flowers/small",
-    "minecraft:melon_slice",
-    "minecraft:sweet_berries",
-    "minecraft:glow_berries"
+    "#shakenstir:block_like_drink_decorations",
+    "#shakenstir:item_like_drink_decorations"
   ]
 }

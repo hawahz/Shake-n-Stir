@@ -107,12 +107,12 @@ public class DecoratePlaceHandler implements IHandler {
         if (pos == null) {
             return;
         }
-        if ((item.getItem() instanceof BlockItem blockItem)) {
-            BlockState state = blockItem.getBlock().defaultBlockState();
+        if (item.is(SnsItemTags.BLOCK_LIKE_DRINK_DECORATION)) {
+            BlockState state = ( (BlockItem) item.getItem()).getBlock().defaultBlockState();
             shape = state.getShape(level, pos);
             BlockStateModel blockModel = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(state);
             blockModel.collectParts(level.getRandom(), list);
-        } else {
+        } else if (item.is(SnsItemTags.ITEM_LIKE_DRINK_DECORATION)) {
             Identifier modelId = item.get(DataComponents.ITEM_MODEL);
             if (modelId != null) {
                 ItemModel itemModel = Minecraft.getInstance().getModelManager().getItemModel(modelId);
@@ -180,7 +180,7 @@ public class DecoratePlaceHandler implements IHandler {
             );
         } else if (!state.itemModels().isEmpty()) {
             for (ItemModel itemModel : state.itemModels()) {
-                poseStack.scale(scale, scale, scale);
+                poseStack.scale(scale, scale, scale * 2);
                 ItemStackRenderState itemStackRenderState = new ItemStackRenderState();
                 itemModel.update(
                         itemStackRenderState,
