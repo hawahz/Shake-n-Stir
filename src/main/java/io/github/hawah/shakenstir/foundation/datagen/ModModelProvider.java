@@ -8,6 +8,7 @@ import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.block.SpiritBlock;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.item.SpiritBottleItem;
+import net.minecraft.client.color.item.Dye;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
@@ -23,9 +24,11 @@ import net.minecraft.client.renderer.item.RangeSelectItemModel;
 import net.minecraft.client.renderer.item.properties.numeric.Count;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.random.WeightedList;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -57,7 +60,8 @@ public class ModModelProvider extends ModelProvider {
         generateSpirit(blockModels, itemModels, BlockRegistries.WHISKY, ItemRegistries.WHISKY, "whisky");
         generateEmptyModel(blockModels, BlockRegistries.LONG_DRINK_GLASSWARE.get(), Blocks.GLASS);
         generateEmptyModel(blockModels, BlockRegistries.SHORT_DRINK_GLASSWARE.get(), Blocks.GLASS);
-        generateUnregisteredItemModel("martini_glass", itemModels);
+        generateTwoLayerDyedItem(ShakenStir.asResource("martini_glass"), itemModels);
+        //generateUnregisteredItemModel("martini_glass", itemModels);
         generateUnregisteredItemModel("collins_glass", itemModels);
         generateUnregisteredItemModel("margarita_glass", itemModels);
 
@@ -76,18 +80,6 @@ public class ModModelProvider extends ModelProvider {
         registerCustomBlockModel(blockModels, "block/brandy", BlockRegistries.BRANDY.get());
         generateIceCube(itemModels);
 //        generateLongDrinkGlassware(itemModels);
-    }
-
-    private static void generateUnregisteredItemModel(String modelNTexturePath, ItemModelGenerators itemModels) {
-        Identifier identifier = ModelTemplates.FLAT_ITEM.create(
-                ShakenStir.asResource("item/" + modelNTexturePath),
-                new TextureMapping().put(TextureSlot.LAYER0, new Material(ShakenStir.asResource("item/" + modelNTexturePath))),
-                itemModels.modelOutput
-        );
-        ItemModel.Unbaked model = ItemModelUtils.plainModel(identifier);
-        itemModels.itemModelOutput.register(
-                ShakenStir.asResource(modelNTexturePath), new ClientItem(model, ClientItem.Properties.DEFAULT)
-        );
     }
 
     private static void generateIceCube(ItemModelGenerators itemModels) {
@@ -194,6 +186,54 @@ public class ModModelProvider extends ModelProvider {
 
     private static void generateEmptyModel(BlockModelGenerators blockModels, Block block, Block particle) {
         blockModels.createParticleOnlyBlock(block, particle);
+    }
+
+    public void generateTwoLayerDyedItem(Item item, ItemModelGenerators itemModels) {
+        Material baseLayer = TextureMapping.getItemTexture(item);
+        Material tintedLayer = TextureMapping.getItemTexture(item, "_overlay");
+        Identifier plainModel = ModelTemplates.FLAT_ITEM.create(item, TextureMapping.layer0(baseLayer), itemModels.modelOutput);
+        Identifier dyedModel = ModelLocationUtils.getModelLocation(item, "_dyed");
+        ModelTemplates.TWO_LAYERED_ITEM.create(dyedModel, TextureMapping.layered(baseLayer, tintedLayer), itemModels.modelOutput);
+        itemModels.itemModelOutput
+                .accept(
+                        item,
+                        ItemModelUtils.conditional(
+                                ItemModelUtils.hasComponent(DataComponents.DYED_COLOR),
+                                ItemModelUtils.tintedModel(dyedModel, ItemModelGenerators.BLANK_LAYER, new Dye(0)),
+                                ItemModelUtils.plainModel(plainModel)
+                        )
+                );
+    }
+
+    public void generateTwoLayerDyedItem(Identifier base, ItemModelGenerators itemModels) {
+        Material baseLayer = new Material(base.withPrefix("item/")); // texture/base
+        Material tintedLayer = new Material(base.withPrefix("item/").withSuffix("_overlay")); // texture/base_overlay
+        Identifier plainModel = ModelTemplates.FLAT_ITEM.create(base.withPrefix("item/"), TextureMapping.layer0(baseLayer), itemModels.modelOutput); //  texture
+        Identifier dyedModel = base.withPrefix("item/").withSuffix("_dyed"); //  model/base_dyed
+        ModelTemplates.TWO_LAYERED_ITEM.create(dyedModel, TextureMapping.layered(baseLayer, tintedLayer), itemModels.modelOutput);
+        ItemModel.Unbaked conditionalModel = ItemModelUtils.conditional(
+                ItemModelUtils.hasComponent(DataComponents.DYED_COLOR),
+                ItemModelUtils.tintedModel(dyedModel, ItemModelGenerators.BLANK_LAYER, new Dye(0)),
+                ItemModelUtils.plainModel(plainModel)
+        );
+
+        itemModels.itemModelOutput
+                .register(
+                        base,
+                        new ClientItem(conditionalModel, ClientItem.Properties.DEFAULT)
+                );
+    }
+
+    private static void generateUnregisteredItemModel(String modelNTexturePath, ItemModelGenerators itemModels) {
+        Identifier identifier = ModelTemplates.FLAT_ITEM.create(
+                ShakenStir.asResource("item/" + modelNTexturePath),
+                new TextureMapping().put(TextureSlot.LAYER0, new Material(ShakenStir.asResource("item/" + modelNTexturePath))),
+                itemModels.modelOutput
+        );
+        ItemModel.Unbaked model = ItemModelUtils.plainModel(identifier);
+        itemModels.itemModelOutput.register(
+                ShakenStir.asResource(modelNTexturePath), new ClientItem(model, ClientItem.Properties.DEFAULT)
+        );
     }
 
     private static void registerRotatedBlockModel(BlockModelGenerators blockModels, String modelPath, Block block) {

@@ -2,7 +2,7 @@
   "type": "shakenstir:shake_recipe",
   "inputFluids": [],
   "inputItems": [
-    "#shakenstir:bubble_like_item_tag"
+    "#c:bubbles"
   ],
   "result": {
     "components": {

@@ -1,9 +1,11 @@
 package io.github.hawah.shakenstir.content.item;
 
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import io.github.hawah.shakenstir.foundation.item.PriorityBlockItem;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -78,9 +80,14 @@ public class GlasswareItem extends PriorityBlockItem {
     @Override
     public ItemStack finishUsingItem(ItemStack itemStack, Level level, LivingEntity entity) {
         DataComponentMap map;
-        if (!(map = itemStack.getOrDefault(DataComponentTypeRegistries.DRINK_DATA, DataComponentMap.EMPTY)).isEmpty()) {
-            itemStack.remove(DataComponentTypeRegistries.DRINK_DATA);
+        ItemStack split = itemStack.split(1);
+        if (!(map = split.getOrDefault(DataComponentTypeRegistries.DRINK_DATA, DataComponentMap.EMPTY)).isEmpty()) {
+            split.remove(DataComponentTypeRegistries.DRINK_DATA);
+            split.remove(DataComponents.DYED_COLOR);
             applyDrinkToEntity(map, level, entity);
+            if (entity instanceof Player player) {
+                ITakeUpBlock.holdOrAddItem(player, split, level, player.blockPosition());
+            }
             return itemStack;
         }
         return super.finishUsingItem(itemStack, level, entity);

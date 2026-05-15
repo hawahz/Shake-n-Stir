@@ -16,12 +16,16 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
-import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -62,8 +66,19 @@ public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
     public ItemStack getDrop(BlockState state, Level level, BlockPos pos) {
         ItemStack drop = ITakeUpBlock.super.getDrop(state, level, pos);
         if (level.getBlockEntity(pos) instanceof GlasswareBlockEntity blockEntity) {
-            drop.set(DataComponentTypeRegistries.DRINK_DATA, blockEntity.contentComponents);
-            drop.set(DataComponentTypeRegistries.GLASSWARE_DECORATIONS, blockEntity.decorationsList);
+            if (!blockEntity.contentComponents.isEmpty()) {
+                drop.set(DataComponentTypeRegistries.DRINK_DATA, blockEntity.contentComponents);
+            }
+            if (!blockEntity.decorationsList.isEmpty()){
+                drop.set(DataComponentTypeRegistries.GLASSWARE_DECORATIONS, blockEntity.decorationsList);
+            }
+            if (blockEntity.contentComponents.has(DataComponents.DYED_COLOR)) {
+                drop.set(DataComponents.DYED_COLOR, blockEntity.contentComponents.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0)));
+                drop.set(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT.withHidden(DataComponents.DYED_COLOR, true));
+            }
+            if (blockEntity.contentComponents.has(DataComponents.ITEM_NAME)) {
+                drop.set(DataComponents.ITEM_NAME, blockEntity.contentComponents.get(DataComponents.ITEM_NAME));
+            }
         }
         return drop;
     }
@@ -97,6 +112,7 @@ public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
             return false;
         }
         ITakeUpBlock.holdOrAddItem(player, getDrop(state, level, pos), level, pos);
+        player.swing(InteractionHand.MAIN_HAND);
         level.removeBlock(pos, false);
         return true;
     }

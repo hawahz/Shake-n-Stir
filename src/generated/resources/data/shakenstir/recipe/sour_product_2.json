@@ -3,22 +3,19 @@
   "inputFluids": [
     {
       "amount": 500,
-      "fluidId": "#shakenstir:spirit_tag"
+      "fluidId": "#c:spirits"
     },
     {
       "amount": 250,
-      "fluidId": "#shakenstir:sweet"
+      "fluidId": "#c:sweets"
     }
   ],
   "inputItems": [
-    "#shakenstir:sour_item_tag"
+    "#c:sours"
   ],
   "result": {
     "components": {
-      "minecraft:dyed_color": -3375360,
-      "shakenstir:shake_product_deferred_name": {
-        "translate": "shakenstir.name.sour"
-      },
+      "shakenstir:shake_product_deferred_name": "shakenstir.name.sour",
       "shakenstir:shake_product_pourable": true
     },
     "id": "shakenstir:shake_content_holder"

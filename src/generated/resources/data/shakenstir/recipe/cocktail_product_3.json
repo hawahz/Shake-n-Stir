@@ -3,23 +3,21 @@
   "inputFluids": [
     {
       "amount": 500,
-      "fluidId": "#shakenstir:spirit_tag"
+      "fluidId": "#c:spirits"
     },
     {
       "amount": 250,
-      "fluidId": "#shakenstir:bitter"
+      "fluidId": "#c:bitters"
     },
     {
       "amount": 250,
-      "fluidId": "#shakenstir:sweet"
+      "fluidId": "#c:sweets"
     }
   ],
   "inputItems": [],
   "result": {
     "components": {
-      "shakenstir:shake_product_deferred_name": {
-        "translate": "shakenstir.name.cocktail"
-      }
+      "shakenstir:shake_product_deferred_name": "shakenstir.name.cocktail"
     },
     "id": "shakenstir:shake_content_holder"
   },

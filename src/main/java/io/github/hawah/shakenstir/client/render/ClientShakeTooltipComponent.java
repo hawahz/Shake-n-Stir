@@ -106,8 +106,8 @@ public record ClientShakeTooltipComponent(ShakeContentHolder contentHolder, int 
                 getLiquidHeight()
         );
 
-        for (int i = 0; i < contentHolder().itemCount(); i++) {
-            ItemStack itemStack = contentHolder.Item().stackToRender().get(i);
+        for (int i = 0; i < contentHolder().Item().stackToRender().size(); i++) {
+            ItemStack itemStack = contentHolder().Item().stackToRender().get(i);
             if (itemStack.isEmpty()) {
                 break;
             }

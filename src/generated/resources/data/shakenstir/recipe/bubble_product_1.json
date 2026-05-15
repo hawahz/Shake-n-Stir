@@ -3,7 +3,7 @@
   "inputFluids": [
     {
       "amount": 250,
-      "fluidId": "#shakenstir:bubble_like"
+      "fluidId": "#c:bubbles"
     }
   ],
   "inputItems": [],

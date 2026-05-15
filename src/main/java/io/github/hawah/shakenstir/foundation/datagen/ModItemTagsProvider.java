@@ -46,6 +46,10 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         this.tag(SnsItemTags.BUBBLE_LIKE);
         this.tag(SnsItemTags.GLASSWARE);
         this.tag(SnsItemTags.DRINK_DECORATION)
-                .addTag(Tags.Items.FLOWERS_SMALL);
+                .addTag(Tags.Items.FLOWERS_SMALL)
+                .add(Items.MELON_SLICE)
+                .add(Items.SWEET_BERRIES)
+                .add(Items.GLOW_BERRIES)
+                .add();
     }
 }

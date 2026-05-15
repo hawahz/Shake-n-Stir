@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#shakenstir:spirit_item_tag"
+            "items": "#c:spirits"
           }
         ]
       },

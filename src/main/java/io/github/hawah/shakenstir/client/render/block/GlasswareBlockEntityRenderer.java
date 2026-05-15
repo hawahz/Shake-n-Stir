@@ -14,18 +14,24 @@ import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.item.ItemModel;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Ease;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3dc;
@@ -34,6 +40,7 @@ import org.jspecify.annotations.Nullable;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<GlasswareBlockEntity, GlasswareBlockEntityRenderState> {
     public GlasswareBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
@@ -148,6 +155,9 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
 //        poseStack.translate(-0.5, 0, -0.5);
         for (GlasswareBlockEntity.Decoration decoration : state.decorations) {
             ItemStack itemStack = decoration.itemStack();
+            poseStack.pushPose();
+            poseStack.translate(decoration.position().x, decoration.position().y, decoration.position().z);
+            poseStack.mulPose(new Quaternionf(decoration.quaternionf()));
             if (itemStack.getItem() instanceof BlockItem blockItem) {
                 BlockState decorationState = blockItem.getBlock().defaultBlockState();
                 BlockStateModel blockStateModel = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(decorationState);
@@ -155,9 +165,7 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
                 blockStateModel.collectParts(Minecraft.getInstance().level.getRandom(), parts);
                 double size = decorationState.getShape(Minecraft.getInstance().level, BlockPos.ZERO).bounds().getSize();
                 float scale = (float) (0.225F / size);
-                poseStack.pushPose();
-                poseStack.translate(decoration.position().x, decoration.position().y, decoration.position().z);
-                poseStack.mulPose(new Quaternionf(decoration.quaternionf()));
+
                 poseStack.translate(-0.5 * scale, 0 * scale, -0.5 * scale);
                 poseStack.scale(scale, scale, scale);
 
@@ -170,8 +178,36 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
                         OverlayTexture.NO_OVERLAY,
                         0
                 );
-                poseStack.popPose();
+            } else {
+                List<ItemModel> itemModels = new ArrayList<>();
+                Identifier modelId = decoration.itemStack().get(DataComponents.ITEM_MODEL);
+                if (modelId != null) {
+                    ItemModel itemModel = Minecraft.getInstance().getModelManager().getItemModel(modelId);
+                    itemModels.add(itemModel);
+                }
+                float scale = (float) (0.225F / Shapes.box(0, 0, 0, .5, .5, .5).bounds().getSize());
+                for (ItemModel itemModel : itemModels) {
+                    poseStack.scale(scale, scale, scale);
+                    ItemStackRenderState itemStackRenderState = new ItemStackRenderState();
+                    itemModel.update(
+                            itemStackRenderState,
+                            decoration.itemStack(),
+                            Minecraft.getInstance().getItemModelResolver(),
+                            ItemDisplayContext.NONE,
+                            null,
+                            null,
+                            0
+                    );
+                    itemStackRenderState.submit(
+                            poseStack,
+                            submitNodeCollector,
+                            state.lightCoords,
+                            OverlayTexture.NO_OVERLAY,
+                            0
+                    );
+                }
             }
+            poseStack.popPose();
         }
         poseStack.popPose();
     }
