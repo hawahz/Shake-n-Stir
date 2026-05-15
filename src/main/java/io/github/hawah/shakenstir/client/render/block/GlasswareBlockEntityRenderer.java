@@ -65,12 +65,20 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
         poseStack.translate(-0.5, 0, -0.5);
         VerticalGradientVertexConsumer vc = new VerticalGradientVertexConsumer();
         vc.setGradientStyle(Ease::outCirc);
-        double bottom = state.model.getShape().min(Direction.Axis.Y);
-        double top = state.model.getShape().max(Direction.Axis.Y);
+
+        double bottom;
+        double top;
+        if (state.model.getModel() instanceof GlasswareQuadCollection quadCollection) {
+            bottom = quadCollection.start().y();
+            top = quadCollection.end().y();
+        } else  {
+            bottom = state.model.getShape().min(Direction.Axis.Y);
+            top = state.model.getShape().max(Direction.Axis.Y);
+        }
         vc.setMinY((float) (bottom + (top - bottom) * 0.15));
         vc.setMaxY((float) (top - (top - bottom) * 0.1));
-        vc.setSourceAlpha((int) (80 * state.height));
-        vc.setTargetAlpha((int) (120 * state.height));
+        vc.setSourceAlpha((int) (120 * state.height));
+        vc.setTargetAlpha((int) (160 * state.height));
         vc.setModulate(state.color);
         state.model.submit(submitNodeCollector, poseStack, List.of(vc), state.lightCoords, OverlayTexture.NO_OVERLAY, RenderTypes.cutoutMovingBlock());
         if (state.height > 0 && state.model.getModel() instanceof GlasswareQuadCollection quadCollection) {

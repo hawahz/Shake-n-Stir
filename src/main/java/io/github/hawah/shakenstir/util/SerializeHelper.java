@@ -42,12 +42,12 @@ public class SerializeHelper {
     }
 
     public static final Codec<PatchedDataComponentMap> DATA_COMPONENT_MAP_CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            PatchedDataComponentMap.CODEC.fieldOf("data").forGetter(PatchedDataComponentMap::toImmutableMap)
-    ).apply(inst, PatchedDataComponentMap::new));
+            DataComponentPatch.CODEC.fieldOf("data").forGetter(PatchedDataComponentMap::asPatch)
+    ).apply(inst, patch ->  PatchedDataComponentMap.fromPatch(DataComponentMap.EMPTY, patch)));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, PatchedDataComponentMap> DATA_COMPONENT_MAP_STREAM_CODEC = StreamCodec.composite(
             DataComponentPatch.STREAM_CODEC, PatchedDataComponentMap::asPatch,
-            (prototype) -> PatchedDataComponentMap.fromPatch(DataComponentMap.EMPTY, prototype)
+            (patch) -> PatchedDataComponentMap.fromPatch(DataComponentMap.EMPTY, patch)
     );
 
     public static <T extends Enum<T>> Codec<T> ofEnum(Class<T> enumClass) {
