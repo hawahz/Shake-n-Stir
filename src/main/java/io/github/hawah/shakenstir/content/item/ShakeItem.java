@@ -1,6 +1,7 @@
 package io.github.hawah.shakenstir.content.item;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
+import io.github.hawah.shakenstir.content.ShakeTooltipComponent;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
@@ -13,6 +14,7 @@ import io.github.hawah.shakenstir.foundation.item.PriorityBlockItem;
 import io.github.hawah.shakenstir.foundation.item.SpiritBottleItem;
 import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
+import io.github.hawah.shakenstir.util.ShakeClientHooks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
@@ -22,6 +24,7 @@ import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -29,6 +32,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
+import java.util.Optional;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -95,8 +99,14 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem {
         return super.useOn(context);
     }
 
+
+
     @Override
     public boolean overrideOtherStackedOnMe(ItemStack self, ItemStack other, Slot slot, ClickAction clickAction, Player player, SlotAccess carriedItem) {
+        if (player.level().isClientSide() && ShakeClientHooks.hasControlDown() && other.isEmpty() && clickAction.equals(ClickAction.SECONDARY)) {
+            ShakeUtil.clearContent(self);
+            return true;
+        }
         if (self.getOrDefault(DataComponentTypeRegistries.HAS_CUP, true)) {
             if (other.isEmpty() && clickAction.equals(ClickAction.SECONDARY)) {
                 self.set(DataComponentTypeRegistries.HAS_CUP, false);
@@ -187,5 +197,8 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem {
         super.onStopUsing(stack, entity, count);
     }
 
-
+    @Override
+    public Optional<TooltipComponent> getTooltipImage(ItemStack itemStack) {
+        return ShakeTooltipComponent.of(itemStack);
+    }
 }

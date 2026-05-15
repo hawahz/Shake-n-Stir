@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.content.dataComponent;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -10,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 public record ShakeContentHolder(
         List<FluidStack> fluidStacks,
@@ -101,6 +103,14 @@ public record ShakeContentHolder(
         }
     }
 
+    public Item Item() {
+        return new Item();
+    }
+
+    public Fluid Fluid() {
+        return new Fluid();
+    }
+
     public class Item {
         public boolean isEmpty() {
             validate();
@@ -115,6 +125,16 @@ public record ShakeContentHolder(
         public boolean insert(ItemStack itemStack) {
             validate();
             return insertItem(itemStack);
+        }
+
+        public List<ItemStack> stackToRender() {
+            return itemStacks().stream().flatMap(itemStack -> {
+                if (itemStack.is(ItemRegistries.CONTENT_HOLDER)) {
+                    return itemStack.getOrDefault(DataComponentTypeRegistries.SHAKE_CONTENT, EMPTY).Item().stackToRender().stream();
+                } else {
+                    return Stream.of(itemStack);
+                }
+            }).toList();
         }
     }
 }

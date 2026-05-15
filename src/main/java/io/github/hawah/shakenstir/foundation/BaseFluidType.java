@@ -1,6 +1,8 @@
 package io.github.hawah.shakenstir.foundation;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import org.joml.Vector3f;
 
@@ -47,6 +49,11 @@ public class BaseFluidType extends FluidType {
 
     public Vector3f getFogColor() {
         return fogColor;
+    }
+
+    @Override
+    public Component getDescription(FluidStack stack) {
+        return Component.empty().append(super.getDescription(stack)).withColor(getTintColor());
     }
 
     // 对于我们的几个纹理，如果如果想生效的话，就需要重写这个方法，在对于的方法将我们的RL的资源定位的图片返回。

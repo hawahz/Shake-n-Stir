@@ -30,7 +30,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class ShakeContentHud implements GuiLayer {
 
     public static final int FADE_TIME = 10;
-    FluidSim fluidSim = new FluidSim(100, 100, 100, 100);
     boolean wasVisible = false;
     static boolean oCanLookThrough = false;
     static boolean canLookThrough = false;
@@ -102,7 +101,11 @@ public class ShakeContentHud implements GuiLayer {
         wasVisible = isVisible;
     }
 
-    private void renderShakeWithContent(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker, int x, int y, float fadeIn) {
+    private void renderShakeWithContent(GuiGraphicsExtractor guiGraphics,
+                                        DeltaTracker deltaTracker,
+                                        int x,
+                                        int y,
+                                        float fadeIn) {
         Textures.SHAKE_HUD_INSIDE.blit(
                 guiGraphics,
                 x,
@@ -180,21 +183,6 @@ public class ShakeContentHud implements GuiLayer {
                 255,
                 (int) (255 * fadeIn)
         );
-    }
-
-    private void submitFluidSim(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker, int x, int y, boolean isVisible, float fadeIn) {
-        fluidSim.setLeftWallX(x + 8);
-        fluidSim.setRightWallX(x + Textures.SHAKE_HUD_INSIDE.getWidth() - 8);
-        fluidSim.setBottomY(y + 77);
-        fluidSim.setWaterBaseY(y + 77 - 2);
-
-        if (!wasVisible && isVisible) {
-            fluidSim.forceSetHeight(getLiquidHeight());
-        }
-        fluidSim.setTargetHeight(getLiquidHeight());
-        guiGraphics.enableScissor(x + 8, y - 20, x + Textures.SHAKE_HUD_INSIDE.getWidth() - 8, y + 77);
-        fluidSim.render(guiGraphics, deltaTracker.getGameTimeDeltaTicks(), fadeIn);
-        guiGraphics.disableScissor();
     }
 
     private float getLiquidHeight() {

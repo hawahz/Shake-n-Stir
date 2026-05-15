@@ -254,7 +254,7 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
         }
         IFluidDataHolder shakeFluidData = ShakeUtil.getFluidData(components);
         fluidHandler.fluidHolder.clear();
-        for (int i = 0; i < Math.min(shakeFluidData.fluidVolume(), MAX_HOLD_FLUIDS); i++) {
+        for (int i = 0; i < Math.min(shakeFluidData.fluidVariety(), MAX_HOLD_FLUIDS); i++) {
             fluidHandler.fluidHolder.set(i, shakeFluidData.fluidStacks().get(i));
         }
         this.iceCubeCounts = components.getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0);

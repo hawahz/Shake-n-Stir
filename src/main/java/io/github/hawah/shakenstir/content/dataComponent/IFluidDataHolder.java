@@ -7,4 +7,5 @@ import java.util.List;
 public interface IFluidDataHolder {
     List<FluidStack> fluidStacks();
     int fluidVolume();
+    int fluidVariety();
 }

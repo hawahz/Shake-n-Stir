@@ -7,8 +7,10 @@ import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.recipe.RecipeTypeRegistries;
 import io.github.hawah.shakenstir.content.recipe.ShakeRecipe;
 import io.github.hawah.shakenstir.content.recipe.ShakeRecipeInput;
+import io.github.hawah.shakenstir.foundation.BaseFluidType;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.lib.networking.ClientToServerPacket;
+import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -19,6 +21,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -85,16 +88,20 @@ public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem,
             return;
         }
         result.map(RecipeHolder::value).ifPresent(recipe -> {
-            ItemStack itemStack = recipe.result().create();
-            if (itemStack.has(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME)) {
-                MutableComponent name = itemStack.get(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME).getName(fluidData, itemData);
-                itemStack.set(DataComponents.ITEM_NAME, name);
+            ItemStack resultItem = recipe.result().create();
+            if (resultItem.has(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME)) {
+                MutableComponent name = resultItem.get(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME).getName(fluidData, itemData);
+                resultItem.set(DataComponents.ITEM_NAME, name);
             }
+            int rgb = ShakeUtil.rgbWithWeight(fluidData.stream().map((stack) ->
+                    Pair.of(stack.getFluidType() instanceof BaseFluidType type ? type.getTintColor() : 0xFFFFFF, stack.getAmount())
+            ).toList());
+            resultItem.set(DataComponents.DYED_COLOR, new DyedItemColor(rgb));
             ShakeUtil.clearFluidData(mainHandItem);
             ShakeUtil.clearItemData(mainHandItem);
             mainHandItem.remove(DataComponentTypeRegistries.SHAKE_ICE_CUBES);
             mainHandItem.remove(DataComponentTypeRegistries.SHAKING);
-            ShakeUtil.setItemData(mainHandItem, List.of(itemStack));
+            ShakeUtil.setItemData(mainHandItem, List.of(resultItem));
         });
     }
 

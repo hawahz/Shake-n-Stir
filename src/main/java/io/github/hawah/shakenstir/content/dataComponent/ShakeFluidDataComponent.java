@@ -23,4 +23,11 @@ public record ShakeFluidDataComponent(List<FluidStack> fluidStacks) implements I
     public int fluidVolume() {
         return fluidStacks.size();
     }
+
+    @Override
+    public int fluidVariety() {
+        return 0;
+    }
+
+
 }

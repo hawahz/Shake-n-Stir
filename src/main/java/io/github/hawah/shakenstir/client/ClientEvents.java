@@ -5,22 +5,23 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.hanlder.GlasswareHandlerRenderState;
+import io.github.hawah.shakenstir.client.model.Models;
 import io.github.hawah.shakenstir.client.model.glassware.GlasswareQuadCollection;
 import io.github.hawah.shakenstir.client.model.glassware.GlasswareUnbakedModelLoader;
+import io.github.hawah.shakenstir.client.render.ClientShakeTooltipComponent;
 import io.github.hawah.shakenstir.client.render.GlasswareOutlineRenderer;
 import io.github.hawah.shakenstir.client.render.block.GlasswareBlockEntityRenderer;
 import io.github.hawah.shakenstir.client.render.block.ShakeBlockEntityRenderer;
 import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer;
 import io.github.hawah.shakenstir.content.HasCup;
+import io.github.hawah.shakenstir.content.ShakeTooltipComponent;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.lib.client.render.outliner.Outliner;
-import io.github.hawah.shakenstir.client.model.Models;
 import io.github.hawah.shakenstir.util.Result;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockTintSource;
-import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
@@ -209,6 +210,11 @@ public class ClientEvents {
                     BlockRegistries.LONG_DRINK_GLASSWARE.get(),
                     BlockRegistries.SHORT_DRINK_GLASSWARE.get()
             );
+        }
+
+        @SubscribeEvent
+        public static void registerTooltip(RegisterClientTooltipComponentFactoriesEvent event) {
+            event.register(ShakeTooltipComponent.class, ClientShakeTooltipComponent::new);
         }
 
     }
