@@ -30,6 +30,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.context.ContextKey;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -239,6 +240,8 @@ public class DecoratePlaceHandler implements IHandler {
                     blockEntity.position.y() + pos.getZ()
             ).yRot((float) Math.toRadians(blockEntity.rotation));
             blockEntity.insertDecoration(new GlasswareBlockEntity.Decoration(location, new Quaternionf(quaternionf), getItem().copyWithCount(1)));
+            getPlayer().swing(InteractionHand.MAIN_HAND);
+            return true;
         }
         return false;
     }

@@ -48,6 +48,7 @@ public record ClientShakeTooltipComponent(ShakeContentHolder contentHolder, int 
 
     @Override
     public void extractText(GuiGraphicsExtractor graphics, Font font, int x, int y) {
+        x += Textures.SHAKE_HUD_FRONT.getWidth();
         ClientTooltipComponent.super.extractText(graphics, font, x, y);
         if (!canLookThrough()) {
             return;
@@ -76,7 +77,7 @@ public record ClientShakeTooltipComponent(ShakeContentHolder contentHolder, int 
         if (!canLookThrough()) {
             Textures.SHAKE_HUD_FRONT.blit(
                     graphics,
-                    x + offsetX,
+                    x,
                     y + offsetY,
                     255,
                     255,
@@ -84,7 +85,7 @@ public record ClientShakeTooltipComponent(ShakeContentHolder contentHolder, int 
                     255
             );
         } else {
-            extractShakeWithContent(x + offsetX, y + offsetY, graphics);
+            extractShakeWithContent(x, y + offsetY, graphics);
         }
     }
 

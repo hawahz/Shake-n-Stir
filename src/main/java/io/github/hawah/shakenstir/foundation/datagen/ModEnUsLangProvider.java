@@ -28,6 +28,12 @@ public class ModEnUsLangProvider extends LanguageProvider {
 //        add(FluidRegistries.GIN_SOURCE_FLUID_BLOCK.getRegisteredName(), "");
         add(FluidTypeRegistries.GIN_FLUID_TYPE.get().getDescriptionId(), "Gin");
         add(FluidTypeRegistries.WHISKY_FLUID_TYPE.get().getDescriptionId(), "Whisky");
+        add(FluidTypeRegistries.VODKA_FLUID_TYPE.get().getDescriptionId(), "Vodka");
+        add(FluidTypeRegistries.TEQUILA_FLUID_TYPE.get().getDescriptionId(), "Tequila");
+        add(FluidTypeRegistries.RUM_FLUID_TYPE.get().getDescriptionId(), "Rum");
+        add(FluidTypeRegistries.BRANDY_FLUID_TYPE.get().getDescriptionId(), "Brandy");
+
+        add(FluidTypeRegistries.BUBBLE_FLUID_TYPE.get().getDescriptionId(), "Bubble");
         genLang(this);
     }
 

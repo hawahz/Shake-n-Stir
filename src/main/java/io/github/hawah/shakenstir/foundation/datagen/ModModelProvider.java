@@ -63,6 +63,7 @@ public class ModModelProvider extends ModelProvider {
         generateShake(blockModels, itemModels);
         generateSpirit(blockModels, itemModels, BlockRegistries.GIN, ItemRegistries.GIN, "gin");
         generateSpirit(blockModels, itemModels, BlockRegistries.WHISKY, ItemRegistries.WHISKY, "whisky");
+        generateSpirit(blockModels, itemModels, BlockRegistries.VODKA, ItemRegistries.VODKA, "vodka");
         generateEmptyModel(blockModels, BlockRegistries.LONG_DRINK_GLASSWARE.get(), Blocks.GLASS);
         generateEmptyModel(blockModels, BlockRegistries.SHORT_DRINK_GLASSWARE.get(), Blocks.GLASS);
         generateGlassware(ShakenStir.asResource("martini_glass"), itemModels);
@@ -78,7 +79,6 @@ public class ModModelProvider extends ModelProvider {
         registerCustomBlockModel(blockModels, "block/whiskey_liquid", BlockRegistries.BUBBLE.get());
         registerCustomBlockModel(blockModels, "block/bubble_liquid", BlockRegistries.BUBBLE_LIQUID.get());
 
-        registerCustomBlockModel(blockModels, "block/vodka", BlockRegistries.VODKA.get());
         registerCustomBlockModel(blockModels, "block/rum", BlockRegistries.RUM.get());
         registerCustomBlockModel(blockModels, "block/tequila", BlockRegistries.TEQUILA.get());
         registerCustomBlockModel(blockModels, "block/brandy", BlockRegistries.BRANDY.get());

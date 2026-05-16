@@ -1,7 +1,64 @@
 {
   "variants": {
-    "": {
+    "facing=east,shakenstir_counts=1": {
+      "model": "shakenstir:block/vodka",
+      "y": 90
+    },
+    "facing=east,shakenstir_counts=2": {
+      "model": "shakenstir:block/vodka_1",
+      "y": 90
+    },
+    "facing=east,shakenstir_counts=3": {
+      "model": "shakenstir:block/vodka_2",
+      "y": 90
+    },
+    "facing=east,shakenstir_counts=4": {
+      "model": "shakenstir:block/vodka_3",
+      "y": 90
+    },
+    "facing=north,shakenstir_counts=1": {
       "model": "shakenstir:block/vodka"
+    },
+    "facing=north,shakenstir_counts=2": {
+      "model": "shakenstir:block/vodka_1"
+    },
+    "facing=north,shakenstir_counts=3": {
+      "model": "shakenstir:block/vodka_2"
+    },
+    "facing=north,shakenstir_counts=4": {
+      "model": "shakenstir:block/vodka_3"
+    },
+    "facing=south,shakenstir_counts=1": {
+      "model": "shakenstir:block/vodka",
+      "y": 180
+    },
+    "facing=south,shakenstir_counts=2": {
+      "model": "shakenstir:block/vodka_1",
+      "y": 180
+    },
+    "facing=south,shakenstir_counts=3": {
+      "model": "shakenstir:block/vodka_2",
+      "y": 180
+    },
+    "facing=south,shakenstir_counts=4": {
+      "model": "shakenstir:block/vodka_3",
+      "y": 180
+    },
+    "facing=west,shakenstir_counts=1": {
+      "model": "shakenstir:block/vodka",
+      "y": 270
+    },
+    "facing=west,shakenstir_counts=2": {
+      "model": "shakenstir:block/vodka_1",
+      "y": 270
+    },
+    "facing=west,shakenstir_counts=3": {
+      "model": "shakenstir:block/vodka_2",
+      "y": 270
+    },
+    "facing=west,shakenstir_counts=4": {
+      "model": "shakenstir:block/vodka_3",
+      "y": 270
     }
   }
 }

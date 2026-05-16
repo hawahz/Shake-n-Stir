@@ -1,5 +1,10 @@
 {
+  "fluid_type.shakenstir.brandy_fluid_type": "Brandy",
+  "fluid_type.shakenstir.bubble_fluid_type": "Bubble",
   "fluid_type.shakenstir.gin_fluid_type": "Gin",
+  "fluid_type.shakenstir.rum_fluid_type": "Rum",
+  "fluid_type.shakenstir.tequila_fluid_type": "Tequila",
+  "fluid_type.shakenstir.vodka_fluid_type": "Vodka",
   "fluid_type.shakenstir.whisky_fluid_type": "Whisky",
   "item.shakenstir.gin": "Gin",
   "item.shakenstir.ice_cube": "Ice Cube",

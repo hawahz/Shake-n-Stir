@@ -41,6 +41,7 @@ public class ItemRegistries {
     // Spirit
     public static final DeferredItem<SpiritBottleItem> GIN = registerSpirit("gin", BlockRegistries.GIN, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(new FluidStack(FluidRegistries.GIN_SOURCE_FLUID_BLOCK, 1000))));
     public static final DeferredItem<SpiritBottleItem> WHISKY = registerSpirit("whisky", BlockRegistries.WHISKY, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(new FluidStack(FluidRegistries.WHISKY_SOURCE_FLUID_BLOCK, 1000))));
+    public static final DeferredItem<SpiritBottleItem> VODKA = registerSpirit("vodka", BlockRegistries.VODKA, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(new FluidStack(FluidRegistries.VODKA_SOURCE_FLUID_BLOCK, 1000))));
 
     public static final DeferredItem<SpiritBottleItem> BUBBLE = registerSpirit("bubble", BlockRegistries.BUBBLE, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(new FluidStack(FluidRegistries.BUBBLE_SOURCE_FLUID_BLOCK, 1000))));
 
