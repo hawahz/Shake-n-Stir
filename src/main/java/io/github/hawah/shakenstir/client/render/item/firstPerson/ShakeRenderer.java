@@ -184,13 +184,20 @@ public class ShakeRenderer {
         assert player != null;
         AvatarRenderer<AbstractClientPlayer> playerRenderer = Minecraft.getInstance().getEntityRenderDispatcher().getPlayerRenderer(player);
         Identifier skinTexture = player.getSkin().body().texturePath();
+        boolean skipDrawRight = playerRenderer.getModel().rightArm.skipDraw;
+        playerRenderer.getModel().rightArm.skipDraw = false;
         playerRenderer.renderRightHand(poseStack, submitNodeCollector, lightCoords, skinTexture, player.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE), player);
+        playerRenderer.getModel().rightArm.skipDraw = skipDrawRight;
+
 
         poseStack.popPose();
 
         if (isShaking()) {
             poseStack.mulPose(LEFT_ARM_TRANSFORM);
+            boolean skipDrawLeft = playerRenderer.getModel().leftArm.skipDraw;
+            playerRenderer.getModel().leftArm.skipDraw = false;
             playerRenderer.renderLeftHand(poseStack, submitNodeCollector, lightCoords, skinTexture, player.isModelPartShown(PlayerModelPart.LEFT_SLEEVE), player);
+            playerRenderer.getModel().leftArm.skipDraw = skipDrawLeft;
         }
     }
 

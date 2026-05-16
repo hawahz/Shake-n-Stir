@@ -6,6 +6,7 @@ import io.github.hawah.shakenstir.client.ClientDataHolder;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ShakeItem;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundShakeFinishPacket;
+import io.github.hawah.shakenstir.foundation.networking.ServerboundShakePramTransmitPacket;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.lib.client.handler.IHandler;
 import io.github.hawah.shakenstir.lib.client.render.EaseHelper;
@@ -55,6 +56,12 @@ public class ShakeHandler implements IHandler, GuiLayer {
 
     @Override
     public void tick() {
+        if (!isActive()) {
+            return;
+        }
+        Networking.sendToServer(new ServerboundShakePramTransmitPacket(x, y, Minecraft.getInstance().player.getId()));
+    }
+    public void update() {
         Vector2d vec = new Vector2d(x, y);
         Vector2d oVec = new Vector2d(oVx, oVy);
         assert Minecraft.getInstance().player != null;
@@ -62,7 +69,6 @@ public class ShakeHandler implements IHandler, GuiLayer {
         double dot = vec.dot(oVec);
         int shakeCubes = getItem().getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0);
         if (dot < -0.125 && AnimationTickHolder.getTicks() - lastSuccessTick > 1) {
-            System.out.println(shakeSuccessTimes);
             int maxValidShakes = shakeCubes * 10;
             float volumeWater = shakeCubes == 0? 1.2F: EaseHelper.easeInPow(Mth.clamp((float) shakeSuccessTimes / maxValidShakes, 0, 0.8F), 6);
 
@@ -169,7 +175,7 @@ public class ShakeHandler implements IHandler, GuiLayer {
         vy = y - oy;
 
         wasActive = true;
-        tick();
+        update();
         end();
         return new Result(isActive());
     }

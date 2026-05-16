@@ -26,6 +26,7 @@ import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -45,6 +46,11 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem {
                         .stacksTo(1)
                         .component(DataComponentTypeRegistries.HAS_CUP, true)
         );
+    }
+
+    @Override
+    public ItemUseAnimation getUseAnimation(ItemStack itemStack) {
+        return ItemUseAnimation.SPYGLASS;
     }
 
     @Override

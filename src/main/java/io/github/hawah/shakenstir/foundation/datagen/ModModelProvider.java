@@ -3,6 +3,7 @@ package io.github.hawah.shakenstir.foundation.datagen;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.client.render.item.GlasswareSpecialRenderer;
+import io.github.hawah.shakenstir.client.render.item.ShakeItemSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer;
 import io.github.hawah.shakenstir.content.HasCup;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
@@ -23,6 +24,7 @@ import net.minecraft.client.renderer.item.ConditionalItemModel;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.RangeSelectItemModel;
 import net.minecraft.client.renderer.item.properties.numeric.Count;
+import net.minecraft.client.renderer.item.properties.select.DisplayContext;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -30,6 +32,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -129,9 +132,18 @@ public class ModModelProvider extends ModelProvider {
                 closedModel,
                 openModel
         );
+
+        ItemModel.Unbaked thirdPersonModel = ItemModelUtils.specialModel(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "gin"), new ShakeItemSpecialRenderer.Unbaked());
+
+        ItemModel.Unbaked selected = ItemModelUtils.select(
+                new DisplayContext(),
+                guiModel,
+                ItemModelUtils.when(List.of(ItemDisplayContext.THIRD_PERSON_LEFT_HAND, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND), thirdPersonModel)
+        );
+
         itemModels.itemModelOutput.accept(
                 ItemRegistries.SHAKE.get(),
-                guiModel
+                selected
         );
     }
 

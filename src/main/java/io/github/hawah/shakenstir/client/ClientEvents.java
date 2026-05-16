@@ -13,6 +13,7 @@ import io.github.hawah.shakenstir.client.render.GlasswareOutlineRenderer;
 import io.github.hawah.shakenstir.client.render.block.GlasswareBlockEntityRenderer;
 import io.github.hawah.shakenstir.client.render.block.ShakeBlockEntityRenderer;
 import io.github.hawah.shakenstir.client.render.item.GlasswareSpecialRenderer;
+import io.github.hawah.shakenstir.client.render.item.ShakeItemSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer;
 import io.github.hawah.shakenstir.content.HasCup;
 import io.github.hawah.shakenstir.content.ShakeTooltipComponent;
@@ -88,6 +89,7 @@ public class ClientEvents {
         }
         ShakenStirClient.SHAKE_CONTENT_HUD.tick();
         ShakenStirClient.GLASSWARE_HANDLER.tick();
+        ShakenStirClient.SHAKE_HANDLER.tick();
     }
 
     @SubscribeEvent
@@ -118,6 +120,10 @@ public class ClientEvents {
             event.register(
                     Identifier.fromNamespaceAndPath(ShakenStir.MODID, "glassware_special"),
                     GlasswareSpecialRenderer.Unbaked.MAP_CODEC
+            );
+            event.register(
+                    Identifier.fromNamespaceAndPath(ShakenStir.MODID, "shake_special"),
+                    ShakeItemSpecialRenderer.Unbaked.MAP_CODEC
             );
         }
 

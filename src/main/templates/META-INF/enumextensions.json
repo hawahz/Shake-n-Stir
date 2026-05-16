@@ -1,0 +1,13 @@
+{
+  "entries": [
+    {
+      "enum": "net/minecraft/client/model/HumanoidModel/ArmPose",
+      "name": "SHAKENSTIR_GLASSWARE_HOLDING",
+      "constructor": "(ZZLnet/neoforged/neoforge/client/IArmPoseTransformer;)V",
+      "parameters": {
+        "class": "shakenstir/client/render/item/thirdPerson/SnsArmPoses",
+        "field": "GLASSWARE_ARM_POSE"
+      }
+    }
+  ]
+}

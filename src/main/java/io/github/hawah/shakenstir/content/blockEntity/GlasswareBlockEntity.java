@@ -23,7 +23,11 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.item.ItemStack;
@@ -37,6 +41,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
+import org.jspecify.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
@@ -97,6 +102,12 @@ public class GlasswareBlockEntity extends BlockEntity {
         contentComponents.setAll(itemStack.getComponents());
         heightRate = 1.0F;
         this.setChanged();
+        if (getLevel() instanceof ServerLevel serverLevel){
+            serverLevel.players().forEach(
+                    player -> player.connection.send(getUpdatePacket())
+            );
+            net.neoforged.neoforge.attachment.AttachmentSync.syncBlockEntityUpdates(this, serverLevel.players());
+        }
         return true;
     }
 
@@ -118,8 +129,8 @@ public class GlasswareBlockEntity extends BlockEntity {
         contentComponents.setAll(content);
         if (!contentComponents.isEmpty()) {
             heightRate = 1.0F;
-            height = 1.0F;
-            oHeight = 1.0F;
+//            height = 1.0F;
+//            oHeight = 1.0F;
         }
         Optional<ValueInput.ValueInputList> decorations = input.childrenList("Decorations");
         decorationsList.clear();
@@ -128,6 +139,11 @@ public class GlasswareBlockEntity extends BlockEntity {
                 valueInput.read("Decoration", Decoration.CODEC).ifPresent(decorationsList::add);
             }
         }
+    }
+
+    @Override
+    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override

@@ -69,32 +69,45 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
         poseStack.translate(state.position.x, 0, state.position.y);
         poseStack.mulPose(Axis.YN.rotationDegrees(state.rotate));
         poseStack.translate(-0.5, 0, -0.5);
+        float offsetX = state.position.x();
+        float offsetZ = state.position.y();
+        int lightCoords = state.lightCoords;
+
+        submitGlassware(state, poseStack, submitNodeCollector, lightCoords, offsetX, offsetZ, state.rotate, true);
+        poseStack.popPose();
+    }
+
+    public static void submitGlassware(IGlasswareRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, float offsetX, float offsetZ, float rotate, boolean shouldReset) {
         VerticalGradientVertexConsumer vc = new VerticalGradientVertexConsumer();
         vc.setGradientStyle(Ease::inOutCirc);
 
         double bottom;
         double top;
-        if (state.model.getModel() instanceof GlasswareQuadCollection quadCollection) {
+        if (state.model().getModel() instanceof GlasswareQuadCollection quadCollection) {
             bottom = quadCollection.start().y() * 0.8;
             top = quadCollection.end().y();
         } else  {
-            bottom = state.model.getShape().min(Direction.Axis.Y);
-            top = state.model.getShape().max(Direction.Axis.Y);
+            bottom = state.model().getShape().min(Direction.Axis.Y);
+            top = state.model().getShape().max(Direction.Axis.Y);
         }
         vc.setMinY((float) (bottom + (top - bottom) * 0.15));
         vc.setMaxY((float) (top - (top - bottom) * 0.1));
-        vc.setSourceAlpha((int) (120 * state.height));
-        vc.setTargetAlpha((int) (255 * state.height));
-        vc.setModulate(state.color);
-        state.model.submit(submitNodeCollector, poseStack, List.of(vc), state.lightCoords, OverlayTexture.NO_OVERLAY, RenderTypes.cutoutMovingBlock());
-        submitLiquid(state, poseStack, submitNodeCollector, state.lightCoords);
-        poseStack.popPose();
+        vc.setSourceAlpha((int) (120 * state.height()));
+        vc.setTargetAlpha((int) (255 * state.height()));
+        vc.setModulate(state.color());
+        state.model().submit(submitNodeCollector, poseStack, List.of(vc), lightCoords, OverlayTexture.NO_OVERLAY, RenderTypes.cutoutMovingBlock());
+        submitLiquid(state, poseStack, submitNodeCollector, lightCoords);
+        if (shouldReset) {
+            poseStack.popPose();
 
-        poseStack.pushPose();
-        poseStack.translate(state.position.x, 0, state.position.y);
-        poseStack.mulPose(Axis.YN.rotationDegrees(state.rotate));
+            poseStack.pushPose();
+            poseStack.translate(offsetX, 0, offsetZ);
+            poseStack.mulPose(Axis.YN.rotationDegrees(rotate));
+        } else {
+            poseStack.translate(offsetX, 0, offsetZ);
+        }
 //        poseStack.translate(-0.5, 0, -0.5);
-        for (GlasswareBlockEntity.Decoration decoration : state.decorations) {
+        for (GlasswareBlockEntity.Decoration decoration : state.decorations()) {
             ItemStack itemStack = decoration.itemStack();
             poseStack.pushPose();
             poseStack.translate(decoration.position().x, decoration.position().y, decoration.position().z);
@@ -115,7 +128,7 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
                         RenderTypes.cutoutMovingBlock(),
                         parts,
                         new int[]{0},
-                        state.lightCoords,
+                        lightCoords,
                         OverlayTexture.NO_OVERLAY,
                         0
                 );
@@ -142,7 +155,7 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
                     itemStackRenderState.submit(
                             poseStack,
                             submitNodeCollector,
-                            state.lightCoords,
+                            lightCoords,
                             OverlayTexture.NO_OVERLAY,
                             0
                     );
@@ -150,7 +163,6 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
             }
             poseStack.popPose();
         }
-        poseStack.popPose();
     }
 
     public static void submitLiquid(IGlasswareRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords) {

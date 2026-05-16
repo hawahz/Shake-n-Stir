@@ -32,4 +32,9 @@ public class GlasswareBlockEntityRenderState extends BlockEntityRenderState impl
         return color;
     }
 
+    @Override
+    public Iterable<? extends GlasswareBlockEntity.Decoration> decorations() {
+        return decorations;
+    }
+
 }

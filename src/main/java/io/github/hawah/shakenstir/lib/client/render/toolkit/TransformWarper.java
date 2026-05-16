@@ -202,7 +202,10 @@ public class TransformWarper {
                      Minecraft.getInstance().renderBuffers().bufferSource(),
                      1f
              );
-             poseStack.mulPose(new Quaternionf(rotX, rotY, rotZ, 1));
+             poseStack.mulPose(new Quaternionf()
+                     .rotateLocalX(rotX)
+                     .rotateLocalY(rotY)
+                     .rotateLocalZ(rotZ));
              DebugGizmoRenderer.Translation.render(
                      poseStack,
                      Minecraft.getInstance().renderBuffers().bufferSource(),
