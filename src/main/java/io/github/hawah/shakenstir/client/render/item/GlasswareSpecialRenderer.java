@@ -1,6 +1,7 @@
 package io.github.hawah.shakenstir.client.render.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.math.Axis;
 import com.mojang.serialization.MapCodec;
 import io.github.hawah.shakenstir.client.model.Models;
@@ -17,10 +18,13 @@ import net.minecraft.world.item.component.DyedItemColor;
 import org.joml.Vector3fc;
 import org.jspecify.annotations.Nullable;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class GlasswareSpecialRenderer implements SpecialModelRenderer<GlasswareSpecialRenderer.RenderState> {
     @Override
     public void submit(@Nullable RenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, int overlayCoords, boolean hasFoil, int outlineColor) {
@@ -30,12 +34,11 @@ public class GlasswareSpecialRenderer implements SpecialModelRenderer<GlasswareS
         poseStack.pushPose();
         float globalScale = 0.5f;
         poseStack.translate(0.5, 0.7, 0.5);
-        poseStack.mulPose(Axis.YN.rotationDegrees(180));
+        poseStack.mulPose(Axis.YN.rotationDegrees((float) (180 + state.rotate)));
         poseStack.scale(globalScale, globalScale, globalScale);
         poseStack.translate(-0.5, -0.5, -0.5);
 
         GlasswareBlockEntityRenderer.submitGlassware(state, poseStack, submitNodeCollector, lightCoords, 0.5F, 0.5F, 0, false);
-
 
 
         poseStack.popPose();
@@ -54,6 +57,7 @@ public class GlasswareSpecialRenderer implements SpecialModelRenderer<GlasswareS
         renderState.height = stack.has(DataComponentTypeRegistries.DRINK_DATA)? 1: 0;
         renderState.color = stack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb() | 0xFF000000;
         renderState.decorations.addAll(stack.getOrDefault(DataComponentTypeRegistries.GLASSWARE_DECORATIONS, List.of()));
+        renderState.rotate = stack.getOrDefault(DataComponentTypeRegistries.GLASSWARE_ROTATION, 0F);
         return renderState;
     }
 
@@ -76,6 +80,7 @@ public class GlasswareSpecialRenderer implements SpecialModelRenderer<GlasswareS
         public final List<GlasswareBlockEntity.Decoration> decorations = new ArrayList<>();
         public IModel<?> model;
         public float height = 0;
+        public double rotate = 0;
         public int color = 0xFFFFFFFF;
 
         @Override

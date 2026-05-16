@@ -16,6 +16,7 @@ public enum NetworkPackets implements BasePacketPayload.PacketTypeProvider {
     SHAKE_FINISH(ServerboundShakeFinishPacket.class, ServerboundShakeFinishPacket.STREAM_CODEC),
     INSERT_DECORATION(ServerboundInsertDecorationPacket.class, ServerboundInsertDecorationPacket.STREAM_CODEC),
     SHAKE_PARAM_TRANSMIT(ServerboundShakePramTransmitPacket.class, ServerboundShakePramTransmitPacket.STREAM_CODEC),
+    HAND_ITEM_DATA_CHANGED(ServerboundHandItemDataChangedPacket.class, ServerboundHandItemDataChangedPacket.STREAM_CODEC),
     //S2C
     SHAKE_PARAM_SYNC(ClientboundShakeParamSyncPacket.class, ClientboundShakeParamSyncPacket.STREAM_CODEC),
     ;

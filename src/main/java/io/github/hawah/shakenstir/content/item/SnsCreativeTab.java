@@ -31,6 +31,8 @@ public class SnsCreativeTab {
                 output.accept(createLongDrink("collins_glass"));
                 output.accept(createShortDrink("martini_glass"));
                 output.accept(createShortDrink("margarita_glass"));
+                output.accept(ItemRegistries.LEMON.get());
+                output.accept(ItemRegistries.LEMON_SLICE.get());
             })
             .build()
     );

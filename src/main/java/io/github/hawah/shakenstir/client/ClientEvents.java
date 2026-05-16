@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.hanlder.GlasswareHandlerRenderState;
@@ -20,14 +21,20 @@ import io.github.hawah.shakenstir.content.ShakeTooltipComponent;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
+import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.item.GlasswareItem;
+import io.github.hawah.shakenstir.foundation.networking.ServerboundHandItemDataChangedPacket;
+import io.github.hawah.shakenstir.lib.networking.Networking;
 import io.github.hawah.shakenstir.util.Result;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockTintSource;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -35,9 +42,12 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.model.standalone.SimpleUnbakedStandaloneModel;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.function.BiFunction;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 @EventBusSubscriber(value = Dist.CLIENT)
 public class ClientEvents {
     @SubscribeEvent
@@ -99,6 +109,18 @@ public class ClientEvents {
         if (ShakenStirClient.DECORATE_PLACE_HANDLER.onMousePressed(button, down)) {
             event.setCanceled(true);
         };
+    }
+
+    @SubscribeEvent
+    public static void onMouseScroll(InputEvent.MouseScrollingEvent event) {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null || !(player.getMainHandItem().getItem() instanceof GlasswareItem) || !player.isShiftKeyDown()) {
+            return;
+        }
+        double scrollDeltaY = event.getScrollDeltaY();
+        player.getMainHandItem().set(DataComponentTypeRegistries.GLASSWARE_ROTATION, (float) (player.getMainHandItem().getOrDefault(DataComponentTypeRegistries.GLASSWARE_ROTATION, 0F) + scrollDeltaY * 10));
+        Networking.sendToServer(new ServerboundHandItemDataChangedPacket(player.getUUID(), InteractionHand.MAIN_HAND, player.getMainHandItem()));
+        event.setCanceled(true);
     }
 
     @SubscribeEvent
