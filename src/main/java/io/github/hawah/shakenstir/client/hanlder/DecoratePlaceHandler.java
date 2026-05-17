@@ -7,9 +7,11 @@ import io.github.hawah.shakenstir.client.ClickInteractions;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
 import io.github.hawah.shakenstir.content.block.Glassware;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
+import io.github.hawah.shakenstir.foundation.networking.ServerboundHandItemAmountChangedPacket;
 import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
 import io.github.hawah.shakenstir.lib.client.KeyBinding;
 import io.github.hawah.shakenstir.lib.client.handler.IHandler;
+import io.github.hawah.shakenstir.lib.networking.Networking;
 import io.github.hawah.shakenstir.util.Result;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
@@ -65,7 +67,7 @@ public class DecoratePlaceHandler implements IHandler {
         if (KeyBinding.hasControlDown()) {
             assert mc.player != null;
             BlockPos pos = ClientDataHolder.Picker.pos();
-            if (!(Minecraft.getInstance().level.getBlockEntity(pos) instanceof GlasswareBlockEntity blockEntity)) {
+            if (Minecraft.getInstance().level == null || pos == null || !(Minecraft.getInstance().level.getBlockEntity(pos) instanceof GlasswareBlockEntity blockEntity)) {
                 return;
             }
             final Vec3 axis = mc.player.calculateViewVector(0.0f, mc.player.getYRot() - 90.0f - blockEntity.rotation);
@@ -233,14 +235,17 @@ public class DecoratePlaceHandler implements IHandler {
         if (pos == null) {
             return false;
         }
-        if (level().getBlockEntity(pos) instanceof GlasswareBlockEntity blockEntity && blockEntity.hasContent()) {
+        if (level().getBlockEntity(pos) instanceof GlasswareBlockEntity blockEntity/* && blockEntity.hasContent()*/) {
             Vec3 location = ClientDataHolder.Picker.location().subtract(
                     blockEntity.position.x() + pos.getX(),
                     pos.getY() - y,
                     blockEntity.position.y() + pos.getZ()
             ).yRot((float) Math.toRadians(blockEntity.rotation));
-            blockEntity.insertDecoration(new GlasswareBlockEntity.Decoration(location, new Quaternionf(quaternionf), getItem().copyWithCount(1)));
-            getPlayer().swing(InteractionHand.MAIN_HAND);
+            if (blockEntity.insertDecoration(new GlasswareBlockEntity.Decoration(location, new Quaternionf(quaternionf), getItem().copyWithCount(1)))) {
+                getPlayer().swing(InteractionHand.MAIN_HAND);
+                getItem().shrink(1);
+                Networking.sendToServer(new ServerboundHandItemAmountChangedPacket(getItem().getCount(), getPlayer().getUUID(), InteractionHand.MAIN_HAND));
+            }
             return true;
         }
         return false;

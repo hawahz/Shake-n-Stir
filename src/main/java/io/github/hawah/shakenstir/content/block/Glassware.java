@@ -39,6 +39,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Objects;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -64,11 +65,9 @@ public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
 
     @Override
     public ItemStack getDrop(BlockState state, Level level, BlockPos pos) {
-        ItemStack drop = ITakeUpBlock.super.getDrop(state, level, pos);
+        ItemStack drop;
         if (level.getBlockEntity(pos) instanceof GlasswareBlockEntity blockEntity) {
-            if (!blockEntity.contentComponents.isEmpty()) {
-                drop.set(DataComponentTypeRegistries.DRINK_DATA, blockEntity.contentComponents);
-            }
+            drop = blockEntity.contentComponents.getOrDefault(DataComponentTypeRegistries.SHAKE_PRODUCT_POUR_TAKE_ITEM, ITakeUpBlock.super.getDrop(state, level, pos));
             if (!blockEntity.decorationsList.isEmpty()){
                 drop.set(DataComponentTypeRegistries.GLASSWARE_DECORATIONS, blockEntity.decorationsList);
             }
@@ -77,26 +76,29 @@ public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
             }
             if (blockEntity.contentComponents.has(DataComponents.DYED_COLOR)) {
                 drop.set(DataComponents.DYED_COLOR, blockEntity.contentComponents.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0)));
+                blockEntity.contentComponents.remove(DataComponents.DYED_COLOR);
                 drop.set(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT.withHidden(DataComponents.DYED_COLOR, true));
             }
             if (blockEntity.contentComponents.has(DataComponents.ITEM_NAME)) {
                 drop.set(DataComponents.ITEM_NAME, blockEntity.contentComponents.get(DataComponents.ITEM_NAME));
+                blockEntity.contentComponents.remove(DataComponents.ITEM_NAME);
             }
+            if (!blockEntity.contentComponents.isEmpty()) {
+                drop.set(DataComponentTypeRegistries.DRINK_DATA, blockEntity.contentComponents);
+            }
+            return drop;
         }
-        return drop;
+        return ItemStack.EMPTY;
     }
 
     @Override
     public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData, Player player) {
         ItemStack drop = this.asItem().getDefaultInstance();
         if (level.getBlockEntity(pos) instanceof GlasswareBlockEntity blockEntity){
-            if (blockEntity.model != null){
-                drop.set(DataComponents.ITEM_MODEL, blockEntity.model);
-            } else {
-                drop.set(DataComponents.ITEM_MODEL, ShakenStir.asResource(drop.is(ItemRegistries.SHORT_DRINK_GLASSWARE)?"martini_glass": "collins_glass"));
-            }
+            drop.set(DataComponents.ITEM_MODEL, Objects.requireNonNullElseGet(blockEntity.model, () -> ShakenStir.asResource(drop.is(ItemRegistries.SHORT_DRINK_GLASSWARE) ? "martini_glass" : "collins_glass")));
             if (blockEntity.pureName != null) {
                 drop.set(DataComponents.ITEM_NAME, blockEntity.pureName);
+                drop.set(DataComponentTypeRegistries.GLASSWARE_NAME, blockEntity.pureName);
             }
         }
         return drop;
@@ -133,8 +135,8 @@ public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        if (level.getBlockEntity(pos) instanceof GlasswareBlockEntity blockEntity && blockEntity.getLevel().isClientSide()) {
-            IModel model = blockEntity.getModel();
+        if (level.getBlockEntity(pos) instanceof GlasswareBlockEntity blockEntity && blockEntity.getLevel() != null && blockEntity.getLevel().isClientSide()) {
+            IModel<?> model = blockEntity.getModel();
             return model.getShape().move(blockEntity.position.x(), 0, blockEntity.position.y());
         }
         return super.getShape(state, level, pos, context);
@@ -195,7 +197,8 @@ public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
         return createTickerHelper(type, BlockEntityRegistries.GLASSWARE_BLOCK_ENTITY.get(), GlasswareBlockEntity::onAnimationTick);
     }
 
-    private static <E extends BlockEntity, A extends BlockEntity> @javax.annotation.Nullable BlockEntityTicker<A> createTickerHelper(
+    @SuppressWarnings("unchecked")
+    private static <E extends BlockEntity, A extends BlockEntity> @Nullable BlockEntityTicker<A> createTickerHelper(
             BlockEntityType<A> type, BlockEntityType<E> checkedType, BlockEntityTicker<? super E> ticker
     ) {
         return checkedType == type ? (BlockEntityTicker<A>) ticker : null;

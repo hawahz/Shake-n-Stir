@@ -41,13 +41,11 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
-import org.jspecify.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -83,10 +81,14 @@ public class GlasswareBlockEntity extends BlockEntity {
     }
 
     public boolean hasContent() {
-        return !contentComponents.isEmpty() || true;
+        return !contentComponents.isEmpty();
     }
 
     public boolean insertDecoration(Decoration decoration) {
+        if (level == null) {
+            LogUtils.getLogger().warn("Cannot insert decoration to non level block entity");
+            return false;
+        }
         this.decorationsList.add(decoration);
         if (level.isClientSide()) {
             Networking.sendToServer(new ServerboundInsertDecorationPacket(decoration, worldPosition));
@@ -106,12 +108,14 @@ public class GlasswareBlockEntity extends BlockEntity {
             serverLevel.players().forEach(
                     player -> player.connection.send(getUpdatePacket())
             );
+            // FIXME
+            //noinspection UnstableApiUsage
             net.neoforged.neoforge.attachment.AttachmentSync.syncBlockEntityUpdates(this, serverLevel.players());
         }
         return true;
     }
 
-    public static void onAnimationTick(Level level, BlockPos pos, BlockState state, GlasswareBlockEntity blockEntity) {
+    public static void onAnimationTick(Level ignoredLevel, BlockPos ignoredPos, BlockState ignoredState, GlasswareBlockEntity blockEntity) {
         blockEntity.oHeight = blockEntity.height;
         blockEntity.height = Mth.lerp(ShakenStirClient.ANI_DELTAF * 0.5F, blockEntity.height, blockEntity.heightRate);
     }
@@ -142,7 +146,7 @@ public class GlasswareBlockEntity extends BlockEntity {
     }
 
     @Override
-    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
@@ -185,24 +189,31 @@ public class GlasswareBlockEntity extends BlockEntity {
         super.applyImplicitComponents(components);
         position.set(components.getOrDefault(DataComponentTypeRegistries.GLASSWARE_POSITION, new Vector2f()));
         rotation = components.getOrDefault(DataComponentTypeRegistries.GLASSWARE_ROTATION, 0.0f);
+        if (components.has(DataComponentTypeRegistries.DRINK_DATA)) {
+            this.contentComponents.clearPatch();
+            this.contentComponents.setAll(components.getOrDefault(DataComponentTypeRegistries.DRINK_DATA, DataComponentMap.EMPTY));
+        }
+
+        if (components.has(DataComponents.DYED_COLOR)) {
+            this.contentComponents.set(DataComponents.DYED_COLOR, components.get(DataComponents.DYED_COLOR));
+        }
+
         if (components.has(DataComponents.ITEM_MODEL)) {
             model = components.get(DataComponents.ITEM_MODEL);
         }
         if (components.has(DataComponents.ITEM_NAME)) {
             pureName = components.get(DataComponents.ITEM_NAME);
+            contentComponents.set(DataComponents.ITEM_NAME, pureName);
         }
         if (components.has(DataComponentTypeRegistries.GLASSWARE_NAME)) {
             defaultName = components.get(DataComponentTypeRegistries.GLASSWARE_NAME);
         }
 
-        if (components.has(DataComponentTypeRegistries.DRINK_DATA)) {
-            this.contentComponents.clearPatch();;
-            this.contentComponents.setAll(components.getOrDefault(DataComponentTypeRegistries.DRINK_DATA, DataComponentMap.EMPTY));
-            if (!contentComponents.isEmpty()) {
-                heightRate = 1.0F;
-                height = 1.0F;
-                oHeight = 1.0F;
-            }
+
+        if (!contentComponents.isEmpty()) {
+            heightRate = 1.0F;
+            height = 1.0F;
+            oHeight = 1.0F;
         }
 
         if (components.has(DataComponentTypeRegistries.GLASSWARE_DECORATIONS)) {
@@ -210,13 +221,8 @@ public class GlasswareBlockEntity extends BlockEntity {
         }
     }
 
-    @SuppressWarnings("Convert2Lambda")
     public IModel<?> getModel() {
-        return new Supplier<>() {
-            @Override
-            public IModel<?> get() {
-                return Models.getModel(model).orElse(Models.COLLINS_GLASS);
-            }}.get();
+        return Models.getModel(model).orElse(Models.COLLINS_GLASS);
     }
 
     public record Decoration(Vec3 position, Quaternionf quaternionf, ItemStack itemStack) {

@@ -92,6 +92,7 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         if (
+                level.getBlockState(pos).is(BlockRegistries.SHORT_DRINK_GLASSWARE) &&
                 level.getBlockEntity(pos) instanceof GlasswareBlockEntity blockEntity &&
                 (item = ShakeUtil.getItemData(shake)).itemCount() == 1 &&
                         (contentHolder = item.itemStacks().getFirst()).is(ItemRegistries.CONTENT_HOLDER) &&
