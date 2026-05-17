@@ -3,13 +3,15 @@ package io.github.hawah.shakenstir.foundation.tags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.material.Fluid;
+import net.neoforged.neoforge.common.Tags;
 
 public enum SnsSharedTags {
     SOUR(SnsFluidTags.SOUR, SnsItemTags.SOUR),
     BITTER(SnsFluidTags.BITTER, SnsItemTags.BITTER),
     SPIRIT(SnsFluidTags.SPIRIT, SnsItemTags.SPIRIT),
     SWEET(SnsFluidTags.SWEET, SnsItemTags.SWEET),
-    BUBBLE(SnsFluidTags.BUBBLE_LIKE, SnsItemTags.BUBBLE_LIKE)
+    BUBBLE(SnsFluidTags.BUBBLE_LIKE, SnsItemTags.BUBBLE_LIKE),
+    JUICE(SnsFluidTags.JUICE, Tags.Items.DRINKS_JUICE)
     ;
     public final TagKey<Fluid> fluidTag;
     public final TagKey<Item> itemTag;

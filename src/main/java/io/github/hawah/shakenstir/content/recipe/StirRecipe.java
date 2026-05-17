@@ -1,23 +1,14 @@
 package io.github.hawah.shakenstir.content.recipe;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
-import io.github.hawah.shakenstir.content.dataComponent.ShakeProductDeferredName;
 import io.github.hawah.shakenstir.content.recipe.ingredient.FluidIngredient;
-import io.github.hawah.shakenstir.foundation.BaseFluidType;
-import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
-import it.unimi.dsi.fastutil.Pair;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -28,39 +19,33 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-/**
- * @param inputFluids private final ShakeRecipeInput.BlockBookInfo bookInfo;
- */
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public record ShakeRecipe(CommonInfo commonInfo, List<FluidIngredient> inputFluids, List<Ingredient> inputItems,
-                          ItemStackTemplate result, int shakeTimes) implements Recipe<ShakeRecipeInput>, IScoreSortedRecipe<ShakeRecipeInput> {
+public record StirRecipe(Recipe.CommonInfo commonInfo, List<FluidIngredient> inputFluids, List<Ingredient> inputItems,
+                         ItemStackTemplate result) implements Recipe<StirRecipeInput>, IScoreSortedRecipe<StirRecipeInput>{
 
-    public static final MapCodec<ShakeRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-            CommonInfo.MAP_CODEC.forGetter(ShakeRecipe::commonInfo),
-            FluidIngredient.CODEC.listOf(0, 6).fieldOf("inputFluids").forGetter(ShakeRecipe::inputFluids),
-            Ingredient.CODEC.listOf(0, 6).fieldOf("inputItems").forGetter(ShakeRecipe::inputItems),
-            ItemStackTemplate.MAP_CODEC.fieldOf("result").forGetter(ShakeRecipe::result),
-            Codec.INT.fieldOf("shakeTimes").forGetter(ShakeRecipe::shakeTimes)
-    ).apply(inst, ShakeRecipe::new));
+    public static final MapCodec<StirRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+            CommonInfo.MAP_CODEC.forGetter(StirRecipe::commonInfo),
+            FluidIngredient.CODEC.listOf(0, 6).fieldOf("inputFluids").forGetter(StirRecipe::inputFluids),
+            Ingredient.CODEC.listOf(0, 6).fieldOf("inputItems").forGetter(StirRecipe::inputItems),
+            ItemStackTemplate.MAP_CODEC.fieldOf("result").forGetter(StirRecipe::result)
+    ).apply(inst, StirRecipe::new));
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ShakeRecipe> STREAM_CODEC = StreamCodec.composite(
-            CommonInfo.STREAM_CODEC, ShakeRecipe::commonInfo,
-            FluidIngredient.STREAM_CODEC.apply(ByteBufCodecs.list()), ShakeRecipe::inputFluids,
-            Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs.list()), ShakeRecipe::inputItems,
+    public static final StreamCodec<RegistryFriendlyByteBuf, StirRecipe> STREAM_CODEC = StreamCodec.composite(
+            CommonInfo.STREAM_CODEC, StirRecipe::commonInfo,
+            FluidIngredient.STREAM_CODEC.apply(ByteBufCodecs.list()), StirRecipe::inputFluids,
+            Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs.list()), StirRecipe::inputItems,
             // 对于 ItemStackTemplate，我们借助 ItemStack 进行转换
             ItemStack.STREAM_CODEC.map(
                     // 解码：将 ItemStack 转为模板（假设有 fromStack 静态方法，否则用构造函数）
                     stack -> new ItemStackTemplate(stack.getItem(), stack.getCount(), stack.getComponentsPatch()),
                     // 编码：从模板创建 ItemStack
                     ItemStackTemplate::create
-            ), ShakeRecipe::result,
-            ByteBufCodecs.INT, ShakeRecipe::shakeTimes,
-            ShakeRecipe::new
+            ), StirRecipe::result,
+            StirRecipe::new
     );
-
     @Override
-    public boolean matches(ShakeRecipeInput input, Level level) {
+    public boolean matches(StirRecipeInput input, Level level) {
         // 1. 物品无序匹配：每找到一个匹配就从输入中移除一个
         List<ItemStack> remainingItems = new ArrayList<>(input.items());
         for (Ingredient ingredient : this.inputItems) {
@@ -102,22 +87,12 @@ public record ShakeRecipe(CommonInfo commonInfo, List<FluidIngredient> inputFlui
             }
         }
 
-        return shakeTimes() <= input.shakeTime();
+        return true;
     }
 
-
     @Override
-    public ItemStack assemble(ShakeRecipeInput input) {
-        ItemStack resultItem = this.result.create();
-        if (resultItem.has(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME)) {
-            MutableComponent name = resultItem.getOrDefault(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, ShakeProductDeferredName.EMPTY).getName(input.fluidStacks(), input.items());
-            resultItem.set(DataComponents.ITEM_NAME, name);
-        }
-        int rgb = ShakeUtil.rgbWithWeight(input.fluidStacks().stream().map((stack) ->
-                Pair.of(stack.getFluidType() instanceof BaseFluidType type ? type.getTintColor() : 0xFFFFFF, stack.getAmount())
-        ).toList());
-        resultItem.set(DataComponents.DYED_COLOR, new DyedItemColor(rgb));
-        return resultItem;
+    public ItemStack assemble(StirRecipeInput input) {
+        return null;
     }
 
     @Override
@@ -127,17 +102,17 @@ public record ShakeRecipe(CommonInfo commonInfo, List<FluidIngredient> inputFlui
 
     @Override
     public String group() {
-        return "Shake";
+        return "Stir";
     }
 
     @Override
-    public RecipeSerializer<? extends Recipe<ShakeRecipeInput>> getSerializer() {
-        return RecipeTypeRegistries.SHAKE_RECIPE_SERIALIZER.get();
+    public RecipeSerializer<? extends Recipe<StirRecipeInput>> getSerializer() {
+        return RecipeTypeRegistries.STIR_RECIPE_SERIALIZER.get();
     }
 
     @Override
-    public RecipeType<? extends Recipe<ShakeRecipeInput>> getType() {
-        return RecipeTypeRegistries.SHAKE_RECIPE.get();
+    public RecipeType<? extends Recipe<StirRecipeInput>> getType() {
+        return RecipeTypeRegistries.STIR_RECIPE.get();
     }
 
     @Override
@@ -156,7 +131,7 @@ public record ShakeRecipe(CommonInfo commonInfo, List<FluidIngredient> inputFlui
 
     // TODO Check Vibe Code
     @Override
-    public int score(ShakeRecipeInput recipeInput) {
+    public int score(StirRecipeInput recipeInput) {
         int score = 0;
 
         // 1. 物品匹配评分：消耗的物品越多且剩余越少，分数越高
@@ -209,13 +184,6 @@ public record ShakeRecipe(CommonInfo commonInfo, List<FluidIngredient> inputFlui
         // 剩余流体惩罚：每个剩余流体栈扣3分
         score -= remainingFluids.size() * 3;
 
-        // 3. 摇晃次数匹配评分：刚好等于要求时分数最高
-        int shakeDiff = recipeInput.shakeTime() - shakeTimes();
-        if (shakeDiff == 0) {
-            score += 20; // 完美匹配
-        } else {
-            score -= shakeDiff * 2; // 超出部分扣分
-        }
 
         return Math.max(0, score);
     }

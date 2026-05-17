@@ -37,10 +37,10 @@ import java.util.stream.Stream;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class ModRecipeProvider extends RecipeProvider {
+public class ShakeRecipeProvider extends RecipeProvider {
     private final HolderLookup.RegistryLookup<Item> items;
     private final HolderLookup.RegistryLookup<Fluid> fluids;
-    protected ModRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+    protected ShakeRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
         super(registries, output);
         items = registries.lookupOrThrow(Registries.ITEM);
         fluids = registries.lookupOrThrow(Registries.FLUID);
@@ -81,6 +81,14 @@ public class ModRecipeProvider extends RecipeProvider {
 
         getBuilder()
                 .result(ItemRegistries.CONTENT_HOLDER)
+                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName(LangData.NAME_COLADA)).build())
+                .withFluid(SnsFluidTags.SPIRIT, 500)
+                .orWith(SnsSharedTags.SWEET)
+                .orWith(SnsSharedTags.JUICE)
+                .shake(10)
+                .build()
+                .unlockedBy("has_spirit", this.has(SnsItemTags.SPIRIT))
+                .save(output, getName("colada_product"));
         ;
     }
 
@@ -101,7 +109,7 @@ public class ModRecipeProvider extends RecipeProvider {
 
         @Override
         protected RecipeProvider createRecipeProvider(HolderLookup.Provider provider, RecipeOutput output) {
-            return new ModRecipeProvider(provider, output);
+            return new ShakeRecipeProvider(provider, output);
         }
 
         @Override

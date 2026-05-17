@@ -4,25 +4,19 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.math.Transformation;
 import com.mojang.serialization.MapCodec;
-import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.block.SpiritBlock;
 import io.github.hawah.shakenstir.lib.client.render.EaseHelper;
 import io.github.hawah.shakenstir.lib.client.render.toolkit.Animation;
 import io.github.hawah.shakenstir.lib.client.render.toolkit.AnimationPlayer;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
-import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import org.joml.*;
@@ -123,13 +117,13 @@ public class SpiritBottleSpecialRenderer implements SpecialModelRenderer<Vector2
         poseStack.popPose();
 
 
-        poseStack.mulPose(new Matrix4f(-0.1962016f, -0.7739172f, -0.6021288f, 0.0f, 0.037675902f, 0.6076606f, -0.79330355f, 0.0f, 0.97984076f, -0.17833316f, -0.09006579f, 0.0f, 0.5329359f, -0.08887535f, 0.49872145f, 1.0f));
-
-        LocalPlayer player = Minecraft.getInstance().player;
-        assert player != null;
-        AvatarRenderer<AbstractClientPlayer> playerRenderer = Minecraft.getInstance().getEntityRenderDispatcher().getPlayerRenderer(player);
-        Identifier skinTexture = player.getSkin().body().texturePath();
-        playerRenderer.renderRightHand(poseStack, submitNodeCollector, lightCoords, skinTexture, player.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE), player);
+//        poseStack.mulPose(new Matrix4f(-0.1962016f, -0.7739172f, -0.6021288f, 0.0f, 0.037675902f, 0.6076606f, -0.79330355f, 0.0f, 0.97984076f, -0.17833316f, -0.09006579f, 0.0f, 0.5329359f, -0.08887535f, 0.49872145f, 1.0f));
+//
+//        LocalPlayer player = Minecraft.getInstance().player;
+//        assert player != null;
+//        AvatarRenderer<AbstractClientPlayer> playerRenderer = Minecraft.getInstance().getEntityRenderDispatcher().getPlayerRenderer(player);
+//        Identifier skinTexture = player.getSkin().body().texturePath();
+//        playerRenderer.renderRightHand(poseStack, submitNodeCollector, lightCoords, skinTexture, player.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE), player);
 
         poseStack.popPose();
         poseStack.popPose();

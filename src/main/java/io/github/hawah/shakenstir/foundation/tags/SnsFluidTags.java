@@ -25,6 +25,8 @@ public class SnsFluidTags {
 
     public static final TagKey<Fluid> BITTER = common("bitters");
 
+    public static final TagKey<Fluid> JUICE = common("juice");
+
     private static TagKey<Fluid> common(String name) {
         return FluidTags.create(Identifier.fromNamespaceAndPath("c", name));
     }

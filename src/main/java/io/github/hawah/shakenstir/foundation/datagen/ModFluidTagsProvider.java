@@ -52,5 +52,7 @@ public class ModFluidTagsProvider extends FluidTagsProvider {
         this.tag(SnsFluidTags.SOUR)
                 ;
         this.tag(SnsFluidTags.BITTER);
+        this.tag(SnsFluidTags.JUICE)
+                ;
     }
 }

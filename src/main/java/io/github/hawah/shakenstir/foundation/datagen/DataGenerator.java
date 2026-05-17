@@ -11,7 +11,8 @@ public class DataGenerator {
     public static void gatherData(GatherDataEvent.Client event) {
         event.createProvider(ModFluidTagsProvider::new);
         event.createProvider(ModItemTagsProvider::new);
-        event.createProvider(ModRecipeProvider.Runner::new);
+        event.createProvider(ShakeRecipeProvider.Runner::new);
+        event.createProvider(StirRecipeProvider.Runner::new);
         event.createProvider(ModModelProvider::new);
         event.createProvider(ModEnUsLangProvider::new);
     }

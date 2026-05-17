@@ -1,0 +1,22 @@
+{
+  "type": "shakenstir:stir_recipe",
+  "inputFluids": [
+    {
+      "amount": 500,
+      "fluidId": "#c:spirits"
+    },
+    {
+      "amount": 250,
+      "fluidId": "#c:sours"
+    }
+  ],
+  "inputItems": [
+    "#c:bubbles"
+  ],
+  "result": {
+    "components": {
+      "shakenstir:shake_product_deferred_name": "shakenstir.name.tonic"
+    },
+    "id": "shakenstir:shake_content_holder"
+  }
+}

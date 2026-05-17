@@ -15,12 +15,16 @@ public class RecipeTypeRegistries {
 
     public static final Supplier<RecipeType<ShakeRecipe>> SHAKE_RECIPE =
             RECIPE_TYPES.register("shake_recipe", RecipeType::simple);
+    public static final Supplier<RecipeType<StirRecipe>> STIR_RECIPE =
+            RECIPE_TYPES.register("stir_recipe", RecipeType::simple);
 
 
     public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS =
             DeferredRegister.create(Registries.RECIPE_SERIALIZER, ShakenStir.MODID);
     public static final Supplier<RecipeSerializer<ShakeRecipe>> SHAKE_RECIPE_SERIALIZER =
             RECIPE_SERIALIZERS.register("shake_recipe", () -> new RecipeSerializer<>(ShakeRecipe.CODEC, ShakeRecipe.STREAM_CODEC));
+    public static final Supplier<RecipeSerializer<StirRecipe>> STIR_RECIPE_SERIALIZER =
+            RECIPE_SERIALIZERS.register("stir_recipe", () -> new RecipeSerializer<>(StirRecipe.CODEC, StirRecipe.STREAM_CODEC));
 
     public static void register(IEventBus eventBus) {
         RECIPE_TYPES.register(eventBus);
