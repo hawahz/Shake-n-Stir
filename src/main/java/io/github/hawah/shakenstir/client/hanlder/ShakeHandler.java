@@ -15,7 +15,6 @@ import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import io.github.hawah.shakenstir.lib.networking.Networking;
 import io.github.hawah.shakenstir.util.Result;
 import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -28,6 +27,8 @@ import net.neoforged.neoforge.client.gui.GuiLayer;
 import org.joml.Vector2d;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import static io.github.hawah.shakenstir.client.hanlder.PACKAGE.*;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -60,17 +61,17 @@ public class ShakeHandler implements IHandler, GuiLayer {
         if (!isActive()) {
             return;
         }
-        Networking.sendToServer(new ServerboundShakePramTransmitPacket(x, y, Minecraft.getInstance().player.getId()));
+        Networking.sendToServer(new ServerboundShakePramTransmitPacket(x, y, getPlayer().getId()));
     }
     public void update() {
         Vector2d vec = new Vector2d(x, y);
         Vector2d oVec = new Vector2d(oVx, oVy);
-        assert Minecraft.getInstance().player != null;
-        assert Minecraft.getInstance().level != null;
+        assert getPlayer() != null;
+        assert level() != null;
         double dot = vec.dot(oVec);
         int shakeCubes = getItem().getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0);
         ClientSharedShakeParams.updateParam(
-                Minecraft.getInstance().player.getId(),
+                getPlayer().getId(),
                 x,
                 y
         );
@@ -79,26 +80,26 @@ public class ShakeHandler implements IHandler, GuiLayer {
             float volumeWater = shakeCubes == 0? 1.2F: EaseHelper.easeInPow(Mth.clamp((float) shakeSuccessTimes / maxValidShakes, 0, 0.8F), 6);
 
             if (shakeCubes != 0 || ShakeUtil.hasItem(getItem())){
-                Minecraft.getInstance().getSoundManager().play(
+                mc().getSoundManager().play(
                         new SimpleSoundInstance(
                                 SoundEvents.GLASS_HIT,
                                 SoundSource.PLAYERS,
                                 1.2F - volumeWater,
                                 1,
-                                Minecraft.getInstance().level.getRandom(),
-                                Minecraft.getInstance().player.blockPosition()
+                                level().getRandom(),
+                                getPlayer().blockPosition()
                         )
                 );
             }
             if (ShakeUtil.hasFluid(getItem())) {
-                Minecraft.getInstance().getSoundManager().play(
+                mc().getSoundManager().play(
                         new SimpleSoundInstance(
                                 SoundEvents.BUCKET_FILL,
                                 SoundSource.PLAYERS,
                                 volumeWater,
                                 1,
-                                Minecraft.getInstance().level.getRandom(),
-                                Minecraft.getInstance().player.blockPosition()
+                                level().getRandom(),
+                                getPlayer().blockPosition()
                         )
                 );
             }
@@ -118,7 +119,7 @@ public class ShakeHandler implements IHandler, GuiLayer {
 
     @Override
     public boolean isActive() {
-        LocalPlayer player = Minecraft.getInstance().player;
+        LocalPlayer player = getPlayer();
         if (player == null) {
             return false;
         }
@@ -144,7 +145,7 @@ public class ShakeHandler implements IHandler, GuiLayer {
         if (item != null) {
             return item;
         }
-        return getItem(Minecraft.getInstance().player);
+        return getItem(getPlayer());
     }
 
     public int firstTimeShake() {
@@ -201,10 +202,10 @@ public class ShakeHandler implements IHandler, GuiLayer {
         if (shakeSuccessTimes == 0) {
             return;
         }
-        assert Minecraft.getInstance().player != null;
+        assert getPlayer() != null;
         Networking.sendToServer(new ServerboundShakeFinishPacket(
-                Minecraft.getInstance().player.getUUID(),
-                getItem(Minecraft.getInstance().player),
+                getPlayer().getUUID(),
+                getItem(getPlayer()),
                 shakeSuccessTimes
         ));
     }

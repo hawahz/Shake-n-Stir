@@ -5,6 +5,8 @@ import io.github.hawah.shakenstir.content.dataAttachment.DataAttachmentTypeRegis
 import io.github.hawah.shakenstir.content.dataAttachment.DeferredDamageAttachment;
 import io.github.hawah.shakenstir.foundation.mixin.LivingEntityAccessor;
 import io.github.hawah.shakenstir.foundation.tags.SnsDamageTags;
+import io.github.hawah.shakenstir.util.AdvancementHooks;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.Registries;
@@ -15,9 +17,11 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 
 import java.util.List;
 import java.util.Map;
@@ -30,6 +34,9 @@ public class ParalysisEffect extends AbstractRemoveHookedMobEffect {
 
     @Override
     public void onEffectRemoved(LivingEntity mob, int amplifier) {
+        for (MobEffectInstance activeEffect : mob.getActiveEffects().stream().filter(effect -> effect.getEffect().value().getCategory().equals(MobEffectCategory.HARMFUL)).toList()) {
+            activeEffect.getEffect().value().addAttributeModifiers(mob.getAttributes(), activeEffect.getAmplifier());
+        }
         if (!mob.hasData(DataAttachmentTypeRegistries.DEFERRED_DEAD)) {
             return;
         }
@@ -37,6 +44,10 @@ public class ParalysisEffect extends AbstractRemoveHookedMobEffect {
         mob.removeData(DataAttachmentTypeRegistries.DEFERRED_DEAD);
         if (!data.isReady()) {
             return;
+        }
+
+        if (mob instanceof Player player) {
+            AdvancementHooks.onDiedByDiscoveringParalysis(player);
         }
 
         if (mob.level() instanceof ServerLevel serverLevel) {
@@ -48,6 +59,14 @@ public class ParalysisEffect extends AbstractRemoveHookedMobEffect {
             ), mob.getHealth() + 1);
         }
 
+    }
+
+    @Override
+    public void onEffectAdded(LivingEntity mob, int amplifier) {
+        super.onEffectAdded(mob, amplifier);
+        for (MobEffectInstance activeEffect : mob.getActiveEffects().stream().filter(effect -> effect.getEffect().value().getCategory().equals(MobEffectCategory.HARMFUL)).toList()) {
+            activeEffect.getEffect().value().removeAttributeModifiers(mob.getAttributes());
+        }
     }
 
     public static boolean injectEffectTick(LivingEntity entity, Map<Holder<MobEffect>, MobEffectInstance> activeEffects) {
@@ -92,6 +111,9 @@ public class ParalysisEffect extends AbstractRemoveHookedMobEffect {
             return;
         }
         if (entity.hasEffect(MobEffectRegistries.PARALYSIS)) {
+            if (entity instanceof Player player) {
+                AdvancementHooks.onProtectedByParalysis(player);
+            }
             if (entity.hasData(DataAttachmentTypeRegistries.DEFERRED_DEAD)) {
                 event.setNewDamage(0);
                 return;
@@ -99,6 +121,20 @@ public class ParalysisEffect extends AbstractRemoveHookedMobEffect {
             float newDamage = entity.getHealth() - 0.5f;
             event.setNewDamage(newDamage);
             entity.setData(DataAttachmentTypeRegistries.DEFERRED_DEAD, new DeferredDamageAttachment(source));
+        }
+    }
+
+    @SubscribeEvent
+    public static void onEffectAdded(MobEffectEvent.Added event) {
+        LivingEntity entity = event.getEntity();
+        if (entity.hasEffect(MobEffectRegistries.PARALYSIS)) {
+            Minecraft.getInstance().schedule(
+                    () -> {
+                        for (MobEffectInstance activeEffect : entity.getActiveEffects().stream().filter(effect -> effect.getEffect().value().getCategory().equals(MobEffectCategory.HARMFUL)).toList()) {
+                            activeEffect.getEffect().value().removeAttributeModifiers(entity.getAttributes());
+                        }
+                    }
+            );
         }
     }
 }

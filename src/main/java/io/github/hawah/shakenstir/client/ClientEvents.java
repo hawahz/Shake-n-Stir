@@ -127,7 +127,6 @@ public class ClientEvents {
         event.setRoll(event.getRoll() + (float) (Math.sin(AnimationTickHolder.getRenderTime()/20) * cameraRoll));
     }
 
-    private static float r = 0, g = 0, b = 0;
     private static float cr = 0, cg = 0, cb = 0;
 
     @SubscribeEvent
@@ -135,9 +134,9 @@ public class ClientEvents {
         if (getPlayer() == null) {
             return;
         }
-        r = event.getRed();
-        g = event.getGreen();
-        b = event.getBlue();
+        float r;
+        float g;
+        float b;
 
         float deltaTicks = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
         float lerp = (float) (FOG_LERP * deltaTicks / 0.68);
@@ -146,6 +145,10 @@ public class ClientEvents {
             r = 255 / 255F;
             g = 109/255F;
             b = 120/255F;
+        } else {
+            r = event.getRed();
+            g = event.getGreen();
+            b = event.getBlue();
         }
         if (r != cr || g != cg || b != cb) {
             cr = Mth.lerp(lerp, cr, r);

@@ -5,6 +5,7 @@ import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.foundation.networking.ClientboundForceSetPlayerPosePacket;
 import io.github.hawah.shakenstir.foundation.networking.ClientboundRemoveForcePlayerPosePacket;
 import io.github.hawah.shakenstir.lib.networking.Networking;
+import io.github.hawah.shakenstir.util.AdvancementHooks;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
@@ -43,6 +44,7 @@ public class FallDownEffect extends AbstractRemoveHookedMobEffect{
         if (mob instanceof Player player) {
             player.setForcedPose(Pose.SWIMMING);
             Networking.sendToAll(new ClientboundForceSetPlayerPosePacket(mob.getUUID(), Pose.SWIMMING));
+            AdvancementHooks.onFirstFallByDrunk(player);
         }
         if (mob.level() instanceof ServerLevel serverLevel) {
             mob.hurtServer(serverLevel, mob.damageSources().fall(), 1);

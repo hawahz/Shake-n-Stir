@@ -1,5 +1,6 @@
 package io.github.hawah.shakenstir.content.effect;
 
+import io.github.hawah.shakenstir.util.AdvancementHooks;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
@@ -47,6 +48,7 @@ public class LemonEffect extends InstantenousMobEffect {
                 AttackRange itemAttackRange = itemStack.getOrDefault(DataComponents.ATTACK_RANGE, new AttackRange(0, interactionRange, 0, interactionRange, 0.125F, 0.5F));
                 if (itemAttackRange.isInRange(player, nearestTarget.getBoundingBox(), 0)) {
                     player.attack(nearestTarget);
+                    AdvancementHooks.onFirstHitDueToLemon(player);
                 }
                 player.swing(player.getUsedItemHand(), true);
             }
