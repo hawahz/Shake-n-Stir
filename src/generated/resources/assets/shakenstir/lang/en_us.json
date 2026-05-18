@@ -1,4 +1,7 @@
 {
+  "death.attack.shakenstir:paralysis": "When %s reacted, he has already dead.",
+  "death.attack.shakenstir:paralysis.item": "When %s reacted, he has already dead.",
+  "death.attack.shakenstir:paralysis.player": "When %s reacted, he has already been killed by %s",
   "fluid_type.shakenstir.brandy_fluid_type": "Brandy",
   "fluid_type.shakenstir.bubble_fluid_type": "Bubble",
   "fluid_type.shakenstir.gin_fluid_type": "Gin",

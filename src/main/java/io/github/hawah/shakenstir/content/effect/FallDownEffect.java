@@ -36,9 +36,6 @@ public class FallDownEffect extends AbstractRemoveHookedMobEffect{
                 Networking.sendToAll(new ClientboundRemoveForcePlayerPosePacket(mob.getUUID()));
             }
         }
-        if (mob.level() instanceof ServerLevel serverLevel) {
-            mob.hurtServer(serverLevel, mob.damageSources().fall(), 1);
-        }
     }
 
     @Override
@@ -46,6 +43,9 @@ public class FallDownEffect extends AbstractRemoveHookedMobEffect{
         if (mob instanceof Player player) {
             player.setForcedPose(Pose.SWIMMING);
             Networking.sendToAll(new ClientboundForceSetPlayerPosePacket(mob.getUUID(), Pose.SWIMMING));
+        }
+        if (mob.level() instanceof ServerLevel serverLevel) {
+            mob.hurtServer(serverLevel, mob.damageSources().fall(), 1);
         }
     }
 

@@ -1,5 +1,6 @@
 package io.github.hawah.shakenstir.foundation.datagen;
 
+import io.github.hawah.shakenstir.content.damageType.SnsDamageType;
 import io.github.hawah.shakenstir.content.fluid.FluidTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
@@ -32,6 +33,10 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add(FluidTypeRegistries.TEQUILA_FLUID_TYPE.get().getDescriptionId(), "Tequila");
         add(FluidTypeRegistries.RUM_FLUID_TYPE.get().getDescriptionId(), "Rum");
         add(FluidTypeRegistries.BRANDY_FLUID_TYPE.get().getDescriptionId(), "Brandy");
+
+        add("death.attack." + SnsDamageType.PARALYSIS.identifier(), "When %s reacted, he has already dead.");
+        add("death.attack." + SnsDamageType.PARALYSIS.identifier() + ".player", "When %s reacted, he has already been killed by %s");
+        add("death.attack." + SnsDamageType.PARALYSIS.identifier() + ".item", "When %s reacted, he has already dead.");
 
         add(FluidTypeRegistries.BUBBLE_FLUID_TYPE.get().getDescriptionId(), "Bubble");
         genLang(this);

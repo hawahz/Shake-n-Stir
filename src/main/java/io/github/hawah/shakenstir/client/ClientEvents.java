@@ -114,11 +114,14 @@ public class ClientEvents {
         if (getPlayer() == null) {
             return;
         }
+        if (getPlayer().hasEffect((MobEffectRegistries.LEMON))) {
+            cameraRoll = 50;
+        }
         if (!getPlayer().hasEffect(MobEffectRegistries.DRUNK) && !(cameraRoll > 0)) {
             return;
         }
         cameraRoll = Mth.lerp(0.2, cameraRoll, getPlayer().hasEffect(MobEffectRegistries.DRUNK)? getPlayer().getEffect(MobEffectRegistries.DRUNK).getAmplifier()/3F: 0);
-        event.setRoll(event.getRoll() + (float) Math.sin(AnimationTickHolder.getRenderTime()/20 * cameraRoll));
+        event.setRoll(event.getRoll() + (float) (Math.sin(AnimationTickHolder.getRenderTime()/20) * cameraRoll));
     }
 
     @SubscribeEvent

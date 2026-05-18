@@ -14,6 +14,8 @@ public class MobEffectRegistries {
     public static final DeferredRegister<MobEffect> MOB_EFFECTS = DeferredRegister.create(BuiltInRegistries.MOB_EFFECT, ShakenStir.MODID);
     public static final DeferredHolder<MobEffect, DrunkEffect> DRUNK = register("drunk", DrunkEffect::new, MobEffectCategory.NEUTRAL, 0xFF0000);
     public static final DeferredHolder<MobEffect, FallDownEffect> FALL_DOWN = register("fall_down", FallDownEffect::new, MobEffectCategory.HARMFUL, 0xFF0000);
+    public static final DeferredHolder<MobEffect, LemonEffect> LEMON = register("lemon", LemonEffect::new, MobEffectCategory.NEUTRAL, 0xFF0000);
+    public static final DeferredHolder<MobEffect, ParalysisEffect> PARALYSIS = register("paralysis", ParalysisEffect::new, MobEffectCategory.BENEFICIAL, 0x659fff);
 
     public static <T extends MobEffect> DeferredHolder<MobEffect, T> register(String name, BiFunction<MobEffectCategory, Integer, T> factory, MobEffectCategory category, int color ) {
         return MOB_EFFECTS.register(name, () -> factory.apply(category, color));

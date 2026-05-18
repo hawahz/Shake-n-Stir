@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir;
 
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
+import io.github.hawah.shakenstir.content.dataAttachment.DataAttachmentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
@@ -49,6 +50,7 @@ public class ShakenStir {
         RecipeTypeRegistries.register(modEventBus);
         SnsCreativeTab.register(modEventBus);
         MobEffectRegistries.register(modEventBus);
+        DataAttachmentTypeRegistries.register(modEventBus);
 
         NetworkPackets.register();
 

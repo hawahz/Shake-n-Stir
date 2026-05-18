@@ -27,7 +27,7 @@ public class EntityStepUpEvent {
     @SubscribeEvent
     public static void onEntityTickPost(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof LivingEntity livingEntity) {
-            if (oldY.containsKey(livingEntity) && livingEntity.position().y() - oldY.get(livingEntity) > 0) {
+            if (oldY.containsKey(livingEntity) && oldY.get(livingEntity) != null && livingEntity.position().y() - oldY.get(livingEntity) > 0) {
                 onEntityStepUp(livingEntity, livingEntity.position().y() - oldY.get(livingEntity));
             }
             oldY.remove(livingEntity);
