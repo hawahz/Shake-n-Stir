@@ -48,7 +48,6 @@ import net.neoforged.neoforge.client.model.standalone.SimpleUnbakedStandaloneMod
 import org.jspecify.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.awt.*;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -56,6 +55,9 @@ import java.util.function.BiFunction;
 @ParametersAreNonnullByDefault
 @EventBusSubscriber(value = Dist.CLIENT)
 public class ClientEvents {
+
+    public static final float FOG_LERP = 0.01F;
+
     @SubscribeEvent
     public static void onRenderWorld(RenderLevelStageEvent.AfterTranslucentParticles event) {
         ShakenStirClient.TIMER_NORMAL.warp(Minecraft.getInstance().getDeltaTracker());
@@ -120,16 +122,39 @@ public class ClientEvents {
         if (!getPlayer().hasEffect(MobEffectRegistries.DRUNK) && !(cameraRoll > 0)) {
             return;
         }
-        cameraRoll = Mth.lerp(0.2, cameraRoll, getPlayer().hasEffect(MobEffectRegistries.DRUNK)? getPlayer().getEffect(MobEffectRegistries.DRUNK).getAmplifier()/3F: 0);
+        float deltaTicks = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
+        cameraRoll = Mth.lerp(0.01 * deltaTicks / 0.68, cameraRoll, getPlayer().hasEffect(MobEffectRegistries.DRUNK)? getPlayer().getEffect(MobEffectRegistries.DRUNK).getAmplifier()/5F: 0);
         event.setRoll(event.getRoll() + (float) (Math.sin(AnimationTickHolder.getRenderTime()/20) * cameraRoll));
     }
 
+    private static float r = 0, g = 0, b = 0;
+    private static float cr = 0, cg = 0, cb = 0;
+
     @SubscribeEvent
     public static void onCameraOffset(ViewportEvent.ComputeFogColor event) {
-        event.setRed(1);
-        event.setRed(1);
-        event.setGreen(109/255f);
-        event.setBlue(120/255f);
+        if (getPlayer() == null) {
+            return;
+        }
+        r = event.getRed();
+        g = event.getGreen();
+        b = event.getBlue();
+
+        float deltaTicks = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
+        float lerp = (float) (FOG_LERP * deltaTicks / 0.68);
+
+        if (getPlayer().hasEffect(MobEffectRegistries.DRUNK) && getPlayer().getEffect(MobEffectRegistries.DRUNK).getAmplifier() >= 3) {
+            r = 255 / 255F;
+            g = 109/255F;
+            b = 120/255F;
+        }
+        if (r != cr || g != cg || b != cb) {
+            cr = Mth.lerp(lerp, cr, r);
+            cg = Mth.lerp(lerp, cg, g);
+            cb = Mth.lerp(lerp, cb, b);
+        }
+        event.setRed    (cr);
+        event.setGreen  (cg);
+        event.setBlue   (cb);
     }
 
     @SubscribeEvent

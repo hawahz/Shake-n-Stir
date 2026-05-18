@@ -17,6 +17,9 @@ public record ClientboundShakeParamSyncPacket(double x, double y, int id) implem
     );
     @Override
     public void handle(LocalPlayer player) {
+        if (player.getId() == id()) {
+            return;
+        }
         ClientSharedShakeParams.updateParam(id, x, y);
     }
 

@@ -3,6 +3,7 @@ package io.github.hawah.shakenstir.client.hanlder;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.client.ClickInteractions;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
+import io.github.hawah.shakenstir.client.ClientSharedShakeParams;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ShakeItem;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundShakeFinishPacket;
@@ -68,6 +69,11 @@ public class ShakeHandler implements IHandler, GuiLayer {
         assert Minecraft.getInstance().level != null;
         double dot = vec.dot(oVec);
         int shakeCubes = getItem().getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0);
+        ClientSharedShakeParams.updateParam(
+                Minecraft.getInstance().player.getId(),
+                x,
+                y
+        );
         if (dot < -0.125 && AnimationTickHolder.getTicks() - lastSuccessTick > 1) {
             int maxValidShakes = shakeCubes * 10;
             float volumeWater = shakeCubes == 0? 1.2F: EaseHelper.easeInPow(Mth.clamp((float) shakeSuccessTimes / maxValidShakes, 0, 0.8F), 6);

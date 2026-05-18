@@ -5,6 +5,8 @@ import io.github.hawah.shakenstir.content.fluid.FluidTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.damagesource.DamageType;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 
 import static io.github.hawah.shakenstir.ShakenStir.MODID;
@@ -46,5 +48,19 @@ public class ModEnUsLangProvider extends LanguageProvider {
         for (LangData lang : LangData.values()) {
             pvd.add(lang.key, lang.def);
         }
+    }
+
+    public void add(ResourceKey<DamageType> damageType, String def) {
+        add("death.attack." + damageType.identifier(), def);
+    }
+    public void add(ResourceKey<DamageType> damageType, String fromPlayer, String def) {
+        add("death.attack." + damageType.identifier(), def);
+        add("death.attack." + damageType.identifier() + ".player", fromPlayer);
+    }
+
+    public void add(ResourceKey<DamageType> damageType, String fromPlayer, String fromItem, String def) {
+        add("death.attack." + damageType.identifier(), def);
+        add("death.attack." + damageType.identifier() + ".player", fromPlayer);
+        add("death.attack." + damageType.identifier() + ".item", fromItem);
     }
 }
