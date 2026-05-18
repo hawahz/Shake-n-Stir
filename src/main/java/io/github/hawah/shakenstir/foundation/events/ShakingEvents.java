@@ -33,4 +33,6 @@ public class ShakingEvents {
         TooltipHandler.tryAppendShakingFlagDirect(event, stack);
         TooltipHandler.tryAppendShakeTooltips(stack, event);
     }
+
+
 }

@@ -22,18 +22,22 @@ import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
 import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundHandItemDataChangedPacket;
+import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import io.github.hawah.shakenstir.lib.networking.Networking;
 import io.github.hawah.shakenstir.util.Result;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockTintSource;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
@@ -41,8 +45,10 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.model.standalone.SimpleUnbakedStandaloneModel;
+import org.jspecify.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.awt.*;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -94,12 +100,33 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void onTick(ClientTickEvent.Pre event) {
-        if (Minecraft.getInstance().level == null) {
+        if (getLevel() == null) {
             return;
         }
         ShakenStirClient.SHAKE_CONTENT_HUD.tick();
         ShakenStirClient.GLASSWARE_HANDLER.tick();
         ShakenStirClient.SHAKE_HANDLER.tick();
+    }
+
+    private static double cameraRoll = 0;
+    @SubscribeEvent
+    public static void modifyCameraRoll(ViewportEvent.ComputeCameraAngles event) {
+        if (getPlayer() == null) {
+            return;
+        }
+        if (!getPlayer().hasEffect(MobEffectRegistries.DRUNK) && !(cameraRoll > 0)) {
+            return;
+        }
+        cameraRoll = Mth.lerp(0.2, cameraRoll, getPlayer().hasEffect(MobEffectRegistries.DRUNK)? getPlayer().getEffect(MobEffectRegistries.DRUNK).getAmplifier()/3F: 0);
+        event.setRoll(event.getRoll() + (float) Math.sin(AnimationTickHolder.getRenderTime()/20 * cameraRoll));
+    }
+
+    @SubscribeEvent
+    public static void onCameraOffset(ViewportEvent.ComputeFogColor event) {
+        event.setRed(1);
+        event.setRed(1);
+        event.setGreen(109/255f);
+        event.setBlue(120/255f);
     }
 
     @SubscribeEvent
@@ -113,7 +140,7 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void onMouseScroll(InputEvent.MouseScrollingEvent event) {
-        LocalPlayer player = Minecraft.getInstance().player;
+        LocalPlayer player = getPlayer();
         if (player == null || !(player.getMainHandItem().getItem() instanceof GlasswareItem) || !player.isShiftKeyDown()) {
             return;
         }
@@ -259,6 +286,22 @@ public class ClientEvents {
             }
         }
         return Result.empty();
+    }
+
+    private static boolean isLevelReady() {
+        return getLevel() != null;
+    }
+
+    private static boolean isPlayerReady() {
+        return getPlayer() != null;
+    }
+
+    private static @Nullable ClientLevel getLevel() {
+        return Minecraft.getInstance().level;
+    }
+
+    private static @Nullable LocalPlayer getPlayer() {
+        return Minecraft.getInstance().player;
     }
 
 }

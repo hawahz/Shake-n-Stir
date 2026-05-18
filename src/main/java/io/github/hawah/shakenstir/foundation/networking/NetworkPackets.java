@@ -18,8 +18,12 @@ public enum NetworkPackets implements BasePacketPayload.PacketTypeProvider {
     SHAKE_PARAM_TRANSMIT(ServerboundShakePramTransmitPacket.class, ServerboundShakePramTransmitPacket.STREAM_CODEC),
     HAND_ITEM_DATA_CHANGED(ServerboundHandItemDataChangedPacket.class, ServerboundHandItemDataChangedPacket.STREAM_CODEC),
     HAND_ITEM_AMOUNT_CHANGED(ServerboundHandItemAmountChangedPacket.class, ServerboundHandItemAmountChangedPacket.STREAM_CODEC),
+    ENTITY_FALL(ServerboundEntityFallPacket.class, ServerboundEntityFallPacket.STREAM_CODEC),
     //S2C
     SHAKE_PARAM_SYNC(ClientboundShakeParamSyncPacket.class, ClientboundShakeParamSyncPacket.STREAM_CODEC),
+    UPDATE_LIVING_POSE(ClientboundUpdateLivingPosePacket.class, ClientboundUpdateLivingPosePacket.STREAM_CODEC),
+    REMOVE_FORCE_PLAYER_POSE(ClientboundRemoveForcePlayerPosePacket.class, ClientboundRemoveForcePlayerPosePacket.STREAM_CODEC),
+    FORCE_PLAYER_POSE(ClientboundForceSetPlayerPosePacket.class, ClientboundForceSetPlayerPosePacket.STREAM_CODEC),
     ;
     private final PacketRegistry.PacketHolder<?> type;
 

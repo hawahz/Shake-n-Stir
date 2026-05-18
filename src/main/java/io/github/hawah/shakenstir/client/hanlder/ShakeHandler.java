@@ -113,7 +113,9 @@ public class ShakeHandler implements IHandler, GuiLayer {
     @Override
     public boolean isActive() {
         LocalPlayer player = Minecraft.getInstance().player;
-        assert player != null;
+        if (player == null) {
+            return false;
+        }
         return player.isUsingItem() &&
                 getItem(player).getItem() instanceof ShakeItem &&
                 ClientDataHolder.Picker.type().equals(HitResult.Type.MISS) &&
