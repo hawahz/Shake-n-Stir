@@ -1,6 +1,7 @@
 package io.github.hawah.shakenstir.foundation.datagen;
 
 import io.github.hawah.shakenstir.content.damageType.SnsDamageType;
+import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
 import io.github.hawah.shakenstir.content.fluid.FluidTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
@@ -20,6 +21,16 @@ public class ModEnUsLangProvider extends LanguageProvider {
     @Override
     protected void addTranslations() {
         add(ItemRegistries.GIN.get(), "Gin");
+        add(ItemRegistries.WHISKY.get(), "Whisky");
+        add(ItemRegistries.VODKA.get(), "Vodka");
+        add(ItemRegistries.TEQUILA.get(), "Tequila");
+        add(ItemRegistries.RUM.get(), "Rum");
+        add(ItemRegistries.BRANDY.get(), "Brandy");
+        add(ItemRegistries.BUBBLE.get(), "Bubble");
+        add(ItemRegistries.CONTENT_HOLDER.get(), "Shake Content Holder");
+        add(ItemRegistries.LEMON.get(), "Lemon");
+        add(ItemRegistries.LEMON_SLICE.get(), "Lemon Slice");
+        add(ItemRegistries.SOBERING_TEA.get(), "Sobering Tea");
         add(ItemRegistries.SHAKE.get(), "Shake");
         add(ItemRegistries.SHAKE_CUP.get(), "Shake Cup");
         add("itemGroup.shakenstir", "Shake n Stir");
@@ -27,7 +38,6 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add(ItemRegistries.ICE_CUBE.get(), "Ice Cube");
         add(ItemRegistries.LONG_DRINK_GLASSWARE.get(), "Long Drink Glassware");
         add(ItemRegistries.SHORT_DRINK_GLASSWARE.get(), "Short Drink Glassware");
-        add(ItemRegistries.WHISKY.get(), "Whisky");
 //        add(FluidRegistries.GIN_SOURCE_FLUID_BLOCK.getRegisteredName(), "");
         add(FluidTypeRegistries.GIN_FLUID_TYPE.get().getDescriptionId(), "Gin");
         add(FluidTypeRegistries.WHISKY_FLUID_TYPE.get().getDescriptionId(), "Whisky");
@@ -35,6 +45,11 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add(FluidTypeRegistries.TEQUILA_FLUID_TYPE.get().getDescriptionId(), "Tequila");
         add(FluidTypeRegistries.RUM_FLUID_TYPE.get().getDescriptionId(), "Rum");
         add(FluidTypeRegistries.BRANDY_FLUID_TYPE.get().getDescriptionId(), "Brandy");
+
+        add(MobEffectRegistries.DRUNK.get().getDescriptionId(), "Drunk");
+        add(MobEffectRegistries.FALL_DOWN.get().getDescriptionId(), "Fall Down");
+        add(MobEffectRegistries.LEMON.get().getDescriptionId(), "Lemon");
+        add(MobEffectRegistries.PARALYSIS.get().getDescriptionId(), "Paralysis");
 
         add("death.attack." + SnsDamageType.PARALYSIS.identifier(), "When %s reacted, he has already dead.");
         add("death.attack." + SnsDamageType.PARALYSIS.identifier() + ".player", "When %s reacted, he has already been killed by %s");

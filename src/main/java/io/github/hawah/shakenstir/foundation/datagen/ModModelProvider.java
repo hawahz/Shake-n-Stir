@@ -58,12 +58,16 @@ public class ModModelProvider extends ModelProvider {
         itemModels.generateItemWithTintedBaseLayer(ItemRegistries.CONTENT_HOLDER.get(), 0xFFFFFF);
         itemModels.generateFlatItem(ItemRegistries.LEMON.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ItemRegistries.LEMON_SLICE.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ItemRegistries.SOBERING_TEA.get(), ModelTemplates.FLAT_ITEM);
         // Basic single variant model
         registerCustomBlockModel(blockModels, "block/shake_cup", BlockRegistries.SHAKE_CUP_BLOCK.get());
         generateShake(blockModels, itemModels);
         generateSpirit(blockModels, itemModels, BlockRegistries.GIN, ItemRegistries.GIN, "gin");
         generateSpirit(blockModels, itemModels, BlockRegistries.WHISKY, ItemRegistries.WHISKY, "whisky");
         generateSpirit(blockModels, itemModels, BlockRegistries.VODKA, ItemRegistries.VODKA, "vodka");
+        generateSpirit(blockModels, itemModels, BlockRegistries.RUM, ItemRegistries.RUM, "rum");
+        generateSpirit(blockModels, itemModels, BlockRegistries.TEQUILA, ItemRegistries.TEQUILA, "tequila");
+        generateSpirit(blockModels, itemModels, BlockRegistries.BRANDY, ItemRegistries.BRANDY, "brandy");
         generateEmptyModel(blockModels, BlockRegistries.LONG_DRINK_GLASSWARE.get(), Blocks.GLASS);
         generateEmptyModel(blockModels, BlockRegistries.SHORT_DRINK_GLASSWARE.get(), Blocks.GLASS);
         generateGlassware(ShakenStir.asResource("martini_glass"), itemModels);
@@ -79,9 +83,6 @@ public class ModModelProvider extends ModelProvider {
         registerCustomBlockModel(blockModels, "block/whiskey_liquid", BlockRegistries.BUBBLE.get());
         registerCustomBlockModel(blockModels, "block/bubble_liquid", BlockRegistries.BUBBLE_LIQUID.get());
 
-        registerCustomBlockModel(blockModels, "block/rum", BlockRegistries.RUM.get());
-        registerCustomBlockModel(blockModels, "block/tequila", BlockRegistries.TEQUILA.get());
-        registerCustomBlockModel(blockModels, "block/brandy", BlockRegistries.BRANDY.get());
         generateIceCube(itemModels);
 //        generateLongDrinkGlassware(itemModels);
     }

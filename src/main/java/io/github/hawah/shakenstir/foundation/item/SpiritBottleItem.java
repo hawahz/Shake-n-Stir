@@ -5,6 +5,7 @@ import io.github.hawah.shakenstir.client.ClientDataHolder;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.FluidStackDataComponent;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
+import io.github.hawah.shakenstir.foundation.BaseFluidType;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import io.github.hawah.shakenstir.lib.util.Scheduler;
 import io.github.hawah.shakenstir.util.ShakeClientHooks;
@@ -47,10 +48,11 @@ public class SpiritBottleItem extends BlockItem implements ITooltipItem {
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
-        if (super.useOn(context).equals(InteractionResult.FAIL)) {
+        InteractionResult result = super.useOn(context);
+        if (result.equals(InteractionResult.FAIL)) {
             return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
-        return super.useOn(context);
+        return result;
     }
 
     @Override
@@ -76,6 +78,9 @@ public class SpiritBottleItem extends BlockItem implements ITooltipItem {
         }
         if (stackFluid.getFluid().is(Tags.Fluids.MILK)) {
             return 0xF3F3FF;
+        }
+        if (stackFluid.getFluidType() instanceof BaseFluidType fluidType) {
+            return fluidType.getTintColor();
         }
         return 0x3F76E4;
     }
@@ -140,7 +145,7 @@ public class SpiritBottleItem extends BlockItem implements ITooltipItem {
                 600,
                 Optional.ofNullable(entity.getEffect(MobEffectRegistries.DRUNK))
                         .map(MobEffectInstance::getAmplifier)
-                        .orElse(0) + 1
+                        .orElse(-1) + 1
         ));
         return super.finishUsingItem(itemStack, level, entity);
     }

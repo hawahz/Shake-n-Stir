@@ -42,8 +42,13 @@ public class ItemRegistries {
     public static final DeferredItem<SpiritBottleItem> GIN = registerSpirit("gin", BlockRegistries.GIN, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(new FluidStack(FluidRegistries.GIN_SOURCE_FLUID_BLOCK, 1000))));
     public static final DeferredItem<SpiritBottleItem> WHISKY = registerSpirit("whisky", BlockRegistries.WHISKY, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(new FluidStack(FluidRegistries.WHISKY_SOURCE_FLUID_BLOCK, 1000))));
     public static final DeferredItem<SpiritBottleItem> VODKA = registerSpirit("vodka", BlockRegistries.VODKA, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(new FluidStack(FluidRegistries.VODKA_SOURCE_FLUID_BLOCK, 1000))));
+    public static final DeferredItem<SpiritBottleItem> RUM = registerSpirit("rum", BlockRegistries.RUM, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(new FluidStack(FluidRegistries.RUM_SOURCE_FLUID_BLOCK, 1000))));
+    public static final DeferredItem<SpiritBottleItem> TEQUILA = registerSpirit("tequila", BlockRegistries.TEQUILA, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(new FluidStack(FluidRegistries.TEQUILA_SOURCE_FLUID_BLOCK, 1000))));
+    public static final DeferredItem<SpiritBottleItem> BRANDY = registerSpirit("brandy", BlockRegistries.BRANDY, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(new FluidStack(FluidRegistries.BRANDY_SOURCE_FLUID_BLOCK, 1000))));
 
     public static final DeferredItem<SpiritBottleItem> BUBBLE = registerSpirit("bubble", BlockRegistries.BUBBLE, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(new FluidStack(FluidRegistries.BUBBLE_SOURCE_FLUID_BLOCK, 1000))));
+
+    public static final DeferredItem<SoberingTea> SOBERING_TEA = register("sobering_tea", SoberingTea::new);
 
     public static <T extends Item> DeferredItem<T> register(String name, Function<Item.Properties, T> supply) {
         return ITEM.register(name, (registryName) -> supply.apply(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName))));

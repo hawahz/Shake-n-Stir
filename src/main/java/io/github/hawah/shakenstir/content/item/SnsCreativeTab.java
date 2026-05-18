@@ -28,11 +28,15 @@ public class SnsCreativeTab {
                 output.accept(ItemRegistries.GIN.get());
                 output.accept(ItemRegistries.WHISKY.get());
                 output.accept(ItemRegistries.VODKA.get());
+                output.accept(ItemRegistries.RUM.get());
+                output.accept(ItemRegistries.TEQUILA.get());
+                output.accept(ItemRegistries.BRANDY.get());
                 output.accept(createLongDrink("collins_glass"));
                 output.accept(createShortDrink("martini_glass"));
                 output.accept(createShortDrink("margarita_glass"));
                 output.accept(ItemRegistries.LEMON.get());
                 output.accept(ItemRegistries.LEMON_SLICE.get());
+                output.accept(ItemRegistries.SOBERING_TEA.get());
             })
             .build()
     );

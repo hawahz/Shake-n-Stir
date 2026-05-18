@@ -123,7 +123,7 @@ public class ClientEvents {
             return;
         }
         float deltaTicks = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
-        cameraRoll = Mth.lerp(0.01 * deltaTicks / 0.68, cameraRoll, getPlayer().hasEffect(MobEffectRegistries.DRUNK)? getPlayer().getEffect(MobEffectRegistries.DRUNK).getAmplifier()/5F: 0);
+        cameraRoll = Mth.lerp(0.01 * deltaTicks / 0.68, cameraRoll, getPlayer().hasEffect(MobEffectRegistries.DRUNK)? getPlayer().getEffect(MobEffectRegistries.DRUNK).getAmplifier()/3F: 0);
         event.setRoll(event.getRoll() + (float) (Math.sin(AnimationTickHolder.getRenderTime()/20) * cameraRoll));
     }
 

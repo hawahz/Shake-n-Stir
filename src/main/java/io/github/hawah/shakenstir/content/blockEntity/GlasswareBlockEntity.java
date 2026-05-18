@@ -120,6 +120,7 @@ public class GlasswareBlockEntity extends BlockEntity {
         blockEntity.height = Mth.lerp(ShakenStirClient.ANI_DELTAF * 0.5F, blockEntity.height, blockEntity.heightRate);
     }
 
+
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
@@ -184,6 +185,8 @@ public class GlasswareBlockEntity extends BlockEntity {
         }
     }
 
+    // TODO 现在有无内容物的判断已经不能用contentComponents了
+
     @Override
     protected void applyImplicitComponents(DataComponentGetter components) {
         super.applyImplicitComponents(components);
@@ -194,7 +197,7 @@ public class GlasswareBlockEntity extends BlockEntity {
             this.contentComponents.setAll(components.getOrDefault(DataComponentTypeRegistries.DRINK_DATA, DataComponentMap.EMPTY));
         }
 
-        if (components.has(DataComponents.DYED_COLOR)) {
+        if (components.has(DataComponents.DYED_COLOR) && !contentComponents.isEmpty()) {
             this.contentComponents.set(DataComponents.DYED_COLOR, components.get(DataComponents.DYED_COLOR));
         }
 
@@ -203,7 +206,9 @@ public class GlasswareBlockEntity extends BlockEntity {
         }
         if (components.has(DataComponents.ITEM_NAME)) {
             pureName = components.get(DataComponents.ITEM_NAME);
-            contentComponents.set(DataComponents.ITEM_NAME, pureName);
+            if (!contentComponents.isEmpty()){
+                contentComponents.set(DataComponents.ITEM_NAME, pureName);
+            }
         }
         if (components.has(DataComponentTypeRegistries.GLASSWARE_NAME)) {
             defaultName = components.get(DataComponentTypeRegistries.GLASSWARE_NAME);

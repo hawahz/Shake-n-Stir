@@ -166,7 +166,7 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
     }
 
     public static void submitLiquid(IGlasswareRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords) {
-        if (state.height() > 0 && state.model().getModel() instanceof GlasswareQuadCollection quadCollection) {
+        if (state.height() > 0.1 && state.model().getModel() instanceof GlasswareQuadCollection quadCollection) {
             Vector3dc start = quadCollection.start();
             Vector3dc end = quadCollection.end();
 
