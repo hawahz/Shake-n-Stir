@@ -18,6 +18,17 @@ public enum LangData {
     TOOLTIP_SHAKE_CONTENT("tooltip_shake_content", "Ingredients:", 0),
     TOOLTIP_SHAKE_FLUID_CONTENT("tooltip_shake_fluid_content", "Base:", 0),
 
+    TOOLTIP_MASTERPIECE ("tooltip_masterpiece", "Masterpiece", 0, ChatFormatting.ITALIC, ChatFormatting.DARK_AQUA),
+    TOOLTIP_SUPERIOR    ("tooltip_superior", "Superior", 0, ChatFormatting.ITALIC, ChatFormatting.DARK_AQUA),
+    TOOLTIP_EXCELLENT   ("tooltip_excellent", "Excellent", 0, ChatFormatting.ITALIC, ChatFormatting.DARK_AQUA),
+    TOOLTIP_GOOD        ("tooltip_good", "Good", 0, ChatFormatting.ITALIC, ChatFormatting.DARK_AQUA),
+    TOOLTIP_AVERAGE     ("tooltip_average", "Average", 0, ChatFormatting.ITALIC, ChatFormatting.DARK_AQUA),
+    TOOLTIP_POOR        ("tooltip_poor", "Poor", 0, ChatFormatting.ITALIC, ChatFormatting.DARK_AQUA),
+    TOOLTIP_BAD         ("tooltip_bad", "Bad", 0, ChatFormatting.ITALIC, ChatFormatting.DARK_AQUA),
+    TOOLTIP_TERRIBLE    ("tooltip_terrible", "Terrible", 0, ChatFormatting.ITALIC, ChatFormatting.DARK_AQUA),
+    TOOLTIP_DISASTER    ("tooltip_disaster", "Disaster", 0, ChatFormatting.ITALIC, ChatFormatting.DARK_AQUA),
+
+
     HUD_TIP_BLACKBOARD_SELECT_FIRST_POINT("hud.blackboard_select_first_point", "Select the first point", 0),
     HUD_TIP_BLACKBOARD_SELECT_SECOND_POINT("hud.blackboard_select_second_point","Select the second point", 0),
     HUD_TIP_BLACKBOARD_CLEAR_AND_SELECT_FIRST("hud.blackboard_clear_and_select_first","Clear and Select First Point", 0),
@@ -43,6 +54,7 @@ public enum LangData {
     ITEM_NAME_MARTINI_GLASS("name.martini_glass", "Martini Glass", 0),
     ITEM_NAME_COLLINS_GLASS("name.collins_glass", "Collins Glass", 0),
     ITEM_NAME_MARGARITA_GLASS("name.margarita_glass", "Margarita Glass", 0),
+
     ;
 
     public final String key;

@@ -38,6 +38,7 @@ public class ShakeHandler implements IHandler, GuiLayer {
     private int lastSuccessTick = -1;
     private int shakeSuccessTimes = 0;
     private int firstShakeTick = -1;
+    private final static int[] SHAKE_TICKS = new int[] {200, 300, 360};
     private ItemStack item = null;
 
     public void setX(double x) {
@@ -69,15 +70,17 @@ public class ShakeHandler implements IHandler, GuiLayer {
         assert getPlayer() != null;
         assert level() != null;
         double dot = vec.dot(oVec);
-        int shakeCubes = getItem().getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0);
         ClientSharedShakeParams.updateParam(
                 getPlayer().getId(),
                 x,
                 y
         );
-        if (dot < -0.125 && AnimationTickHolder.getTicks() - lastSuccessTick > 1) {
-            int maxValidShakes = shakeCubes * 10;
-            float volumeWater = shakeCubes == 0? 1.2F: EaseHelper.easeInPow(Mth.clamp((float) shakeSuccessTimes / maxValidShakes, 0, 0.8F), 6);
+        int currentTick = AnimationTickHolder.getTicks();
+        if (dot < -0.125 && currentTick - lastSuccessTick > 1) {
+            int shakeCubes = getItem().getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0);
+            int maxValidShakeTime = SHAKE_TICKS[Mth.clamp(shakeCubes - 1, 0, SHAKE_TICKS.length - 1)];
+            float iceMeltProcess = (float) (currentTick - firstShakeTick) / maxValidShakeTime;
+            float volumeWater = shakeCubes == 0? 1.2F: EaseHelper.easeInPow(Mth.clamp(iceMeltProcess, 0, 0.8F), 6);
 
             if (shakeCubes != 0 || ShakeUtil.hasItem(getItem())){
                 mc().getSoundManager().play(
@@ -103,9 +106,10 @@ public class ShakeHandler implements IHandler, GuiLayer {
                         )
                 );
             }
-            lastSuccessTick = AnimationTickHolder.getTicks();
-            shakeSuccessTimes ++;
-            shakeSuccessTimes = Mth.clamp(shakeSuccessTimes, 0, maxValidShakes);
+            lastSuccessTick = currentTick;
+            if (iceMeltProcess < 1) {
+                shakeSuccessTimes ++;
+            }
         }
     }
 
@@ -189,6 +193,12 @@ public class ShakeHandler implements IHandler, GuiLayer {
         return new Result(isActive());
     }
 
+    public float getIceMeltProcess() {
+        int shakeCubes = getItem().getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0);
+        int maxValidShakeTime = SHAKE_TICKS[Mth.clamp(shakeCubes - 1, 0, SHAKE_TICKS.length - 1)];
+        return (float) (AnimationTickHolder.getTicks() - firstShakeTick) / maxValidShakeTime;
+    }
+
     @Override
     public void render(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
         if (!isActive()) {
@@ -206,7 +216,8 @@ public class ShakeHandler implements IHandler, GuiLayer {
         Networking.sendToServer(new ServerboundShakeFinishPacket(
                 getPlayer().getUUID(),
                 getItem(getPlayer()),
-                shakeSuccessTimes
+                shakeSuccessTimes,
+                getIceMeltProcess()
         ));
     }
 }

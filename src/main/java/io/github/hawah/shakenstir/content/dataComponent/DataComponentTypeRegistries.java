@@ -3,6 +3,7 @@ package io.github.hawah.shakenstir.content.dataComponent;
 import com.mojang.serialization.Codec;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
+import io.github.hawah.shakenstir.content.recipe.Quality;
 import io.github.hawah.shakenstir.util.SerializeHelper;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.PatchedDataComponentMap;
@@ -51,6 +52,11 @@ public class DataComponentTypeRegistries {
             builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
     );
 
+    public static final DataComponentType<Integer> SHAKE_FALI_TIMES = register(
+            "shake_fali_times",
+            builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
+    );
+
     // Glassware
 
     public static final DataComponentType<Vector2f> GLASSWARE_POSITION = register(
@@ -66,6 +72,16 @@ public class DataComponentTypeRegistries {
     public static final DataComponentType<List<GlasswareBlockEntity.Decoration>> GLASSWARE_DECORATIONS = register(
             "glassware_decorations",
             builder -> builder.persistent(GlasswareBlockEntity.Decoration.CODEC.listOf()).networkSynchronized(GlasswareBlockEntity.Decoration.STREAM_CODEC.apply(ByteBufCodecs.list()))
+    );
+
+    public static final DataComponentType<Boolean> GLASSWARE_HAS_FLOWER = register(
+            "glassware_has_flower",
+            builder -> builder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
+    );
+
+    public static final DataComponentType<Boolean> GLASSWARE_HAS_LEMON = register(
+            "glassware_has_lemon",
+            builder -> builder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
     );
 
     public static final DataComponentType<Component> GLASSWARE_NAME = register(
@@ -101,6 +117,11 @@ public class DataComponentTypeRegistries {
     public static final DataComponentType<ShakeProductDeferredName> SHAKE_PRODUCT_DEFERRED_NAME = register(
             "shake_product_deferred_name",
             builder -> builder.persistent(ShakeProductDeferredName.CODEC).networkSynchronized(ShakeProductDeferredName.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<Quality> SHAKE_PRODUCT_QUALITY = register(
+            "shake_product_quality",
+            builder -> builder.persistent(Quality.CODEC).networkSynchronized(Quality.STREAM_CODEC)
     );
 
     public static final DataComponentType<PatchedDataComponentMap> DRINK_DATA = register(

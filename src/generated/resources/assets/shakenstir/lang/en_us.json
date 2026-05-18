@@ -53,11 +53,20 @@
   "shakenstir.name.martini_glass": "Martini Glass",
   "shakenstir.name.sour": "%s %s Sour",
   "shakenstir.name.tonic": "%s %s Tonic",
+  "shakenstir.tooltip_average": "Average",
+  "shakenstir.tooltip_bad": "Bad",
+  "shakenstir.tooltip_disaster": "Disaster",
+  "shakenstir.tooltip_excellent": "Excellent",
+  "shakenstir.tooltip_good": "Good",
+  "shakenstir.tooltip_masterpiece": "Masterpiece",
+  "shakenstir.tooltip_poor": "Poor",
   "shakenstir.tooltip_shake_content": "Ingredients:",
   "shakenstir.tooltip_shake_fluid_content": "Base:",
   "shakenstir.tooltip_shake_shaking": "Shaking...",
   "shakenstir.tooltip_shift": "-[Shift]-",
   "shakenstir.tooltip_spirit_content": "Content: %s",
   "shakenstir.tooltip_spirit_empty": "Empty",
-  "shakenstir.tooltip_spirit_volumn": "Volume: %s mb"
+  "shakenstir.tooltip_spirit_volumn": "Volume: %s mb",
+  "shakenstir.tooltip_superior": "Superior",
+  "shakenstir.tooltip_terrible": "Terrible"
 }

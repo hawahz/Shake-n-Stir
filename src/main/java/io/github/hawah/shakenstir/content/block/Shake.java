@@ -382,6 +382,7 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
             ShakeUtil.setFluidData(stack, blockEntity.getFluidStack());
             stack.set(DataComponentTypeRegistries.SHAKE_ICE_CUBES, blockEntity.iceCubeCounts);
             stack.set(DataComponentTypeRegistries.SHAKING, blockEntity.isShaking);
+            stack.set(DataComponentTypeRegistries.SHAKE_FALI_TIMES, blockEntity.shakeFailedTimes);
         }
         return stack;
     }

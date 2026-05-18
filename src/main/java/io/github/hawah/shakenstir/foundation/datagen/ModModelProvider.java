@@ -8,6 +8,7 @@ import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer
 import io.github.hawah.shakenstir.content.HasCup;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.block.SpiritBlock;
+import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.item.SpiritBottleItem;
 import net.minecraft.client.color.item.Dye;
@@ -38,13 +39,13 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.registries.DeferredItem;
-import org.jspecify.annotations.NonNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+@SuppressWarnings({"DuplicatedCode", "ExtractMethodRecommender"})
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class ModModelProvider extends ModelProvider {
@@ -70,6 +71,7 @@ public class ModModelProvider extends ModelProvider {
         generateSpirit(blockModels, itemModels, BlockRegistries.BRANDY, ItemRegistries.BRANDY, "brandy");
         generateEmptyModel(blockModels, BlockRegistries.LONG_DRINK_GLASSWARE.get(), Blocks.GLASS);
         generateEmptyModel(blockModels, BlockRegistries.SHORT_DRINK_GLASSWARE.get(), Blocks.GLASS);
+        initGlassware(itemModels);
         generateGlassware(ShakenStir.asResource("martini_glass"), itemModels);
         generateGlassware(ShakenStir.asResource("collins_glass"), itemModels);
         generateGlassware(ShakenStir.asResource("margarita_glass"), itemModels);
@@ -177,7 +179,7 @@ public class ModModelProvider extends ModelProvider {
         itemModels.itemModelOutput.accept(item.get(), ItemModelGenerators.createFlatModelDispatch(flatModel, otherModel));
     }
 
-    private static @NonNull MultiVariant getMultiVariant(String path) {
+    private static MultiVariant getMultiVariant(String path) {
         return new MultiVariant(
                 WeightedList.of(
                         new Variant(Identifier.fromNamespaceAndPath(ShakenStir.MODID, path))
@@ -219,17 +221,75 @@ public class ModModelProvider extends ModelProvider {
                 );
     }
 
+//    public void generateGlassware(Identifier base, ItemModelGenerators itemModels) {
+//        Material baseLayer = new Material(base.withPrefix("item/")); // texture/base
+//        Material tintedLayer = new Material(base.withPrefix("item/").withSuffix("_overlay")); // texture/base_overlay
+//        Identifier plainModel = ModelTemplates.FLAT_ITEM.create(base.withPrefix("item/"), TextureMapping.layer0(baseLayer), itemModels.modelOutput); //  texture
+//        Identifier dyedModel = base.withPrefix("item/").withSuffix("_dyed"); //  model/base_dyed
+//        ModelTemplates.TWO_LAYERED_ITEM.create(dyedModel, TextureMapping.layered(baseLayer, tintedLayer), itemModels.modelOutput);
+//        ItemModel.Unbaked guiModel = ItemModelUtils.conditional(
+//                ItemModelUtils.hasComponent(DataComponents.DYED_COLOR),
+//                ItemModelUtils.tintedModel(dyedModel, ItemModelGenerators.BLANK_LAYER, new Dye(0)),
+//                ItemModelUtils.plainModel(plainModel)
+//        );
+//
+//        ItemModel.Unbaked otherModel = ItemModelUtils.specialModel(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "glassware_special"), new GlasswareSpecialRenderer.Unbaked());
+//
+//        itemModels.itemModelOutput
+//                .register(
+//                        base,
+//                        new ClientItem(ItemModelGenerators.createFlatModelDispatch(guiModel, otherModel), ClientItem.Properties.DEFAULT)
+//                );
+//    }
+
+    Material flowerLayer;
+    Identifier flowerModelLoc;
+    Material lemonLayer;
+    Identifier lemonModelLoc;
+
+    public void initGlassware(ItemModelGenerators itemModels) {
+        flowerLayer      = new Material(ShakenStir.asResource("item/flower_overlay"));
+        flowerModelLoc   = ModelTemplates.FLAT_ITEM.create(ShakenStir.asResource("item/flower_overlay"), TextureMapping.layer0(flowerLayer), itemModels.modelOutput);
+        lemonLayer       = new Material(ShakenStir.asResource("item/lemon_overlay"));
+        lemonModelLoc    = ModelTemplates.FLAT_ITEM.create(ShakenStir.asResource("item/lemon_overlay"), TextureMapping.layer0(lemonLayer), itemModels.modelOutput);
+    }
+
     public void generateGlassware(Identifier base, ItemModelGenerators itemModels) {
         Material baseLayer = new Material(base.withPrefix("item/")); // texture/base
         Material tintedLayer = new Material(base.withPrefix("item/").withSuffix("_overlay")); // texture/base_overlay
         Identifier plainModel = ModelTemplates.FLAT_ITEM.create(base.withPrefix("item/"), TextureMapping.layer0(baseLayer), itemModels.modelOutput); //  texture
         Identifier dyedModel = base.withPrefix("item/").withSuffix("_dyed"); //  model/base_dyed
         ModelTemplates.TWO_LAYERED_ITEM.create(dyedModel, TextureMapping.layered(baseLayer, tintedLayer), itemModels.modelOutput);
-        ItemModel.Unbaked guiModel = ItemModelUtils.conditional(
+        ItemModel.Unbaked guiModelBase = ItemModelUtils.conditional(
                 ItemModelUtils.hasComponent(DataComponents.DYED_COLOR),
                 ItemModelUtils.tintedModel(dyedModel, ItemModelGenerators.BLANK_LAYER, new Dye(0)),
                 ItemModelUtils.plainModel(plainModel)
         );
+
+
+
+        ItemModel.Unbaked flowerModel = ItemModelUtils.plainModel(flowerModelLoc);
+        ItemModel.Unbaked lemonModel = ItemModelUtils.plainModel(lemonModelLoc);
+
+        ItemModel.Unbaked baseWithFlower = ItemModelUtils.composite(guiModelBase, flowerModel);
+        ItemModel.Unbaked baseWithLemon = ItemModelUtils.composite(guiModelBase, lemonModel);
+        ItemModel.Unbaked baseWithFlowerAndLemon = ItemModelUtils.composite(flowerModel, baseWithLemon);
+
+        ItemModel.Unbaked guiModel = ItemModelUtils.conditional(
+                ItemModelUtils.hasComponent(DataComponentTypeRegistries.GLASSWARE_HAS_FLOWER),
+                ItemModelUtils.conditional(
+                        ItemModelUtils.hasComponent(DataComponentTypeRegistries.GLASSWARE_HAS_LEMON),
+                        baseWithFlowerAndLemon,
+                        baseWithFlower
+                ),
+                ItemModelUtils.conditional(
+                        ItemModelUtils.hasComponent(DataComponentTypeRegistries.GLASSWARE_HAS_LEMON),
+                        baseWithLemon,
+                        guiModelBase
+                )
+        );
+
+
 
         ItemModel.Unbaked otherModel = ItemModelUtils.specialModel(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "glassware_special"), new GlasswareSpecialRenderer.Unbaked());
 

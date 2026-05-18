@@ -4,6 +4,7 @@ import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistr
 import io.github.hawah.shakenstir.content.dataComponent.IFluidDataHolder;
 import io.github.hawah.shakenstir.content.dataComponent.IItemDataHolder;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.content.recipe.Quality;
 import io.github.hawah.shakenstir.content.recipe.RecipeTypeRegistries;
 import io.github.hawah.shakenstir.content.recipe.ShakeRecipe;
 import io.github.hawah.shakenstir.content.recipe.ShakeRecipeInput;
@@ -26,12 +27,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem, int shakeSuccessTimes) implements ClientToServerPacket {
+public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem, int shakeSuccessTimes, float pastProcess) implements ClientToServerPacket {
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundShakeFinishPacket> STREAM_CODEC = StreamCodec.composite(
             UUIDUtil.STREAM_CODEC,  ServerboundShakeFinishPacket::playerUUID,
             ItemStack.STREAM_CODEC, ServerboundShakeFinishPacket::shakeItem,
             ByteBufCodecs.INT,      ServerboundShakeFinishPacket::shakeSuccessTimes,
+            ByteBufCodecs.FLOAT,   ServerboundShakeFinishPacket::pastProcess,
             ServerboundShakeFinishPacket::new
     );
 
@@ -72,6 +74,8 @@ public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem,
             ShakeUtil.clearFluidData(shakeItem);
             ShakeUtil.clearItemData(shakeItem);
             mainHandItem.set(DataComponentTypeRegistries.SHAKING, true);
+            mainHandItem.set(DataComponentTypeRegistries.SHAKE_FALI_TIMES, mainHandItem.getOrDefault(DataComponentTypeRegistries.SHAKE_FALI_TIMES, 0) + 1);
+            mainHandItem.remove(DataComponentTypeRegistries.SHAKE_ICE_CUBES);
             ItemStack holder = ItemRegistries.CONTENT_HOLDER.get().getDefaultInstance();
             ShakeUtil.setFluidData(holder, fluidData);
             ShakeUtil.setItemData(holder, itemData);
@@ -82,12 +86,14 @@ public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem,
         if (!mainHandItem.is(ItemRegistries.SHAKE)) {
             return;
         }
+        int finalShakeSuccessTimes = shakeSuccessTimes;
         result.map(RecipeHolder::value).ifPresent(recipe -> {
+            int shakeAdditionTimes = finalShakeSuccessTimes - recipe.shakeTimes();
             ItemStack resultItem = recipe.assemble(recipeInput);
-            ShakeUtil.clearFluidData(mainHandItem);
-            ShakeUtil.clearItemData(mainHandItem);
-            mainHandItem.remove(DataComponentTypeRegistries.SHAKE_ICE_CUBES);
-            mainHandItem.remove(DataComponentTypeRegistries.SHAKING);
+            int failTimes = shakeItem.getOrDefault(DataComponentTypeRegistries.SHAKE_FALI_TIMES, 0);
+            Quality quality = Quality.calculate(failTimes, pastProcess, mainHandItem.getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 1), shakeAdditionTimes);
+            resultItem.set(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY, quality);
+            ShakeUtil.clearContent(mainHandItem);
             ShakeUtil.setItemData(mainHandItem, List.of(resultItem));
         });
     }

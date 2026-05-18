@@ -36,6 +36,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.common.Tags;
 import org.jspecify.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -70,6 +71,12 @@ public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
             drop = blockEntity.contentComponents.getOrDefault(DataComponentTypeRegistries.SHAKE_PRODUCT_POUR_TAKE_ITEM, ITakeUpBlock.super.getDrop(state, level, pos));
             if (!blockEntity.decorationsList.isEmpty()){
                 drop.set(DataComponentTypeRegistries.GLASSWARE_DECORATIONS, blockEntity.decorationsList);
+                if (blockEntity.decorationsList.stream().anyMatch(decoration -> decoration.itemStack().is(ItemRegistries.LEMON_SLICE))) {
+                    drop.set(DataComponentTypeRegistries.GLASSWARE_HAS_LEMON, true);
+                }
+                if (blockEntity.decorationsList.stream().anyMatch(decoration -> decoration.itemStack().is(Tags.Items.FLOWERS))) {
+                    drop.set(DataComponentTypeRegistries.GLASSWARE_HAS_FLOWER, true);
+                }
             }
             if (blockEntity.defaultName != null) {
                 drop.set(DataComponentTypeRegistries.GLASSWARE_NAME, blockEntity.defaultName);
@@ -82,6 +89,10 @@ public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
             if (blockEntity.contentComponents.has(DataComponents.ITEM_NAME)) {
                 drop.set(DataComponents.ITEM_NAME, blockEntity.contentComponents.get(DataComponents.ITEM_NAME));
                 blockEntity.contentComponents.remove(DataComponents.ITEM_NAME);
+            }
+            if (blockEntity.contentComponents.has(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY)) {
+                drop.set(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY, blockEntity.contentComponents.get(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY));
+                blockEntity.contentComponents.remove(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY);
             }
             if (!blockEntity.contentComponents.isEmpty()) {
                 drop.set(DataComponentTypeRegistries.DRINK_DATA, blockEntity.contentComponents);

@@ -15,6 +15,10 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -36,6 +40,7 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import org.jspecify.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -53,6 +58,7 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
     // Functional
     public int iceCubeCounts = 0;
     public boolean isShaking = false;
+    public int shakeFailedTimes = 0;
 
     private final ShakeFluidResourceResourceHandler fluidHandler = new ShakeFluidResourceResourceHandler();
     private final ShakeItemResourceResourceHandler itemHandler = new ShakeItemResourceResourceHandler();
@@ -66,7 +72,8 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
         fluidHandler.fluidHolder.clear();
         iceCubeCounts = 0;
         isShaking = false;
-        setChanged();
+        shakeFailedTimes = 0;
+        markChanged();
     }
 
     public static void onAnimationTick(Level level, BlockPos pos, BlockState state, ShakeBlockEntity blockEntity) {
@@ -128,6 +135,7 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
                     1.0F,
                     1.0F
             );
+            markChanged();
             return true;
         }
         try (Transaction transaction = Transaction.openRoot()) {
@@ -220,6 +228,7 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
         loadAllFluids(input, fluidHandler.fluidHolder);
         iceCubeCounts = input.getInt("IceCubes").orElse(0);
         isShaking = input.getBooleanOr("IsShaking", false);
+        shakeFailedTimes = input.getInt("ShakeFailedTimes").orElse(0);
     }
 
     @Override
@@ -235,12 +244,18 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
     }
 
     @Override
+    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         saveAllFluids(output, fluidHandler.fluidHolder, true);
         ContainerHelper.saveAllItems(output, itemHandler.itemHolder, true);
         output.putInt("IceCubes", iceCubeCounts);
         output.putBoolean("IsShaking", isShaking);
+        output.putInt("ShakeFailedTimes", shakeFailedTimes);
     }
 
     @Override
@@ -259,6 +274,7 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
         }
         this.iceCubeCounts = components.getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0);
         this.isShaking = components.getOrDefault(DataComponentTypeRegistries.SHAKING, false);
+        this.shakeFailedTimes = components.getOrDefault(DataComponentTypeRegistries.SHAKE_FALI_TIMES, 0);
     }
 
     @Override
@@ -465,6 +481,14 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
     }
 
     protected void markChanged() {
-        setChanged(getLevel(), getBlockPos(), getBlockState());
+        setChanged();
+        if (getLevel() instanceof ServerLevel serverLevel){
+            serverLevel.players().forEach(
+                    player -> player.connection.send(getUpdatePacket())
+            );
+            // FIXME
+            //noinspection UnstableApiUsage
+            net.neoforged.neoforge.attachment.AttachmentSync.syncBlockEntityUpdates(this, serverLevel.players());
+        }
     }
 }

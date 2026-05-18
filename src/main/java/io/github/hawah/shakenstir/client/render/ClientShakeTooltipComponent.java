@@ -1,5 +1,6 @@
 package io.github.hawah.shakenstir.client.render;
 
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.content.ShakeTooltipComponent;
 import io.github.hawah.shakenstir.content.dataComponent.ShakeContentHolder;
@@ -15,6 +16,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public record ClientShakeTooltipComponent(ShakeContentHolder contentHolder, int iceCounts, boolean canLookThrough) implements ClientTooltipComponent {
 
     public static int offsetX = 10;
@@ -91,7 +96,6 @@ public record ClientShakeTooltipComponent(ShakeContentHolder contentHolder, int 
 
     private void extractShakeWithContent(int x, int y, GuiGraphicsExtractor graphics) {
         float fadeIn = 1;
-        boolean wasVisible = true;
         Textures.SHAKE_HUD_INSIDE.blit(
                 graphics,
                 x,
@@ -106,6 +110,10 @@ public record ClientShakeTooltipComponent(ShakeContentHolder contentHolder, int 
                 height,
                 getLiquidHeight()
         );
+
+        if (height < 1e-20) {
+            height = 0;
+        }
 
         for (int i = 0; i < contentHolder().Item().stackToRender().size(); i++) {
             ItemStack itemStack = contentHolder().Item().stackToRender().get(i);

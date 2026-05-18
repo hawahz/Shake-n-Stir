@@ -72,6 +72,9 @@ public class ShakeUtil {
 
     public static void clearContent(MutableDataComponentHolder holder) {
         holder.remove(DataComponentTypeRegistries.SHAKE_CONTENT);
+        holder.remove(DataComponentTypeRegistries.SHAKE_ICE_CUBES);
+        holder.remove(DataComponentTypeRegistries.SHAKING);
+        holder.remove(DataComponentTypeRegistries.SHAKE_FALI_TIMES);
     }
 
     public static int getIceCount(DataComponentGetter getter) {

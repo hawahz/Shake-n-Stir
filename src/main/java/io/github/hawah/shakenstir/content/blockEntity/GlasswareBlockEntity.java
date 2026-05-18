@@ -201,6 +201,10 @@ public class GlasswareBlockEntity extends BlockEntity {
             this.contentComponents.set(DataComponents.DYED_COLOR, components.get(DataComponents.DYED_COLOR));
         }
 
+        if (components.has(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY) && !contentComponents.isEmpty()) {
+            this.contentComponents.set(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY, components.get(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY));
+        }
+
         if (components.has(DataComponents.ITEM_MODEL)) {
             model = components.get(DataComponents.ITEM_MODEL);
         }

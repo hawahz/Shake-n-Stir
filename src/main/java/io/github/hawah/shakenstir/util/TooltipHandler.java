@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.util;
 
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.content.recipe.Quality;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import net.minecraft.world.item.ItemStack;
@@ -16,8 +17,13 @@ public class TooltipHandler {
             event.addTooltipLines(LangData.TOOLTIP_SHAKE_SHAKING.get());
         }
     }
+    public static void tryAppendQuality(AddAttributeTooltipsEvent event, ItemStack stack) {
+        if (stack.has(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY)) {
+            event.addTooltipLines(stack.getOrDefault(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY, Quality.AVERAGE).getTooltip());
+        }
+    }
 
-    public static void tryAppendShakeTooltips(ItemStack shakeStack, AddAttributeTooltipsEvent event) {
+    public static void tryAppendShakeTooltips(AddAttributeTooltipsEvent event, ItemStack shakeStack) {
         if (ShakeUtil.isTooltipValid(shakeStack)) {
             return;
         }
