@@ -11,6 +11,7 @@ import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.item.SnsCreativeTab;
 import io.github.hawah.shakenstir.content.recipe.RecipeTypeRegistries;
 import io.github.hawah.shakenstir.content.trigger.TriggerRegistries;
+import io.github.hawah.shakenstir.foundation.datapack.cocktaileType.CocktailTypes;
 import io.github.hawah.shakenstir.foundation.networking.NetworkPackets;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.context.ContextKey;
@@ -53,7 +54,7 @@ public class ShakenStir {
         MobEffectRegistries.register(modEventBus);
         DataAttachmentTypeRegistries.register(modEventBus);
         TriggerRegistries.register(modEventBus);
-
+        CocktailTypes.register(modEventBus);
         NetworkPackets.register();
 
         NeoForge.EVENT_BUS.register(this);

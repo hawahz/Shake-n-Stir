@@ -1,0 +1,10 @@
+{
+  "effect": {
+    "amplifiers": [
+      1,
+      2
+    ],
+    "effect": "minecraft:strength"
+  },
+  "fluid": "shakenstir:bubble_fluid"
+}

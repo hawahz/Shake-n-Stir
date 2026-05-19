@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.content.recipe.Quality;
+import io.github.hawah.shakenstir.foundation.datapack.cocktaileType.CocktailType;
 import io.github.hawah.shakenstir.util.SerializeHelper;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.PatchedDataComponentMap;
@@ -127,6 +128,11 @@ public class DataComponentTypeRegistries {
     public static final DataComponentType<PatchedDataComponentMap> DRINK_DATA = register(
             "drink_data",
             builder -> builder.persistent(SerializeHelper.DATA_COMPONENT_MAP_CODEC).networkSynchronized(SerializeHelper.DATA_COMPONENT_MAP_STREAM_CODEC)
+    );
+
+    public static final DataComponentType<CocktailType> COCKTAIL_TYPE = register(
+            "cocktail_type",
+            builder -> builder.persistent(CocktailType.CODEC).networkSynchronized(CocktailType.STREAM_CODEC)
     );
 
     public static void register(IEventBus eventBus) {

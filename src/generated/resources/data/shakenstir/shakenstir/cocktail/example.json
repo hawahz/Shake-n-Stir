@@ -1,0 +1,11 @@
+{
+  "effects": [
+    {
+      "amplifiers": [
+        1
+      ],
+      "effect": "minecraft:jump_boost"
+    }
+  ],
+  "id": "shakenstir:example"
+}

@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.content.dataComponent;
 
 import com.mojang.serialization.Codec;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
+import io.github.hawah.shakenstir.foundation.utils.ITranslatable;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -13,7 +14,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import java.util.Comparator;
 import java.util.List;
 
-public record ShakeProductDeferredName(String nameLike) {
+public record ShakeProductDeferredName(String nameLike) implements ITranslatable {
     public static final ShakeProductDeferredName EMPTY = new ShakeProductDeferredName(Component.empty());
     public static final Codec<ShakeProductDeferredName> CODEC = Codec.STRING
             .xmap(ShakeProductDeferredName::new, ShakeProductDeferredName::nameLike);
@@ -34,7 +35,7 @@ public record ShakeProductDeferredName(String nameLike) {
         this(nameLike.toString());
     }
 
-    public MutableComponent getName(List<FluidStack> fluidStacks, List<ItemStack> itemStacks) {
+    public MutableComponent translate(List<FluidStack> fluidStacks, List<ItemStack> itemStacks) {
         MutableComponent name = Component.translatable(
                 nameLike,
                 fluidStacks.stream().max(Comparator.comparingInt(FluidStack::getAmount)).get().getHoverName(),
