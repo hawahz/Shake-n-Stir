@@ -1,5 +1,5 @@
 {
-  "fluid": "shakenstir:bubble_fluid",
+  "ingredient": "#c:armors",
   "positive": {
     "negative": "minecraft:strength",
     "negativeLevNDur": [],

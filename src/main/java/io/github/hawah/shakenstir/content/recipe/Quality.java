@@ -39,6 +39,10 @@ public enum Quality implements StringRepresentable {
     public static Quality getQuality(int quality) {
         return Quality.values()[quality];
     }
+    public int toSignedIndex() {
+        int ordinal = ordinal();
+        return ordinal - GOOD.ordinal();
+    }
 
     public static Quality calculate(int shakeFailedTimes, float iceMeltProcess, int iceCubeCounts, int shakeAdditionTimes) {
         float penalty = 0;

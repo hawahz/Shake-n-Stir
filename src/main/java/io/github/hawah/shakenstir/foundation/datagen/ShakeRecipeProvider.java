@@ -3,10 +3,9 @@ package io.github.hawah.shakenstir.foundation.datagen;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
-import io.github.hawah.shakenstir.content.dataComponent.ShakeProductDeferredName;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.recipe.ingredient.FluidIngredient;
-import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
+import io.github.hawah.shakenstir.foundation.datapack.cocktaileType.CocktailTypes;
 import io.github.hawah.shakenstir.foundation.tags.SnsFluidTags;
 import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
 import io.github.hawah.shakenstir.foundation.tags.SnsSharedTags;
@@ -59,7 +58,11 @@ public class ShakeRecipeProvider extends RecipeProvider {
 
         getBuilder()
                 .result(ItemRegistries.CONTENT_HOLDER)
-                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName(LangData.NAME_SOUR)).set(DataComponentTypeRegistries.SHAKE_PRODUCT_POURABLE, true).build())
+                .patch(DataComponentPatch.builder()
+                        .set(DataComponentTypeRegistries.COCKTAIL_TYPE, CocktailTypes.SOUR.getBeforeRegister())
+                        //.set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName(LangData.NAME_SOUR))
+                        .set(DataComponentTypeRegistries.SHAKE_PRODUCT_POURABLE, true)
+                        .build())
                 .withFluid(SnsFluidTags.SPIRIT, 500)
                 .orWith(SnsSharedTags.SWEET)
                 .orWith(SnsSharedTags.SOUR)
@@ -70,7 +73,11 @@ public class ShakeRecipeProvider extends RecipeProvider {
 
         getBuilder()
                 .result(ItemRegistries.CONTENT_HOLDER)
-                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName(LangData.NAME_COCKTAIL)).build())
+                .patch(DataComponentPatch.builder()
+                        .set(DataComponentTypeRegistries.COCKTAIL_TYPE, CocktailTypes.COCKTAIL.getBeforeRegister())
+                        //.set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName(LangData.NAME_COCKTAIL))
+                        .set(DataComponentTypeRegistries.SHAKE_PRODUCT_POURABLE, true)
+                        .build())
                 .withFluid(SnsFluidTags.SPIRIT, 500)
                 .orWith(SnsSharedTags.BITTER)
                 .orWith(SnsSharedTags.SWEET)
@@ -81,7 +88,11 @@ public class ShakeRecipeProvider extends RecipeProvider {
 
         getBuilder()
                 .result(ItemRegistries.CONTENT_HOLDER)
-                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName(LangData.NAME_COLADA)).build())
+                .patch(DataComponentPatch.builder()
+                        .set(DataComponentTypeRegistries.COCKTAIL_TYPE, CocktailTypes.COLADA.getBeforeRegister())
+                        //.set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName(LangData.NAME_COLADA))
+                        .set(DataComponentTypeRegistries.SHAKE_PRODUCT_POURABLE, true)
+                        .build())
                 .withFluid(SnsFluidTags.SPIRIT, 500)
                 .orWith(SnsSharedTags.SWEET)
                 .orWith(SnsSharedTags.JUICE)

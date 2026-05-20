@@ -109,8 +109,8 @@ public record ShakeRecipe(CommonInfo commonInfo, List<FluidIngredient> inputFlui
     @Override
     public ItemStack assemble(ShakeRecipeInput input) {
         ItemStack resultItem = this.result.create();
-        if (resultItem.has(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME)) {
-            MutableComponent name = resultItem.getOrDefault(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, ShakeProductDeferredName.EMPTY).translate(input.fluidStacks(), input.items());
+        if (resultItem.has(DataComponentTypeRegistries.COCKTAIL_TYPE)) {
+            MutableComponent name = resultItem.getOrDefault(DataComponentTypeRegistries.COCKTAIL_TYPE, ShakeProductDeferredName.EMPTY).translate(input.fluidStacks(), input.items());
             resultItem.set(DataComponents.ITEM_NAME, name);
         }
         int rgb = ShakeUtil.rgbWithWeight(input.fluidStacks().stream().map((stack) ->

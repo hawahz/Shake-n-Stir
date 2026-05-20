@@ -5,6 +5,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
+import java.util.concurrent.ExecutionException;
+
 @EventBusSubscriber(modid = ShakenStir.MODID)
 public class DataGenerator {
     @SubscribeEvent // on the mod event bus
@@ -16,6 +18,10 @@ public class DataGenerator {
         event.createProvider(StirRecipeProvider.Runner::new);
         event.createProvider(ModModelProvider::new);
         event.createProvider(ModEnUsLangProvider::new);
-        ModDatapackGenerator.gatherData(event);
+        try {
+            ModDatapackGenerator.gatherData(event);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

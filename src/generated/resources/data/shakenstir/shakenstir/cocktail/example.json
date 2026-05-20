@@ -1,11 +1,17 @@
 {
   "effects": [
     {
-      "amplifiers": [
-        1
-      ],
-      "effect": "minecraft:jump_boost"
+      "negative": "minecraft:jump_boost",
+      "negativeLevNDur": [],
+      "positive": "minecraft:jump_boost",
+      "positiveLevNDur": [
+        {
+          "duration": 60,
+          "level": 1
+        }
+      ]
     }
   ],
-  "id": "shakenstir:example"
+  "id": "shakenstir:example",
+  "translation_key": "shakenstir:example"
 }

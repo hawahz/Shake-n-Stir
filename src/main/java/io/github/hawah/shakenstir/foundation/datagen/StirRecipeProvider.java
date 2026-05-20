@@ -3,10 +3,9 @@ package io.github.hawah.shakenstir.foundation.datagen;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
-import io.github.hawah.shakenstir.content.dataComponent.ShakeProductDeferredName;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.recipe.ingredient.FluidIngredient;
-import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
+import io.github.hawah.shakenstir.foundation.datapack.cocktaileType.CocktailTypes;
 import io.github.hawah.shakenstir.foundation.tags.SnsFluidTags;
 import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
 import io.github.hawah.shakenstir.foundation.tags.SnsSharedTags;
@@ -50,7 +49,10 @@ public class StirRecipeProvider extends RecipeProvider {
     protected void buildRecipes() {
         getBuilder()
                 .result(ItemRegistries.CONTENT_HOLDER)
-                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName(LangData.NAME_FIZZ)).build())
+                .patch(DataComponentPatch.builder()
+                        .set(DataComponentTypeRegistries.COCKTAIL_TYPE, CocktailTypes.FIZZ.getBeforeRegister())
+                        //.set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName(LangData.NAME_FIZZ))
+                        .build())
                 .withFluid(SnsFluidTags.SPIRIT, 500)
                 .orWith(SnsSharedTags.BUBBLE)
                 .build()
@@ -59,7 +61,10 @@ public class StirRecipeProvider extends RecipeProvider {
 
         getBuilder()
                 .result(ItemRegistries.CONTENT_HOLDER)
-                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName(LangData.NAME_TONIC)).build())
+                .patch(DataComponentPatch.builder()
+                        .set(DataComponentTypeRegistries.COCKTAIL_TYPE, CocktailTypes.TONIC.getBeforeRegister())
+                        //.set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName(LangData.NAME_TONIC))
+                        .build())
                 .withFluid(SnsFluidTags.SPIRIT, 500)
                 .orWith(SnsSharedTags.SOUR)
                 .orWith(SnsSharedTags.BUBBLE)

@@ -17,7 +17,11 @@
   "inputItems": [],
   "result": {
     "components": {
-      "shakenstir:shake_product_deferred_name": "shakenstir.name.sour",
+      "shakenstir:cocktail_type": {
+        "effects": [],
+        "id": "shakenstir:sour",
+        "translation_key": "shakenstir:sour"
+      },
       "shakenstir:shake_product_pourable": true
     },
     "id": "shakenstir:shake_content_holder"

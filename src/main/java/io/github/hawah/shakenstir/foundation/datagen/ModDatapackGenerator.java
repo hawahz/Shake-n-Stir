@@ -5,8 +5,10 @@ import io.github.hawah.shakenstir.content.damageType.SnsDamageType;
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import io.github.hawah.shakenstir.foundation.datapack.DatapackRegistries;
 import io.github.hawah.shakenstir.foundation.datapack.EffectData;
-import io.github.hawah.shakenstir.foundation.datapack.spirit.SpiritData;
+import io.github.hawah.shakenstir.foundation.datapack.IngredientData;
 import io.github.hawah.shakenstir.foundation.datapack.cocktaileType.CocktailType;
+import io.github.hawah.shakenstir.foundation.datapack.spirit.SpiritData;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -15,13 +17,17 @@ import net.minecraft.world.damagesource.DamageScaling;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DeathMessageType;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class ModDatapackGenerator {
 
-    public static void gatherData(GatherDataEvent event) {
+    public static void gatherData(GatherDataEvent event) throws ExecutionException, InterruptedException {
+        HolderLookup.Provider provider = event.getLookupProvider().get();
         event.createDatapackRegistryObjects(new RegistrySetBuilder()
                         // Add a datapack builtin entry provider for damage types. If this lambda becomes longer,
                         // this should probably be extracted into a separate method for the sake of readability.
@@ -51,7 +57,23 @@ public class ModDatapackGenerator {
                                             cocktailKey("example"),
                                             new CocktailType(
                                                     ShakenStir.asResource("example"),
-                                                    List.of(new EffectData(MobEffects.JUMP_BOOST, List.of(1)))
+                                                    List.of(new EffectData(
+                                                            MobEffects.JUMP_BOOST,
+                                                            MobEffects.JUMP_BOOST,
+                                                            List.of(new EffectData.LevelMapDuration(1, 60)),
+                                                            List.of())
+                                                    )
+                                            )
+                                    );
+                                }
+                        )
+                        .add(
+                                DatapackRegistries.INGREDIENT_REGISTRY_KEY, bootstrap -> {
+                                    bootstrap.register(
+                                            ingredientKey("example"),
+                                            new IngredientData(
+                                                    Ingredient.of(provider.getOrThrow(Tags.Items.ARMORS)),
+                                                    EffectData.of(MobEffects.STRENGTH, List.of(1, 2))
                                             )
                                     );
                                 }
@@ -69,6 +91,13 @@ public class ModDatapackGenerator {
     public static ResourceKey<CocktailType> cocktailKey(String name) {
         return ResourceKey.create(
                 DatapackRegistries.COCKTAIL_REGISTRY_KEY,
+                ShakenStir.asResource(name)
+        );
+    }
+
+    public static ResourceKey<IngredientData> ingredientKey(String name) {
+        return ResourceKey.create(
+                DatapackRegistries.INGREDIENT_REGISTRY_KEY,
                 ShakenStir.asResource(name)
         );
     }

@@ -1,5 +1,6 @@
 package io.github.hawah.shakenstir.content.item;
 
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
@@ -22,6 +23,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2f;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class GlasswareItem extends PriorityBlockItem {
     public GlasswareItem(Block block, Properties properties) {
         super(block, properties);

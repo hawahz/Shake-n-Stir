@@ -115,11 +115,6 @@ public class DataComponentTypeRegistries {
             builder -> builder.persistent(ItemStack.OPTIONAL_CODEC).networkSynchronized(ItemStack.OPTIONAL_STREAM_CODEC)
     );
 
-    public static final DataComponentType<ShakeProductDeferredName> SHAKE_PRODUCT_DEFERRED_NAME = register(
-            "shake_product_deferred_name",
-            builder -> builder.persistent(ShakeProductDeferredName.CODEC).networkSynchronized(ShakeProductDeferredName.STREAM_CODEC)
-    );
-
     public static final DataComponentType<Quality> SHAKE_PRODUCT_QUALITY = register(
             "shake_product_quality",
             builder -> builder.persistent(Quality.CODEC).networkSynchronized(Quality.STREAM_CODEC)
@@ -133,6 +128,12 @@ public class DataComponentTypeRegistries {
     public static final DataComponentType<CocktailType> COCKTAIL_TYPE = register(
             "cocktail_type",
             builder -> builder.persistent(CocktailType.CODEC).networkSynchronized(CocktailType.STREAM_CODEC)
+    );
+
+    @Deprecated
+    public static final DataComponentType<ShakeProductDeferredName> SHAKE_PRODUCT_DEFERRED_NAME = register(
+            "shake_product_deferred_name",
+            builder -> builder.persistent(ShakeProductDeferredName.CODEC).networkSynchronized(ShakeProductDeferredName.STREAM_CODEC)
     );
 
     public static void register(IEventBus eventBus) {

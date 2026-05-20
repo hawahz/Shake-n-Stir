@@ -15,6 +15,7 @@ public class DatapackRegistries {
     public static final ResourceKey<Registry<SpiritData>> SPIRIT_REGISTRY_KEY = ResourceKey.createRegistryKey(ShakenStir.asResource("spirit"));
     public static final ResourceKey<Registry<IngredientData>> INGREDIENT_REGISTRY_KEY = ResourceKey.createRegistryKey(ShakenStir.asResource("ingredient"));
     public static final ResourceKey<Registry<CocktailType>> COCKTAIL_REGISTRY_KEY = ResourceKey.createRegistryKey(ShakenStir.asResource("cocktail"));
+    public static final ResourceKey<Registry<DrinkData>> DRINK_REGISTRY_KEY = ResourceKey.createRegistryKey(ShakenStir.asResource("drink"));
 
     @SubscribeEvent
     public static void registerDatapackRegistries(DataPackRegistryEvent.NewRegistry event) {
@@ -32,6 +33,11 @@ public class DatapackRegistries {
                 COCKTAIL_REGISTRY_KEY,
                 CocktailType.CODEC,
                 CocktailType.CODEC
+        );
+        event.dataPackRegistry(
+                DRINK_REGISTRY_KEY,
+                DrinkData.CODEC,
+                DrinkData.CODEC
         );
     }
 }
