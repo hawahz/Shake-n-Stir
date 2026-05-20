@@ -4,9 +4,9 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
+import io.github.hawah.shakenstir.foundation.datapack.DrinkData;
 import io.github.hawah.shakenstir.foundation.item.PriorityBlockItem;
 import net.minecraft.core.Direction;
-import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -51,7 +51,7 @@ public class GlasswareItem extends PriorityBlockItem {
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack itemInHand = player.getItemInHand(hand);
-        if (!itemInHand.getOrDefault(DataComponentTypeRegistries.DRINK_DATA, DataComponentMap.EMPTY).isEmpty()) {
+        if (!itemInHand.has(DataComponentTypeRegistries.DRINK_DATA)) {
             player.startUsingItem(hand);
         }
         return super.use(level, player, hand);
@@ -80,21 +80,23 @@ public class GlasswareItem extends PriorityBlockItem {
 
     @Override
     public int getUseDuration(ItemStack itemStack, LivingEntity user) {
-        return itemStack.getOrDefault(DataComponentTypeRegistries.DRINK_DATA, DataComponentMap.EMPTY).isEmpty()? 0: 32;
+        return itemStack.has(DataComponentTypeRegistries.DRINK_DATA)? 0: 32;
     }
 
     @Override
     public ItemStack finishUsingItem(ItemStack itemStack, Level level, LivingEntity entity) {
-        DataComponentMap map;
         ItemStack split = itemStack.split(1);
-        if (!(map = split.getOrDefault(DataComponentTypeRegistries.DRINK_DATA, DataComponentMap.EMPTY)).isEmpty()) {
+        if (split.has(DataComponentTypeRegistries.DRINK_DATA)) {
+            DrinkData drinkData = split.get(DataComponentTypeRegistries.DRINK_DATA);
             split.remove(DataComponentTypeRegistries.DRINK_DATA);
             split.remove(DataComponents.DYED_COLOR);
             split.remove(DataComponentTypeRegistries.GLASSWARE_DECORATIONS);
             split.remove(DataComponentTypeRegistries.GLASSWARE_HAS_FLOWER);
             split.remove(DataComponentTypeRegistries.GLASSWARE_HAS_LEMON);
             split.set(DataComponents.ITEM_NAME, split.getOrDefault(DataComponentTypeRegistries.GLASSWARE_NAME, LangData.ERROR));
-            applyDrinkToEntity(map, level, entity);
+            if (drinkData != null) {
+                applyDrinkToEntity(drinkData, level, entity);
+            }
             if (entity instanceof Player player) {
                 ITakeUpBlock.holdOrAddItem(player, split, level, player.blockPosition());
             }
@@ -103,8 +105,8 @@ public class GlasswareItem extends PriorityBlockItem {
         return super.finishUsingItem(itemStack, level, entity);
     }
 
-    public static void applyDrinkToEntity(DataComponentMap dataComponents, Level level, LivingEntity entity) {
-
+    public static void applyDrinkToEntity(DrinkData dataComponents, Level level, LivingEntity entity) {
+        dataComponents.apply(entity);
     }
 
     @Override

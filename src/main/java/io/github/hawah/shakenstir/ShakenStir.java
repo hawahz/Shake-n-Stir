@@ -1,5 +1,6 @@
 package io.github.hawah.shakenstir;
 
+import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
 import io.github.hawah.shakenstir.content.dataAttachment.DataAttachmentTypeRegistries;
@@ -11,25 +12,21 @@ import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.item.SnsCreativeTab;
 import io.github.hawah.shakenstir.content.recipe.RecipeTypeRegistries;
 import io.github.hawah.shakenstir.content.trigger.TriggerRegistries;
-import io.github.hawah.shakenstir.foundation.datapack.cocktaileType.CocktailTypes;
 import io.github.hawah.shakenstir.foundation.networking.NetworkPackets;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.context.ContextKey;
-import org.slf4j.Logger;
-
-import com.mojang.logging.LogUtils;
-
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(ShakenStir.MODID)
@@ -54,7 +51,6 @@ public class ShakenStir {
         MobEffectRegistries.register(modEventBus);
         DataAttachmentTypeRegistries.register(modEventBus);
         TriggerRegistries.register(modEventBus);
-        CocktailTypes.register(modEventBus);
         NetworkPackets.register();
 
         NeoForge.EVENT_BUS.register(this);

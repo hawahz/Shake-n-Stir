@@ -2,20 +2,19 @@ package io.github.hawah.shakenstir.foundation.datapack.spirit;
 
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
-import io.github.hawah.shakenstir.foundation.datapack.DatapackRegistries;
 import io.github.hawah.shakenstir.foundation.datapack.EffectData;
+import io.github.hawah.shakenstir.foundation.datapack.Registries;
 import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
 
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.BiConsumer;
 
 public class Spirits {
-    public static final DeferredRegister<SpiritData> COCKTAIL_TYPE = DeferredRegister.create(DatapackRegistries.SPIRIT_REGISTRY_KEY, ShakenStir.MODID);
-
     public static final EffectData BRANDY_EFFECT = EffectData.spirit(
             MobEffects.JUMP_BOOST, MobEffects.SLOWNESS
     );
@@ -35,21 +34,35 @@ public class Spirits {
             MobEffects.HASTE, MobEffects.MINING_FATIGUE
     );
 
-    public static final DeferredHolder<SpiritData, SpiritData> BRANDY = register("brandy", FluidRegistries.BRANDY_SOURCE_FLUID_BLOCK, BRANDY_EFFECT);
-    public static final DeferredHolder<SpiritData, SpiritData> GIN = register("gin", FluidRegistries.GIN_SOURCE_FLUID_BLOCK, GIN_EFFECT);
-    public static final DeferredHolder<SpiritData, SpiritData> RUM = register("rum", FluidRegistries.RUM_SOURCE_FLUID_BLOCK, RUM_EFFECT);
-    public static final DeferredHolder<SpiritData, SpiritData> VODKA = register("vodka", FluidRegistries.VODKA_SOURCE_FLUID_BLOCK, VODKA_EFFECT);
-    public static final DeferredHolder<SpiritData, SpiritData> WHISKEY = register("whiskey", FluidRegistries.WHISKY_SOURCE_FLUID_BLOCK, WHISKEY_EFFECT);
-    public static final DeferredHolder<SpiritData, SpiritData> TEQUILA = register("tequila", FluidRegistries.TEQUILA_SOURCE_FLUID_BLOCK, TEQUILA_EFFECT);
-    public static final DeferredHolder<SpiritData, SpiritData> FALLBACK = register("scotch", Fluids.EMPTY.builtInRegistryHolder(), EffectData.of(MobEffects.STRENGTH, List.of()));
+    public static final ResourceKey<SpiritData> BRANDY = spiritKey("brandy");
+    public static final ResourceKey<SpiritData> GIN = spiritKey("gin");
+    public static final ResourceKey<SpiritData> RUM = spiritKey("rum");
+    public static final ResourceKey<SpiritData> VODKA = spiritKey("vodka");
+    public static final ResourceKey<SpiritData> WHISKEY = spiritKey("whiskey");
+    public static final ResourceKey<SpiritData> TEQUILA = spiritKey("tequila");
 
+    private static final Map<ResourceKey<SpiritData>, SpiritData> ENTRIES = new LinkedHashMap<>();
 
-    public static DeferredHolder<SpiritData, SpiritData> register(String registryKey, Holder<Fluid> fluidType, EffectData effectData) {
-        return COCKTAIL_TYPE.register(registryKey, () -> new SpiritData(fluidType, effectData));
+    static {
+        ENTRIES.put(BRANDY, new SpiritData(FluidRegistries.BRANDY_SOURCE_FLUID_BLOCK, BRANDY_EFFECT));
+        ENTRIES.put(GIN, new SpiritData(FluidRegistries.GIN_SOURCE_FLUID_BLOCK, GIN_EFFECT));
+        ENTRIES.put(RUM, new SpiritData(FluidRegistries.RUM_SOURCE_FLUID_BLOCK, RUM_EFFECT));
+        ENTRIES.put(VODKA, new SpiritData(FluidRegistries.VODKA_SOURCE_FLUID_BLOCK, VODKA_EFFECT));
+        ENTRIES.put(WHISKEY, new SpiritData(FluidRegistries.WHISKY_SOURCE_FLUID_BLOCK, WHISKEY_EFFECT));
+        ENTRIES.put(TEQUILA, new SpiritData(FluidRegistries.TEQUILA_SOURCE_FLUID_BLOCK, TEQUILA_EFFECT));
     }
 
-    public static DeferredHolder<SpiritData, SpiritData> fallback() {
-        return FALLBACK;
+    public static ResourceKey<SpiritData> spiritKey(String name) {
+        return ResourceKey.create(Registries.SPIRIT_REGISTRY_KEY, ShakenStir.asResource(name));
     }
 
+    public static void forEachEntry(BiConsumer<ResourceKey<SpiritData>, SpiritData> consumer) {
+        ENTRIES.forEach(consumer);
+    }
+
+    public static Optional<SpiritData> getBuiltIn(Holder<Fluid> fluidType) {
+        return ENTRIES.values().stream()
+                .filter(data -> data.fluidType().equals(fluidType))
+                .findFirst();
+    }
 }

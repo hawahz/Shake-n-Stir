@@ -1,0 +1,47 @@
+{
+  "fluid": "shakenstir:vodka_fluid",
+  "positive": {
+    "negative": "minecraft:weakness",
+    "negativeLevNDur": [
+      {
+        "duration": 20,
+        "level": 0
+      },
+      {
+        "duration": 30,
+        "level": 0
+      },
+      {
+        "duration": 45,
+        "level": 1
+      },
+      {
+        "duration": 60,
+        "level": 2
+      }
+    ],
+    "positive": "minecraft:jump_boost",
+    "positiveLevNDur": [
+      {
+        "duration": 90,
+        "level": 0
+      },
+      {
+        "duration": 120,
+        "level": 0
+      },
+      {
+        "duration": 120,
+        "level": 1
+      },
+      {
+        "duration": 150,
+        "level": 1
+      },
+      {
+        "duration": 180,
+        "level": 2
+      }
+    ]
+  }
+}

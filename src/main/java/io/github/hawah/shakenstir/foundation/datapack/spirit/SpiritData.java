@@ -3,8 +3,8 @@ package io.github.hawah.shakenstir.foundation.datapack.spirit;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.hawah.shakenstir.content.recipe.Quality;
-import io.github.hawah.shakenstir.foundation.datapack.DatapackRegistries;
 import io.github.hawah.shakenstir.foundation.datapack.EffectData;
+import io.github.hawah.shakenstir.foundation.datapack.Registries;
 import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -32,12 +32,14 @@ public record SpiritData(Holder<Fluid> fluidType, EffectData effectData) {
 
     public static SpiritData get(Level level, Holder<Fluid> fluidType) {
         return level.registryAccess()
-                .lookup(DatapackRegistries.SPIRIT_REGISTRY_KEY)
+                .lookup(Registries.SPIRIT_REGISTRY_KEY)
                 .flatMap(registry ->
                         registry.stream()
                                 .filter(spiritData -> spiritData.fluidType().equals(fluidType))
                                 .findFirst()
-                ).orElse(Spirits.FALLBACK.get());
+                )
+                .or(() -> Spirits.getBuiltIn(fluidType))
+                .orElseThrow();
     }
 
     public MobEffectInstance get(Quality phase) {

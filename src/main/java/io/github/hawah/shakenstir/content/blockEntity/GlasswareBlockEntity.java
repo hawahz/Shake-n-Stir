@@ -190,7 +190,7 @@ public class GlasswareBlockEntity extends BlockEntity {
         rotation = components.getOrDefault(DataComponentTypeRegistries.GLASSWARE_ROTATION, 0.0f);
         if (components.has(DataComponentTypeRegistries.DRINK_DATA)) {
             this.contentComponents.clearPatch();
-            this.contentComponents.setAll(components.getOrDefault(DataComponentTypeRegistries.DRINK_DATA, DataComponentMap.EMPTY));
+            this.contentComponents.set(DataComponentTypeRegistries.DRINK_DATA, components.get(DataComponentTypeRegistries.DRINK_DATA));
         }
 
         if (components.has(DataComponents.DYED_COLOR) && !contentComponents.isEmpty()) {

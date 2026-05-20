@@ -8,6 +8,8 @@ import io.github.hawah.shakenstir.content.recipe.Quality;
 import io.github.hawah.shakenstir.content.recipe.RecipeTypeRegistries;
 import io.github.hawah.shakenstir.content.recipe.ShakeRecipe;
 import io.github.hawah.shakenstir.content.recipe.ShakeRecipeInput;
+import io.github.hawah.shakenstir.foundation.datapack.DrinkData;
+import io.github.hawah.shakenstir.foundation.datapack.spirit.SpiritData;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.lib.networking.ClientToServerPacket;
 import net.minecraft.core.UUIDUtil;
@@ -22,18 +24,16 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.neoforged.neoforge.fluids.FluidStack;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
-public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem, int shakeSuccessTimes, float pastProcess) implements ClientToServerPacket {
+public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem, int shakeSuccessTimes, float pastProcess, int iceCount) implements ClientToServerPacket {
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundShakeFinishPacket> STREAM_CODEC = StreamCodec.composite(
             UUIDUtil.STREAM_CODEC,  ServerboundShakeFinishPacket::playerUUID,
             ItemStack.STREAM_CODEC, ServerboundShakeFinishPacket::shakeItem,
             ByteBufCodecs.INT,      ServerboundShakeFinishPacket::shakeSuccessTimes,
             ByteBufCodecs.FLOAT,   ServerboundShakeFinishPacket::pastProcess,
+            ByteBufCodecs.INT,      ServerboundShakeFinishPacket::iceCount,
             ServerboundShakeFinishPacket::new
     );
 
@@ -64,7 +64,7 @@ public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem,
         }
 
         RecipeManager recipeManager = level.recipeAccess();
-        ShakeRecipeInput recipeInput = new ShakeRecipeInput(itemData, fluidData, shakeSuccessTimes);
+        ShakeRecipeInput recipeInput = new ShakeRecipeInput(itemData, fluidData, 30);
         Optional<RecipeHolder<ShakeRecipe>> result = recipeManager.getRecipeFor(
                 RecipeTypeRegistries.SHAKE_RECIPE.get(),
                 recipeInput,
@@ -93,6 +93,14 @@ public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem,
             int failTimes = shakeItem.getOrDefault(DataComponentTypeRegistries.SHAKE_FALI_TIMES, 0);
             Quality quality = Quality.calculate(failTimes, pastProcess, mainHandItem.getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 1), shakeAdditionTimes);
             resultItem.set(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY, quality);
+            resultItem.set(DataComponentTypeRegistries.DRINK_DATA, new DrinkData(
+                    resultItem.get(DataComponentTypeRegistries.COCKTAIL_TYPE),
+                    SpiritData.get(level, fluidData.stream().max(Comparator.comparing(FluidStack::getAmount)).orElseThrow().typeHolder()),
+                    List.of(),
+                    List.of(),
+                    quality,
+                    iceCount()
+            ));
             ShakeUtil.clearContent(mainHandItem);
             ShakeUtil.setItemData(mainHandItem, List.of(resultItem));
         });

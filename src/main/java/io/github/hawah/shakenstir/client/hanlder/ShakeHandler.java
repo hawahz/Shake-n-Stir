@@ -217,7 +217,8 @@ public class ShakeHandler implements IHandler, GuiLayer {
                 getPlayer().getUUID(),
                 getItem(getPlayer()),
                 shakeSuccessTimes,
-                getIceMeltProcess()
+                getIceMeltProcess(),
+                getItem().getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0)
         ));
     }
 }

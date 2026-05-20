@@ -27,7 +27,7 @@ public record IngredientData(Ingredient itemHolder, EffectData effect) {
 
     public static Optional<IngredientData> get(Level level, Holder<Item> itemHolder) {
         return level.registryAccess()
-                .lookup(DatapackRegistries.INGREDIENT_REGISTRY_KEY)
+                .lookup(Registries.INGREDIENT_REGISTRY_KEY)
                 .flatMap(registry ->
                         registry.stream()
                                 .filter(spiritData -> spiritData.itemHolder().test(itemHolder.value().getDefaultInstance()))

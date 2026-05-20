@@ -50,6 +50,8 @@ public class ItemRegistries {
 
     public static final DeferredItem<SoberingTea> SOBERING_TEA = register("sobering_tea", SoberingTea::new);
 
+    public static final DeferredItem<PriorityBlockItem> CABINET = register("cabinet", BlockRegistries.CABINET);
+
     public static <T extends Item> DeferredItem<T> register(String name, Function<Item.Properties, T> supply) {
         return ITEM.register(name, (registryName) -> supply.apply(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName))));
     }

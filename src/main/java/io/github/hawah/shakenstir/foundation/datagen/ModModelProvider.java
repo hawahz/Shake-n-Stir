@@ -7,6 +7,7 @@ import io.github.hawah.shakenstir.client.render.item.ShakeItemSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer;
 import io.github.hawah.shakenstir.content.HasCup;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
+import io.github.hawah.shakenstir.content.block.Cabinet;
 import io.github.hawah.shakenstir.content.block.SpiritBlock;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
@@ -86,6 +87,7 @@ public class ModModelProvider extends ModelProvider {
         registerCustomBlockModel(blockModels, "block/bubble_liquid", BlockRegistries.BUBBLE_LIQUID.get());
 
         generateIceCube(itemModels);
+        generateCabinet(blockModels, itemModels);
 //        generateLongDrinkGlassware(itemModels);
     }
 
@@ -147,6 +149,35 @@ public class ModModelProvider extends ModelProvider {
         itemModels.itemModelOutput.accept(
                 ItemRegistries.SHAKE.get(),
                 selected
+        );
+    }
+    private static void generateCabinet(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
+        blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(BlockRegistries.CABINET.get())
+                .with(
+                        PropertyDispatch.initial(Cabinet.LEFT, Cabinet.RIGHT, Cabinet.FACING)
+                                .select(false,  false,  Direction.NORTH, getMultiVariant("block/cabinet"))
+                                .select(false,   true,  Direction.NORTH, getMultiVariant("block/cabinet_l"))
+                                .select(true,  false,   Direction.NORTH, getMultiVariant("block/cabinet_r"))
+                                .select(true,   true,   Direction.NORTH, getMultiVariant("block/cabinet_lr"))
+                                .select(false,  false,  Direction.EAST, getMultiVariant("block/cabinet")    .with(BlockModelGenerators.Y_ROT_90))
+                                .select(false,   true,  Direction.EAST, getMultiVariant("block/cabinet_l")  .with(BlockModelGenerators.Y_ROT_90))
+                                .select(true,  false,   Direction.EAST, getMultiVariant("block/cabinet_r")   .with(BlockModelGenerators.Y_ROT_90))
+                                .select(true,   true,   Direction.EAST, getMultiVariant("block/cabinet_lr") .with(BlockModelGenerators.Y_ROT_90))
+                                .select(false,  false,  Direction.SOUTH, getMultiVariant("block/cabinet")   .with(BlockModelGenerators.Y_ROT_180))
+                                .select(false,   true,  Direction.SOUTH, getMultiVariant("block/cabinet_l") .with(BlockModelGenerators.Y_ROT_180))
+                                .select(true,  false,   Direction.SOUTH, getMultiVariant("block/cabinet_r")  .with(BlockModelGenerators.Y_ROT_180))
+                                .select(true,   true,   Direction.SOUTH, getMultiVariant("block/cabinet_lr").with(BlockModelGenerators.Y_ROT_180))
+                                .select(false,  false,  Direction.WEST, getMultiVariant("block/cabinet")   .with(BlockModelGenerators.Y_ROT_270))
+                                .select(false,   true,  Direction.WEST, getMultiVariant("block/cabinet_l") .with(BlockModelGenerators.Y_ROT_270))
+                                .select(true,  false,   Direction.WEST, getMultiVariant("block/cabinet_r")  .with(BlockModelGenerators.Y_ROT_270))
+                                .select(true,   true,   Direction.WEST, getMultiVariant("block/cabinet_lr").with(BlockModelGenerators.Y_ROT_270))
+                )
+        );
+        ItemModel.Unbaked itemModel = ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "block/cabinet"));
+
+        itemModels.itemModelOutput.accept(
+                ItemRegistries.CABINET.get(),
+                itemModel
         );
     }
 
