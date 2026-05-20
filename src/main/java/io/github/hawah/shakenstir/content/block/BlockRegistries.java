@@ -39,6 +39,8 @@ public class BlockRegistries {
     public static final DeferredBlock<Glassware> LONG_DRINK_GLASSWARE = register("long_drink_glassware", Glassware::new);
     public static final DeferredBlock<Glassware> SHORT_DRINK_GLASSWARE = register("short_drink_glassware", Glassware::new);
 
+    public static final DeferredBlock<Cabinet> CABINET = register("cabinet", Cabinet::new);
+
 
     public static final DeferredBlock<LiquidBlock> GIN_LIQUID = registerLiquid("gin_liquid", FluidRegistries.GIN_SOURCE_FLUID_BLOCK);
     public static final DeferredBlock<LiquidBlock> VODKA_LIQUID = registerLiquid("vodka_liquid", FluidRegistries.VODKA_FLOWING_FLUID_BLOCK);
@@ -56,6 +58,10 @@ public class BlockRegistries {
     public static final Supplier<MapCodec<SpiritBlock>> CENTERED_SPIRIT_CODEC = REGISTRAR.register(
             "centered_spirit",
             () -> BlockBehaviour.simpleCodec(SpiritBlock::new)
+    );
+    public static final Supplier<MapCodec<Cabinet>> CABINET_CODEC = REGISTRAR.register(
+            "cabinet",
+            () -> BlockBehaviour.simpleCodec(Cabinet::new)
     );
 
     public static void register(IEventBus eventBus) {

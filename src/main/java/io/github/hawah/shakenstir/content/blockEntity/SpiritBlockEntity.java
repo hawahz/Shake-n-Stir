@@ -1,7 +1,6 @@
 package io.github.hawah.shakenstir.content.blockEntity;
 
 import com.mojang.logging.LogUtils;
-import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.content.block.SpiritBlock;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.FluidStackDataComponent;
@@ -22,10 +21,6 @@ import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class SpiritBlockEntity extends BlockEntity {
 
     public NonNullList<FluidStack> fluidStacks = NonNullList.withSize(4, FluidStack.EMPTY);

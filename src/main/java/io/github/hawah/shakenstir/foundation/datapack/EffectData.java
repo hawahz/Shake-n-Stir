@@ -11,6 +11,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -69,6 +70,16 @@ public record EffectData(
     public static EffectData of(Holder<MobEffect> effect, List<Integer> amplifier) {
         return new EffectData(effect, effect, LevelMapDuration.of(amplifier, 1200), List.of());
     }
+    public static EffectData of(Holder<MobEffect> positive, Holder<MobEffect> negative, List<Integer> amplifier, List<Integer> duration, List<Integer> negativeAmplifier, List<Integer> negativeDuration) {
+        return new EffectData(positive, negative, LevelMapDuration.of(amplifier, duration), LevelMapDuration.of(negativeAmplifier, negativeDuration));
+    }
+    public static EffectData spirit(Holder<MobEffect> positive, Holder<MobEffect> negative) {
+        return of(
+                positive, negative,
+                List.of(0, 0, 1, 1, 2), List.of(90, 120, 120, 150, 180),
+                List.of(0, 0, 1, 2), List.of(20, 30, 45, 60)
+        );
+    }
 
     public record LevelMapDuration(int level, int duration) {
         public static final Codec<LevelMapDuration> CODEC = RecordCodecBuilder.create(inst -> inst.group(
@@ -83,6 +94,21 @@ public record EffectData(
 
         public static List<LevelMapDuration> of(List<Integer> amplifier, int duration) {
             return amplifier.stream().map(integer -> new LevelMapDuration(duration, integer)).toList();
+        }
+        public static List<LevelMapDuration> of(List<Integer> amplifier, List<Integer> duration) {
+            List<LevelMapDuration> ret = new ArrayList<>();
+            for (int i = 0; i < Math.max(amplifier.size(), duration.size()); i++) {
+                ret.add(new LevelMapDuration(safeGet(amplifier, i), safeGet(duration, i)));
+            }
+            return ret;
+        }
+
+        private static <T> T safeGet(List<T> list, int index) {
+            return index < list.size() ?
+                    index >= 0 ?
+                            list.get(index) :
+                            list.getFirst():
+                    list.getLast();
         }
     }
 }

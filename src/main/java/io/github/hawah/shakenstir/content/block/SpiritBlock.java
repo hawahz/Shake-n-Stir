@@ -6,7 +6,6 @@ import io.github.hawah.shakenstir.content.blockEntity.SpiritBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.FluidStackDataComponent;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
-import io.github.hawah.shakenstir.lib.VoxelShapeMaker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -33,7 +32,6 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import org.jspecify.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Map;
 import java.util.Optional;
 
 @ParametersAreNonnullByDefault
@@ -41,12 +39,7 @@ import java.util.Optional;
 public class SpiritBlock extends FallingBlock implements EntityBlock, ITakeUpBlock{
 
     public static final VoxelShape SHAPE = box(5, 0 ,5, 11, 15, 11);
-    public static final Map<Direction, VoxelShape> DOUBLE_SHAPES = Map.of(
-            Direction.NORTH, VoxelShapeMaker.getByHorizontalDirection(Direction.NORTH,  box(0, 0 ,5, 16, 15, 11)),
-            Direction.EAST, VoxelShapeMaker.getByHorizontalDirection(Direction.EAST,    box(0, 0 ,5, 16, 15, 11)),
-            Direction.SOUTH, VoxelShapeMaker.getByHorizontalDirection(Direction.SOUTH,  box(0, 0 ,5, 16, 15, 11)),
-            Direction.WEST, VoxelShapeMaker.getByHorizontalDirection(Direction.WEST,    box(0, 0 ,5, 16, 15, 11))
-    );
+    public static final VoxelShape DOUBLE_SHAPES = box(3, 0 ,3, 13, 15, 13);
     public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
     public static final IntegerProperty COUNTS = IntegerProperty.create("shakenstir_counts", 1, 4);
 
@@ -75,7 +68,7 @@ public class SpiritBlock extends FallingBlock implements EntityBlock, ITakeUpBlo
             return SHAPE;
         }
         if (state.getValue(COUNTS) == 2) {
-            return DOUBLE_SHAPES.get(state.getValue(FACING));
+            return DOUBLE_SHAPES;
         }
         return Shapes.block();
     }

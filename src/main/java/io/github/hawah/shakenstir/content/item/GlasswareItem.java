@@ -91,6 +91,8 @@ public class GlasswareItem extends PriorityBlockItem {
             split.remove(DataComponentTypeRegistries.DRINK_DATA);
             split.remove(DataComponents.DYED_COLOR);
             split.remove(DataComponentTypeRegistries.GLASSWARE_DECORATIONS);
+            split.remove(DataComponentTypeRegistries.GLASSWARE_HAS_FLOWER);
+            split.remove(DataComponentTypeRegistries.GLASSWARE_HAS_LEMON);
             split.set(DataComponents.ITEM_NAME, split.getOrDefault(DataComponentTypeRegistries.GLASSWARE_NAME, LangData.ERROR));
             applyDrinkToEntity(map, level, entity);
             if (entity instanceof Player player) {

@@ -47,7 +47,7 @@ public class ModDatapackGenerator {
                                     spiritKey("example"),
                                     new SpiritData(
                                             FluidRegistries.BUBBLE_SOURCE_FLUID_BLOCK,
-                                            EffectData.of(MobEffects.STRENGTH, List.of(1, 2))
+                                            EffectData.spirit(MobEffects.STRENGTH, MobEffects.WEAKNESS)
                                     )
                             );
                         })

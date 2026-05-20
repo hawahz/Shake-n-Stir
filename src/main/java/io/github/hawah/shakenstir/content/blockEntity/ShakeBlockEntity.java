@@ -1,7 +1,6 @@
 package io.github.hawah.shakenstir.content.blockEntity;
 
 import com.mojang.logging.LogUtils;
-import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.content.block.Shake;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
@@ -42,10 +41,6 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
     public static final int MAX_HOLD_FLUIDS = 6;
     public static final int MAX_FLUID_CAPACITY = 1000;
