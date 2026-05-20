@@ -94,7 +94,7 @@ public class GlasswareBlockEntity extends BlockEntity {
     }
 
     public boolean pourProduct(ItemStack itemStack) {
-        if (!this.components().isEmpty()) {
+        if (!this.contentComponents.isEmpty()) {
             return false;
         }
         contentComponents.setAll(itemStack.getComponents());

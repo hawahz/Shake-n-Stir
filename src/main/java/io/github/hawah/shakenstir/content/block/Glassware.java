@@ -94,7 +94,7 @@ public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
                 drop.set(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY, blockEntity.contentComponents.get(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY));
                 blockEntity.contentComponents.remove(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY);
             }
-            if (!blockEntity.contentComponents.has(DataComponentTypeRegistries.DRINK_DATA)) {
+            if (blockEntity.contentComponents.has(DataComponentTypeRegistries.DRINK_DATA)) {
                 drop.set(DataComponentTypeRegistries.DRINK_DATA, blockEntity.contentComponents.get(DataComponentTypeRegistries.DRINK_DATA));
             }
             return drop;

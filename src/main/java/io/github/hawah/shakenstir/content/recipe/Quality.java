@@ -41,7 +41,7 @@ public enum Quality implements StringRepresentable {
     }
     public int toSignedIndex() {
         int ordinal = ordinal();
-        return ordinal - AVERAGE.ordinal();
+        return -(ordinal - AVERAGE.ordinal());
     }
 
     public static Quality calculate(int shakeFailedTimes, float iceMeltProcess, int iceCubeCounts, int shakeAdditionTimes) {

@@ -76,8 +76,8 @@ public record EffectData(
     public static EffectData spirit(Holder<MobEffect> positive, Holder<MobEffect> negative) {
         return of(
                 positive, negative,
-                List.of(0, 0, 1, 1, 2), List.of(90, 120, 120, 150, 180),
-                List.of(0, 0, 1, 2), List.of(20, 30, 45, 60)
+                List.of(0, 0, 1, 1, 2), List.of(90 * 20, 120 * 20, 120 * 20, 150 * 20, 180 * 20),
+                List.of(0, 0, 1, 2), List.of(20 * 20, 30 * 20, 45 * 20, 60 * 20)
         );
     }
 

@@ -75,7 +75,8 @@ public class ParalysisEffect extends AbstractRemoveHookedMobEffect {
             if (entity.level() instanceof ServerLevel serverLevel) {
                 if (!effect.tickServer(serverLevel, entity, () -> ( (LivingEntityAccessor) entity).ShakenStir$onEffectUpdated(effect, true, null))) {
                     if (!net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.entity.living.MobEffectEvent.Expired(entity, effect)).isCanceled()) {
-                        ( (LivingEntityAccessor) entity).ShakenStir$onEffectsRemoved(List.of(effect));
+                        activeEffects.remove(MobEffectRegistries.PARALYSIS);
+                        ((LivingEntityAccessor) entity).ShakenStir$onEffectsRemoved(List.of(effect));
                     }
                 } else if (effect.getDuration() % 600 == 0) {
                     ( (LivingEntityAccessor) entity).ShakenStir$onEffectUpdated(effect, false, null);

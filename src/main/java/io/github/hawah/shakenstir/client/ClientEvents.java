@@ -11,6 +11,7 @@ import io.github.hawah.shakenstir.client.model.glassware.GlasswareQuadCollection
 import io.github.hawah.shakenstir.client.model.glassware.GlasswareUnbakedModelLoader;
 import io.github.hawah.shakenstir.client.render.ClientShakeTooltipComponent;
 import io.github.hawah.shakenstir.client.render.GlasswareOutlineRenderer;
+import io.github.hawah.shakenstir.client.render.block.CabinetBlockEntityRenderer;
 import io.github.hawah.shakenstir.client.render.block.GlasswareBlockEntityRenderer;
 import io.github.hawah.shakenstir.client.render.block.ShakeBlockEntityRenderer;
 import io.github.hawah.shakenstir.client.render.item.GlasswareSpecialRenderer;
@@ -227,6 +228,10 @@ public class ClientEvents {
             event.registerBlockEntityRenderer(
                     BlockEntityRegistries.GLASSWARE_BLOCK_ENTITY.get(),
                     GlasswareBlockEntityRenderer::new
+            );
+            event.registerBlockEntityRenderer(
+                    BlockEntityRegistries.CABINET_BLOCK_ENTITY.get(),
+                    CabinetBlockEntityRenderer::new
             );
         }
 

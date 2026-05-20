@@ -54,7 +54,7 @@ public record DrinkData(
         livingEntity.addEffect(
                 new MobEffectInstance(
                         MobEffectRegistries.PARALYSIS,
-                        COLD_LEVELS[coldLevel()]
+                        COLD_LEVELS[coldLevel() - 1]
         ));
         for (MobEffectInstance effect : finalEffects) {
             livingEntity.addEffect(effect);

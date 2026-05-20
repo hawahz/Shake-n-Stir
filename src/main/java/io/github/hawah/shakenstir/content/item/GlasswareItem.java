@@ -51,7 +51,7 @@ public class GlasswareItem extends PriorityBlockItem {
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack itemInHand = player.getItemInHand(hand);
-        if (!itemInHand.has(DataComponentTypeRegistries.DRINK_DATA)) {
+        if (itemInHand.has(DataComponentTypeRegistries.DRINK_DATA)) {
             player.startUsingItem(hand);
         }
         return super.use(level, player, hand);
@@ -80,7 +80,7 @@ public class GlasswareItem extends PriorityBlockItem {
 
     @Override
     public int getUseDuration(ItemStack itemStack, LivingEntity user) {
-        return itemStack.has(DataComponentTypeRegistries.DRINK_DATA)? 0: 32;
+        return itemStack.has(DataComponentTypeRegistries.DRINK_DATA)? 32: 0;
     }
 
     @Override
@@ -93,6 +93,7 @@ public class GlasswareItem extends PriorityBlockItem {
             split.remove(DataComponentTypeRegistries.GLASSWARE_DECORATIONS);
             split.remove(DataComponentTypeRegistries.GLASSWARE_HAS_FLOWER);
             split.remove(DataComponentTypeRegistries.GLASSWARE_HAS_LEMON);
+            split.remove(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY);
             split.set(DataComponents.ITEM_NAME, split.getOrDefault(DataComponentTypeRegistries.GLASSWARE_NAME, LangData.ERROR));
             if (drinkData != null) {
                 applyDrinkToEntity(drinkData, level, entity);

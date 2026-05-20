@@ -6,6 +6,10 @@ import io.github.hawah.shakenstir.content.blockEntity.CabinetBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -21,6 +25,8 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -67,7 +73,59 @@ public class Cabinet extends HorizontalDirectionalBlock implements EntityBlock, 
 
         isLeft = rightBlock.is(this) && rightBlock.getValue(FACING).equals(facingDirection);
         isRight = leftBlock.is(this) && leftBlock.getValue(FACING).equals(facingDirection);
-        return this.defaultBlockState().setValue(LEFT, isLeft).setValue(RIGHT, isRight).setValue(WATERLOGGED, replacedFluidState.is(Fluids.WATER));
+        return this.defaultBlockState()
+                .setValue(FACING, context.getHorizontalDirection())
+                .setValue(LEFT, isLeft)
+                .setValue(RIGHT, isRight)
+                .setValue(WATERLOGGED, replacedFluidState.is(Fluids.WATER));
+    }
+
+    @Override
+    protected InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        Direction facing = state.getValue(FACING);
+        if (hitResult.getDirection().getOpposite() != facing || itemStack.isEmpty()) {
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
+        }
+        Vec3 leftDir = facing.getClockWise().getUnitVec3();
+        Vec3 leftCenter = pos.getCenter().add(leftDir.x * 0.5, 0, leftDir.z * 0.5);
+        Vec3 rightCenter = pos.getCenter().add(-leftDir.x * 0.5, 0, -leftDir.z * 0.5);
+        Vec3 location = hitResult.getLocation();
+        int index;
+        if (location.distanceTo(leftCenter) < location.distanceTo(rightCenter)) {
+            index = 0;
+        } else {
+            index = 1;
+        }
+        if (level.getBlockEntity(pos) instanceof CabinetBlockEntity blockEntity) {
+            blockEntity.putSpirit(index, itemStack);
+            return InteractionResult.SUCCESS;
+        }
+
+        return super.useItemOn(itemStack, state, level, pos, player, hand, hitResult);
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        Direction facing = state.getValue(FACING);
+        if (hitResult.getDirection().getOpposite() != facing) {
+            return InteractionResult.FAIL;
+        }
+        Vec3 leftDir = facing.getClockWise().getUnitVec3();
+        Vec3 leftCenter = pos.getCenter().add(leftDir.x * 0.5, 0, leftDir.z * 0.5);
+        Vec3 rightCenter = pos.getCenter().add(-leftDir.x * 0.5, 0, -leftDir.z * 0.5);
+        Vec3 location = hitResult.getLocation();
+        int index;
+        if (location.distanceTo(leftCenter) < location.distanceTo(rightCenter)) {
+            index = 0;
+        } else {
+            index = 1;
+        }
+        if (level.getBlockEntity(pos) instanceof CabinetBlockEntity blockEntity) {
+            ItemStack itemStack = blockEntity.takeSpirit(index);
+            player.addItem(itemStack);
+            return InteractionResult.SUCCESS;
+        }
+        return super.useWithoutItem(state, level, pos, player, hitResult);
     }
 
     @Override
