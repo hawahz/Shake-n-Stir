@@ -30,6 +30,8 @@ public class DrunkEffect extends MobEffect {
         }
     }
 
+
+
     @Override
     public void onEffectStarted(LivingEntity mob, int amplifier) {
         super.onEffectStarted(mob, amplifier);

@@ -15,7 +15,7 @@
       "shakenstir:cocktail_type": {
         "effects": [],
         "id": "shakenstir:tonic",
-        "translation_key": "shakenstir:tonic"
+        "translation_key": "shakenstir:name.tonic"
       }
     },
     "id": "shakenstir:shake_content_holder"

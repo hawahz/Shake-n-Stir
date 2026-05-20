@@ -14,18 +14,15 @@ import net.minecraft.client.renderer.block.BlockModelResolver;
 import net.minecraft.client.renderer.block.model.BlockDisplayContext;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.blockentity.state.ShelfRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
@@ -127,28 +124,6 @@ public class CabinetBlockEntityRenderer implements BlockEntityRenderer<CabinetBl
                 );
                 state.renderStateEither.set(i, Either.right(itemStackRenderState));
             }
-            state.lightCoords = LightCoordsUtil.FULL_BRIGHT;
         }
-    }
-
-    private void submitItem(
-            ShelfRenderState state, ItemStackRenderState itemStackRenderState, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int slot, float yRot
-    ) {
-        float itemSlotPosition = (slot - 1) * 0.3125F;
-        Vec3 itemOffset = new Vec3(itemSlotPosition, state.alignToBottom ? -0.25 : 0.0, -0.25);
-        poseStack.pushPose();
-        poseStack.translate(0.5F, 0.5F, 0.5F);
-        poseStack.mulPose(Axis.YP.rotationDegrees(yRot));
-        poseStack.translate(itemOffset);
-        poseStack.scale(0.25F, 0.25F, 0.25F);
-        AABB box = itemStackRenderState.getModelBoundingBox();
-        double offsetY = -box.minY;
-        if (!state.alignToBottom) {
-            offsetY += -(box.maxY - box.minY) / 2.0;
-        }
-
-        poseStack.translate(0.0, offsetY, 0.0);
-        itemStackRenderState.submit(poseStack, submitNodeCollector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
-        poseStack.popPose();
     }
 }

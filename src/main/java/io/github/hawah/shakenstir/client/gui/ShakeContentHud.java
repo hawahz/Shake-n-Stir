@@ -54,10 +54,6 @@ public class ShakeContentHud implements GuiLayer {
         return visible;
     }
 
-    public void tick() {
-//        fluidSim.tick();
-    }
-
     @Override
     public void render(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
         float renderTime = AnimationTickHolder.getRenderTime();

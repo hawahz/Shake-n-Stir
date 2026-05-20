@@ -22,7 +22,7 @@ public record ServerboundEntityFallPacket(UUID entityUUID) implements ClientToSe
     public void handle(ServerPlayer player) {
         Entity entity = player.level().getEntity(entityUUID());
         if (entity instanceof LivingEntity livingEntity) {
-            livingEntity.addEffect(new MobEffectInstance(MobEffectRegistries.FALL_DOWN, 100));
+            livingEntity.addEffect(new MobEffectInstance(MobEffectRegistries.FALL_DOWN, 60));
         }
     }
 

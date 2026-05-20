@@ -1,6 +1,5 @@
 package io.github.hawah.shakenstir.lib.client.utils;
 
-import io.github.hawah.shakenstir.ShakenStirClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.LevelAccessor;
 import net.neoforged.api.distmarker.Dist;
@@ -73,7 +72,7 @@ public class AnimationTickHolder {
     public static float getPartialTicks(boolean ignorePaused) {
         Minecraft mc = Minecraft.getInstance();
         float delta = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
-        return ignorePaused? ShakenStirClient.TIMER_NORMAL.getGameTimeDeltaPartialTick(true): delta;
+        return ignorePaused? delta: delta;
     }
 
     @SubscribeEvent

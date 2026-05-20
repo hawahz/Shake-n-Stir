@@ -5,6 +5,7 @@
   "mixins": [
     "LivingEntityAccessor",
     "LivingEntityMixin",
+    "MobEffectInstanceMixin",
     "RecipeMapMixin",
     "ScreenAccessor"
   ],

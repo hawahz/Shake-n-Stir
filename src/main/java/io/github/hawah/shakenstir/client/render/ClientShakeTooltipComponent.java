@@ -4,16 +4,22 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.content.ShakeTooltipComponent;
 import io.github.hawah.shakenstir.content.dataComponent.ShakeContentHolder;
+import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.foundation.BaseFluidType;
+import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import io.github.hawah.shakenstir.util.Textures;
+import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -145,12 +151,14 @@ public record ClientShakeTooltipComponent(ShakeContentHolder contentHolder, int 
 
 
         if (height > 0) {
+            int rgb = getLiquidColor();
+            // 160, 216, 239
             graphics.fill(
                     x + 8,
                     y + 77 - 2 - (int) height,
                     x + Textures.SHAKE_HUD_INSIDE.getWidth() - 8,
                     y + 77,
-                    ARGB.color((int) Mth.clamp(100 * fadeIn, 0, 255), 160, 216, 239)
+                    ARGB.color((int) Mth.clamp(100 * fadeIn, 0, 255), ARGB.red(rgb), ARGB.green(rgb), ARGB.blue(rgb))
             );
             graphics.horizontalLine(
                     x + 8,
@@ -173,7 +181,23 @@ public record ClientShakeTooltipComponent(ShakeContentHolder contentHolder, int 
         );
     }
 
+    private int getLiquidColor() {
+        for (ItemStack itemStack : contentHolder().itemStacks()) {
+            if (itemStack.is(ItemRegistries.CONTENT_HOLDER)) {
+                return itemStack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(ARGB.color(160, 216, 239))).rgb();
+            }
+        }
+        return ShakeUtil.rgbWithWeight(contentHolder().fluidStacks().stream().map((stack) ->
+                Pair.of(stack.getFluidType() instanceof BaseFluidType type ? type.getTintColor() : 0xFFFFFF, stack.getAmount())
+        ).toList());
+    }
+
     private float getLiquidHeight() {
+        for (ItemStack itemStack : contentHolder().itemStacks()) {
+            if (itemStack.is(ItemRegistries.CONTENT_HOLDER)) {
+                return 70;
+            }
+        }
         return contentHolder().fluidVolume() / 1000F * 70;
     }
 }

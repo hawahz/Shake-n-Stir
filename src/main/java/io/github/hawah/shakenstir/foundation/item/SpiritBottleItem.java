@@ -37,7 +37,6 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Optional;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -142,10 +141,7 @@ public class SpiritBottleItem extends BlockItem implements ITooltipItem {
         itemStack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(fluidStack.copyWithAmount(fluidStack.getAmount() - 250)));
         entity.addEffect(new MobEffectInstance(
                 MobEffectRegistries.DRUNK,
-                600,
-                Optional.ofNullable(entity.getEffect(MobEffectRegistries.DRUNK))
-                        .map(MobEffectInstance::getAmplifier)
-                        .orElse(-1) + 1
+                600
         ));
         return super.finishUsingItem(itemStack, level, entity);
     }

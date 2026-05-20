@@ -36,7 +36,9 @@ public class EntityStepUpEvent {
 
     public static void onEntityStepUp(LivingEntity livingEntity, double stepUpDistance) {
         MobEffectInstance effect = livingEntity.getEffect(MobEffectRegistries.DRUNK);
-        if (effect != null && effect.getAmplifier() > 5) {
+
+        double speed = livingEntity.getDeltaMovement().horizontalDistance();
+        if (effect != null && effect.getAmplifier() > 5 && speed > ((effect.getAmplifier()) > 8? 0.10: 0.12)) {
             double chance = 0.1 * effect.getAmplifier() * (Math.abs(stepUpDistance - 0.5) + 0.1);
             if (livingEntity.level().getRandom().nextDouble() < chance && !livingEntity.hasEffect(MobEffectRegistries.FALL_DOWN)) {
                 Networking.sendToServer(new ServerboundEntityFallPacket(livingEntity.getUUID()));

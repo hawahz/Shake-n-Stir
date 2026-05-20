@@ -15,7 +15,7 @@
       "shakenstir:cocktail_type": {
         "effects": [],
         "id": "shakenstir:cocktail",
-        "translation_key": "shakenstir:cocktail"
+        "translation_key": "shakenstir:name.cocktail"
       },
       "shakenstir:shake_product_pourable": true
     },

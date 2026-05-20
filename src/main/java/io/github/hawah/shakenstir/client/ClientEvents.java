@@ -20,15 +20,19 @@ import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer
 import io.github.hawah.shakenstir.content.HasCup;
 import io.github.hawah.shakenstir.content.ShakeTooltipComponent;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
+import io.github.hawah.shakenstir.content.block.Cabinet;
 import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
+import io.github.hawah.shakenstir.content.blockEntity.CabinetBlockEntity;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
 import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundHandItemDataChangedPacket;
+import io.github.hawah.shakenstir.foundation.networking.ServerboundTryPickItemPacket;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import io.github.hawah.shakenstir.lib.networking.Networking;
 import io.github.hawah.shakenstir.util.Result;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockTintSource;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -37,10 +41,13 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -106,12 +113,13 @@ public class ClientEvents {
         if (getLevel() == null) {
             return;
         }
-        ShakenStirClient.SHAKE_CONTENT_HUD.tick();
         ShakenStirClient.GLASSWARE_HANDLER.tick();
         ShakenStirClient.SHAKE_HANDLER.tick();
+        ShakenStirClient.CABINET_HUD.tick();
     }
 
     private static double cameraRoll = 0;
+    private static double shakeIntensity = 0;
     @SubscribeEvent
     public static void modifyCameraRoll(ViewportEvent.ComputeCameraAngles event) {
         if (getPlayer() == null) {
@@ -120,15 +128,21 @@ public class ClientEvents {
         if (getPlayer().hasEffect((MobEffectRegistries.LEMON))) {
             cameraRoll = 50;
         }
-        if (!getPlayer().hasEffect(MobEffectRegistries.DRUNK) && !(cameraRoll > 0)) {
+        if (!getPlayer().hasEffect(MobEffectRegistries.DRUNK) && !(cameraRoll > 0 && shakeIntensity > 0)) {
             return;
         }
-        float deltaTicks = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
-        cameraRoll = Mth.lerp(0.01 * deltaTicks / 0.68, cameraRoll, getPlayer().hasEffect(MobEffectRegistries.DRUNK)? getPlayer().getEffect(MobEffectRegistries.DRUNK).getAmplifier()/3F: 0);
-        event.setRoll(event.getRoll() + (float) (Math.sin(AnimationTickHolder.getRenderTime()/20) * cameraRoll));
+        DeltaTracker deltaTracker = Minecraft.getInstance().getDeltaTracker();
+        float deltaTicks = deltaTracker.getGameTimeDeltaTicks();
+        int amplifier = getPlayer().hasEffect(MobEffectRegistries.DRUNK) ? getPlayer().getEffect(MobEffectRegistries.DRUNK).getAmplifier() : 0;
+        float renderTime = AnimationTickHolder.getRenderTime();
+        cameraRoll = Mth.lerp(0.01 * deltaTicks / 0.68, cameraRoll, amplifier / 3F);
+        shakeIntensity = Mth.lerp(0.01 * deltaTicks / 0.68, cameraRoll, Math.max(0, amplifier - 5));
+        event.setRoll(event.getRoll() + (float) (Math.sin(renderTime /20) * cameraRoll));
+        event.setPitch((float) ((event.getPitch() + Math.sin(renderTime /20D) * shakeIntensity)));
+        event.setYaw((float) ((event.getYaw() + Math.cos(renderTime /20D) * shakeIntensity)));
     }
 
-    private static float cr = 0, cg = 0, cb = 0;
+    private static float cr = -1, cg = -1, cb = -1;
 
     @SubscribeEvent
     public static void onCameraOffset(ViewportEvent.ComputeFogColor event) {
@@ -141,6 +155,12 @@ public class ClientEvents {
 
         float deltaTicks = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
         float lerp = (float) (FOG_LERP * deltaTicks / 0.68);
+
+        if (cr < 0 || cg < 0 || cb < 0) {
+            cr = r = event.getRed();
+            cg = g = event.getGreen();
+            cb = b = event.getBlue();
+        }
 
         if (getPlayer().hasEffect(MobEffectRegistries.DRUNK) && getPlayer().getEffect(MobEffectRegistries.DRUNK).getAmplifier() >= 3) {
             r = 255 / 255F;
@@ -159,6 +179,38 @@ public class ClientEvents {
         event.setRed    (cr);
         event.setGreen  (cg);
         event.setBlue   (cb);
+    }
+
+    @SubscribeEvent
+    public static void onClickInput(InputEvent.InteractionKeyMappingTriggered event) {
+        boolean pickBlock = event.isPickBlock();
+        LocalPlayer player = getPlayer();
+        if (pickBlock && player != null) {
+            if (player.isShiftKeyDown()) {
+                return;
+            }
+            ClientLevel level = Minecraft.getInstance().level;
+            if (Minecraft.getInstance().hitResult instanceof BlockHitResult hitResult && level != null) {
+                BlockPos pos = hitResult.getBlockPos();
+                BlockState state = level.getBlockState(pos);
+                if (state.is(BlockRegistries.CABINET)){
+                    Direction facing = state.getValue(Cabinet.FACING);
+                    if (hitResult.getDirection().getOpposite() != facing) {
+                        return;
+                    }
+                    int index = Cabinet.getSlot(pos, hitResult, facing);
+                    if (!(level.getBlockEntity(pos) instanceof CabinetBlockEntity blockEntity)) {
+                        return;
+                    }
+                    ItemStack itemStack = blockEntity.contents.get(index);
+                    if (itemStack.isEmpty()) {
+                        return;
+                    }
+                    Networking.sendToServer(new ServerboundTryPickItemPacket(itemStack.copy()));
+                    event.setCanceled(true);
+                }
+            }
+        }
     }
 
     @SubscribeEvent
@@ -281,6 +333,7 @@ public class ClientEvents {
         @SubscribeEvent
         public static void registerHUD(RegisterGuiLayersEvent event) {
             event.registerAboveAll(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "shake_content_hud"), ShakenStirClient.SHAKE_CONTENT_HUD);
+            event.registerAboveAll(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "cabinet_hud"), ShakenStirClient.CABINET_HUD);
         }
 
         @SubscribeEvent

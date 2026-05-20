@@ -15,7 +15,7 @@
       "shakenstir:cocktail_type": {
         "effects": [],
         "id": "shakenstir:colada",
-        "translation_key": "shakenstir:colada"
+        "translation_key": "shakenstir:name.colada"
       },
       "shakenstir:shake_product_pourable": true
     },

@@ -16,7 +16,7 @@
       "shakenstir:cocktail_type": {
         "effects": [],
         "id": "shakenstir:fizz",
-        "translation_key": "shakenstir:fizz"
+        "translation_key": "shakenstir:name.fizz"
       }
     },
     "id": "shakenstir:shake_content_holder"

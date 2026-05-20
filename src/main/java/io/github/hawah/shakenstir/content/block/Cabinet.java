@@ -39,7 +39,7 @@ public class Cabinet extends HorizontalDirectionalBlock implements EntityBlock, 
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public Cabinet(Properties properties) {
-        super(properties);
+        super(properties.noOcclusion());
         this.registerDefaultState(defaultBlockState()
                 .setValue(LEFT, false)
                 .setValue(RIGHT, false)
@@ -53,6 +53,8 @@ public class Cabinet extends HorizontalDirectionalBlock implements EntityBlock, 
         builder.add(LEFT, RIGHT, FACING, WATERLOGGED);
         super.createBlockStateDefinition(builder);
     }
+
+
 
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
@@ -86,6 +88,17 @@ public class Cabinet extends HorizontalDirectionalBlock implements EntityBlock, 
         if (hitResult.getDirection().getOpposite() != facing || itemStack.isEmpty()) {
             return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
+        int index = getSlot(pos, hitResult, facing);
+        if (level.getBlockEntity(pos) instanceof CabinetBlockEntity blockEntity) {
+            if (blockEntity.putSpirit(index, player.isCreative()? itemStack.copy(): itemStack)) {
+                return InteractionResult.SUCCESS;
+            }
+        }
+
+        return super.useItemOn(itemStack, state, level, pos, player, hand, hitResult);
+    }
+
+    public static int getSlot(BlockPos pos, BlockHitResult hitResult, Direction facing) {
         Vec3 leftDir = facing.getClockWise().getUnitVec3();
         Vec3 leftCenter = pos.getCenter().add(leftDir.x * 0.5, 0, leftDir.z * 0.5);
         Vec3 rightCenter = pos.getCenter().add(-leftDir.x * 0.5, 0, -leftDir.z * 0.5);
@@ -96,12 +109,7 @@ public class Cabinet extends HorizontalDirectionalBlock implements EntityBlock, 
         } else {
             index = 1;
         }
-        if (level.getBlockEntity(pos) instanceof CabinetBlockEntity blockEntity) {
-            blockEntity.putSpirit(index, itemStack);
-            return InteractionResult.SUCCESS;
-        }
-
-        return super.useItemOn(itemStack, state, level, pos, player, hand, hitResult);
+        return index;
     }
 
     @Override
@@ -110,22 +118,20 @@ public class Cabinet extends HorizontalDirectionalBlock implements EntityBlock, 
         if (hitResult.getDirection().getOpposite() != facing) {
             return InteractionResult.FAIL;
         }
-        Vec3 leftDir = facing.getClockWise().getUnitVec3();
-        Vec3 leftCenter = pos.getCenter().add(leftDir.x * 0.5, 0, leftDir.z * 0.5);
-        Vec3 rightCenter = pos.getCenter().add(-leftDir.x * 0.5, 0, -leftDir.z * 0.5);
-        Vec3 location = hitResult.getLocation();
-        int index;
-        if (location.distanceTo(leftCenter) < location.distanceTo(rightCenter)) {
-            index = 0;
-        } else {
-            index = 1;
-        }
+        int index = getSlot(pos, hitResult, facing);
         if (level.getBlockEntity(pos) instanceof CabinetBlockEntity blockEntity) {
             ItemStack itemStack = blockEntity.takeSpirit(index);
-            player.addItem(itemStack);
-            return InteractionResult.SUCCESS;
+            if (!itemStack.isEmpty()) {
+                player.addItem(itemStack);
+                return InteractionResult.SUCCESS;
+            }
         }
         return super.useWithoutItem(state, level, pos, player, hitResult);
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData, Player player) {
+        return super.getCloneItemStack(level, pos, state, includeData, player);
     }
 
     @Override

@@ -43,7 +43,7 @@ public record CocktailType(Identifier id, Identifier translationKey, List<Effect
     );
 
     public CocktailType(Identifier id, List<EffectData> effects) {
-        this(id, id, effects);
+        this(id, id.withPrefix("name."), effects);
     }
 
     public List<MobEffectInstance> get(Quality quality) {

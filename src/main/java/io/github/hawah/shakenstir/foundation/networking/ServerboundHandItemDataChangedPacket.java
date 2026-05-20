@@ -27,6 +27,8 @@ public record ServerboundHandItemDataChangedPacket(UUID playerUUID, InteractionH
         ItemStack item = playerByUUID.getItemInHand(hand);
         if (item.is(itemStack().getItem())) {
             item.applyComponents(itemStack.getComponents());
+        } else if (item.isEmpty()) {
+            playerByUUID.setItemInHand(hand, itemStack);
         }
     }
 

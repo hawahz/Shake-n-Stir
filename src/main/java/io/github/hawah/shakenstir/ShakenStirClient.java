@@ -1,5 +1,6 @@
 package io.github.hawah.shakenstir;
 
+import io.github.hawah.shakenstir.client.gui.CabinetHud;
 import io.github.hawah.shakenstir.client.gui.ShakeContentHud;
 import io.github.hawah.shakenstir.client.hanlder.DecoratePlaceHandler;
 import io.github.hawah.shakenstir.client.hanlder.GlasswareHandler;
@@ -23,6 +24,7 @@ public class ShakenStirClient {
     public static final TimerWarper TIMER_NORMAL = new TimerWarper();
     public static final ShakeHandler SHAKE_HANDLER = new ShakeHandler();
     public static final ShakeContentHud SHAKE_CONTENT_HUD = new ShakeContentHud();
+    public static final CabinetHud CABINET_HUD = new CabinetHud();
     public static final GlasswareHandler GLASSWARE_HANDLER = new GlasswareHandler();
     public static final DecoratePlaceHandler DECORATE_PLACE_HANDLER = new DecoratePlaceHandler();
     public static final float ANI_DELTAF = 0.5F;

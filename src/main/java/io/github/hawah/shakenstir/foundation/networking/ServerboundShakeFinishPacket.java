@@ -71,16 +71,9 @@ public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem,
                 level
         );
         if (result.isEmpty()) {
-            ShakeUtil.clearFluidData(shakeItem);
-            ShakeUtil.clearItemData(shakeItem);
             mainHandItem.set(DataComponentTypeRegistries.SHAKING, true);
             mainHandItem.set(DataComponentTypeRegistries.SHAKE_FALI_TIMES, mainHandItem.getOrDefault(DataComponentTypeRegistries.SHAKE_FALI_TIMES, 0) + 1);
             mainHandItem.remove(DataComponentTypeRegistries.SHAKE_ICE_CUBES);
-            ItemStack holder = ItemRegistries.CONTENT_HOLDER.get().getDefaultInstance();
-            ShakeUtil.setFluidData(holder, fluidData);
-            ShakeUtil.setItemData(holder, itemData);
-            holder.set(DataComponentTypeRegistries.SHAKE_SUCCESS_TIMES, shakeSuccessTimes);
-            ShakeUtil.setItemData(mainHandItem, List.of(holder));
             return;
         }
         if (!mainHandItem.is(ItemRegistries.SHAKE)) {

@@ -5,6 +5,7 @@ import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
 import io.github.hawah.shakenstir.content.fluid.FluidTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
+import io.github.hawah.shakenstir.foundation.datapack.cocktaileType.CocktailTypes;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.damagesource.DamageType;
@@ -45,6 +46,13 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add(FluidTypeRegistries.TEQUILA_FLUID_TYPE.get().getDescriptionId(), "Tequila");
         add(FluidTypeRegistries.RUM_FLUID_TYPE.get().getDescriptionId(), "Rum");
         add(FluidTypeRegistries.BRANDY_FLUID_TYPE.get().getDescriptionId(), "Brandy");
+
+        add(String.valueOf(CocktailTypes.SOUR_VALUE.translationKey()    )   , "%s %s Sour"    );
+        add(String.valueOf(CocktailTypes.COCKTAIL_VALUE.translationKey())   , "%s %s Cocktail");
+        add(String.valueOf(CocktailTypes.HIGHBALL_VALUE.translationKey())   , "%s %s Colada"  );
+        add(String.valueOf(CocktailTypes.TONIC_VALUE.translationKey()   )   , "%s %s Fizz"    );
+        add(String.valueOf(CocktailTypes.COLADA_VALUE.translationKey()  )   , "%s Highball"   );
+        add(String.valueOf(CocktailTypes.FIZZ_VALUE.translationKey()    )   , "%s %s Tonic"   );
 
         add(MobEffectRegistries.DRUNK.get().getDescriptionId(), "Drunk");
         add(MobEffectRegistries.FALL_DOWN.get().getDescriptionId(), "Fall Down");

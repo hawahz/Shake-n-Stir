@@ -9,6 +9,7 @@ import io.github.hawah.shakenstir.foundation.datapack.spirit.SpiritData;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 
@@ -42,7 +43,7 @@ public record DrinkData(
             DrinkData::new
     );
 
-    public static final int[] COLD_LEVELS = new int[]{2, 8, 18};
+    public static final int[] COLD_LEVELS = new int[]{2 * 10, 8 * 10, 18 * 10};
 
     public void apply(LivingEntity livingEntity) {
         List<MobEffectInstance> typeEnhance = type().get(quality());
@@ -54,10 +55,13 @@ public record DrinkData(
         livingEntity.addEffect(
                 new MobEffectInstance(
                         MobEffectRegistries.PARALYSIS,
-                        COLD_LEVELS[coldLevel() - 1]
+                        // TODO 将ColdLevels的计算逻辑变成线性而非离散数组
+                        COLD_LEVELS[Mth.clamp(coldLevel() - 1, 0, COLD_LEVELS.length - 1)]
         ));
         for (MobEffectInstance effect : finalEffects) {
             livingEntity.addEffect(effect);
         }
+        MobEffectInstance instance = new MobEffectInstance(MobEffectRegistries.DRUNK, 20 * 60 * 5);
+        livingEntity.addEffect(instance);
     }
 }
