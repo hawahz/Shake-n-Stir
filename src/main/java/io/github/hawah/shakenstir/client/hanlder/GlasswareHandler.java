@@ -90,7 +90,6 @@ public class GlasswareHandler implements IHandler {
                 (pos = ClientDataHolder.Picker.pos()) != null &&
                 Minecraft.getInstance().level != null &&
                 (state = ClientDataHolder.Picker.blockState().orElse(null)) != null &&
-                state.isSolidRender() &&
                 state.isFaceSturdy(Minecraft.getInstance().level, pos, Direction.UP) &&
                 Minecraft.getInstance().level.getBlockState(pos.above()).isEmpty() &&
                 KeyBinding.hasControlDown();

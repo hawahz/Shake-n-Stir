@@ -6,7 +6,7 @@ import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
-import io.github.hawah.shakenstir.content.dataComponent.FluidStackDataComponent;
+import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
 import io.github.hawah.shakenstir.content.dataComponent.IItemDataHolder;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import io.github.hawah.shakenstir.foundation.item.IPickMarkedItem;
@@ -138,13 +138,13 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem {
             ShakeUtil.setItemData(self, itemStacks);
             return true;
         }
-        FluidStackDataComponent fluidStackDataComponent;
+        SpiritContent spiritContent;
         if (
                 other.getItem() instanceof SpiritBottleItem &&
-                        !(fluidStackDataComponent = other.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, FluidStackDataComponent.EMPTY)).isEmpty()) {
+                        !(spiritContent = other.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY)).isEmpty()) {
             ArrayList<FluidStack> fluidStacks = new ArrayList<>(ShakeUtil.getFluidStacks(self));
             int sum = fluidStacks.stream().mapToInt(FluidStack::getAmount).sum();
-            FluidStack fluidStack = fluidStackDataComponent.fluidStack();
+            FluidStack fluidStack = spiritContent.fluidStack();
             int find = -1;
             for (int i = 0; i < fluidStacks.size(); i++) {
                 if (fluidStacks.get(i).is(fluidStack.getFluid())) {
@@ -164,7 +164,7 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem {
                 fluidStack.shrink(250);
             }
 
-            other.set(DataComponentTypeRegistries.SPIRIT_CONTENT, fluidStack.isEmpty()? FluidStackDataComponent.EMPTY: new FluidStackDataComponent(fluidStack));
+            other.set(DataComponentTypeRegistries.SPIRIT_CONTENT, fluidStack.isEmpty()? SpiritContent.EMPTY: new SpiritContent(fluidStack));
             ShakeUtil.setFluidData(self, fluidStacks);
             return true;
         }

@@ -3,7 +3,7 @@ package io.github.hawah.shakenstir.content.item;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
-import io.github.hawah.shakenstir.content.dataComponent.FluidStackDataComponent;
+import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import io.github.hawah.shakenstir.foundation.item.DecorateItem;
@@ -46,14 +46,14 @@ public class ItemRegistries {
     public static final DeferredItem<DecorateItem> LEMON_SLICE = register("lemon_slice", DecorateItem::new);
 
     // Spirit
-    public static final DeferredItem<SpiritBottleItem> GIN = registerSpirit("gin", BlockRegistries.GIN, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(new FluidStack(FluidRegistries.GIN_SOURCE_FLUID_BLOCK, 1000))));
-    public static final DeferredItem<SpiritBottleItem> WHISKY = registerSpirit("whisky", BlockRegistries.WHISKY, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(new FluidStack(FluidRegistries.WHISKY_SOURCE_FLUID_BLOCK, 1000))));
-    public static final DeferredItem<SpiritBottleItem> VODKA = registerSpirit("vodka", BlockRegistries.VODKA, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(new FluidStack(FluidRegistries.VODKA_SOURCE_FLUID_BLOCK, 1000))));
-    public static final DeferredItem<SpiritBottleItem> RUM = registerSpirit("rum", BlockRegistries.RUM, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(new FluidStack(FluidRegistries.RUM_SOURCE_FLUID_BLOCK, 1000))));
-    public static final DeferredItem<SpiritBottleItem> TEQUILA = registerSpirit("tequila", BlockRegistries.TEQUILA, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(new FluidStack(FluidRegistries.TEQUILA_SOURCE_FLUID_BLOCK, 1000))));
-    public static final DeferredItem<SpiritBottleItem> BRANDY = registerSpirit("brandy", BlockRegistries.BRANDY, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(new FluidStack(FluidRegistries.BRANDY_SOURCE_FLUID_BLOCK, 1000))));
+    public static final DeferredItem<SpiritBottleItem> GIN = registerSpirit("gin", BlockRegistries.GIN, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(new FluidStack(FluidRegistries.GIN_SOURCE_FLUID_BLOCK, 1000))));
+    public static final DeferredItem<SpiritBottleItem> WHISKY = registerSpirit("whisky", BlockRegistries.WHISKY, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(new FluidStack(FluidRegistries.WHISKY_SOURCE_FLUID_BLOCK, 1000))));
+    public static final DeferredItem<SpiritBottleItem> VODKA = registerSpirit("vodka", BlockRegistries.VODKA, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(new FluidStack(FluidRegistries.VODKA_SOURCE_FLUID_BLOCK, 1000))));
+    public static final DeferredItem<SpiritBottleItem> RUM = registerSpirit("rum", BlockRegistries.RUM, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(new FluidStack(FluidRegistries.RUM_SOURCE_FLUID_BLOCK, 1000))));
+    public static final DeferredItem<SpiritBottleItem> TEQUILA = registerSpirit("tequila", BlockRegistries.TEQUILA, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(new FluidStack(FluidRegistries.TEQUILA_SOURCE_FLUID_BLOCK, 1000))));
+    public static final DeferredItem<SpiritBottleItem> BRANDY = registerSpirit("brandy", BlockRegistries.BRANDY, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(new FluidStack(FluidRegistries.BRANDY_SOURCE_FLUID_BLOCK, 1000))));
 
-    public static final DeferredItem<SpiritBottleItem> BUBBLE = registerSpirit("bubble", BlockRegistries.BUBBLE, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(new FluidStack(FluidRegistries.BUBBLE_SOURCE_FLUID_BLOCK, 1000))));
+    public static final DeferredItem<SpiritBottleItem> BUBBLE = registerSpirit("bubble", BlockRegistries.BUBBLE, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(new FluidStack(FluidRegistries.BUBBLE_SOURCE_FLUID_BLOCK, 1000))));
 
     public static final DeferredItem<SoberingTea> SOBERING_TEA = register("sobering_tea", SoberingTea::new);
 
@@ -80,7 +80,7 @@ public class ItemRegistries {
 
     public static <T extends Block> DeferredItem<SpiritBottleItem> registerSpirit(String name, DeferredBlock<T> block, DeferredHolder<Fluid, FlowingFluid> fluid, Item.Properties properties) {
         return ITEM.register(name, (registryName) -> new SpiritBottleItem(block.get(), properties.setId(ResourceKey.create(Registries.ITEM, registryName))
-                .component(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(new FluidStack(fluid, 1000)))));
+                .component(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(new FluidStack(fluid, 1000)))));
     }
 
     public static void register(IEventBus eventBus) {

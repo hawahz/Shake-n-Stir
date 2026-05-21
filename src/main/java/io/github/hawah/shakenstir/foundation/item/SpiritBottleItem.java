@@ -3,10 +3,9 @@ package io.github.hawah.shakenstir.foundation.item;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
-import io.github.hawah.shakenstir.content.dataComponent.FluidStackDataComponent;
+import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
 import io.github.hawah.shakenstir.foundation.BaseFluidType;
-import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import io.github.hawah.shakenstir.lib.util.Scheduler;
 import io.github.hawah.shakenstir.util.ShakeClientHooks;
 import net.minecraft.client.Minecraft;
@@ -32,7 +31,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.event.AddAttributeTooltipsEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 
@@ -40,7 +38,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class SpiritBottleItem extends BlockItem implements ITooltipItem {
+public class SpiritBottleItem extends BlockItem {
     public SpiritBottleItem(Block block, Properties properties) {
         super(block, properties.stacksTo(1));
     }
@@ -56,19 +54,19 @@ public class SpiritBottleItem extends BlockItem implements ITooltipItem {
 
     @Override
     public boolean isBarVisible(ItemStack stack) {
-        FluidStack stackFluid = stack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, FluidStackDataComponent.EMPTY).fluidStack();
+        FluidStack stackFluid = stack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY).fluidStack();
         return stackFluid.getAmount() < FluidType.BUCKET_VOLUME;
     }
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        FluidStack stackFluid = stack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, FluidStackDataComponent.EMPTY).fluidStack();
+        FluidStack stackFluid = stack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY).fluidStack();
         return Mth.clamp((int) (((float)stackFluid.getAmount())/FluidType.BUCKET_VOLUME * 13), 0, 13);
     }
 
     @Override
     public int getBarColor(ItemStack stack) {
-        FluidStack stackFluid = stack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, FluidStackDataComponent.EMPTY).fluidStack();
+        FluidStack stackFluid = stack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY).fluidStack();
         if (stackFluid.getFluid() instanceof WaterFluid) {
             return 0x3F76E4;
         }
@@ -82,18 +80,6 @@ public class SpiritBottleItem extends BlockItem implements ITooltipItem {
             return fluidType.getTintColor();
         }
         return 0x3F76E4;
-    }
-
-    @Override
-    public void appendHoverText(AddAttributeTooltipsEvent event) {
-        ItemStack stack = event.getStack();
-        FluidStackDataComponent content = stack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, FluidStackDataComponent.EMPTY);
-        if (content.fluidStack().isEmpty()) {
-            event.addTooltipLines(LangData.TOOLTIP_SPIRIT_EMPTY.get());
-        } else {
-            event.addTooltipLines(LangData.TOOLTIP_SPIRIT_CONTENT.get(content.fluidStack().getHoverName()));
-            event.addTooltipLines(LangData.TOOLTIP_SPIRIT_VOLUME.get(content.fluidStack().getAmount()));
-        }
     }
 
     @EventBusSubscriber(value = Dist.CLIENT)
@@ -125,7 +111,7 @@ public class SpiritBottleItem extends BlockItem implements ITooltipItem {
 
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
-        if (player.getItemInHand(hand).getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, FluidStackDataComponent.EMPTY).isEmpty()) {
+        if (player.getItemInHand(hand).getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY).isEmpty()) {
             return InteractionResult.FAIL;
         }
         player.startUsingItem(hand);
@@ -134,11 +120,11 @@ public class SpiritBottleItem extends BlockItem implements ITooltipItem {
 
     @Override
     public ItemStack finishUsingItem(ItemStack itemStack, Level level, LivingEntity entity) {
-        if (itemStack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, FluidStackDataComponent.EMPTY).isEmpty()) {
+        if (itemStack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY).isEmpty()) {
             return super.finishUsingItem(itemStack, level, entity);
         }
-        FluidStack fluidStack = itemStack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, FluidStackDataComponent.EMPTY).fluidStack();
-        itemStack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(fluidStack.copyWithAmount(fluidStack.getAmount() - 250)));
+        FluidStack fluidStack = itemStack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY).fluidStack();
+        itemStack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(fluidStack.copyWithAmount(fluidStack.getAmount() - 250)));
         entity.addEffect(new MobEffectInstance(
                 MobEffectRegistries.DRUNK,
                 600

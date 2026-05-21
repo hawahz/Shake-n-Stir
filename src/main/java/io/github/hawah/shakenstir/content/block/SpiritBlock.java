@@ -4,7 +4,7 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.serialization.MapCodec;
 import io.github.hawah.shakenstir.content.blockEntity.SpiritBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
-import io.github.hawah.shakenstir.content.dataComponent.FluidStackDataComponent;
+import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -102,7 +102,7 @@ public class SpiritBlock extends FallingBlock implements EntityBlock, ITakeUpBlo
         ItemStack drop = ITakeUpBlock.super.getDrop(state, level, pos);
         if (level.getBlockEntity(pos) instanceof SpiritBlockEntity spiritBlockEntity) {
             FluidStack stack = spiritBlockEntity.getFluidStacks().get(state.getValue(COUNTS) - 1);
-            drop.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(stack.copy()));
+            drop.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(stack.copy()));
         }
         return drop;
     }

@@ -1,24 +1,35 @@
 package io.github.hawah.shakenstir.content.dataComponent;
 
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
+import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipProvider;
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public record ShakeContentHolder(
         List<FluidStack> fluidStacks,
         List<ItemStack> itemStacks,
         int fluidMaxVolume,
         int itemMaxCount
-) implements IFluidDataHolder, IItemDataHolder{
+) implements IFluidDataHolder, IItemDataHolder, TooltipProvider {
     public static final ShakeContentHolder EMPTY = new ShakeContentHolder(NonNullList.of(FluidStack.EMPTY), NonNullList.of(ItemStack.EMPTY), 1000, 4);
     public static ShakeContentHolder of(List<FluidStack> fluidStacks, List<ItemStack> itemStacks) {
         return new ShakeContentHolder(fluidStacks, itemStacks, 1000, 4);
@@ -84,6 +95,44 @@ public record ShakeContentHolder(
         }
         itemStacks.add(itemStack.split(1));
         return true;
+    }
+
+    @Override
+    public void addToTooltip(net.minecraft.world.item.Item.TooltipContext context, Consumer<Component> consumer, TooltipFlag flag, DataComponentGetter components) {
+        if (fluidStacks().isEmpty() || itemStacks().isEmpty()) {
+            return;
+        }
+
+        boolean shaking = components.getOrDefault(DataComponentTypeRegistries.SHAKING, false);
+        boolean holdingProduct = !itemStacks.isEmpty() && itemStacks.getFirst().is(ItemRegistries.CONTENT_HOLDER);
+        boolean validShaking = holdingProduct && shaking;
+        List<ItemStack> items;
+        List<FluidStack> fluidStacks;
+        if (validShaking) {
+            items = ShakeUtil.getItemStacks(itemStacks.getFirst());
+            fluidStacks = ShakeUtil.getFluidStacks(itemStacks.getFirst());
+        } else {
+            items = itemStacks;
+            fluidStacks = fluidStacks();
+        }
+        if (holdingProduct && !shaking) {
+            ItemStack first = itemStacks.getFirst();
+            consumer.accept(first.getHoverName());
+            return;
+        }
+        if (!fluidStacks.isEmpty()) {
+            consumer.accept(LangData.TOOLTIP_SHAKE_FLUID_CONTENT.get());
+        }
+        for (FluidStack fluidStack : fluidStacks) {
+            consumer.accept(fluidStack.getHoverName());
+        }
+        if (!items.isEmpty()) {
+            consumer.accept(LangData.TOOLTIP_SHAKE_CONTENT.get());
+        }
+        for (ItemStack item : items) {
+            consumer.accept(item.getHoverName());
+        }
+
     }
 
     public class Fluid {

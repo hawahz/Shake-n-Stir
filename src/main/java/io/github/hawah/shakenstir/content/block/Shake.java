@@ -5,7 +5,7 @@ import com.mojang.serialization.MapCodec;
 import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
-import io.github.hawah.shakenstir.content.dataComponent.FluidStackDataComponent;
+import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
@@ -283,8 +283,8 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
         if (itemStack.is(ItemRegistries.SHAKE_CUP)) {
             return tryPlaceCup(itemStack, state, level, pos, player);
         }
-        FluidStackDataComponent fluidHolder;
-        if (state.getValue(FACING).equals(Direction.DOWN) &&!player.getCooldowns().isOnCooldown(itemStack) && !(fluidHolder = itemStack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, FluidStackDataComponent.EMPTY)).isEmpty()) {
+        SpiritContent fluidHolder;
+        if (state.getValue(FACING).equals(Direction.DOWN) &&!player.getCooldowns().isOnCooldown(itemStack) && !(fluidHolder = itemStack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY)).isEmpty()) {
             return tryPourLiquid(state, level, pos, player, fluidHolder, itemStack, hitResult);
         }
         if (state.getValue(FACING).equals(Direction.DOWN) && !itemStack.isEmpty() && canInsert(itemStack)) {
@@ -296,7 +296,7 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
         return InteractionResult.TryEmptyHandInteraction.TRY_WITH_EMPTY_HAND;
     }
 
-    private static InteractionResult tryPourLiquid(BlockState state, Level level, BlockPos pos, Player player, FluidStackDataComponent fluidHolder, ItemStack itemStack, BlockHitResult hitResult) {
+    private static InteractionResult tryPourLiquid(BlockState state, Level level, BlockPos pos, Player player, SpiritContent fluidHolder, ItemStack itemStack, BlockHitResult hitResult) {
         if (state.getValue(FACING).equals(Direction.UP) || player.isShiftKeyDown())
             return InteractionResult.TryEmptyHandInteraction.TRY_WITH_EMPTY_HAND;
         FluidStack fluidStack = fluidHolder.fluidStack().copy();
@@ -313,14 +313,14 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
         if (itemStack.getCount() == 1) {
             itemStack.remove(DataComponentTypeRegistries.SPIRIT_CONTENT);
             if (!fluidStack.isEmpty()) {
-                itemStack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(fluidStack));
+                itemStack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(fluidStack));
             }
         }
         if ((!player.isCreative() || true) && itemStack.getCount() > 1) {
             itemStack = itemStack.consumeAndReturn(1, player);
             itemStack.remove(DataComponentTypeRegistries.SPIRIT_CONTENT);
             if (!fluidStack.isEmpty()){
-                itemStack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new FluidStackDataComponent(fluidStack));
+                itemStack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(fluidStack));
             }
             ITakeUpBlock.holdOrAddItem(player, itemStack, level, pos);
         }

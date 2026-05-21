@@ -3,7 +3,7 @@ package io.github.hawah.shakenstir.content.blockEntity;
 import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.content.block.SpiritBlock;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
-import io.github.hawah.shakenstir.content.dataComponent.FluidStackDataComponent;
+import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -35,7 +35,7 @@ public class SpiritBlockEntity extends BlockEntity {
         if (getBlockState().getValue(SpiritBlock.COUNTS) != 1) {
             return;
         }
-        FluidStackDataComponent fluidData = components.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, FluidStackDataComponent.EMPTY);
+        SpiritContent fluidData = components.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY);
         fluidStacks.set(0, fluidData.fluidStack());
         setChanged();
     }
@@ -69,7 +69,7 @@ public class SpiritBlockEntity extends BlockEntity {
     }
 
     public void pushAnother(int index, ItemStack itemStack, boolean isCreative) {
-        FluidStack fluidStack = itemStack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, FluidStackDataComponent.EMPTY).fluidStack();
+        FluidStack fluidStack = itemStack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY).fluidStack();
         fluidStacks.set(index, fluidStack);
         setChanged();
         if (!isCreative) {

@@ -33,6 +33,9 @@ public enum LangData {
     TOOLTIP_TITLE_ICE_LEVEL("tooltip_title_ice_level", "Ice Level: %s", 1),
     TOOLTIP_TITLE_DRUNK_LEVEL("tooltip_title_drunk_level", "Alcohol: %s°", 1),
 
+    TOOLTIP_WHEN_SPIRIT_AS_BASE("tooltip_when_spirit_as_base", "When Applied as Base:", 0, ChatFormatting.DARK_PURPLE),
+    TOOLTIP_SPIRIT_POSITIVE_N_NEGATIVE("tooltip_spirit_positive_negative", "%s or %s", 2),
+
 
     HUD_TIP_BLACKBOARD_SELECT_FIRST_POINT("hud.blackboard_select_first_point", "Select the first point", 0),
     HUD_TIP_BLACKBOARD_SELECT_SECOND_POINT("hud.blackboard_select_second_point","Select the second point", 0),

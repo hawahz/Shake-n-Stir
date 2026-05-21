@@ -4,16 +4,21 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.serialization.Codec;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipProvider;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.function.Consumer;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public enum Quality implements StringRepresentable {
+public enum Quality implements StringRepresentable, TooltipProvider {
     MASTERPIECE ("Masterpiece"  , LangData.TOOLTIP_MASTERPIECE ),
     SUPERIOR    ("Superior"     , LangData.TOOLTIP_SUPERIOR    ),
     EXCELLENT   ("Excellent"    , LangData.TOOLTIP_EXCELLENT   ),
@@ -74,5 +79,10 @@ public enum Quality implements StringRepresentable {
     @Override
     public String getSerializedName() {
         return this.name;
+    }
+
+    @Override
+    public void addToTooltip(Item.TooltipContext context, Consumer<Component> consumer, TooltipFlag flag, DataComponentGetter components) {
+        consumer.accept(getTooltip());
     }
 }
