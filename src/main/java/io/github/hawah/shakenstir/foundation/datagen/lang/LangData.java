@@ -28,6 +28,11 @@ public enum LangData {
     TOOLTIP_TERRIBLE    ("tooltip_terrible", "Terrible", 0, ChatFormatting.ITALIC, ChatFormatting.DARK_AQUA),
     TOOLTIP_DISASTER    ("tooltip_disaster", "Disaster", 0, ChatFormatting.ITALIC, ChatFormatting.DARK_AQUA),
 
+    TOOLTIP_TITLE_COCKTAIL("tooltip_title_cocktail", "Cocktail: %s", 1),
+    TOOLTIP_TITLE_BASE  ("tooltip_title_base", "Base: %s", 1),
+    TOOLTIP_TITLE_ICE_LEVEL("tooltip_title_ice_level", "Ice Level: %s", 1),
+    TOOLTIP_TITLE_DRUNK_LEVEL("tooltip_title_drunk_level", "Alcohol: %s°", 1),
+
 
     HUD_TIP_BLACKBOARD_SELECT_FIRST_POINT("hud.blackboard_select_first_point", "Select the first point", 0),
     HUD_TIP_BLACKBOARD_SELECT_SECOND_POINT("hud.blackboard_select_second_point","Select the second point", 0),

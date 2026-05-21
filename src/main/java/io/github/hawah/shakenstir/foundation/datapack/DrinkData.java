@@ -61,7 +61,39 @@ public record DrinkData(
         for (MobEffectInstance effect : finalEffects) {
             livingEntity.addEffect(effect);
         }
-        MobEffectInstance instance = new MobEffectInstance(MobEffectRegistries.DRUNK, 20 * 60 * 5);
+        int drunkAmplifier = extraSpirit().size();
+        MobEffectInstance instance = new MobEffectInstance(MobEffectRegistries.DRUNK, 20 * 60 * 5, drunkAmplifier);
         livingEntity.addEffect(instance);
+    }
+
+    public List<MobEffectInstance> cocktailEffects() {
+        return type().get(quality());
+    }
+
+    public List<MobEffectInstance> baseEffects() {
+        return List.of(base().get(quality()));
+    }
+
+    public List<MobEffectInstance> ingredientEffects() {
+        return extraIngredients().stream().map(IngredientData::effect).map(effectData -> effectData.get(quality())).toList();
+    }
+
+    public List<MobEffectInstance> allEffects() {
+        List<MobEffectInstance> effects = new ArrayList<>(cocktailEffects());
+        effects.addAll(baseEffects());
+        effects.addAll(ingredientEffects());
+        return effects;
+    }
+
+    public List<MobEffectInstance> coldEffects() {
+        return List.of(new MobEffectInstance(MobEffectRegistries.PARALYSIS, COLD_LEVELS[Mth.clamp(coldLevel() - 1, 0, COLD_LEVELS.length - 1)]));
+    }
+
+    public List<MobEffectInstance> drunkEffects() {
+        return List.of(new MobEffectInstance(MobEffectRegistries.DRUNK, 20 * 60 * 5));
+    }
+
+    public int drunkLevel() {
+        return (int) ((extraSpirit().size() + 1)/4F * 45);
     }
 }

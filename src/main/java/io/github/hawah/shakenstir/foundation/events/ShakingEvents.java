@@ -30,9 +30,11 @@ public class ShakingEvents {
         if (stack.getItem() instanceof ITooltipItem tooltipItem) {
             tooltipItem.appendHoverText(event);
         }
+
         TooltipHandler.tryAppendShakingFlagDirect   (event, stack);
         TooltipHandler.tryAppendQuality             (event, stack);
         TooltipHandler.tryAppendShakeTooltips       (event, stack);
+        TooltipHandler.tryAppendDrinkTooltips       (event, stack);
     }
 
 

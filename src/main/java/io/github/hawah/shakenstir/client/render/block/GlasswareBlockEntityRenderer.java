@@ -65,6 +65,9 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
 
     @Override
     public void submit(GlasswareBlockEntityRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+        if (state.model() == null) {
+            return;
+        }
         poseStack.pushPose();
         poseStack.translate(state.position.x, 0, state.position.y);
         poseStack.mulPose(Axis.YN.rotationDegrees(state.rotate));
