@@ -16,19 +16,19 @@ import java.util.function.BiConsumer;
 
 public class Spirits {
     public static final EffectData BRANDY_EFFECT = EffectData.spirit(
-            MobEffects.JUMP_BOOST, MobEffects.SLOWNESS
+            MobEffects.SPEED, MobEffects.SLOWNESS
     );
     public static final EffectData GIN_EFFECT = EffectData.spirit(
-            MobEffects.LUCK, MobEffects.UNLUCK
+            MobEffects.HEALTH_BOOST, MobEffects.WITHER
     );
     public static final EffectData RUM_EFFECT = EffectData.spirit(
-            MobEffects.DOLPHINS_GRACE, MobEffects.WEAKNESS
+            MobEffects.STRENGTH, MobEffects.WEAKNESS
     );
     public static final EffectData VODKA_EFFECT = EffectData.spirit(
             MobEffects.JUMP_BOOST, MobEffects.WEAKNESS
     );
     public static final EffectData WHISKEY_EFFECT = EffectData.spirit(
-            MobEffects.FIRE_RESISTANCE, MobEffects.WEAKNESS
+            MobEffects.FIRE_RESISTANCE, MobEffects.POISON
     );
     public static final EffectData TEQUILA_EFFECT = EffectData.spirit(
             MobEffects.HASTE, MobEffects.MINING_FATIGUE

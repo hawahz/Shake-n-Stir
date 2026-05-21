@@ -20,7 +20,7 @@
         "level": 2
       }
     ],
-    "positive": "minecraft:jump_boost",
+    "positive": "minecraft:speed",
     "positiveLevNDur": [
       {
         "duration": 1800,
