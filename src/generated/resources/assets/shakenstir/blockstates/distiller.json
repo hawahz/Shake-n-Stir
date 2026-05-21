@@ -1,0 +1,49 @@
+{
+  "variants": {
+    "facing=east,part=lower": {
+      "model": "shakenstir:block/distillation_barrel_bottom",
+      "y": 90
+    },
+    "facing=east,part=pipe": {
+      "model": "shakenstir:block/distillation_pipe",
+      "y": 90
+    },
+    "facing=east,part=upper": {
+      "model": "shakenstir:block/distillation_barrel_top",
+      "y": 90
+    },
+    "facing=north,part=lower": {
+      "model": "shakenstir:block/distillation_barrel_bottom"
+    },
+    "facing=north,part=pipe": {
+      "model": "shakenstir:block/distillation_pipe"
+    },
+    "facing=north,part=upper": {
+      "model": "shakenstir:block/distillation_barrel_top"
+    },
+    "facing=south,part=lower": {
+      "model": "shakenstir:block/distillation_barrel_bottom",
+      "y": 180
+    },
+    "facing=south,part=pipe": {
+      "model": "shakenstir:block/distillation_pipe",
+      "y": 180
+    },
+    "facing=south,part=upper": {
+      "model": "shakenstir:block/distillation_barrel_top",
+      "y": 180
+    },
+    "facing=west,part=lower": {
+      "model": "shakenstir:block/distillation_barrel_bottom",
+      "y": 270
+    },
+    "facing=west,part=pipe": {
+      "model": "shakenstir:block/distillation_pipe",
+      "y": 270
+    },
+    "facing=west,part=upper": {
+      "model": "shakenstir:block/distillation_barrel_top",
+      "y": 270
+    }
+  }
+}

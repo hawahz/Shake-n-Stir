@@ -1,7 +1,7 @@
 {
   "fluid": "shakenstir:gin_fluid",
   "positive": {
-    "negative": "minecraft:unluck",
+    "negative": "minecraft:wither",
     "negativeLevNDur": [
       {
         "duration": 400,
@@ -20,7 +20,7 @@
         "level": 2
       }
     ],
-    "positive": "minecraft:luck",
+    "positive": "minecraft:health_boost",
     "positiveLevNDur": [
       {
         "duration": 1800,

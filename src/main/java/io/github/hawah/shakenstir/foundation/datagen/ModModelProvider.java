@@ -8,6 +8,8 @@ import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer
 import io.github.hawah.shakenstir.content.HasCup;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.block.Cabinet;
+import io.github.hawah.shakenstir.content.block.Distiller;
+import io.github.hawah.shakenstir.foundation.block.DistillerPart;
 import io.github.hawah.shakenstir.content.block.SpiritBlock;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
@@ -17,6 +19,7 @@ import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
 import net.minecraft.client.data.models.MultiVariant;
+import net.minecraft.client.data.models.blockstates.BlockModelDefinitionGenerator;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.*;
@@ -88,6 +91,7 @@ public class ModModelProvider extends ModelProvider {
 
         generateIceCube(itemModels);
         generateCabinet(blockModels, itemModels);
+        createDistillationBarrel(BlockRegistries.DISTILLER.get(), blockModels);
 //        generateLongDrinkGlassware(itemModels);
     }
 
@@ -229,6 +233,41 @@ public class ModModelProvider extends ModelProvider {
 
     private static void generateEmptyModel(BlockModelGenerators blockModels, Block block) {
         generateEmptyModel(blockModels, block, block);
+    }
+
+    public void createDistillationBarrel(Block barrel, BlockModelGenerators blockModels) {
+        MultiVariant bottom = BlockModelGenerators.plainVariant(ShakenStir.asResource("block/distillation_barrel_bottom"));
+        MultiVariant top = BlockModelGenerators.plainVariant(ShakenStir.asResource("block/distillation_barrel_top"));
+        MultiVariant pipe = BlockModelGenerators.plainVariant(ShakenStir.asResource("block/distillation_pipe"));
+        blockModels.registerSimpleFlatItemModel(barrel.asItem());
+        blockModels.blockStateOutput
+                .accept(
+                        createDistillationBarrel(barrel, bottom, top, pipe)
+                );
+    }
+
+    public static BlockModelDefinitionGenerator createDistillationBarrel(
+            Block block,
+            MultiVariant bottom,
+            MultiVariant top,
+            MultiVariant pipe
+    ) {
+        return MultiVariantGenerator.dispatch(block)
+                .with(
+                        PropertyDispatch.initial(Distiller.FACING, Distiller.PART)
+                                .select(Direction.NORTH, DistillerPart.LOWER, bottom)
+                                .select(Direction.EAST, DistillerPart.LOWER, bottom.with(BlockModelGenerators.Y_ROT_90))
+                                .select(Direction.SOUTH, DistillerPart.LOWER, bottom.with(BlockModelGenerators.Y_ROT_180))
+                                .select(Direction.WEST, DistillerPart.LOWER, bottom.with(BlockModelGenerators.Y_ROT_270))
+                                .select(Direction.NORTH, DistillerPart.UPPER, top)
+                                .select(Direction.EAST, DistillerPart.UPPER, top.with(BlockModelGenerators.Y_ROT_90))
+                                .select(Direction.SOUTH, DistillerPart.UPPER, top.with(BlockModelGenerators.Y_ROT_180))
+                                .select(Direction.WEST, DistillerPart.UPPER, top.with(BlockModelGenerators.Y_ROT_270))
+                                .select(Direction.NORTH, DistillerPart.PIPE, pipe)
+                                .select(Direction.EAST, DistillerPart.PIPE, pipe.with(BlockModelGenerators.Y_ROT_90))
+                                .select(Direction.SOUTH, DistillerPart.PIPE, pipe.with(BlockModelGenerators.Y_ROT_180))
+                                .select(Direction.WEST, DistillerPart.PIPE, pipe.with(BlockModelGenerators.Y_ROT_270))
+                );
     }
 
     private static void generateEmptyModel(BlockModelGenerators blockModels, Block block, Block particle) {

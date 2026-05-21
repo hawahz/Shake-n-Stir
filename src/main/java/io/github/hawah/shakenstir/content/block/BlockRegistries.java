@@ -39,6 +39,8 @@ public class BlockRegistries {
     public static final DeferredBlock<Glassware> LONG_DRINK_GLASSWARE = register("long_drink_glassware", Glassware::new);
     public static final DeferredBlock<Glassware> SHORT_DRINK_GLASSWARE = register("short_drink_glassware", Glassware::new);
 
+    public static final DeferredBlock<Distiller> DISTILLER = register("distiller", Distiller::new);
+
     public static final DeferredBlock<Cabinet> CABINET = register("cabinet", Cabinet::new);
 
 

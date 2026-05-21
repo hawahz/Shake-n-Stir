@@ -5,6 +5,7 @@ import io.github.hawah.shakenstir.foundation.networking.ServerboundEntityFallPac
 import io.github.hawah.shakenstir.lib.networking.Networking;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -27,7 +28,7 @@ public class EntityStepUpEvent {
     @SubscribeEvent
     public static void onEntityTickPost(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof LivingEntity livingEntity) {
-            if (oldY.containsKey(livingEntity) && oldY.get(livingEntity) != null && livingEntity.position().y() - oldY.get(livingEntity) > 0) {
+            if ((!(livingEntity instanceof Player player) || !player.getAbilities().flying) && oldY.containsKey(livingEntity) && oldY.get(livingEntity) != null && livingEntity.position().y() - oldY.get(livingEntity) > 0) {
                 onEntityStepUp(livingEntity, livingEntity.position().y() - oldY.get(livingEntity));
             }
             oldY.remove(livingEntity);

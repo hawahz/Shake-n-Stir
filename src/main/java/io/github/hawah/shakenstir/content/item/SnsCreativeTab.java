@@ -25,7 +25,6 @@ public class SnsCreativeTab {
                 output.accept(ItemRegistries.SHAKE.get());
                 output.accept(ItemRegistries.SHAKE_CUP.get());
                 output.accept(ItemRegistries.ICE_CUBE.get());
-                output.accept(ItemRegistries.CABINET.get());
                 output.accept(ItemRegistries.GIN.get());
                 output.accept(ItemRegistries.WHISKY.get());
                 output.accept(ItemRegistries.VODKA.get());
@@ -38,6 +37,8 @@ public class SnsCreativeTab {
                 output.accept(ItemRegistries.LEMON.get());
                 output.accept(ItemRegistries.LEMON_SLICE.get());
                 output.accept(ItemRegistries.SOBERING_TEA.get());
+                output.accept(ItemRegistries.CABINET.get());
+                output.accept(ItemRegistries.DISTILLER.get());
             })
             .build()
     );
