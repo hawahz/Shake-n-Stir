@@ -26,7 +26,7 @@ public abstract class MobEffectInstanceMixin {
 
     @Inject(method = "update", at = @At("HEAD"), cancellable = true)
     public void ShakenStir$update(MobEffectInstance takeOver, CallbackInfoReturnable<Boolean> cir) {
-        if (!takeOver.getEffect().is(MobEffectRegistries.DRUNK.getKey())) {
+        if (!takeOver.getEffect().value().equals(MobEffectRegistries.DRUNK.get()) && !takeOver.getEffect().value().equals(MobEffectRegistries.LEMON.get())) {
             return;
         }
         int duration = Math.max(takeOver.getDuration(), getDuration());

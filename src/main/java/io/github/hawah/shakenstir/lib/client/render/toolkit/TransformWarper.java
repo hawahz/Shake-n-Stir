@@ -217,10 +217,11 @@ public class TransformWarper {
 
          public void print() {
              System.out.println(
-                     "new LerpLike(" +
-                             x + "f, " + y + "f, " + z + "f, " +
-                             rotX + "f, " + rotY + "f, " + rotZ + "f, " +
-                             scale + "f)"
+                     "poseStack.translate(" +
+                             x + "f, " + y + "f, " + z + "f);\n" +
+                             "poseStack.mulPose(new Quaternionf().rotateLocalX(" +
+                             rotX + "f).rotateLocalY( " + rotY + "f).rotateLocalZ( " + rotZ + "f));\n" +
+                             "poseStack.scale(" + scale + "f, "+ scale + "f, " + scale + "f);"
              );
          }
 

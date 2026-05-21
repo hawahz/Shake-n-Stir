@@ -4,13 +4,18 @@ import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.FluidStackDataComponent;
+import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import io.github.hawah.shakenstir.foundation.item.DecorateItem;
 import io.github.hawah.shakenstir.foundation.item.PriorityBlockItem;
 import io.github.hawah.shakenstir.foundation.item.SpiritBottleItem;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
@@ -21,6 +26,8 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 //@EventBusSubscriber
@@ -35,7 +42,7 @@ public class ItemRegistries {
 
     public static final DeferredItem<Item> CONTENT_HOLDER = register("shake_content_holder", Item::new);
 
-    public static final DeferredItem<Item> LEMON = register("lemon", Item::new);
+    public static final DeferredItem<Item> LEMON = register("lemon", Item::new, new Item.Properties().food(Foods.APPLE).component(DataComponents.POTION_CONTENTS, new PotionContents(Optional.empty(), Optional.empty(), List.of(new MobEffectInstance(MobEffectRegistries.LEMON)), Optional.empty())));
     public static final DeferredItem<DecorateItem> LEMON_SLICE = register("lemon_slice", DecorateItem::new);
 
     // Spirit
@@ -54,6 +61,10 @@ public class ItemRegistries {
 
     public static <T extends Item> DeferredItem<T> register(String name, Function<Item.Properties, T> supply) {
         return ITEM.register(name, (registryName) -> supply.apply(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName))));
+    }
+
+    public static <T extends Item> DeferredItem<T> register(String name, Function<Item.Properties, T> supply, Item.Properties properties) {
+        return ITEM.register(name, (registryName) -> supply.apply(properties.setId(ResourceKey.create(Registries.ITEM, registryName))));
     }
     public static <T extends Block> DeferredItem<PriorityBlockItem> register(String name, DeferredBlock<T> block) {
         return ITEM.register(name, (registryName) -> new PriorityBlockItem(block.get(), new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName))));

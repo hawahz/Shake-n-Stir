@@ -6,6 +6,7 @@
     "LivingEntityAccessor",
     "LivingEntityMixin",
     "MobEffectInstanceMixin",
+    "MobEffectMixin",
     "RecipeMapMixin",
     "ScreenAccessor"
   ],

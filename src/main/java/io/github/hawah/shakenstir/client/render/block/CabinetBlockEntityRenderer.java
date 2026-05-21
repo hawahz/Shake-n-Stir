@@ -60,8 +60,8 @@ public class CabinetBlockEntityRenderer implements BlockEntityRenderer<CabinetBl
                         int rotateDegree = switch (state.facing) {
                             case NORTH -> 0;
                             case SOUTH -> 180;
-                            case EAST -> 90;
-                            case WEST -> 270;
+                            case EAST -> 270;
+                            case WEST -> 90;
                             default -> throw new IllegalStateException("Invalid facing: " + state.facing);
                         };
 

@@ -125,9 +125,6 @@ public class ClientEvents {
         if (getPlayer() == null) {
             return;
         }
-        if (getPlayer().hasEffect((MobEffectRegistries.LEMON))) {
-            cameraRoll = 50;
-        }
         if (!getPlayer().hasEffect(MobEffectRegistries.DRUNK) && !(cameraRoll > 0 && shakeIntensity > 0)) {
             return;
         }
