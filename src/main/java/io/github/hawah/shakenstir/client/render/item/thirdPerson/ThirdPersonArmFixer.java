@@ -1,11 +1,13 @@
 package io.github.hawah.shakenstir.client.render.item.thirdPerson;
 
 import io.github.hawah.shakenstir.client.ClientSharedShakeParams;
+import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.item.ShakeItem;
 import io.github.hawah.shakenstir.util.Result;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import net.minecraft.world.entity.HumanoidArm;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +38,14 @@ public class ThirdPersonArmFixer {
                 return;
             }
         }
+    }
+
+    public static boolean shouldApplyArmSwing(HumanoidRenderState state,
+                                              ModelPart part,
+                                              float ageInTicks,
+                                              float multiplier,
+                                              HumanoidArm arm) {
+        return !state.getMainHandItemStack().is(ItemRegistries.SHAKE) || !state.isUsingItem;
     }
 
     static {
