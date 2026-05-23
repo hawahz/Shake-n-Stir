@@ -2,8 +2,11 @@ package io.github.hawah.shakenstir.content.block;
 
 import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.DistillerBlockEntity;
+import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
 import io.github.hawah.shakenstir.foundation.block.DistillerPart;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
+import io.github.hawah.shakenstir.foundation.item.SpiritBottleItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -285,6 +288,34 @@ public class Distiller extends Block implements EntityBlock{
         if (part == DistillerPart.LOWER) {
             if (be.insertFuel(stack, player)) {
                 return InteractionResult.SUCCESS;
+            }
+        }
+
+        if (part == DistillerPart.PIPE) {
+            if (stack.getItem() instanceof SpiritBottleItem && !be.getProduct().isEmpty()) {
+                SpiritContent spiritContent;
+                if ((spiritContent = stack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY)).isEmpty() || spiritContent.fluidStack().is(be.getProduct().getFluid())) {
+                    int extract = 0;
+                    FluidResource fluidResource = FluidResource.of(be.getProduct());
+                    try (Transaction tx = Transaction.openRoot()){
+                         extract = be.productHandler.extract(
+                                0,
+                                be.productHandler.getResource(0),
+                                1000 - spiritContent.fluidStack().amount(),
+                                tx);
+
+                    }
+                    if (extract > 0) {
+                        SpiritContent content = new SpiritContent(fluidResource.toStack(spiritContent.fluidStack().amount() + extract));
+                        stack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, content);
+                        player.swing(hand);
+                        player.playSound(
+                                SoundEvents.BOTTLE_FILL,
+                                1.0F,
+                                1.0F
+                        );
+                    }
+                }
             }
         }
 

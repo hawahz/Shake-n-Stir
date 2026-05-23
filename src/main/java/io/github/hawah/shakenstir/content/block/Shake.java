@@ -328,7 +328,7 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
         level.playSound(
                 null,
                 pos,
-                SoundEvents.WATER_AMBIENT,
+                SoundEvents.BOTTLE_EMPTY,
                 SoundSource.BLOCKS,
                 1,
                 1

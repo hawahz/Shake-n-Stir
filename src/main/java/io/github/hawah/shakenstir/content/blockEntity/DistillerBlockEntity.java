@@ -3,7 +3,6 @@ package io.github.hawah.shakenstir.content.blockEntity;
 import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
-import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
 import io.github.hawah.shakenstir.content.recipe.DistillerRecipe;
 import io.github.hawah.shakenstir.content.recipe.DistillerRecipeInput;
 import io.github.hawah.shakenstir.content.recipe.RecipeTypeRegistries;
@@ -66,7 +65,7 @@ public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
 
     final InputItemHandler inputItemHandler = new InputItemHandler();
     final InputFluidHandler inputFluidHandler = new InputFluidHandler();
-    final ProductFluidHandler productHandler = new ProductFluidHandler();
+    public final ProductFluidHandler productHandler = new ProductFluidHandler();
     final FuelItemHandler fuelHandler = new FuelItemHandler();
 
     public DistillerBlockEntity(BlockPos worldPosition, BlockState blockState) {
@@ -233,8 +232,11 @@ public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
     }
 
     private static void craft(DistillerBlockEntity be, DistillerRecipe recipe) {
+        if (!be.productHandler.fluid.isEmpty() && !be.productHandler.fluid.is(recipe.result().get(DataComponentTypeRegistries.DEFERRED_FLUID).toFluidStack().getFluid())) {
+            return;
+        }
         List<ItemStack> remaining = new ArrayList<>();
-        for (int i = 0; i < be.inputItemHandler.items.size(); i++) {
+        for (int i = be.inputItemHandler.items.size() - 1; i >= 0; i--) {
             ItemStack stack = be.inputItemHandler.items.get(i);
             if (!stack.isEmpty()) {
                 remaining.add(stack);
@@ -254,8 +256,19 @@ public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
         be.inputFluidHandler.fluid.shrink(recipe.inputFluid().amount());
 
         ItemStack resultStack = recipe.result().create();
-        SpiritContent content = resultStack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY);
-        be.productHandler.fluid = content.fluidStack().copy();
+        FluidStack result = resultStack.get(DataComponentTypeRegistries.DEFERRED_FLUID).toFluidStack().copy();
+        if (be.productHandler.fluid.isEmpty()){
+            be.productHandler.fluid = result;
+        } else {
+            be.productHandler.fluid.setAmount(be.productHandler.fluid.amount() + result.amount());
+        }
+        be.level().playSound(
+                null,
+                be.getBlockPos(),
+                SoundEvents.BREWING_STAND_BREW,
+                SoundSource.BLOCKS
+        );
+        be.markChanged();
     }
 
     public static void animationTick(Level level, BlockPos pos, BlockState state, DistillerBlockEntity be) {
@@ -281,6 +294,7 @@ public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+        inputItemHandler.items.clear();
         ContainerHelper.loadAllItems(input, inputItemHandler.items);
         inputFluidHandler.fluid = loadFluid(input, "InputFluid");
         productHandler.fluid = loadFluid(input, "Product");
@@ -478,7 +492,7 @@ public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
         }
     }
 
-    class ProductFluidHandler implements ResourceHandler<FluidResource> {
+    public class ProductFluidHandler implements ResourceHandler<FluidResource> {
         FluidStack fluid = FluidStack.EMPTY;
 
         @Override

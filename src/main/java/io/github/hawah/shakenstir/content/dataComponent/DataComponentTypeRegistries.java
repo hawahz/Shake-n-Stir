@@ -36,6 +36,11 @@ public class DataComponentTypeRegistries {
             builder -> builder.persistent(SpiritContent.CODEC).networkSynchronized(SpiritContent.STREAM_CODEC)
     );
 
+    public static final DataComponentType<DeferredFluidStackHolder> DEFERRED_FLUID = register(
+            "deferred_fluid",
+            builder -> builder.persistent(DeferredFluidStackHolder.CODEC).networkSynchronized(DeferredFluidStackHolder.STREAM_CODEC)
+    );
+
     // Shake
 
     public static final DataComponentType<Boolean> SHAKING = register(

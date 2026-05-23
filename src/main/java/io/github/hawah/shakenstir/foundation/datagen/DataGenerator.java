@@ -16,6 +16,7 @@ public class DataGenerator {
         event.createProvider(ModDamageTagsProvider::new);
         event.createProvider(ShakeRecipeProvider.Runner::new);
         event.createProvider(StirRecipeProvider.Runner::new);
+        event.createProvider(DistillerRecipeProvider.Runner::new);
         event.createProvider(ModModelProvider::new);
         event.createProvider(ModEnUsLangProvider::new);
         try {
