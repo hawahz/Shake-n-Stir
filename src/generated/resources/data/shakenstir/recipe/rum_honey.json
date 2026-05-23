@@ -6,15 +6,13 @@
     "fluidId": "#minecraft:water"
   },
   "inputItems": [
-    "#minecraft:logs",
-    "#minecraft:logs",
-    "#c:crops/wheat"
+    "#c:drinks/honey"
   ],
   "result": {
     "components": {
       "shakenstir:deferred_fluid": {
-        "amount": 100,
-        "fluid": "shakenstir:gin_fluid"
+        "amount": 250,
+        "fluid": "shakenstir:vodka_fluid"
       }
     },
     "id": "shakenstir:shake_content_holder"

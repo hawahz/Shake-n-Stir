@@ -6,6 +6,7 @@ import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistr
 import io.github.hawah.shakenstir.content.recipe.DistillerRecipe;
 import io.github.hawah.shakenstir.content.recipe.DistillerRecipeInput;
 import io.github.hawah.shakenstir.content.recipe.RecipeTypeRegistries;
+import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
 import io.github.hawah.shakenstir.util.FluidStackWithSlot;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -26,6 +27,7 @@ import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.CampfireBlock;
@@ -51,6 +53,7 @@ public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
     public static final int MAX_INPUT_ITEMS = 16;
     public static final int MAX_INPUT_FLUID_CAPACITY = 4000;
     public static final int MAX_PRODUCT_FLUID_CAPACITY = 4000;
+    public static final int FUEL_MAX = 2400;
 
     public float animationHeight = 0;
     public float oAnimationHeight = 0;
@@ -64,9 +67,22 @@ public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
     private int recipeProgress = 0;
 
     final InputItemHandler inputItemHandler = new InputItemHandler();
+
     final InputFluidHandler inputFluidHandler = new InputFluidHandler();
-    public final ProductFluidHandler productHandler = new ProductFluidHandler();
+
+    final ProductFluidHandler productHandler = new ProductFluidHandler();
+
     final FuelItemHandler fuelHandler = new FuelItemHandler();
+
+    public ProductFluidHandler getProductHandler() {
+        return productHandler;
+    }
+    public ResourceHandler<ItemResource> getInputItemHandler() {
+        return inputItemHandler;
+    }
+    public ResourceHandler<ItemResource> getFuelHandler() {
+        return fuelHandler;
+    }
 
     public DistillerBlockEntity(BlockPos worldPosition, BlockState blockState) {
         super(BlockEntityRegistries.DISTILLER_BLOCK_ENTITY.get(), worldPosition, blockState);
@@ -75,7 +91,7 @@ public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
     // ---- Direct BE methods ----
 
     public boolean insertItem(ItemStack stack, Player player) {
-        if (stack.isEmpty()) return false;
+        if (stack.isEmpty() || stack.is(SnsItemTags.DISTILLER_PLACE_BANNED)) return false;
         try (Transaction tx = Transaction.openRoot()) {
             int inserted = inputItemHandler.insert(0, ItemResource.of(stack), 1, tx);
             if (inserted > 0) {
@@ -134,6 +150,7 @@ public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
         int fuelValue = stack.getBurnTime(null, serverLevel.fuelValues());
         if (fuelValue <= 0) return false;
         burnTicks += fuelValue;
+        burnTicks = Math.min(burnTicks, FUEL_MAX);
         if (!player.isCreative()) {
             stack.shrink(1);
         }
@@ -187,7 +204,7 @@ public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
     // ---- Tick ----
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, DistillerBlockEntity be) {
-        if (be.burnTicks > 0) {
+        if (be.burnTicks > 0 || be.getProduct().getAmount() >= DistillerBlockEntity.MAX_PRODUCT_FLUID_CAPACITY) {
             be.burnTicks--;
         }
 
@@ -202,7 +219,7 @@ public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
             DistillerRecipeInput input = new DistillerRecipeInput(nonEmptyItems, be.inputFluidHandler.fluid.copy());
 
             RecipeManager recipeManager = level.getServer().getRecipeManager();
-            Optional<net.minecraft.world.item.crafting.RecipeHolder<DistillerRecipe>> optionalRecipe =
+            Optional<RecipeHolder<DistillerRecipe>> optionalRecipe =
                     recipeManager.getRecipeFor(RecipeTypeRegistries.DISTILLER_RECIPE.get(), input, level);
 
             if (optionalRecipe.isPresent()) {
@@ -565,6 +582,7 @@ public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
             int burnTime = resource.toStack().getBurnTime(null, level().getServer().fuelValues());
             if (burnTime <= 0) return 0;
             burnTicks += burnTime;
+            burnTicks = Math.min(burnTicks, FUEL_MAX);
             markChanged();
             return 1;
         }

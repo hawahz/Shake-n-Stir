@@ -298,9 +298,9 @@ public class Distiller extends Block implements EntityBlock{
                     int extract = 0;
                     FluidResource fluidResource = FluidResource.of(be.getProduct());
                     try (Transaction tx = Transaction.openRoot()){
-                         extract = be.productHandler.extract(
+                         extract = be.getProductHandler().extract(
                                 0,
-                                be.productHandler.getResource(0),
+                                be.getProductHandler().getResource(0),
                                 1000 - spiritContent.fluidStack().amount(),
                                 tx);
 

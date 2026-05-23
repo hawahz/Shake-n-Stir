@@ -187,7 +187,7 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
             return false;
         }
         try (Transaction transaction = Transaction.openRoot()) {
-            int inserted = fluidHandler.insert(FluidResource.of(fluid), 250, transaction);
+            int inserted = fluidHandler.insert(FluidResource.of(fluid), Math.min(250, fluid.amount()), transaction);
             if (!isCreative) {
                 fluid.shrink(inserted);
             }

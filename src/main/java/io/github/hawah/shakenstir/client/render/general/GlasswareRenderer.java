@@ -10,8 +10,8 @@ import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.model.BlockDisplayContext;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -68,23 +68,24 @@ public class GlasswareRenderer {
             poseStack.pushPose();
             poseStack.translate(decoration.position().x, decoration.position().y, decoration.position().z);
             poseStack.mulPose(new Quaternionf(decoration.quaternionf()));
-            if (itemStack.is(SnsItemTags.BLOCK_LIKE_DRINK_DECORATION)) {
-                BlockState decorationState = ((BlockItem) itemStack.getItem()).getBlock().defaultBlockState();
-                BlockStateModel blockStateModel = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(decorationState);
-                List<BlockStateModelPart> parts = new ArrayList<>();
-                // TODO 修改成extract + submit
-                blockStateModel.collectParts(Minecraft.getInstance().level.getRandom(), parts);
+            if (itemStack.is(SnsItemTags.BLOCK_LIKE_DRINK_DECORATION) && itemStack.getItem() instanceof BlockItem modelProvider) {
+                BlockState decorationState = modelProvider.getBlock().defaultBlockState();
+                BlockModelRenderState blockModelRenderState = new BlockModelRenderState();
+                Minecraft.getInstance().getBlockModelResolver().update(
+                        blockModelRenderState,
+                        decorationState,
+                        BlockDisplayContext.create()
+                );
+
                 double size = decorationState.getShape(Minecraft.getInstance().level, BlockPos.ZERO).bounds().getSize();
                 float scale = (float) (0.225F / size);
 
                 poseStack.translate(-0.5 * scale, 0 * scale, -0.5 * scale);
                 poseStack.scale(scale, scale, scale);
 
-                submitNodeCollector.submitBlockModel(
+                blockModelRenderState.submit(
                         poseStack,
-                        RenderTypes.cutoutMovingBlock(),
-                        parts,
-                        new int[]{0},
+                        submitNodeCollector,
                         lightCoords,
                         OverlayTexture.NO_OVERLAY,
                         0
@@ -100,6 +101,7 @@ public class GlasswareRenderer {
                 for (ItemModel itemModel : itemModels) {
                     poseStack.scale(scale, scale, scale * 2);
                     ItemStackRenderState itemStackRenderState = new ItemStackRenderState();
+                    // TODO extract + submit
                     itemModel.update(
                             itemStackRenderState,
                             decoration.itemStack(),

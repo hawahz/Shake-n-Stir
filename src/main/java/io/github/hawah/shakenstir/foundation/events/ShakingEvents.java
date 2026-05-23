@@ -1,8 +1,13 @@
 package io.github.hawah.shakenstir.foundation.events;
 
+import io.github.hawah.shakenstir.content.block.BlockRegistries;
+import io.github.hawah.shakenstir.content.block.Cabinet;
+import io.github.hawah.shakenstir.content.blockEntity.CabinetBlockEntity;
+import io.github.hawah.shakenstir.content.blockEntity.DistillerBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ShakeItem;
 import io.github.hawah.shakenstir.util.TooltipHandler;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -11,6 +16,8 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.util.AttributeTooltipContext;
 import net.neoforged.neoforge.event.AddAttributeTooltipsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
@@ -48,10 +55,54 @@ public class ShakingEvents {
 //        TooltipHandler.addToTooltip(stack, DataComponentTypeRegistries.SPIRIT_CONTENT       , ctx, display, linesConsumer, tooltipFlag);
     }
 
-//    @SubscribeEvent
-//    public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-//        event.registerBlock(
-//                Capabilities.Fluid.BLOCK
-//        );
-//    }
+    @SubscribeEvent
+    public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+        event.registerBlock(
+                Capabilities.Fluid.BLOCK,
+                (level, pos, state, blockEntity, context) -> {
+                    if (blockEntity instanceof DistillerBlockEntity distiller && context != null) {
+                        Direction facing = state.getValue(Cabinet.FACING);
+                        Direction left = facing.getClockWise();
+                        Direction right = facing.getCounterClockWise();
+                        Direction opposite = facing.getOpposite();
+                        if (context == Direction.DOWN) {
+                            return distiller.getInputFluidHandler();
+                        } else if (context == facing) {
+                            return distiller.getProductHandler();
+                        } else if (context == right) {
+                            return distiller.getInputFluidHandler();
+                        }
+                    }
+                    return null;
+                },
+                BlockRegistries.DISTILLER.get()
+        );
+
+        event.registerBlock(
+                Capabilities.Item.BLOCK,
+                (level, pos, state, blockEntity, context) -> {
+                    if (blockEntity instanceof CabinetBlockEntity cabinet) {
+                        return cabinet.itemHandler;
+                    }
+                    if (blockEntity instanceof DistillerBlockEntity distiller && context != null) {
+                        Direction facing = state.getValue(Cabinet.FACING);
+                        Direction left = facing.getClockWise();
+                        Direction right = facing.getCounterClockWise();
+                        Direction opposite = facing.getOpposite();
+                        if (context == Direction.DOWN) {
+                            return distiller.getInputItemHandler();
+                        } else if (context == opposite) {
+                            return distiller.getInputItemHandler();
+                        } else if (context == right) {
+                            return distiller.getInputItemHandler();
+                        } else if (context == left) {
+                            return distiller.getFuelHandler();
+                        }
+                    }
+                    return null;
+                },
+                BlockRegistries.CABINET.get(),
+                BlockRegistries.DISTILLER.get()
+        );
+    }
 }

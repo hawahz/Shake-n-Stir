@@ -1,32 +1,32 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_the_recipe": {
-      "conditions": {
-        "recipe": "shakenstir:gin"
-      },
-      "trigger": "minecraft:recipe_unlocked"
-    },
-    "has_wheat": {
+    "has_fruit": {
       "conditions": {
         "items": [
           {
-            "items": "#c:crops/wheat"
+            "items": "#c:foods/fruit"
           }
         ]
       },
       "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "shakenstir:brandy"
+      },
+      "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
       "has_the_recipe",
-      "has_wheat"
+      "has_fruit"
     ]
   ],
   "rewards": {
     "recipes": [
-      "shakenstir:gin"
+      "shakenstir:brandy"
     ]
   }
 }

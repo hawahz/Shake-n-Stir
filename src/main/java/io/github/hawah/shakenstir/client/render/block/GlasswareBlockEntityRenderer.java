@@ -31,6 +31,7 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
         state.color = blockEntity.getColor();
         state.decorations.addAll(blockEntity.decorationsList);
         state.lightCoords = blockEntity.getLevel() == null? state.lightCoords: LightCoordsUtil.pack(Math.min(15, 3 + blockEntity.getLevel().getBrightness(LightLayer.BLOCK, blockEntity.getBlockPos())), blockEntity.getLevel().getBrightness(LightLayer.SKY, blockEntity.getBlockPos()));
+
     }
 
     @Override

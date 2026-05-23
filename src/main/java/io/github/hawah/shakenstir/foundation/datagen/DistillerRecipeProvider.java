@@ -18,6 +18,7 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
@@ -26,6 +27,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -51,12 +53,88 @@ public class DistillerRecipeProvider extends RecipeProvider {
     protected void buildRecipes() {
         getBuilder()
                 .result(ItemRegistries.CONTENT_HOLDER)
-                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.DEFERRED_FLUID, new DeferredFluidStackHolder(FluidRegistries.GIN_SOURCE_FLUID_BLOCK, 250)).build())
-                .with(Items.APPLE)
-                .withFluid(FluidTags.WATER)
+                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.DEFERRED_FLUID, new DeferredFluidStackHolder(FluidRegistries.GIN_SOURCE_FLUID_BLOCK, 100)).build())
+                .with(ItemTags.LOGS).with(ItemTags.LOGS)
+                .with(Tags.Items.CROPS_WHEAT)
+                .withFluid(FluidTags.WATER, 1000)
+                .cook(600)
                 .build()
-                .unlockedBy("has_apple", this.has(Items.APPLE))
+                .unlockedBy("has_wheat", this.has(Tags.Items.CROPS_WHEAT))
                 .save(output, getName("gin"));
+        getBuilder()
+                .result(ItemRegistries.CONTENT_HOLDER)
+                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.DEFERRED_FLUID, new DeferredFluidStackHolder(FluidRegistries.VODKA_SOURCE_FLUID_BLOCK, 100)).build())
+                .with(Items.POTATO).with(Items.POTATO)
+                .with(Tags.Items.CROPS_WHEAT)
+                .withFluid(FluidTags.WATER, 1000)
+                .cook(600)
+                .build()
+                .unlockedBy("has_potato", this.has(Items.POTATO))
+                .save(output, getName("vodka"));
+        getBuilder()
+                .result(ItemRegistries.CONTENT_HOLDER)
+                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.DEFERRED_FLUID, new DeferredFluidStackHolder(FluidRegistries.VODKA_SOURCE_FLUID_BLOCK, 100)).build())
+                .with(Tags.Items.FOODS_FRUIT).with(Tags.Items.FOODS_FRUIT).with(Tags.Items.FOODS_FRUIT)
+                .withFluid(FluidTags.WATER, 1000)
+                .cook(600)
+                .build()
+                .unlockedBy("has_fruit", this.has(Tags.Items.FOODS_FRUIT))
+                .save(output, getName("brandy"));
+        getBuilder()
+                .result(ItemRegistries.CONTENT_HOLDER)
+                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.DEFERRED_FLUID, new DeferredFluidStackHolder(FluidRegistries.VODKA_SOURCE_FLUID_BLOCK, 100)).build())
+                .with(Tags.Items.CROPS_WHEAT).with(Tags.Items.CROPS_WHEAT).with(Tags.Items.CROPS_WHEAT)
+                .withFluid(FluidTags.WATER, 1000)
+                .cook(600)
+                .build()
+                .unlockedBy("has_wheat", this.has(Tags.Items.CROPS_WHEAT))
+                .save(output, getName("whisky"));
+        getBuilder()
+                .result(ItemRegistries.CONTENT_HOLDER)
+                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.DEFERRED_FLUID, new DeferredFluidStackHolder(FluidRegistries.VODKA_SOURCE_FLUID_BLOCK, 100)).build())
+                .with(Tags.Items.CROPS_SUGAR_CANE).with(Tags.Items.CROPS_SUGAR_CANE).with(Tags.Items.CROPS_SUGAR_CANE)
+                .withFluid(FluidTags.WATER, 1000)
+                .cook(600)
+                .build()
+                .unlockedBy("has_sugar_cane", this.has(Tags.Items.CROPS_SUGAR_CANE))
+                .save(output, getName("rum_sugar_cane"));
+        getBuilder()
+                .result(ItemRegistries.CONTENT_HOLDER)
+                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.DEFERRED_FLUID, new DeferredFluidStackHolder(FluidRegistries.VODKA_SOURCE_FLUID_BLOCK, 100)).build())
+                .with(Items.SUGAR, Items.SUGAR, Items.SUGAR).with(Items.SUGAR, Items.SUGAR, Items.SUGAR)
+                .withFluid(FluidTags.WATER, 1000)
+                .cook(600)
+                .build()
+                .unlockedBy("has_potato", this.has(Items.POTATO))
+                .save(output, getName("rum_sugar"));
+        getBuilder()
+                .result(ItemRegistries.CONTENT_HOLDER)
+                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.DEFERRED_FLUID, new DeferredFluidStackHolder(FluidRegistries.VODKA_SOURCE_FLUID_BLOCK, 250)).build())
+                .with(Tags.Items.DRINKS_HONEY)
+                .withFluid(FluidTags.WATER, 1000)
+                .cook(600)
+                .build()
+                .unlockedBy("has_potato", this.has(Items.POTATO))
+                .save(output, getName("rum_honey"));
+//        getBuilder()
+//                .result(ItemRegistries.CONTENT_HOLDER)
+//                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.DEFERRED_FLUID, new DeferredFluidStackHolder(FluidRegistries.VODKA_SOURCE_FLUID_BLOCK, 250)).build())
+//                .withFluid(Tags.Fluids.HONEY)
+//                .withFluid(FluidTags.WATER, 1000)
+//                .cook(600)
+//                .build()
+//                .unlockedBy("has_potato", this.has(Items.POTATO))
+//                .save(output, getName("rum"));
+        getBuilder()
+                .result(ItemRegistries.CONTENT_HOLDER)
+                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.DEFERRED_FLUID, new DeferredFluidStackHolder(FluidRegistries.VODKA_SOURCE_FLUID_BLOCK, 100)).build())
+                .with(Items.CACTUS).with(Items.CACTUS).with(Items.CACTUS)
+                .withFluid(FluidTags.WATER, 1000)
+                .cook(600)
+                .build()
+                .unlockedBy("has_cactus", this.has(Items.CACTUS))
+                .save(output, getName("tequila"));
+
     }
 
     public static String getName(String name) {

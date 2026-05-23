@@ -4,7 +4,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.client.render.LiquidRenderer;
 import io.github.hawah.shakenstir.client.render.block.renderstate.DistillerBlockEntityRenderState;
+import io.github.hawah.shakenstir.content.block.Distiller;
 import io.github.hawah.shakenstir.content.blockEntity.DistillerBlockEntity;
+import io.github.hawah.shakenstir.foundation.BaseFluidType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -61,6 +63,7 @@ public class DistillerBlockEntityRenderer implements BlockEntityRenderer<Distill
         state.maxProgress = blockEntity.getMaxProgress();
         state.animationHeight = Mth.lerp(partialTicks, blockEntity.oAnimationHeight, blockEntity.animationHeight);
         state.liquidHeight = Mth.lerp(partialTicks, blockEntity.oLiquidAnimationHeight, blockEntity.liquidAnimationHeight);
+        state.facing = blockEntity.getBlockState().getValue(Distiller.FACING);
     }
 
     @Override
@@ -84,6 +87,7 @@ public class DistillerBlockEntityRenderer implements BlockEntityRenderer<Distill
         poseStack.pushPose();
 
         poseStack.translate(0, 1, 0);
+        int biomeWaterColor = BiomeColors.getAverageWaterColor(Minecraft.getInstance().level, state.blockPos);
 
         LiquidRenderer.setTexture(Identifier.withDefaultNamespace("textures/block/water_still.png"));
         LiquidRenderer.setAnimateData(new LiquidRenderer.AnimateData(1, 32));
@@ -94,9 +98,45 @@ public class DistillerBlockEntityRenderer implements BlockEntityRenderer<Distill
                 new Vector3d(0.99, 0.99, 0.99),
                 state.liquidHeight,
                 LightCoordsUtil.FULL_BRIGHT,
-                BiomeColors.getAverageWaterColor(Minecraft.getInstance().level, state.blockPos)
+                biomeWaterColor
         );
 
+        poseStack.popPose();
+
+        if (state.product.isEmpty()) {
+            return;
+        }
+        float height = state.product.getAmount() / (float) DistillerBlockEntity.MAX_PRODUCT_FLUID_CAPACITY;
+
+        poseStack.pushPose();
+        int color;
+        if (state.product.getFluidType() instanceof BaseFluidType type) {
+            color = type.getTintColor();
+        } else {
+            color = biomeWaterColor;
+        }
+        float SCALE_PRODUCT = 4.6F/16F;
+        float SCALE_PRODUCT_H = 6F/16F;
+
+        poseStack.translate(0, 1, 0);
+        double v = 1 - 0.045;
+        poseStack.translate(state.facing.getUnitVec3().multiply(v, v, v));
+        poseStack.translate(0.5, 0.5 - 3/16F, 0.5);
+        poseStack.scale(SCALE_PRODUCT, SCALE_PRODUCT_H, SCALE_PRODUCT);
+        poseStack.mulPose(new Quaternionf().rotateLocalY((float) Math.toRadians(45)));
+        poseStack.translate(-0.5, -0.5, -0.5);
+
+
+        LiquidRenderer.TEMP_TEXTURE = null;
+        LiquidRenderer.submitLiquid(
+                poseStack,
+                submitNodeCollector,
+                new Vector3d(0.01, 0.01, 0.01),
+                new Vector3d(0.99, 0.99, 0.99),
+                height,
+                LightCoordsUtil.FULL_BRIGHT,
+                color
+        );
         poseStack.popPose();
     }
 }

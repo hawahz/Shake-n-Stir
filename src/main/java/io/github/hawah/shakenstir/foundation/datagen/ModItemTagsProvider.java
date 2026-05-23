@@ -58,5 +58,8 @@ public class ModItemTagsProvider extends ItemTagsProvider {
                 .add();
         this.tag(SnsItemTags.DRINK_DECORATION)
                 .addTags(SnsItemTags.BLOCK_LIKE_DRINK_DECORATION, SnsItemTags.ITEM_LIKE_DRINK_DECORATION);
+        this.tag(SnsItemTags.DISTILLER_PLACE_BANNED)
+                .addTag(Tags.Items.BUCKETS)
+                ;
     }
 }

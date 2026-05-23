@@ -1,32 +1,32 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_the_recipe": {
-      "conditions": {
-        "recipe": "shakenstir:gin"
-      },
-      "trigger": "minecraft:recipe_unlocked"
-    },
-    "has_wheat": {
+    "has_potato": {
       "conditions": {
         "items": [
           {
-            "items": "#c:crops/wheat"
+            "items": "minecraft:potato"
           }
         ]
       },
       "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "shakenstir:rum_honey"
+      },
+      "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
       "has_the_recipe",
-      "has_wheat"
+      "has_potato"
     ]
   ],
   "rewards": {
     "recipes": [
-      "shakenstir:gin"
+      "shakenstir:rum_honey"
     ]
   }
 }
