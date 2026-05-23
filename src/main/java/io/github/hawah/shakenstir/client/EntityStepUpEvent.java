@@ -13,25 +13,27 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @EventBusSubscriber(Dist.CLIENT)
 public class EntityStepUpEvent {
-    public static Map<LivingEntity, Double> oldY = new HashMap<>();
+    public static Map<UUID, Double> oldY = new HashMap<>();
 
     @SubscribeEvent
     public static void onEntityTickPre(EntityTickEvent.Pre event) {
         if (event.getEntity() instanceof LivingEntity livingEntity) {
-            oldY.put(livingEntity, livingEntity.position().y());
+            oldY.put(livingEntity.getUUID(), livingEntity.position().y());
         }
     }
 
     @SubscribeEvent
     public static void onEntityTickPost(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof LivingEntity livingEntity) {
-            if ((!(livingEntity instanceof Player player) || !player.getAbilities().flying) && oldY.containsKey(livingEntity) && oldY.get(livingEntity) != null && livingEntity.position().y() - oldY.get(livingEntity) > 0) {
-                onEntityStepUp(livingEntity, livingEntity.position().y() - oldY.get(livingEntity));
+            UUID uuid = livingEntity.getUUID();
+            if ((!(livingEntity instanceof Player player) || !player.getAbilities().flying) && oldY.containsKey(uuid) && oldY.get(uuid) != null && livingEntity.position().y() - oldY.get(uuid) > 0) {
+                onEntityStepUp(livingEntity, livingEntity.position().y() - oldY.get(uuid));
             }
-            oldY.remove(livingEntity);
+            oldY.remove(uuid);
         }
     }
 

@@ -17,4 +17,8 @@ public enum DistillerPart implements StringRepresentable {
     public String getSerializedName() {
         return this.name;
     }
+
+    public static DistillerPart root() {
+        return LOWER;
+    }
 }

@@ -63,6 +63,9 @@ public enum LangData {
     ITEM_NAME_COLLINS_GLASS("name.collins_glass", "Collins Glass", 0),
     ITEM_NAME_MARGARITA_GLASS("name.margarita_glass", "Margarita Glass", 0),
 
+    CONFIGURATION_ENABLE_WRONG_FLUID_IN_BOTTLE("configuration.enable_wrong_fluid_in_bottle", "Enable Wrong Fluid in Bottle", 0),
+    CONFIGURATION_ENABLE_WRONG_FLUID_IN_BOTTLE_TOOLTIP("configuration.enable_wrong_fluid_in_bottle.tooltip", "", 0),
+
     ;
 
     public final String key;

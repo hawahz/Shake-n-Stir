@@ -14,6 +14,7 @@ public class BlockEntityRegistries {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SpiritBlockEntity>> SPIRIT_BLOCK_ENTITY = BLOCK_ENTITY_TYPES.register("spirit_be", () -> new BlockEntityType<>(SpiritBlockEntity::new, false, BlockRegistries.GIN.get(), BlockRegistries.WHISKY.get(), BlockRegistries.BRANDY.get(), BlockRegistries.RUM.get(), BlockRegistries.TEQUILA.get(), BlockRegistries.VODKA.get(), BlockRegistries.BUBBLE.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<GlasswareBlockEntity>> GLASSWARE_BLOCK_ENTITY = BLOCK_ENTITY_TYPES.register("glassware_be", () -> new BlockEntityType<>(GlasswareBlockEntity::new, false, BlockRegistries.LONG_DRINK_GLASSWARE.get(), BlockRegistries.SHORT_DRINK_GLASSWARE.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CabinetBlockEntity>> CABINET_BLOCK_ENTITY = BLOCK_ENTITY_TYPES.register("cabinet_be", () -> new BlockEntityType<>(CabinetBlockEntity::new, false, BlockRegistries.CABINET.get()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<DistillerBlockEntity>> DISTILLER_BLOCK_ENTITY = BLOCK_ENTITY_TYPES.register("distiller_be", () -> new BlockEntityType<>(DistillerBlockEntity::new, false, BlockRegistries.DISTILLER.get()));
 
     public static void register(IEventBus eventBus) {
         BLOCK_ENTITY_TYPES.register(eventBus);

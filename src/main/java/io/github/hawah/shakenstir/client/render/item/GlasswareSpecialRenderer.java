@@ -5,8 +5,8 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.math.Axis;
 import com.mojang.serialization.MapCodec;
 import io.github.hawah.shakenstir.client.model.Models;
+import io.github.hawah.shakenstir.client.render.general.GlasswareRenderer;
 import io.github.hawah.shakenstir.client.render.IGlasswareRenderState;
-import io.github.hawah.shakenstir.client.render.block.GlasswareBlockEntityRenderer;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.util.IModel;
@@ -38,7 +38,7 @@ public class GlasswareSpecialRenderer implements SpecialModelRenderer<GlasswareS
         poseStack.scale(globalScale, globalScale, globalScale);
         poseStack.translate(-0.5, -0.5, -0.5);
 
-        GlasswareBlockEntityRenderer.submitGlassware(state, poseStack, submitNodeCollector, lightCoords, 0.5F, 0.5F, 0, false);
+        GlasswareRenderer.submitGlassware(state, poseStack, submitNodeCollector, lightCoords, 0.5F, 0.5F, 0, false);
 
 
         poseStack.popPose();
