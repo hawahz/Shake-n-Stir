@@ -1,11 +1,10 @@
 package io.github.hawah.shakenstir.client.render.general;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.client.model.glassware.GlasswareQuadCollection;
 import io.github.hawah.shakenstir.client.render.IGlasswareRenderState;
+import io.github.hawah.shakenstir.client.render.LiquidRenderer;
 import io.github.hawah.shakenstir.client.render.glassware.vertexConsumer.VerticalGradientVertexConsumer;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
@@ -21,18 +20,15 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.ARGB;
 import net.minecraft.util.Ease;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.Shapes;
-import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3dc;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,6 +72,7 @@ public class GlasswareRenderer {
                 BlockState decorationState = ((BlockItem) itemStack.getItem()).getBlock().defaultBlockState();
                 BlockStateModel blockStateModel = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(decorationState);
                 List<BlockStateModelPart> parts = new ArrayList<>();
+                // TODO 修改成extract + submit
                 blockStateModel.collectParts(Minecraft.getInstance().level.getRandom(), parts);
                 double size = decorationState.getShape(Minecraft.getInstance().level, BlockPos.ZERO).bounds().getSize();
                 float scale = (float) (0.225F / size);
@@ -129,121 +126,11 @@ public class GlasswareRenderer {
         if (state.height() > 0.1 && state.model().getModel() instanceof GlasswareQuadCollection quadCollection) {
             Vector3dc start = quadCollection.start();
             Vector3dc end = quadCollection.end();
+            int color = state.color();
+            float heightRate = state.height();
 
-            float minX = (float) Math.min(start.x(), end.x());
-            float minY = (float) Math.min(start.y(), end.y());
-            float minZ = (float) Math.min(start.z(), end.z());
-
-            float maxX = (float) Math.max(start.x(), end.x());
-            float maxY = ((float) Math.max(start.y(), end.y()) - minY) * state.height() + minY;
-            float maxZ = (float) Math.max(start.z(), end.z());
-
-            submitNodeCollector.submitCustomGeometry(
-                    poseStack,
-                    RenderTypes.entityTranslucent(ShakenStir.asResource("textures/block/liquid_overlay.png")),
-                    (pose, buffer) -> {
-
-                        Matrix4f mat = pose.pose();
-
-                        int r = ARGB.red(state.color());
-                        int g = ARGB.green(state.color());
-                        int b = ARGB.blue(state.color());
-                        int a = 200;
-
-                        // DOWN
-                        quad(buffer, mat, pose,
-                                minX, minY, minZ,
-                                maxX, minY, minZ,
-                                maxX, minY, maxZ,
-                                minX, minY, maxZ,
-                                r, g, b, a, lightCoords);
-
-                        // UP
-                        quad(buffer, mat, pose,
-                                minX, maxY, minZ,
-                                minX, maxY, maxZ,
-                                maxX, maxY, maxZ,
-                                maxX, maxY, minZ,
-                                r, g, b, a, lightCoords);
-
-                        // NORTH
-                        quad(buffer, mat, pose,
-                                minX, minY, minZ,
-                                minX, maxY, minZ,
-                                maxX, maxY, minZ,
-                                maxX, minY, minZ,
-                                r, g, b, a, lightCoords);
-
-                        // SOUTH
-                        quad(buffer, mat, pose,
-                                minX, minY, maxZ,
-                                maxX, minY, maxZ,
-                                maxX, maxY, maxZ,
-                                minX, maxY, maxZ,
-                                r, g, b, a, lightCoords);
-
-                        // WEST
-                        quad(buffer, mat, pose,
-                                minX, minY, minZ,
-                                minX, minY, maxZ,
-                                minX, maxY, maxZ,
-                                minX, maxY, minZ,
-                                r, g, b, a, lightCoords);
-
-                        // EAST
-                        quad(buffer, mat, pose,
-                                maxX, minY, minZ,
-                                maxX, maxY, minZ,
-                                maxX, maxY, maxZ,
-                                maxX, minY, maxZ,
-                                r, g, b, a, lightCoords);
-                    }
-            );
+            LiquidRenderer.submitLiquid(poseStack, submitNodeCollector, start, end, heightRate, lightCoords, color);
         }
     }
 
-    private static void quad(
-            VertexConsumer buffer,
-            Matrix4f mat,
-            PoseStack.Pose pose,
-
-            float x1, float y1, float z1,
-            float x2, float y2, float z2,
-            float x3, float y3, float z3,
-            float x4, float y4, float z4,
-
-            int r, int g, int b, int a,
-            int lightCoords
-    ) {
-
-        new Color(255, 249, 200);
-
-        buffer.addVertex(mat, x1, y1, z1)
-                .setColor(r, g, b, a)
-                .setUv(0f, 0f)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(lightCoords)
-                .setNormal(pose, 0f, 1f, 0f);
-
-        buffer.addVertex(mat, x2, y2, z2)
-                .setColor(r, g, b, a)
-                .setUv(0f, 1f)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(lightCoords)
-                .setNormal(pose, 0f, 1f, 0f);
-
-        buffer.addVertex(mat, x3, y3, z3)
-                .setColor(r, g, b, a)
-                .setUv(1f, 1f)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(lightCoords)
-                .setNormal(pose, 0f, 1f, 0f);
-
-        buffer.addVertex(mat, x4, y4, z4)
-                .setColor(r, g, b, a)
-                .setUv(1f, 0f)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(lightCoords)
-                .setNormal(pose, 0f, 1f, 0f);
-    }
 }

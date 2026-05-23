@@ -3,11 +3,18 @@ package io.github.hawah.shakenstir.content.block;
 import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.DistillerBlockEntity;
 import io.github.hawah.shakenstir.foundation.block.DistillerPart;
+import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -21,9 +28,17 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
@@ -46,7 +61,40 @@ public class Distiller extends Block implements EntityBlock{
 
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
-        super.animateTick(state, level, pos, random);
+        if (!state.getValue(PART).equals(DistillerPart.LOWER)) {
+            return;
+        }
+        if (!(level.getBlockEntity(pos) instanceof DistillerBlockEntity be) || be.getBurnTicks() <= 0) {
+            return;
+        }
+        double x = pos.getX() + 0.5;
+        double y = pos.getY();
+        double z = pos.getZ() + 0.5;
+        if (random.nextDouble() < 0.1) {
+            level.playLocalSound(x, y, z, SoundEvents.FURNACE_FIRE_CRACKLE, SoundSource.BLOCKS, 1.0F, 1.0F, false);
+        }
+
+        Direction direction = state.getValue(FACING);
+        Direction.Axis axis = direction.getAxis();
+        double r = 0.52;
+        double ss = random.nextDouble() * 0.6 - 0.3;
+        double dx = axis == Direction.Axis.X ? direction.getStepX() * 0.52 : ss;
+        double dy = random.nextDouble() * 6.0 / 16.0;
+        double dz = axis == Direction.Axis.Z ? direction.getStepZ() * 0.52 : ss;
+        level.addParticle(ParticleTypes.SMOKE, x + dx, y + dy, z + dz, 0.0, 0.0, 0.0);
+        level.addParticle(ParticleTypes.FLAME, x + dx, y + dy, z + dz, 0.0, 0.0, 0.0);
+        if (random.nextInt(10) == 0) {
+            level.playLocalSound(
+                    pos.getX() + 0.5,
+                    pos.getY() + 0.5,
+                    pos.getZ() + 0.5,
+                    SoundEvents.CAMPFIRE_CRACKLE,
+                    SoundSource.BLOCKS,
+                    0.5F + random.nextFloat(),
+                    random.nextFloat() * 0.7F + 0.6F,
+                    false
+            );
+        }
     }
 
     @Override
@@ -67,6 +115,14 @@ public class Distiller extends Block implements EntityBlock{
             return PIPE_SHAPES.get(state.getValue(FACING).getOpposite());
         }
         return super.getShape(state, level, pos, context);
+    }
+
+    @Override
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        if (state.getValue(PART).equals(DistillerPart.PIPE) && context instanceof EntityCollisionContext) {
+            return Shapes.empty();
+        }
+        return super.getCollisionShape(state, level, pos, context);
     }
 
     @Override
@@ -171,13 +227,13 @@ public class Distiller extends Block implements EntityBlock{
 
     @Override
     public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        // You can return different tickers here, depending on whatever factors you want. A common use case would be
-        // to return different tickers on the client or server, only tick one side to begin with,
-        // or only return a ticker for some blockstates (e.g. when using a "my machine is working" blockstate property).
         if (!state.getValue(PART).equals(DistillerPart.root())) {
             return null;
         }
-        return createTickerHelper(type, BlockEntityRegistries.DISTILLER_BLOCK_ENTITY.get(), DistillerBlockEntity::tick);
+        if (level.isClientSide()) {
+            return createTickerHelper(type, BlockEntityRegistries.DISTILLER_BLOCK_ENTITY.get(), DistillerBlockEntity::animationTick);
+        }
+        return createTickerHelper(type, BlockEntityRegistries.DISTILLER_BLOCK_ENTITY.get(), DistillerBlockEntity::serverTick);
     }
 
     @SuppressWarnings("unchecked")
@@ -185,5 +241,71 @@ public class Distiller extends Block implements EntityBlock{
             BlockEntityType<A> type, BlockEntityType<E> checkedType, BlockEntityTicker<? super E> ticker
     ) {
         return checkedType == type ? (BlockEntityTicker<A>) ticker : null;
+    }
+
+    @Override
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        BlockPos rootPos = findSource(state, pos);
+        if (stack.isEmpty()) {
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
+        }
+        if (!(level.getBlockEntity(rootPos) instanceof DistillerBlockEntity be)) {
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
+        }
+
+
+        DistillerPart part = state.getValue(PART);
+
+        if (part == DistillerPart.UPPER) {
+            ResourceHandler<FluidResource> handler = stack.getCapability(Capabilities.Fluid.ITEM, ItemAccess.forStack(stack));
+            if (handler != null && handler.size() > 0) {
+                FluidResource resource = handler.getResource(0);
+                int amount = handler.getAmountAsInt(0);
+                if (amount > 0) {
+                    FluidStack fluidStack = resource.toStack(amount);
+                    if (be.insertFluid(fluidStack, player.isCreative())) {
+                        int inserted = amount - fluidStack.getAmount();
+                        if (!player.isCreative() && inserted > 0) {
+                            try (Transaction tx = Transaction.openRoot()) {
+                                handler.extract(0, resource, inserted, tx);
+                            }
+                        }
+                        level.playSound(null, pos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
+                        player.getCooldowns().addCooldown(stack, 10);
+                        return InteractionResult.SUCCESS;
+                    }
+                }
+            }
+            if (!stack.isEmpty()) {
+                be.insertItem(stack, player);
+                return InteractionResult.SUCCESS;
+            }
+        }
+
+        if (part == DistillerPart.LOWER) {
+            if (be.insertFuel(stack, player)) {
+                return InteractionResult.SUCCESS;
+            }
+        }
+
+        return InteractionResult.TRY_WITH_EMPTY_HAND;
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        BlockPos rootPos = findSource(state, pos);
+        if (!(level.getBlockEntity(rootPos) instanceof DistillerBlockEntity be)) {
+            return InteractionResult.PASS;
+        }
+
+        if (state.getValue(PART) == DistillerPart.UPPER) {
+            ItemStack popped = be.popItem();
+            if (!popped.isEmpty()) {
+                ITakeUpBlock.holdOrAddItem(player, popped, level, pos);
+                return InteractionResult.SUCCESS;
+            }
+        }
+
+        return InteractionResult.PASS;
     }
 }

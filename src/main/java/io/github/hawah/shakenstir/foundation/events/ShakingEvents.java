@@ -48,5 +48,10 @@ public class ShakingEvents {
 //        TooltipHandler.addToTooltip(stack, DataComponentTypeRegistries.SPIRIT_CONTENT       , ctx, display, linesConsumer, tooltipFlag);
     }
 
-
+//    @SubscribeEvent
+//    public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+//        event.registerBlock(
+//                Capabilities.Fluid.BLOCK
+//        );
+//    }
 }

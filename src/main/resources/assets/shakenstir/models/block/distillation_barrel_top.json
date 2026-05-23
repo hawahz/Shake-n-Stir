@@ -4,7 +4,7 @@
 	"texture_size": [128, 128],
 	"textures": {
 		"0": "shakenstir:block/distillation_texture",
-		"particle": "shakenstir:block/distillation_texture"
+		"particle": "shakenstir:block/distillator_particle"
 	},
 	"elements": [
 		{

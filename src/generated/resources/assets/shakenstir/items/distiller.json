@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "shakenstir:item/distiller"
+    "model": "shakenstir:item/distiller_item"
   }
 }

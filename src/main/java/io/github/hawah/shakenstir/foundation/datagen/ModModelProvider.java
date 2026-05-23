@@ -91,7 +91,7 @@ public class ModModelProvider extends ModelProvider {
 
         generateIceCube(itemModels);
         generateCabinet(blockModels, itemModels);
-        createDistillationBarrel(BlockRegistries.DISTILLER.get(), blockModels);
+        generateDistiller(blockModels, itemModels);
 //        generateLongDrinkGlassware(itemModels);
     }
 
@@ -235,18 +235,25 @@ public class ModModelProvider extends ModelProvider {
         generateEmptyModel(blockModels, block, block);
     }
 
-    public void createDistillationBarrel(Block barrel, BlockModelGenerators blockModels) {
+    public void generateDistiller(BlockModelGenerators blockModels, ItemModelGenerators itemModelGenerators) {
         MultiVariant bottom = BlockModelGenerators.plainVariant(ShakenStir.asResource("block/distillation_barrel_bottom"));
         MultiVariant top = BlockModelGenerators.plainVariant(ShakenStir.asResource("block/distillation_barrel_top"));
         MultiVariant pipe = BlockModelGenerators.plainVariant(ShakenStir.asResource("block/distillation_pipe"));
-        blockModels.registerSimpleFlatItemModel(barrel.asItem());
+        Block barrel = BlockRegistries.DISTILLER.get();
         blockModels.blockStateOutput
                 .accept(
-                        createDistillationBarrel(barrel, bottom, top, pipe)
+                        generateDistiller(barrel, bottom, top, pipe)
                 );
+
+        ItemModel.Unbaked itemModel = ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "item/distiller_item"));
+
+        itemModelGenerators.itemModelOutput.accept(
+                ItemRegistries.DISTILLER.get(),
+                itemModel
+        );
     }
 
-    public static BlockModelDefinitionGenerator createDistillationBarrel(
+    public static BlockModelDefinitionGenerator generateDistiller(
             Block block,
             MultiVariant bottom,
             MultiVariant top,

@@ -17,6 +17,8 @@ public class RecipeTypeRegistries {
             RECIPE_TYPES.register("shake_recipe", RecipeType::simple);
     public static final Supplier<RecipeType<StirRecipe>> STIR_RECIPE =
             RECIPE_TYPES.register("stir_recipe", RecipeType::simple);
+    public static final Supplier<RecipeType<DistillerRecipe>> DISTILLER_RECIPE =
+            RECIPE_TYPES.register("distiller_recipe", RecipeType::simple);
 
 
     public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS =
@@ -25,6 +27,8 @@ public class RecipeTypeRegistries {
             RECIPE_SERIALIZERS.register("shake_recipe", () -> new RecipeSerializer<>(ShakeRecipe.CODEC, ShakeRecipe.STREAM_CODEC));
     public static final Supplier<RecipeSerializer<StirRecipe>> STIR_RECIPE_SERIALIZER =
             RECIPE_SERIALIZERS.register("stir_recipe", () -> new RecipeSerializer<>(StirRecipe.CODEC, StirRecipe.STREAM_CODEC));
+    public static final Supplier<RecipeSerializer<DistillerRecipe>> DISTILLER_RECIPE_SERIALIZER =
+            RECIPE_SERIALIZERS.register("distiller_recipe", () -> new RecipeSerializer<>(DistillerRecipe.CODEC, DistillerRecipe.STREAM_CODEC));
 
     public static void register(IEventBus eventBus) {
         RECIPE_TYPES.register(eventBus);
