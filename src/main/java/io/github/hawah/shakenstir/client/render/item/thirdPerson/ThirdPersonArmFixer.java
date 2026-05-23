@@ -3,40 +3,36 @@ package io.github.hawah.shakenstir.client.render.item.thirdPerson;
 import io.github.hawah.shakenstir.client.ClientSharedShakeParams;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.item.ShakeItem;
-import io.github.hawah.shakenstir.util.Result;
+import io.github.hawah.shakenstir.foundation.utils.ShakeAnimationAccessor;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import net.minecraft.util.Ease;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.BiFunction;
 
 public class ThirdPersonArmFixer {
 
-    public static List<BiFunction<AvatarRenderState, ModelPart, Result>> rightArmModifiers = new ArrayList<>();
-    public static List<BiFunction<AvatarRenderState, ModelPart, Result>> leftArmModifiers = new ArrayList<>();
-    public static void onRenderRightArm(ModelPart rightArm, HumanoidRenderState state) {
+    public static void onModifyModelPose(HumanoidRenderState state, HumanoidModel<?> model) {
         if (!(state instanceof AvatarRenderState avatarRenderState)) {
             return;
         }
-        for (BiFunction<AvatarRenderState, ModelPart, Result> rightArmModifier : rightArmModifiers) {
-            Result result = rightArmModifier.apply(avatarRenderState, rightArm);
-            if (result.cancelled()) {
+        if (state.getMainHandItemStack().getItem() instanceof ShakeItem && state.isUsingItem) {
+            float ticksUsingItem = state.ticksUsingItem;
+            final float READY_DURATION = 10;
+            final float TRANSIT_DURATION = 4;
+            if (ticksUsingItem < READY_DURATION) {
+                ((ShakeAnimationAccessor) model).shakeNStir$getReadyAnimation().apply((long) (ticksUsingItem / READY_DURATION * 1000), 1);
                 return;
             }
-        }
-    }
-    public static void onRenderLeftArm(ModelPart leftArm, HumanoidRenderState state) {
-        if (!(state instanceof AvatarRenderState avatarRenderState)) {
-            return;
-        }
-        for (BiFunction<AvatarRenderState, ModelPart, Result> leftArmModifier : leftArmModifiers) {
-            Result result = leftArmModifier.apply(avatarRenderState, leftArm);
-            if (result.cancelled()) {
-                return;
+            int id = avatarRenderState.id;
+            double x = 1-ClientSharedShakeParams.x(id);
+            double process = (x + 1) / 3;
+            if (ticksUsingItem < READY_DURATION + TRANSIT_DURATION) {
+                process = Mth.lerp(Ease.outSine((ticksUsingItem - READY_DURATION)/TRANSIT_DURATION), 0, process);
             }
+            ((ShakeAnimationAccessor) model).shakeNStir$getShakeAnimation().apply((long) (process * 1100), 1);
         }
     }
 
@@ -46,41 +42,5 @@ public class ThirdPersonArmFixer {
                                               float multiplier,
                                               HumanoidArm arm) {
         return !state.getMainHandItemStack().is(ItemRegistries.SHAKE) || !state.isUsingItem;
-    }
-
-    static {
-        rightArmModifiers.add(
-                ThirdPersonArmFixer::modifyShakeItemRight
-        );
-        leftArmModifiers.add(
-                ThirdPersonArmFixer::modifyShakeItemLeft
-        );
-    }
-
-    private static Result modifyShakeItemRight(AvatarRenderState state, ModelPart arm) {
-        if (state.getMainHandItemStack().getItem() instanceof ShakeItem && state.isUsingItem) {
-            int id = state.id;
-            double x = 1-ClientSharedShakeParams.x(id);
-            arm.xRot = (float) Math.toRadians(-150 + x * 20);
-            arm.yRot = (float) Math.toRadians(-20);
-            arm.y = 2f;
-            arm.x = (float) (-5f + (x - 2f)/3);
-            return new Result(true);
-        }
-        return Result.empty();
-    }
-    private static Result modifyShakeItemLeft(AvatarRenderState state, ModelPart arm) {
-        if (state.getMainHandItemStack().getItem() instanceof ShakeItem && state.isUsingItem) {
-            int id = state.id;
-            double x = 1-ClientSharedShakeParams.x(id);
-            arm.xRot = (float) Math.toRadians(-120 + x * 18);
-            double newX = (-x + 2)/3.5 * 2;
-            arm.yRot = (float) Math.toRadians(5 + newX * 15);
-            arm.y = 0;
-            arm.yScale = 1.3f;
-            arm.x -= (float) ((x - 2f)/3);
-            return new Result(true);
-        }
-        return Result.empty();
     }
 }

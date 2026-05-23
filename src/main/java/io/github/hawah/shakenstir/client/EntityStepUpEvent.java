@@ -30,10 +30,12 @@ public class EntityStepUpEvent {
     public static void onEntityTickPost(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof LivingEntity livingEntity) {
             UUID uuid = livingEntity.getUUID();
-            if ((!(livingEntity instanceof Player player) || !player.getAbilities().flying) && oldY.containsKey(uuid) && oldY.get(uuid) != null && livingEntity.position().y() - oldY.get(uuid) > 0) {
-                onEntityStepUp(livingEntity, livingEntity.position().y() - oldY.get(uuid));
+            Double previousY = oldY.remove(uuid);
+            if (previousY != null
+                    && (!(livingEntity instanceof Player player) || !player.getAbilities().flying)
+                    && livingEntity.position().y() - previousY > 0) {
+                onEntityStepUp(livingEntity, livingEntity.position().y() - previousY);
             }
-            oldY.remove(uuid);
         }
     }
 

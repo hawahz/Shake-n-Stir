@@ -50,7 +50,7 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem {
 
     @Override
     public ItemUseAnimation getUseAnimation(ItemStack itemStack) {
-        return ItemUseAnimation.SPYGLASS;
+        return ItemUseAnimation.NONE;
     }
 
     @Override
