@@ -81,9 +81,9 @@
   "shakenstir.tooltip_title_ice_level": "Ice Level: %s",
   "shakenstir.tooltip_when_spirit_as_base": "When Applied as Base:",
   "shakenstir:name.cocktail": "%s %s Cocktail",
-  "shakenstir:name.colada": "%s Highball",
-  "shakenstir:name.fizz": "%s %s Tonic",
-  "shakenstir:name.highball": "%s %s Colada",
+  "shakenstir:name.colada": "%s %s Colada",
+  "shakenstir:name.fizz": "%s %s Fizz",
+  "shakenstir:name.highball": "%s Highball",
   "shakenstir:name.sour": "%s %s Sour",
-  "shakenstir:name.tonic": "%s %s Fizz"
+  "shakenstir:name.tonic": "%s %s Tonic"
 }

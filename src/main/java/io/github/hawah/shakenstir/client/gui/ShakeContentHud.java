@@ -131,7 +131,8 @@ public class ShakeContentHud implements GuiLayer {
                 contentHolder,
                 iceCubeCounts,
                 height,
-                getLiquidColor(contentHolder)
+                getLiquidColor(contentHolder),
+                fadeIn
         );
     }
 

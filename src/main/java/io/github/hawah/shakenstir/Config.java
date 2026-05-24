@@ -11,6 +11,7 @@ public class Config {
         public static final ModConfigSpec SPEC;
 
         public static final ModConfigSpec.BooleanValue ENABLE_WRONG_FLUID_IN_BOTTLE;
+        public static final ModConfigSpec.IntValue SHAKER_ANIMATION_UPLOAD_DISTANCE;
 
         static {
             ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -19,6 +20,11 @@ public class Config {
                     .comment(LangData.CONFIGURATION_ENABLE_WRONG_FLUID_IN_BOTTLE.def)
                     .translation(LangData.CONFIGURATION_ENABLE_WRONG_FLUID_IN_BOTTLE.key)
                     .define("enable_wrong_fluid_in_bottle", true);
+
+            SHAKER_ANIMATION_UPLOAD_DISTANCE = builder
+                    .comment(LangData.CONFIGURATION_SHAKER_ANIMATION_UPLOAD_DISTANCE.def)
+                    .translation(LangData.CONFIGURATION_SHAKER_ANIMATION_UPLOAD_DISTANCE.key)
+                    .defineInRange("shaker_animation_upload_distance", 256, 0, 4096);
 
             SPEC = builder.build();
         }

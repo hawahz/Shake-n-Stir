@@ -53,10 +53,10 @@ public class ModEnUsLangProvider extends LanguageProvider {
 
         add(String.valueOf(CocktailTypes.SOUR_VALUE.translationKey()    )   , "%s %s Sour"    );
         add(String.valueOf(CocktailTypes.COCKTAIL_VALUE.translationKey())   , "%s %s Cocktail");
-        add(String.valueOf(CocktailTypes.HIGHBALL_VALUE.translationKey())   , "%s %s Colada"  );
-        add(String.valueOf(CocktailTypes.TONIC_VALUE.translationKey()   )   , "%s %s Fizz"    );
-        add(String.valueOf(CocktailTypes.COLADA_VALUE.translationKey()  )   , "%s Highball"   );
-        add(String.valueOf(CocktailTypes.FIZZ_VALUE.translationKey()    )   , "%s %s Tonic"   );
+        add(String.valueOf(CocktailTypes.HIGHBALL_VALUE.translationKey())   , "%s Highball"   );
+        add(String.valueOf(CocktailTypes.TONIC_VALUE.translationKey()   )   , "%s %s Tonic"   );
+        add(String.valueOf(CocktailTypes.COLADA_VALUE.translationKey()  )   , "%s %s Colada"  );
+        add(String.valueOf(CocktailTypes.FIZZ_VALUE.translationKey()    )   , "%s %s Fizz"    );
 
         add(MobEffectRegistries.DRUNK.get().getDescriptionId(), "Drunk");
         add(MobEffectRegistries.FALL_DOWN.get().getDescriptionId(), "Fall Down");

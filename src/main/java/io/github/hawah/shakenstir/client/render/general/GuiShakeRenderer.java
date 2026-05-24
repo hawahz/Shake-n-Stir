@@ -13,7 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 public class GuiShakeRenderer {
-    public static void extractShakeWithContent(int x, int y, GuiGraphicsExtractor graphics, ShakeContentHolder contentHolder, int iceCounts, double height, int liquidColor) {
+    public static void extractShakeWithContent(int x, int y, GuiGraphicsExtractor graphics, ShakeContentHolder contentHolder, int iceCounts, double height, int liquidColor, float fadeIn) {
         x += Textures.SHAKE_HUD_FRONT.getWidth();
         double[] splitWeights = new double[contentHolder.fluidStacks().size()];
         for (int i = 0; i < splitWeights.length; i++) {
@@ -29,7 +29,7 @@ public class GuiShakeRenderer {
                     x,
                     (int) (y + currentHeightPrt - splitWeights[i] * height / 2 - font.lineHeight),
                     255,
-                    0xFFFFFFFF
+                    0x00FFFFFF | ((int) (255 * fadeIn) << 24)
             );
             currentHeightPrt -= (int) (splitWeights[i] * height);
         }
@@ -37,7 +37,6 @@ public class GuiShakeRenderer {
         x -= Textures.SHAKE_HUD_FRONT.getWidth();
 
 
-        float fadeIn = 1;
         Textures.SHAKE_HUD_INSIDE.blit(
                 graphics,
                 x,

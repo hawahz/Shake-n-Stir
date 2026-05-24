@@ -127,7 +127,7 @@ public record ShakeItemSpecialRenderer() implements SpecialModelRenderer<ShakeIt
                 player.position().x(),
                 player.position().y(),
                 player.position().z(),
-                10,
+                Minecraft.getInstance().options.renderDistance().get() * 16,
                 entity -> {
                     if (entity instanceof Player p) {
                         return p.getMainHandItem() == stack || p.getOffhandItem() == stack;

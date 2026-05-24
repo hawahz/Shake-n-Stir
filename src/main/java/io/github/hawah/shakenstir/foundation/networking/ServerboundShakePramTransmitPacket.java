@@ -6,6 +6,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 
 public record ServerboundShakePramTransmitPacket(double x, double y, int id) implements ClientToServerPacket {
     public static final StreamCodec<ByteBuf, ServerboundShakePramTransmitPacket> STREAM_CODEC = StreamCodec.composite(
@@ -16,7 +17,16 @@ public record ServerboundShakePramTransmitPacket(double x, double y, int id) imp
     );
     @Override
     public void handle(ServerPlayer player) {
-        Networking.sendToAll(new ClientboundShakeParamSyncPacket(x, y, id));
+        Entity entity = player.level().getEntity(id);
+        if (entity == null) {
+            return;
+        }
+        for (ServerPlayer serverPlayer : player.level().players()) {
+            if (serverPlayer.distanceTo(entity) < 256){
+                Networking.sendToPlayer(new ClientboundShakeParamSyncPacket(x, y, id), serverPlayer);
+            }
+        }
+//        Networking.sendToAll(new ClientboundShakeParamSyncPacket(x, y, id));
     }
 
     @Override

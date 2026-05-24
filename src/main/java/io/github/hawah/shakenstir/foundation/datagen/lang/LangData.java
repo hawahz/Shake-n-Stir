@@ -66,6 +66,9 @@ public enum LangData {
     CONFIGURATION_ENABLE_WRONG_FLUID_IN_BOTTLE("configuration.enable_wrong_fluid_in_bottle", "Enable Wrong Fluid in Bottle", 0),
     CONFIGURATION_ENABLE_WRONG_FLUID_IN_BOTTLE_TOOLTIP("configuration.enable_wrong_fluid_in_bottle.tooltip", "", 0),
 
+    CONFIGURATION_SHAKER_ANIMATION_UPLOAD_DISTANCE("configuration.shaker_animation_upload_distance", "Shaker Animation Upload Distance", 0),
+    CONFIGURATION_SHAKER_ANIMATION_UPLOAD_DISTANCE_TOOLTIP("configuration.shaker_animation_upload_distance.tooltip", "The distance between the shaker and the player, beyond which the shaker will not animate.", 0),
+
     ;
 
     public final String key;

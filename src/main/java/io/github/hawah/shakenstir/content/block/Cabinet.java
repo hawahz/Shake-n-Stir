@@ -5,6 +5,7 @@ import com.mojang.serialization.MapCodec;
 import io.github.hawah.shakenstir.content.blockEntity.CabinetBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -14,10 +15,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -39,7 +37,7 @@ public class Cabinet extends HorizontalDirectionalBlock implements EntityBlock, 
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public Cabinet(Properties properties) {
-        super(properties.noOcclusion());
+        super(properties.noOcclusion().sound(SoundType.WOOD));
         this.registerDefaultState(defaultBlockState()
                 .setValue(LEFT, false)
                 .setValue(RIGHT, false)
@@ -91,6 +89,10 @@ public class Cabinet extends HorizontalDirectionalBlock implements EntityBlock, 
         int index = getSlot(pos, hitResult, facing);
         if (level.getBlockEntity(pos) instanceof CabinetBlockEntity blockEntity) {
             if (blockEntity.putSpirit(index, player.isCreative()? itemStack.copy(): itemStack)) {
+                player.playSound(
+                        SoundType.WOOD.getPlaceSound()
+                );
+
                 return InteractionResult.SUCCESS;
             }
         }
@@ -123,6 +125,9 @@ public class Cabinet extends HorizontalDirectionalBlock implements EntityBlock, 
             ItemStack itemStack = blockEntity.takeSpirit(index);
             if (!itemStack.isEmpty()) {
                 player.addItem(itemStack);
+                player.playSound(
+                        SoundEvents.BOTTLE_FILL
+                );
                 return InteractionResult.SUCCESS;
             }
         }
