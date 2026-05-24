@@ -1,6 +1,7 @@
 package io.github.hawah.shakenstir.foundation.mixin;
 
-import io.github.hawah.shakenstir.client.render.item.thirdPerson.ShakeAnimation;
+import io.github.hawah.shakenstir.client.animation.MixedShakeAnimation;
+import io.github.hawah.shakenstir.client.animation.ShakeAnimation;
 import io.github.hawah.shakenstir.client.render.item.thirdPerson.ThirdPersonArmFixer;
 import io.github.hawah.shakenstir.foundation.utils.ShakeAnimationAccessor;
 import net.minecraft.client.animation.KeyframeAnimation;
@@ -48,10 +49,14 @@ public class HumanoidModelMixin<S extends HumanoidRenderState> implements ShakeA
     @Unique
     public KeyframeAnimation shakeNStir$readyAnimation;
 
+    @Unique
+    public KeyframeAnimation shakeNStir$shakeUpperAnimation;
+
     @Inject(method = "<init>(Lnet/minecraft/client/model/geom/ModelPart;Ljava/util/function/Function;)V", at = @At("RETURN"))
     private void init(ModelPart root, Function<Identifier, RenderType> renderType, CallbackInfo ci) {
         shakeNStir$shakeAnimation = ShakeAnimation.SHAKE.bake(root);
         shakeNStir$readyAnimation = ShakeAnimation.READY.bake(root);
+        shakeNStir$shakeUpperAnimation = MixedShakeAnimation.SHAKE_UPPER.bake(root);
     }
 
     @Override
@@ -62,5 +67,10 @@ public class HumanoidModelMixin<S extends HumanoidRenderState> implements ShakeA
     @Override
     public KeyframeAnimation shakeNStir$getReadyAnimation() {
         return shakeNStir$readyAnimation;
+    }
+
+    @Override
+    public KeyframeAnimation shakeNStir$getShakeUpperAnimation() {
+        return shakeNStir$shakeUpperAnimation;
     }
 }

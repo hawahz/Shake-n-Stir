@@ -16,45 +16,40 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.client.ClientHooks;
-import net.neoforged.neoforge.client.gui.GuiLayer;
 
-import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Optional;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class CabinetHud implements GuiLayer {
+public class CabinetHud extends AbstractBlockTargetHUD {
 
     protected ItemStack tooltipItem = ItemStack.EMPTY;
 
-    public static boolean isVisible() {
-        if (ClientDataHolder.Picker.type().equals(HitResult.Type.MISS)) {
+    public boolean isVisible() {
+        if (!super.isVisible()) {
             return false;
         }
-        boolean visible = BlockRegistries.CABINET.get().equals(ClientDataHolder.Picker.block().orElse(null));
-        if (visible) {
-            BlockState state = ClientDataHolder.Picker.blockState().get();
-            if (!state.getValue(Cabinet.FACING).getOpposite().equals(ClientDataHolder.Picker.direction())) {
-                return false;
-            }
+        BlockState state = ClientDataHolder.Picker.blockState().get();
+        return state.getValue(Cabinet.FACING).getOpposite().equals(ClientDataHolder.Picker.direction());
+    }
 
-        }
-        return visible;
+    @Override
+    protected Block block() {
+        return BlockRegistries.CABINET.get();
     }
 
     public void tick() {
         if (isVisible()) {
             BlockPos pos = ClientDataHolder.Picker.pos();
-            if (getLevel() != null &&
+            if (MC.getLevel() != null &&
                     pos != null &&
-                    getLevel().getBlockEntity(pos) instanceof CabinetBlockEntity blockEntity &&
+                    MC.getLevel().getBlockEntity(pos) instanceof CabinetBlockEntity blockEntity &&
                     ClientDataHolder.Picker.hitResult() instanceof BlockHitResult blockHitResult
             ) {
                 BlockState state = blockEntity.getBlockState();
@@ -68,10 +63,6 @@ public class CabinetHud implements GuiLayer {
         }
     }
 
-    @Nullable
-    public static Level getLevel() {
-        return Minecraft.getInstance().level;
-    }
     @Override
     public void render(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
         if (!isVisible() || tooltipItem.isEmpty()) {

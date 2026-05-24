@@ -29,6 +29,7 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
                 .add(BlockRegistries.SHAKE_BLOCK.get())
                 .add(BlockRegistries.SHAKE_CUP_BLOCK.get())
                 .add(BlockRegistries.CABINET.get())
+                .add(BlockRegistries.BOTTLE.get())
                 .add(BlockRegistries.DISTILLER.get())
         ;
     }

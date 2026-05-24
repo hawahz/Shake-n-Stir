@@ -1,6 +1,7 @@
 package io.github.hawah.shakenstir;
 
 import io.github.hawah.shakenstir.client.gui.CabinetHud;
+import io.github.hawah.shakenstir.client.gui.DistillerHUD;
 import io.github.hawah.shakenstir.client.gui.ShakeContentHud;
 import io.github.hawah.shakenstir.client.hanlder.DecoratePlaceHandler;
 import io.github.hawah.shakenstir.client.hanlder.GlasswareHandler;
@@ -25,6 +26,7 @@ public class ShakenStirClient {
     public static final ShakeHandler SHAKE_HANDLER = new ShakeHandler();
     public static final ShakeContentHud SHAKE_CONTENT_HUD = new ShakeContentHud();
     public static final CabinetHud CABINET_HUD = new CabinetHud();
+    public static final DistillerHUD DISTILLER_HUD = new DistillerHUD();
     public static final GlasswareHandler GLASSWARE_HANDLER = new GlasswareHandler();
     public static final DecoratePlaceHandler DECORATE_PLACE_HANDLER = new DecoratePlaceHandler();
     public static final float ANI_DELTAF = 0.5F;

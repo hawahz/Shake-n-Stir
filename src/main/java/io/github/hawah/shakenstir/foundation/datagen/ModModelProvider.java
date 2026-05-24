@@ -73,6 +73,7 @@ public class ModModelProvider extends ModelProvider {
         generateSpirit(blockModels, itemModels, BlockRegistries.RUM, ItemRegistries.RUM, "rum");
         generateSpirit(blockModels, itemModels, BlockRegistries.TEQUILA, ItemRegistries.TEQUILA, "tequila");
         generateSpirit(blockModels, itemModels, BlockRegistries.BRANDY, ItemRegistries.BRANDY, "brandy");
+        generateSpirit(blockModels, itemModels, BlockRegistries.BOTTLE, ItemRegistries.BOTTLE, "bottle");
         generateEmptyModel(blockModels, BlockRegistries.LONG_DRINK_GLASSWARE.get(), Blocks.GLASS);
         generateEmptyModel(blockModels, BlockRegistries.SHORT_DRINK_GLASSWARE.get(), Blocks.GLASS);
         initGlassware(itemModels);

@@ -106,7 +106,9 @@ public class SpiritBottleItem extends BlockItem {
                 event.setSwingHand(false);
                 Scheduler.schedule(6, () -> Minecraft.getInstance().level.playLocalSound(
                         player,
-                        SoundEvents.PLAYER_SPLASH_HIGH_SPEED,
+                        itemStack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY).isEmpty()?
+                                SoundEvents.PLAYER_ATTACK_SWEEP:
+                                SoundEvents.BOTTLE_FILL,
                         player.getSoundSource(),
                         1.0f,
                         1.0f

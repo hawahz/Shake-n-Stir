@@ -53,7 +53,7 @@ public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
     public static final int MAX_INPUT_ITEMS = 16;
     public static final int MAX_INPUT_FLUID_CAPACITY = 4000;
     public static final int MAX_PRODUCT_FLUID_CAPACITY = 4000;
-    public static final int FUEL_MAX = 2400;
+    public static final int FUEL_MAX = 16000;
 
     public float animationHeight = 0;
     public float oAnimationHeight = 0;
@@ -317,6 +317,7 @@ public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
         productHandler.fluid = loadFluid(input, "Product");
         burnTicks = input.getInt("BurnTicks").orElse(0);
         recipeProgress = input.getInt("RecipeProgress").orElse(0);
+        currentRecipe = input.read("Recipe", DistillerRecipe.CODEC.codec()).orElse(null);
     }
 
     @Override
@@ -327,6 +328,9 @@ public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
         saveFluid(output, "Product", productHandler.fluid);
         output.putInt("BurnTicks", burnTicks);
         output.putInt("RecipeProgress", recipeProgress);
+        if (currentRecipe != null) {
+            output.store("Recipe", DistillerRecipe.CODEC.codec(), currentRecipe);
+        }
     }
 
     @Override
@@ -574,11 +578,18 @@ public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
 
         @Override
         public boolean isValid(int index, ItemResource resource) {
-            return index == 0 && resource.toStack().getBurnTime(null, level().getServer().fuelValues()) > 0;
+            if (level().isClientSide()) {
+                return false;
+            }
+            int burnTime = resource.toStack().getBurnTime(null, level().getServer().fuelValues());
+            return index == 0 && burnTime > 0 && (burnTime + burnTicks <= FUEL_MAX || burnTicks < 200);
         }
 
         @Override
         public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+            if (level().isClientSide() || !isValid(index, resource)) {
+                return 0;
+            }
             int burnTime = resource.toStack().getBurnTime(null, level().getServer().fuelValues());
             if (burnTime <= 0) return 0;
             burnTicks += burnTime;

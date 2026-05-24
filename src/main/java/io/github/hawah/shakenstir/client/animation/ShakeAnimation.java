@@ -1,4 +1,4 @@
-package io.github.hawah.shakenstir.client.render.item.thirdPerson;
+package io.github.hawah.shakenstir.client.animation;
 
 import net.minecraft.client.animation.AnimationChannel;
 import net.minecraft.client.animation.AnimationDefinition;

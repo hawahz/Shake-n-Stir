@@ -36,6 +36,7 @@ public class BlockRegistries {
     public static final DeferredBlock<SpiritBlock> RUM = register("rum", SpiritBlock::new);
     public static final DeferredBlock<SpiritBlock> TEQUILA = register("tequila", SpiritBlock::new);
     public static final DeferredBlock<SpiritBlock> BRANDY = register("brandy", SpiritBlock::new);
+    public static final DeferredBlock<SpiritBlock> BOTTLE = register("bottle", SpiritBlock::new);
     public static final DeferredBlock<Glassware> LONG_DRINK_GLASSWARE = register("long_drink_glassware", Glassware::new);
     public static final DeferredBlock<Glassware> SHORT_DRINK_GLASSWARE = register("short_drink_glassware", Glassware::new);
 

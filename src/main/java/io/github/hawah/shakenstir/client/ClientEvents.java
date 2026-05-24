@@ -336,6 +336,7 @@ public class ClientEvents {
         public static void registerHUD(RegisterGuiLayersEvent event) {
             event.registerAboveAll(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "shake_content_hud"), ShakenStirClient.SHAKE_CONTENT_HUD);
             event.registerAboveAll(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "cabinet_hud"), ShakenStirClient.CABINET_HUD);
+            event.registerAboveAll(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "distiller_hud"), ShakenStirClient.DISTILLER_HUD);
         }
 
         @SubscribeEvent

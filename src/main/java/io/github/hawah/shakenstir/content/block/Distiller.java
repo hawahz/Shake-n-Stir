@@ -151,10 +151,7 @@ public class Distiller extends Block implements EntityBlock{
         DistillerPart part = state.getValue(PART);
         Direction facing = state.getValue(FACING);
         return switch (part) {
-            case LOWER -> {
-                BlockPos below = pos.below();
-                yield level.getBlockState(below).isFaceSturdy(level, below, Direction.UP);
-            }
+            case LOWER -> true;
             case UPPER -> level.getBlockState(pos.below()).is(this);
             case PIPE -> {
                 BlockPos behind = pos.relative(facing.getOpposite());
