@@ -40,6 +40,11 @@ public class ShakerHandler implements IHandler, GuiLayer {
     private int firstShakeTick = -1;
     private final static int[] SHAKE_TICKS = new int[] {200, 300, 360};
     private ItemStack item = null;
+    private double lastSentX, lastSentY;
+    private double lastSentVx, lastSentVy;
+    private int lastSendTick = -999;
+    private static final double SEND_THRESHOLD = 0.015;
+    private static final int MAX_SEND_INTERVAL = 3;
 
     public void setX(double x) {
         this.x = Mth.lerp(0.2, this.x, Mth.clamp(x, -1, 2));
@@ -62,7 +67,21 @@ public class ShakerHandler implements IHandler, GuiLayer {
         if (!isActive()) {
             return;
         }
-        Networking.sendToServer(new ServerboundShakePramTransmitPacket(x, y, getPlayer().getId()));
+        int currentTick = AnimationTickHolder.getTicks();
+        double dx = Math.abs(x - lastSentX);
+        double dy = Math.abs(y - lastSentY);
+        boolean dirChanged = (vx * lastSentVx < 0) || (vy * lastSentVy < 0);
+        boolean significantMove = dx > SEND_THRESHOLD || dy > SEND_THRESHOLD;
+        boolean overdue = (currentTick - lastSendTick) >= MAX_SEND_INTERVAL;
+
+        if (significantMove || dirChanged || overdue) {
+            Networking.sendToServer(new ServerboundShakePramTransmitPacket(x, y, getPlayer().getId()));
+            lastSentX = x;
+            lastSentY = y;
+            lastSentVx = vx;
+            lastSentVy = vy;
+            lastSendTick = currentTick;
+        }
     }
     public void update() {
         Vector2d vec = new Vector2d(x, y);
@@ -163,6 +182,11 @@ public class ShakerHandler implements IHandler, GuiLayer {
         y = 0;
         vx = 0;
         vy = 0;
+        lastSentX = 0;
+        lastSentY = 0;
+        lastSentVx = 0;
+        lastSentVy = 0;
+        lastSendTick = AnimationTickHolder.getTicks();
     }
     public Result onMouseMove(final double yaw, final double pitch) {
         if (!isActive()) {

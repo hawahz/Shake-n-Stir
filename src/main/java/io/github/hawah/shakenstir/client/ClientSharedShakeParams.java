@@ -3,10 +3,10 @@ package io.github.hawah.shakenstir.client;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import net.minecraft.util.Mth;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ClientSharedShakeParams {
-    static HashMap<Integer, Param> clientIdToParam = new HashMap<>();
+    static ConcurrentHashMap<Integer, Param> clientIdToParam = new ConcurrentHashMap<>();
 
     public static Param getParam(int id) {
         if (!clientIdToParam.containsKey(id)) {
@@ -18,25 +18,28 @@ public class ClientSharedShakeParams {
     public static double x(int id) {
         Param param = getParam(id);
         double pastTime = AnimationTickHolder.getRenderTime() - param.lastTick;
-        double delta = Mth.clamp(pastTime / param.tickLen, 0, 1);
+        double tickLen = Math.max(param.tickLen, 1.0);
+        double delta = Mth.clamp(pastTime / tickLen, 0, 2.0);
         return Mth.lerp(delta, param.ox, param.x);
     }
 
     public static double y(int id) {
         Param param = getParam(id);
         double pastTime = AnimationTickHolder.getRenderTime() - param.lastTick;
-        double delta = Mth.clamp(pastTime / param.tickLen, 0, 1);
+        double tickLen = Math.max(param.tickLen, 1.0);
+        double delta = Mth.clamp(pastTime / tickLen, 0, 2.0);
         return Mth.lerp(delta, param.oy, param.y);
     }
 
     public static void updateParam(int id, double x, double y) {
         Param param = getParam(id);
+        double now = AnimationTickHolder.getRenderTime();
         param.ox = param.x;
         param.x = x;
         param.oy = param.y;
         param.y = y;
-        param.tickLen = AnimationTickHolder.getRenderTime() - param.lastTick;
-        param.lastTick = AnimationTickHolder.getRenderTime();
+        param.tickLen = now - param.lastTick;
+        param.lastTick = now;
     }
 
     public static class Param {

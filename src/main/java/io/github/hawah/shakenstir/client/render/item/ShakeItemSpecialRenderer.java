@@ -3,8 +3,7 @@ package io.github.hawah.shakenstir.client.render.item;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.serialization.MapCodec;
-import io.github.hawah.shakenstir.ShakenStirClient;
-import io.github.hawah.shakenstir.client.hanlder.ShakerHandler;
+import io.github.hawah.shakenstir.client.ClientSharedShakeParams;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.block.Shaker;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
@@ -84,8 +83,7 @@ public record ShakeItemSpecialRenderer() implements SpecialModelRenderer<ShakeIt
             );
 
             poseStack.translate(-0.1f, 0.1f, 0.0f);
-            ShakerHandler shakerHandler = ShakenStirClient.SHAKE_HANDLER;
-            double y = shakerHandler.x();
+            double y = ClientSharedShakeParams.x(state.player.getId());
             poseStack.mulPose(
                     new Quaternionf()
                             .rotateLocalX((float) (-0.29999998f + y/5))
