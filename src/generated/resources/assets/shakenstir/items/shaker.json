@@ -20,11 +20,11 @@
       "type": "minecraft:condition",
       "on_false": {
         "type": "minecraft:model",
-        "model": "shakenstir:block/shake_body"
+        "model": "shakenstir:block/shaker_body"
       },
       "on_true": {
         "type": "minecraft:model",
-        "model": "shakenstir:block/shake_overall"
+        "model": "shakenstir:block/shaker_overall"
       },
       "property": "shakenstir:has_cup"
     },

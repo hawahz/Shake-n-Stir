@@ -1,6 +1,7 @@
 package io.github.hawah.shakenstir.client.gui;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
+import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
 import io.github.hawah.shakenstir.client.clientTooltip.ClientProgressBarTooltip;
 import io.github.hawah.shakenstir.client.clientTooltip.ItemTooltipWithNameAndCount;
@@ -16,12 +17,14 @@ import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
+import org.joml.Matrix3x2fStack;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
@@ -33,6 +36,8 @@ import java.util.Map;
 @ParametersAreNonnullByDefault
 public class DistillerHUD extends AbstractBlockTargetHUD {
 
+    float fadeInProgress = 0;
+
     @Override
     protected Block block() {
         return BlockRegistries.DISTILLER.get();
@@ -41,8 +46,11 @@ public class DistillerHUD extends AbstractBlockTargetHUD {
     @Override
     public void render(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
         if (!isVisible()) {
+            fadeInProgress = 0;
             return;
         }
+
+        fadeInProgress = Mth.lerp(ShakenStirClient.ANI_DELTAF * deltaTracker.getGameTimeDeltaTicks(), fadeInProgress, 1);
 
         BlockState state = ClientDataHolder.Picker.blockState().get();
         BlockPos pos = ClientDataHolder.Picker.pos();
@@ -87,8 +95,12 @@ public class DistillerHUD extends AbstractBlockTargetHUD {
                 }
             }
             if (components.isEmpty()) {
+                fadeInProgress = 0;
                 return;
             }
+            Matrix3x2fStack pose = guiGraphics.pose();
+            pose.pushMatrix();
+            pose.translate( (1- fadeInProgress) * 6, 0);
             ARGBTooltipRenderUtil.tooltip(
                     guiGraphics,
                     Minecraft.getInstance().font,
@@ -97,8 +109,9 @@ public class DistillerHUD extends AbstractBlockTargetHUD {
                     guiGraphics.guiHeight() / 2,
                     DefaultTooltipPositioner.INSTANCE,
                     null,
-                    0xFFFFFF | (int)(150) << 24
+                    0xFFFFFF | (int)(200 * fadeInProgress) << 24
             );
+            pose.popMatrix();
         }
 
     }

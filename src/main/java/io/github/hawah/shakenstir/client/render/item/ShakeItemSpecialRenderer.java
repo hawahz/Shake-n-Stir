@@ -4,9 +4,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.serialization.MapCodec;
 import io.github.hawah.shakenstir.ShakenStirClient;
-import io.github.hawah.shakenstir.client.hanlder.ShakeHandler;
+import io.github.hawah.shakenstir.client.hanlder.ShakerHandler;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
-import io.github.hawah.shakenstir.content.block.Shake;
+import io.github.hawah.shakenstir.content.block.Shaker;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -84,8 +84,8 @@ public record ShakeItemSpecialRenderer() implements SpecialModelRenderer<ShakeIt
             );
 
             poseStack.translate(-0.1f, 0.1f, 0.0f);
-            ShakeHandler shakeHandler = ShakenStirClient.SHAKE_HANDLER;
-            double y = shakeHandler.x();
+            ShakerHandler shakerHandler = ShakenStirClient.SHAKE_HANDLER;
+            double y = shakerHandler.x();
             poseStack.mulPose(
                     new Quaternionf()
                             .rotateLocalX((float) (-0.29999998f + y/5))
@@ -145,7 +145,7 @@ public record ShakeItemSpecialRenderer() implements SpecialModelRenderer<ShakeIt
         BlockModelRenderState blockModelRenderState = new BlockModelRenderState();
         blockModelResolver.update(
                 blockModelRenderState,
-                BlockRegistries.SHAKE_BLOCK.get().defaultBlockState().setValue(Shake.FACING, hasCup? Direction.UP: Direction.DOWN),
+                BlockRegistries.SHAKE_BLOCK.get().defaultBlockState().setValue(Shaker.FACING, hasCup? Direction.UP: Direction.DOWN),
                 BlockDisplayContext.create()
         );
 

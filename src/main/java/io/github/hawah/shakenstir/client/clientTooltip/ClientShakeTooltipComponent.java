@@ -1,4 +1,4 @@
-package io.github.hawah.shakenstir.client.render;
+package io.github.hawah.shakenstir.client.clientTooltip;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStirClient;

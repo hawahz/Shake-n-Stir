@@ -9,7 +9,7 @@ import io.github.hawah.shakenstir.client.hanlder.GlasswareHandlerRenderState;
 import io.github.hawah.shakenstir.client.model.Models;
 import io.github.hawah.shakenstir.client.model.glassware.GlasswareQuadCollection;
 import io.github.hawah.shakenstir.client.model.glassware.GlasswareUnbakedModelLoader;
-import io.github.hawah.shakenstir.client.render.ClientShakeTooltipComponent;
+import io.github.hawah.shakenstir.client.clientTooltip.ClientShakeTooltipComponent;
 import io.github.hawah.shakenstir.client.render.GlasswareOutlineRenderer;
 import io.github.hawah.shakenstir.client.render.block.CabinetBlockEntityRenderer;
 import io.github.hawah.shakenstir.client.render.block.DistillerBlockEntityRenderer;

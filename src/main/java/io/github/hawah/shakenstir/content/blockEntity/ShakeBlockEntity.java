@@ -2,7 +2,7 @@ package io.github.hawah.shakenstir.content.blockEntity;
 
 import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.ShakenStirClient;
-import io.github.hawah.shakenstir.content.block.Shake;
+import io.github.hawah.shakenstir.content.block.Shaker;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.IFluidDataHolder;
 import io.github.hawah.shakenstir.content.dataComponent.IItemDataHolder;
@@ -80,7 +80,7 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
             }
             blockEntity.oAnimationHeight = blockEntity.animationHeight;
             blockEntity.animationHeight = Mth.lerp(ShakenStirClient.ANI_DELTAF * 0.3F, blockEntity.animationHeight, blockEntity.getFluidAmount() / 1000F);
-            if (state.getValue(Shake.FACING).getAxis().isHorizontal()) {
+            if (state.getValue(Shaker.FACING).getAxis().isHorizontal()) {
                 blockEntity.animationHeight = 0;
                 blockEntity.oAnimationHeight = 0;
             }

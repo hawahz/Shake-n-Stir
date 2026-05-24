@@ -1,0 +1,8 @@
+{
+  "type": "shakenstir:spirit_bottle_special_recipe",
+  "bottle": "shakenstir:bottle",
+  "result": {
+    "id": "shakenstir:whisky"
+  },
+  "target": "minecraft:orange_dye"
+}

@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "b": "#c:storage_blocks/iron",
+    "i": "#c:ingots/iron"
+  },
+  "pattern": [
+    "ibi"
+  ],
+  "result": {
+    "id": "shakenstir:shaker_lid"
+  }
+}

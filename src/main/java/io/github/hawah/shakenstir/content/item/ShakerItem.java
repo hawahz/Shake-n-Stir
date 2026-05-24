@@ -16,6 +16,7 @@ import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.util.ShakeClientHooks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -37,9 +38,9 @@ import java.util.Optional;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem {
+public class ShakerItem extends PriorityBlockItem implements IPickMarkedItem {
 
-    public ShakeItem(Properties properties) {
+    public ShakerItem(Properties properties) {
         super(BlockRegistries.SHAKE_BLOCK.get(),
                 properties
                         .useCooldown(1.0F)
@@ -60,9 +61,9 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem {
             InteractionHand otherHand = hand.equals(InteractionHand.MAIN_HAND) ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
             if (shakeItem.getOrDefault(DataComponentTypeRegistries.HAS_CUP, false)){
                 shakeItem.set(DataComponentTypeRegistries.HAS_CUP, false);
-                ITakeUpBlock.holdOrAddItem(player, ItemRegistries.SHAKE_CUP.toStack(), level, player.blockPosition(), otherHand);
+                ITakeUpBlock.holdOrAddItem(player, ItemRegistries.SHAKER_LID.toStack(), level, player.blockPosition(), otherHand);
                 return InteractionResult.PASS;
-            } else if (player.getItemInHand(otherHand).is(ItemRegistries.SHAKE_CUP)) {
+            } else if (player.getItemInHand(otherHand).is(ItemRegistries.SHAKER_LID)) {
                 player.getItemInHand(otherHand).shrink(1);
                 shakeItem.set(DataComponentTypeRegistries.HAS_CUP, true);
                 player.getCooldowns().addCooldown(shakeItem, 20);
@@ -117,25 +118,37 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem {
         if (self.getOrDefault(DataComponentTypeRegistries.HAS_CUP, true)) {
             if (other.isEmpty() && clickAction.equals(ClickAction.SECONDARY)) {
                 self.set(DataComponentTypeRegistries.HAS_CUP, false);
-                carriedItem.set(ItemRegistries.SHAKE_CUP.toStack());
+                carriedItem.set(ItemRegistries.SHAKER_LID.toStack());
+                player.playSound(
+                        SoundEvents.ARMOR_EQUIP_IRON.value()
+                );
                 return true;
             }
             return false;
         }
-        if (other.is(ItemRegistries.SHAKE_CUP)) {
+        if (other.is(ItemRegistries.SHAKER_LID)) {
             self.set(DataComponentTypeRegistries.HAS_CUP, true);
+            player.playSound(
+                    SoundEvents.ARMOR_EQUIP_IRON.value()
+            );
             other.shrink(1);
             return true;
         }
         if (other.is(ItemRegistries.ICE_CUBE) && self.getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0) < 3) {
             self.set(DataComponentTypeRegistries.SHAKE_ICE_CUBES, self.getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0) + 1);
             other.shrink(1);
+            player.playSound(
+                    SoundEvents.GLASS_HIT
+            );
             return true;
         }
         if (other.is(SnsItemTags.SHAKE_PLACABLE) && ShakeUtil.getItemData(self).itemCount() < ShakeBlockEntity.MAX_HOLD_ITEMS) {
             ArrayList<ItemStack> itemStacks = new ArrayList<>(ShakeUtil.getItemStacks(self));
             itemStacks.add(other.split(1));
             ShakeUtil.setItemData(self, itemStacks);
+            player.playSound(
+                    SoundEvents.GLASS_HIT
+            );
             return true;
         }
         SpiritContent spiritContent;
@@ -166,6 +179,9 @@ public class ShakeItem extends PriorityBlockItem implements IPickMarkedItem {
 
             other.set(DataComponentTypeRegistries.SPIRIT_CONTENT, fluidStack.isEmpty()? SpiritContent.EMPTY: new SpiritContent(fluidStack));
             ShakeUtil.setFluidData(self, fluidStacks);
+            player.playSound(
+                    SoundEvents.BOTTLE_FILL
+            );
             return true;
         }
         return super.overrideOtherStackedOnMe(self, other, slot, clickAction, player, carriedItem);

@@ -5,7 +5,7 @@ import io.github.hawah.shakenstir.client.ClickInteractions;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
 import io.github.hawah.shakenstir.client.ClientSharedShakeParams;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
-import io.github.hawah.shakenstir.content.item.ShakeItem;
+import io.github.hawah.shakenstir.content.item.ShakerItem;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundShakeFinishPacket;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundShakePramTransmitPacket;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
@@ -32,7 +32,7 @@ import static io.github.hawah.shakenstir.client.hanlder.PACKAGE.*;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class ShakeHandler implements IHandler, GuiLayer {
+public class ShakerHandler implements IHandler, GuiLayer {
 
     private boolean wasActive = false;
     private int lastSuccessTick = -1;
@@ -53,7 +53,7 @@ public class ShakeHandler implements IHandler, GuiLayer {
 
     private double oVx = 0, oVy = 0, vx = 0, vy = 0;
 
-    public ShakeHandler() {
+    public ShakerHandler() {
         ClickInteractions.registerMouseMove(this::onMouseMove);
     }
 
@@ -128,7 +128,7 @@ public class ShakeHandler implements IHandler, GuiLayer {
             return false;
         }
         return player.isUsingItem() &&
-                getItem(player).getItem() instanceof ShakeItem &&
+                getItem(player).getItem() instanceof ShakerItem &&
                 ClientDataHolder.Picker.type().equals(HitResult.Type.MISS) &&
                 !player.getCooldowns().isOnCooldown(getItem(player)) &&
                 getItem(player).getOrDefault(DataComponentTypeRegistries.HAS_CUP, false);

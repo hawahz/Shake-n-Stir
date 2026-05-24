@@ -5,7 +5,7 @@ import com.mojang.math.Axis;
 import com.mojang.math.Transformation;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
-import io.github.hawah.shakenstir.content.block.Shake;
+import io.github.hawah.shakenstir.content.block.Shaker;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.lib.client.render.EaseHelper;
@@ -53,7 +53,7 @@ public class ShakeRenderer {
     @SubscribeEvent
     public static void onRenderShakeHand(RenderHandEvent event) {
         ItemStack itemStack = event.getItemStack();
-        if (!itemStack.is(ItemRegistries.SHAKE)) {
+        if (!itemStack.is(ItemRegistries.SHAKER)) {
             return;
         }
         LocalPlayer player = Minecraft.getInstance().player;
@@ -135,7 +135,7 @@ public class ShakeRenderer {
     }
 
     private static void submitNoCup(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, int overlayCoords, int outlineColor) {
-        BlockStateModel model = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(BlockRegistries.SHAKE_BLOCK.get().defaultBlockState().setValue(Shake.FACING, Direction.DOWN));
+        BlockStateModel model = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(BlockRegistries.SHAKE_BLOCK.get().defaultBlockState().setValue(Shaker.FACING, Direction.DOWN));
         List<BlockStateModelPart> list = new ArrayList<>();
         model.collectParts(RandomSource.create(), list);
 
@@ -156,7 +156,7 @@ public class ShakeRenderer {
     }
 
     private static void submitWithCup(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, int overlayCoords, int outlineColor) {
-        BlockStateModel model = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(BlockRegistries.SHAKE_BLOCK.get().defaultBlockState().setValue(Shake.FACING, Direction.UP));
+        BlockStateModel model = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(BlockRegistries.SHAKE_BLOCK.get().defaultBlockState().setValue(Shaker.FACING, Direction.UP));
         List<BlockStateModelPart> list = new ArrayList<>();
         model.collectParts(RandomSource.create(), list);
 

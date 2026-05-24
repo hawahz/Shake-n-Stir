@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.client.gui;
 
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
+import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.block.Cabinet;
@@ -14,12 +15,14 @@ import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.client.ClientHooks;
+import org.joml.Matrix3x2fStack;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
@@ -30,6 +33,7 @@ import java.util.Optional;
 public class CabinetHud extends AbstractBlockTargetHUD {
 
     protected ItemStack tooltipItem = ItemStack.EMPTY;
+    float fadeInProgress = 0;
 
     public boolean isVisible() {
         if (!super.isVisible()) {
@@ -66,8 +70,11 @@ public class CabinetHud extends AbstractBlockTargetHUD {
     @Override
     public void render(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
         if (!isVisible() || tooltipItem.isEmpty()) {
+            fadeInProgress = 0;
             return;
         }
+
+        fadeInProgress = Mth.lerp(ShakenStirClient.ANI_DELTAF * deltaTracker.getGameTimeDeltaTicks(), fadeInProgress, 1);
 
         Window window = Minecraft.getInstance().getWindow();
         int windowWidth = window.getGuiScaledWidth();
@@ -79,13 +86,19 @@ public class CabinetHud extends AbstractBlockTargetHUD {
         Optional<TooltipComponent> tooltipImage = tooltipItem.getTooltipImage();
         List<ClientTooltipComponent> components = ClientHooks.gatherTooltipComponents(tooltipItem, tooltipFromItem, tooltipImage, 0, guiGraphics.guiWidth(), guiGraphics.guiHeight(), Minecraft.getInstance().font);
 
-        guiGraphics.tooltip(
+        Matrix3x2fStack pose = guiGraphics.pose();
+        pose.pushMatrix();
+        pose.translate( (1- fadeInProgress) * 6, 0);
+        ARGBTooltipRenderUtil.tooltip(
+                guiGraphics,
                 Minecraft.getInstance().font,
                 components,
                 x,
                 y,
                 DefaultTooltipPositioner.INSTANCE,
-                null
+                null,
+                0xFFFFFF | (int)(255 * fadeInProgress) << 24
         );
+        pose.popMatrix();
     }
 }

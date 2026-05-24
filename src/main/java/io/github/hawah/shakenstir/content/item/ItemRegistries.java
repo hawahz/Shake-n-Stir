@@ -33,8 +33,8 @@ import java.util.function.Function;
 //@EventBusSubscriber
 public class ItemRegistries {
     public static final DeferredRegister.Items ITEM = DeferredRegister.createItems(ShakenStir.MODID);
-    public static final DeferredItem<PriorityBlockItem> SHAKE = register("shake", ShakeItem::new);
-    public static final DeferredItem<PriorityBlockItem> SHAKE_CUP = register("shake_cup", BlockRegistries.SHAKE_CUP_BLOCK);
+    public static final DeferredItem<PriorityBlockItem> SHAKER = register("shaker", ShakerItem::new);
+    public static final DeferredItem<PriorityBlockItem> SHAKER_LID = register("shaker_lid", BlockRegistries.SHAKE_LID_BLOCK);
     public static final DeferredItem<Item> ICE_CUBE = register("ice_cube", Item::new);
 
     public static final DeferredItem<GlasswareItem> LONG_DRINK_GLASSWARE = registerGlass("long_drink_glassware", BlockRegistries.LONG_DRINK_GLASSWARE, new Item.Properties());

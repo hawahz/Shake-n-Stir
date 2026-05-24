@@ -65,8 +65,8 @@ public class ModModelProvider extends ModelProvider {
         itemModels.generateFlatItem(ItemRegistries.LEMON_SLICE.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ItemRegistries.SOBERING_TEA.get(), ModelTemplates.FLAT_ITEM);
         // Basic single variant model
-        registerCustomBlockModel(blockModels, "block/shake_cup", BlockRegistries.SHAKE_CUP_BLOCK.get());
-        generateShake(blockModels, itemModels);
+        registerCustomBlockModel(blockModels, "block/shaker_lid", BlockRegistries.SHAKE_LID_BLOCK.get());
+        generateShaker(blockModels, itemModels);
         generateSpirit(blockModels, itemModels, BlockRegistries.GIN, ItemRegistries.GIN, "gin");
         generateSpirit(blockModels, itemModels, BlockRegistries.WHISKY, ItemRegistries.WHISKY, "whisky");
         generateSpirit(blockModels, itemModels, BlockRegistries.VODKA, ItemRegistries.VODKA, "vodka");
@@ -122,20 +122,20 @@ public class ModModelProvider extends ModelProvider {
         );
     }
 
-    private static void generateShake(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
+    private static void generateShaker(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
         blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(BlockRegistries.SHAKE_BLOCK.get())
                 .with(
                         PropertyDispatch.initial(BlockStateProperties.FACING)
-                                .select(Direction.UP, getMultiVariant("block/shake_overall"))
-                                .select(Direction.DOWN, getMultiVariant("block/shake_body"))
-                                .select(Direction.NORTH, getMultiVariant("block/shake_fall"))
-                                .select(Direction.EAST, getMultiVariant("block/shake_fall").with(BlockModelGenerators.Y_ROT_90))
-                                .select(Direction.SOUTH, getMultiVariant("block/shake_fall").with(BlockModelGenerators.Y_ROT_180))
-                                .select(Direction.WEST, getMultiVariant("block/shake_fall").with(BlockModelGenerators.Y_ROT_270))
+                                .select(Direction.UP, getMultiVariant("block/shaker_overall"))
+                                .select(Direction.DOWN, getMultiVariant("block/shaker_body"))
+                                .select(Direction.NORTH, getMultiVariant("block/shaker_fall"))
+                                .select(Direction.EAST, getMultiVariant("block/shaker_fall").with(BlockModelGenerators.Y_ROT_90))
+                                .select(Direction.SOUTH, getMultiVariant("block/shaker_fall").with(BlockModelGenerators.Y_ROT_180))
+                                .select(Direction.WEST, getMultiVariant("block/shaker_fall").with(BlockModelGenerators.Y_ROT_270))
                 )
         );
-        ItemModel.Unbaked openModel = ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "block/shake_body"));
-        ItemModel.Unbaked closedModel = ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "block/shake_overall"));
+        ItemModel.Unbaked openModel = ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "block/shaker_body"));
+        ItemModel.Unbaked closedModel = ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "block/shaker_overall"));
         ConditionalItemModel.Unbaked guiModel = new ConditionalItemModel.Unbaked(
                 Optional.empty(),
                 new HasCup(),
@@ -152,7 +152,7 @@ public class ModModelProvider extends ModelProvider {
         );
 
         itemModels.itemModelOutput.accept(
-                ItemRegistries.SHAKE.get(),
+                ItemRegistries.SHAKER.get(),
                 selected
         );
     }

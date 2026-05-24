@@ -2,7 +2,7 @@ package io.github.hawah.shakenstir.client.render.item.thirdPerson;
 
 import io.github.hawah.shakenstir.client.ClientSharedShakeParams;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
-import io.github.hawah.shakenstir.content.item.ShakeItem;
+import io.github.hawah.shakenstir.content.item.ShakerItem;
 import io.github.hawah.shakenstir.foundation.utils.ShakeAnimationAccessor;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -18,7 +18,7 @@ public class ThirdPersonArmFixer {
         if (!(state instanceof AvatarRenderState avatarRenderState)) {
             return;
         }
-        if (state.getMainHandItemStack().getItem() instanceof ShakeItem && state.isUsingItem) {
+        if (state.getMainHandItemStack().getItem() instanceof ShakerItem && state.isUsingItem) {
             float ticksUsingItem = state.ticksUsingItem;
             final float READY_DURATION = 10;
             final float TRANSIT_DURATION = 4;
@@ -43,6 +43,6 @@ public class ThirdPersonArmFixer {
                                               float ageInTicks,
                                               float multiplier,
                                               HumanoidArm arm) {
-        return !state.getMainHandItemStack().is(ItemRegistries.SHAKE) || !state.isUsingItem;
+        return !state.getMainHandItemStack().is(ItemRegistries.SHAKER) || !state.isUsingItem;
     }
 }

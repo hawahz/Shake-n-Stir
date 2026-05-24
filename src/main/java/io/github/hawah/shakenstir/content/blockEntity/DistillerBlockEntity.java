@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.content.blockEntity;
 
 import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.ShakenStirClient;
+import io.github.hawah.shakenstir.content.block.Distiller;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.recipe.DistillerRecipe;
 import io.github.hawah.shakenstir.content.recipe.DistillerRecipeInput;
@@ -233,6 +234,7 @@ public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
 
                 if (be.recipeProgress >= recipe.cookingTime()) {
                     craft(be, recipe);
+                    updateNeighbour(level, pos, state);
                     be.currentRecipe = null;
                     be.recipeProgress = 0;
                 }
@@ -246,6 +248,12 @@ public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
         }
 
         be.markChanged();
+    }
+
+    private static void updateNeighbour(Level level, BlockPos pos, BlockState state) {
+        level.updateNeighbourForOutputSignal(pos, state.getBlock());
+        level.updateNeighbourForOutputSignal(pos.above(), state.getBlock());
+        level.updateNeighbourForOutputSignal(pos.above().relative(state.getValue(Distiller.FACING)), state.getBlock());
     }
 
     private static void craft(DistillerBlockEntity be, DistillerRecipe recipe) {
@@ -432,6 +440,7 @@ public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
                 if (items.get(i).isEmpty()) {
                     items.set(i, resource.toStack());
                     markChanged();
+                    updateNeighbour(level(), getBlockPos(), getBlockState());
                     return 1;
                 }
             }
@@ -499,6 +508,7 @@ public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
                 fluid.grow(toInsert);
             }
             markChanged();
+            updateNeighbour(level(), getBlockPos(), getBlockState());
             return toInsert;
         }
 
@@ -551,6 +561,7 @@ public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
 
         @Override
         public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
+            updateNeighbour(level(), getBlockPos(), getBlockState());
             return extractProductInternal(resource, amount, transaction);
         }
     }
@@ -595,6 +606,7 @@ public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
             burnTicks += burnTime;
             burnTicks = Math.min(burnTicks, FUEL_MAX);
             markChanged();
+            updateNeighbour(level(), getBlockPos(), getBlockState());
             return 1;
         }
 

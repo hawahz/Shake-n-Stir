@@ -19,11 +19,11 @@ public class SnsCreativeTab {
             //Set the title of the tab. Don't forget to add a translation!
             .title(Component.translatable("itemGroup." + ShakenStir.MODID + ".tab"))
             //Set the icon of the tab.
-            .icon(() -> new ItemStack(ItemRegistries.SHAKE.get()))
+            .icon(() -> new ItemStack(ItemRegistries.SHAKER.get()))
             //Add your items to the tab.
             .displayItems((params, output) -> {
-                output.accept(ItemRegistries.SHAKE.get());
-                output.accept(ItemRegistries.SHAKE_CUP.get());
+                output.accept(ItemRegistries.SHAKER.get());
+                output.accept(ItemRegistries.SHAKER_LID.get());
                 output.accept(ItemRegistries.ICE_CUBE.get());
                 output.accept(ItemRegistries.BOTTLE.get());
                 output.accept(ItemRegistries.GIN.get());

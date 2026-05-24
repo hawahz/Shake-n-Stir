@@ -28,12 +28,15 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add(ItemRegistries.RUM.get(), "Rum");
         add(ItemRegistries.BRANDY.get(), "Brandy");
         add(ItemRegistries.BUBBLE.get(), "Bubble");
+        add(ItemRegistries.CABINET.get(), "Cabinet");
+        add(ItemRegistries.DISTILLER.get(), "Distiller");
+        add(ItemRegistries.BOTTLE.get(), "Bottle");
         add(ItemRegistries.CONTENT_HOLDER.get(), "Shake Content Holder");
         add(ItemRegistries.LEMON.get(), "Lemon");
         add(ItemRegistries.LEMON_SLICE.get(), "Lemon Slice");
         add(ItemRegistries.SOBERING_TEA.get(), "Sobering Tea");
-        add(ItemRegistries.SHAKE.get(), "Shake");
-        add(ItemRegistries.SHAKE_CUP.get(), "Shake Cup");
+        add(ItemRegistries.SHAKER.get(), "Shaker");
+        add(ItemRegistries.SHAKER_LID.get(), "Shaker Lid");
         add("itemGroup.shakenstir", "Shake n Stir");
         add("itemGroup." + MODID + ".tab", "Shake n Stir");
         add(ItemRegistries.ICE_CUBE.get(), "Ice Cube");
@@ -46,6 +49,7 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add(FluidTypeRegistries.TEQUILA_FLUID_TYPE.get().getDescriptionId(), "Tequila");
         add(FluidTypeRegistries.RUM_FLUID_TYPE.get().getDescriptionId(), "Rum");
         add(FluidTypeRegistries.BRANDY_FLUID_TYPE.get().getDescriptionId(), "Brandy");
+        add(FluidTypeRegistries.BUBBLE_FLUID_TYPE.get().getDescriptionId(), "Bubble");
 
         add(String.valueOf(CocktailTypes.SOUR_VALUE.translationKey()    )   , "%s %s Sour"    );
         add(String.valueOf(CocktailTypes.COCKTAIL_VALUE.translationKey())   , "%s %s Cocktail");
@@ -63,7 +67,6 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add("death.attack." + SnsDamageType.PARALYSIS.identifier() + ".player", "When %s reacted, he has already been killed by %s");
         add("death.attack." + SnsDamageType.PARALYSIS.identifier() + ".item", "When %s reacted, he has already dead.");
 
-        add(FluidTypeRegistries.BUBBLE_FLUID_TYPE.get().getDescriptionId(), "Bubble");
         genLang(this);
     }
 

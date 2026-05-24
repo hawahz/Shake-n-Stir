@@ -53,7 +53,7 @@ import java.util.Map;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
+public class Shaker extends FallingBlock implements EntityBlock, ITakeUpBlock {
 
 
     public static final Map<Direction, VoxelShape> SHAPES = Map.of(
@@ -67,7 +67,7 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
 
     public static final EnumProperty<Direction> FACING = DirectionalBlock.FACING;
 
-    public Shake(Properties properties) {
+    public Shaker(Properties properties) {
         super(properties.sound(SoundType.METAL).pushReaction(PushReaction.PUSH_ONLY).noOcclusion().isViewBlocking((state, level, pos)->false));
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.UP));
     }
@@ -181,7 +181,7 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
 
         Vec3 relative = pos.relative(direction.getOpposite()).getCenter().add(pos.getCenter()).multiply(0.5, 0.5, 0.5);
         if (state.getValue(FACING).equals(Direction.UP)){
-            ItemEntity cupItem = new ItemEntity(level, relative.x(), Math.floor(relative.y()), relative.z(), ItemRegistries.SHAKE_CUP.get().getDefaultInstance());
+            ItemEntity cupItem = new ItemEntity(level, relative.x(), Math.floor(relative.y()), relative.z(), ItemRegistries.SHAKER_LID.get().getDefaultInstance());
             cupItem.setDeltaMovement(direction.getUnitVec3().multiply(-0.35, 0, -0.35));
             cupItem.setPickUpDelay(20);
             level.addFreshEntity(cupItem);
@@ -259,8 +259,8 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
                 1,
                 1
         );
-        if (!player.getMainHandItem().is(ItemRegistries.SHAKE_CUP) && player.isCreative()) {
-            ITakeUpBlock.holdOrAddItem(player, ItemRegistries.SHAKE_CUP.toStack(), level, pos);
+        if (!player.getMainHandItem().is(ItemRegistries.SHAKER_LID) && player.isCreative()) {
+            ITakeUpBlock.holdOrAddItem(player, ItemRegistries.SHAKER_LID.toStack(), level, pos);
         } else if (!player.isCreative()) {
             ITakeUpBlock.holdOrAddItem(player, player.getMainHandItem(), level, pos);
         }
@@ -280,7 +280,7 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
 
     @Override
     protected InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        if (itemStack.is(ItemRegistries.SHAKE_CUP)) {
+        if (itemStack.is(ItemRegistries.SHAKER_LID)) {
             return tryPlaceCup(itemStack, state, level, pos, player);
         }
         SpiritContent fluidHolder;
@@ -339,7 +339,7 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
     }
 
     private static InteractionResult tryPlaceCup(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player) {
-        if (!itemStack.is(ItemRegistries.SHAKE_CUP) || state.getValue(FACING).equals(Direction.UP) || player.isShiftKeyDown())
+        if (!itemStack.is(ItemRegistries.SHAKER_LID) || state.getValue(FACING).equals(Direction.UP) || player.isShiftKeyDown())
             return InteractionResult.TryEmptyHandInteraction.TRY_WITH_EMPTY_HAND;
         if (!player.isCreative()) {
             itemStack.shrink(1);
@@ -375,7 +375,7 @@ public class Shake extends FallingBlock implements EntityBlock, ITakeUpBlock {
 
     @Override
     public ItemStack getDrop(BlockState state, Level level, BlockPos pos) {
-        ItemStack stack = ItemRegistries.SHAKE.toStack();
+        ItemStack stack = ItemRegistries.SHAKER.toStack();
         stack.set(DataComponentTypeRegistries.HAS_CUP, state.getValue(FACING).equals(Direction.UP));
         if (level.getBlockEntity(pos) instanceof ShakeBlockEntity blockEntity) {
             ShakeUtil.setItemData(stack, blockEntity.getActualItems());

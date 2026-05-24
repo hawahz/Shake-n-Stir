@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "shakenstir:shake"
+            "items": "shakenstir:shaker"
           }
         ]
       },

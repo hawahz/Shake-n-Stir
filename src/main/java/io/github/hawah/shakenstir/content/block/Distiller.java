@@ -161,6 +161,28 @@ public class Distiller extends Block implements EntityBlock{
     }
 
     @Override
+    protected boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+        if (!(level.getBlockEntity(findSource(state, pos)) instanceof DistillerBlockEntity be)) {
+            return 0;
+        }
+        return switch (state.getValue(PART)) {
+            case LOWER -> be.getBurnTicks() * 15 / DistillerBlockEntity.FUEL_MAX;
+            case UPPER -> be.getInputFluid().amount() * 15 / DistillerBlockEntity.MAX_INPUT_FLUID_CAPACITY;
+            case PIPE -> {
+                if (be.getProduct().isEmpty()) {
+                    yield 0;
+                }
+                yield be.getProduct().amount() * 15 / DistillerBlockEntity.MAX_PRODUCT_FLUID_CAPACITY;
+            }
+        };
+    }
+
+    @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }

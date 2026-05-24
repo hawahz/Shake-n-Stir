@@ -5,7 +5,7 @@ import io.github.hawah.shakenstir.content.block.Cabinet;
 import io.github.hawah.shakenstir.content.blockEntity.CabinetBlockEntity;
 import io.github.hawah.shakenstir.content.blockEntity.DistillerBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
-import io.github.hawah.shakenstir.content.item.ShakeItem;
+import io.github.hawah.shakenstir.content.item.ShakerItem;
 import io.github.hawah.shakenstir.util.TooltipHandler;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -29,7 +29,7 @@ public class ShakingEvents {
     @SubscribeEvent
     public static void onPlayerHurt(LivingIncomingDamageEvent event) {
         LivingEntity entity = event.getEntity();
-        if (entity.isUsingItem() && entity.getUseItem().getItem() instanceof ShakeItem) {
+        if (entity.isUsingItem() && entity.getUseItem().getItem() instanceof ShakerItem) {
             if (entity instanceof Player player) {
                 player.getCooldowns().addCooldown(entity.getUseItem(), 20);
             }

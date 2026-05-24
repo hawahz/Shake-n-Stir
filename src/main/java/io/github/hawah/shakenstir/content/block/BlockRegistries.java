@@ -26,8 +26,8 @@ import java.util.function.Supplier;
 
 public class BlockRegistries {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(ShakenStir.MODID);
-    public static final DeferredBlock<Shake> SHAKE_BLOCK = register("shake", Shake::new);
-    public static final DeferredBlock<ShakeCup> SHAKE_CUP_BLOCK = register("shake_cup", ShakeCup::new);
+    public static final DeferredBlock<Shaker> SHAKE_BLOCK = register("shaker", Shaker::new);
+    public static final DeferredBlock<ShakerLid> SHAKE_LID_BLOCK = register("shaker_lid", ShakerLid::new);
 
     public static final DeferredBlock<SpiritBlock> BUBBLE = register("bubble", SpiritBlock::new);
     public static final DeferredBlock<SpiritBlock> GIN = register("gin", SpiritBlock::new);
@@ -44,7 +44,6 @@ public class BlockRegistries {
 
     public static final DeferredBlock<Cabinet> CABINET = register("cabinet", Cabinet::new);
 
-
     public static final DeferredBlock<LiquidBlock> GIN_LIQUID = registerLiquid("gin_liquid", FluidRegistries.GIN_SOURCE_FLUID_BLOCK);
     public static final DeferredBlock<LiquidBlock> VODKA_LIQUID = registerLiquid("vodka_liquid", FluidRegistries.VODKA_FLOWING_FLUID_BLOCK);
     public static final DeferredBlock<LiquidBlock> WHISKY_LIQUID = registerLiquid("whisky_liquid", FluidRegistries.WHISKY_FLOWING_FLUID_BLOCK);
@@ -54,9 +53,9 @@ public class BlockRegistries {
     public static final DeferredBlock<LiquidBlock> BUBBLE_LIQUID = registerLiquid("bubble_liquid", FluidRegistries.BRANDY_FLOWING_FLUID_BLOCK);
 
     public static final DeferredRegister<MapCodec<? extends Block>> REGISTRAR = DeferredRegister.create(BuiltInRegistries.BLOCK_TYPE, ShakenStir.MODID);
-    public static final Supplier<MapCodec<Shake>> SHAKE_CODEC = REGISTRAR.register(
+    public static final Supplier<MapCodec<Shaker>> SHAKE_CODEC = REGISTRAR.register(
             "shake",
-            () -> BlockBehaviour.simpleCodec(Shake::new)
+            () -> BlockBehaviour.simpleCodec(Shaker::new)
     );
     public static final Supplier<MapCodec<SpiritBlock>> CENTERED_SPIRIT_CODEC = REGISTRAR.register(
             "centered_spirit",

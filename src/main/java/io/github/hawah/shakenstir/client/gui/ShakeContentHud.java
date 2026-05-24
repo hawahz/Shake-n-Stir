@@ -4,20 +4,28 @@ import com.mojang.blaze3d.platform.Window;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
+import io.github.hawah.shakenstir.client.render.general.GuiShakeRenderer;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
-import io.github.hawah.shakenstir.content.block.Shake;
+import io.github.hawah.shakenstir.content.block.Shaker;
 import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
+import io.github.hawah.shakenstir.content.dataComponent.ShakeContentHolder;
+import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.foundation.BaseFluidType;
+import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.lib.client.render.EaseHelper;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import io.github.hawah.shakenstir.util.Textures;
+import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
@@ -45,11 +53,11 @@ public class ShakeContentHud implements GuiLayer {
         boolean visible = BlockRegistries.SHAKE_BLOCK.get().equals(ClientDataHolder.Picker.block().orElse(null));
         if (visible) {
             BlockState state = ClientDataHolder.Picker.blockState().get();
-            if (state.getValue(Shake.FACING).getAxis().isHorizontal()) {
+            if (state.getValue(Shaker.FACING).getAxis().isHorizontal()) {
                 return false;
             }
             oCanLookThrough = canLookThrough;
-            canLookThrough = state.getValue(Shake.FACING).equals(Direction.DOWN);
+            canLookThrough = state.getValue(Shaker.FACING).equals(Direction.DOWN);
         }
         return visible;
     }
@@ -102,15 +110,6 @@ public class ShakeContentHud implements GuiLayer {
                                         int x,
                                         int y,
                                         float fadeIn) {
-        Textures.SHAKE_HUD_INSIDE.blit(
-                guiGraphics,
-                x,
-                y,
-                255,
-                255,
-                255,
-                (int) (255 * fadeIn)
-        );
         if (wasVisible) {
             height = Mth.lerp(
                     ShakenStirClient.ANI_DELTAF * deltaTracker.getGameTimeDeltaPartialTick(false) * 0.1,
@@ -121,64 +120,30 @@ public class ShakeContentHud implements GuiLayer {
             height = getLiquidHeight();
         }
 
-        if (cachedBE != null) {
-            for (int i = 0; i < cachedBE.getItemToRender().size(); i++) {
-                ItemStack itemStack = cachedBE.getItemToRender().get(i);
-                if (itemStack.isEmpty()) {
-                    break;
-                }
-                guiGraphics.item(
-                        itemStack,
-                        x + 21,
-                        y + 53 - i * 16
-                );
-            }
-        }
-
-        guiGraphics.enableScissor(x + 8, y - 10, x + Textures.SHAKE_HUD_INSIDE.getWidth() - 8, y + 77);
-
         int iceCubeCounts = cachedBE.iceCubeCounts;
-        float renderTime = height == 0? 0: AnimationTickHolder.getRenderTime() / 10;
-        if (iceCubeCounts > 0) {
-            Textures.ICE_HUD_0.blit(guiGraphics, x + 10, y + 66+ (int) (-height + 2 * Math.sin(renderTime)));
-        }
-        iceCubeCounts --;
-        if (iceCubeCounts > 0) {
-            Textures.ICE_HUD_1.blit(guiGraphics, x + 26, y + 66 + (int) (-height + 2 * Math.sin(renderTime + 1)));
-        }
-        iceCubeCounts --;
-        if (iceCubeCounts > 0) {
-            Textures.ICE_HUD_2.blit(guiGraphics, x + 36, y + 66 + (int) (-height + 2 * Math.sin(renderTime + 2)));
-        }
 
+        ShakeContentHolder contentHolder = ShakeContentHolder.of(cachedBE.getFluidStack(), cachedBE.getItemToRender());
 
-        if (height > 0) {
-            guiGraphics.fill(
-                    x + 8,
-                    y + 77 - 2 - (int) height,
-                    x + Textures.SHAKE_HUD_INSIDE.getWidth() - 8,
-                    y + 77,
-                    ARGB.color((int) Mth.clamp(100 * fadeIn, 0, 255), 160, 216, 239)
-            );
-            guiGraphics.horizontalLine(
-                    x + 8,
-                    x + Textures.SHAKE_HUD_INSIDE.getWidth() - 8,
-                    y + 77 - 2 - (int) height,
-                    ARGB.color(160, 216, 239, (int) Mth.clamp(255 * fadeIn, 0, 255))
-            );
-        }
-
-        guiGraphics.disableScissor();
-
-        Textures.SHAKE_HUD_OUTSIDE.blit(
-                guiGraphics,
+        GuiShakeRenderer.extractShakeWithContent(
                 x,
                 y,
-                255,
-                255,
-                255,
-                (int) (255 * fadeIn)
+                guiGraphics,
+                contentHolder,
+                iceCubeCounts,
+                height,
+                getLiquidColor(contentHolder)
         );
+    }
+
+    private int getLiquidColor(ShakeContentHolder contentHolder) {
+        for (ItemStack itemStack : contentHolder.itemStacks()) {
+            if (itemStack.is(ItemRegistries.CONTENT_HOLDER)) {
+                return itemStack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(ARGB.color(160, 216, 239))).rgb();
+            }
+        }
+        return ShakeUtil.rgbWithWeight(contentHolder.fluidStacks().stream().map((stack) ->
+                Pair.of(stack.getFluidType() instanceof BaseFluidType type ? type.getTintColor() : 0xFFFFFF, stack.getAmount())
+        ).toList());
     }
 
     private float getLiquidHeight() {

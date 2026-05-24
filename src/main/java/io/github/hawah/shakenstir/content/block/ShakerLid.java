@@ -17,15 +17,15 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class ShakeCup extends Block {
-    public ShakeCup(Properties properties) {
+public class ShakerLid extends Block {
+    public ShakerLid(Properties properties) {
         super(properties);
     }
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (state.getBlock() instanceof ShakeCup) {
-            player.addItem(ItemRegistries.SHAKE_CUP.toStack());
+        if (state.getBlock() instanceof ShakerLid) {
+            player.addItem(ItemRegistries.SHAKER_LID.toStack());
             level.removeBlock(pos, false);
             return InteractionResult.SUCCESS;
         }

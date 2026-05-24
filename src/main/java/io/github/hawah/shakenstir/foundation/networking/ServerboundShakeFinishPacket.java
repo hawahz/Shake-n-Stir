@@ -76,7 +76,7 @@ public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem,
             mainHandItem.remove(DataComponentTypeRegistries.SHAKE_ICE_CUBES);
             return;
         }
-        if (!mainHandItem.is(ItemRegistries.SHAKE)) {
+        if (!mainHandItem.is(ItemRegistries.SHAKER)) {
             return;
         }
         int finalShakeSuccessTimes = shakeSuccessTimes;

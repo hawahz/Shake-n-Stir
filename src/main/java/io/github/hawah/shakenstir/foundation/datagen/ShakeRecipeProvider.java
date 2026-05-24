@@ -53,7 +53,7 @@ public class ShakeRecipeProvider extends RecipeProvider {
                 .orWith(SnsSharedTags.BUBBLE)
                 .shake(5)
                 .build()
-                .unlockedBy("has_bubble", this.has(ItemRegistries.SHAKE))
+                .unlockedBy("has_bubble", this.has(ItemRegistries.SHAKER))
                 .save(output, getName("bubble_product"));
 
         getBuilder()

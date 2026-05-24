@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "b": "#c:storage_blocks/iron",
+    "f": "minecraft:blast_furnace",
+    "g": "#c:glass_blocks",
+    "o": "#c:ingots/gold",
+    "s": "minecraft:amethyst_shard"
+  },
+  "pattern": [
+    "bbb",
+    "gos",
+    "bfb"
+  ],
+  "result": {
+    "id": "shakenstir:distiller"
+  }
+}
