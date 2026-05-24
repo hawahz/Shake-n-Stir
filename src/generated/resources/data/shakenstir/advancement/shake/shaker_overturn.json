@@ -1,0 +1,26 @@
+{
+  "parent": "shakenstir:shake/root",
+  "criteria": {
+    "shaker_overturn": {
+      "trigger": "shakenstir:shaker_overturn"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "shakenstir.advancements.shakenstir.shake.shaker_overturn.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "id": "shakenstir:shaker_lid"
+    },
+    "title": {
+      "translate": "shakenstir.advancements.shakenstir.shake.shaker_overturn.title"
+    }
+  },
+  "requirements": [
+    [
+      "shaker_overturn"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

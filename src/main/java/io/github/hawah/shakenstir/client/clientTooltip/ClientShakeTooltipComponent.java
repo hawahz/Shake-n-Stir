@@ -6,6 +6,7 @@ import io.github.hawah.shakenstir.content.ShakeTooltipComponent;
 import io.github.hawah.shakenstir.content.dataComponent.ShakeContentHolder;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.BaseFluidType;
+import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import io.github.hawah.shakenstir.util.Textures;
@@ -15,7 +16,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
@@ -73,7 +73,7 @@ public record ClientShakeTooltipComponent(ShakeContentHolder contentHolder, int 
             FluidStack fluidStack = contentHolder.fluidStacks().get(i);
             graphics.textWithBackdrop(
                     font,
-                    Component.empty().append(fluidStack.getHoverName()).append(" ").append(String.valueOf(fluidStack.getAmount())).append("mb"),
+                    LangData.TOOLTIP_SHAKER_FLUID.get(fluidStack.getHoverName()),
                     x,
                     (int) (y + currentHeightPrt - splitWeights[i] * height / 2 - font.lineHeight),
                     255,

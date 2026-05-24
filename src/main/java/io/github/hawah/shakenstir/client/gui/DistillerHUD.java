@@ -4,11 +4,12 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
 import io.github.hawah.shakenstir.client.clientTooltip.ClientProgressBarTooltip;
-import io.github.hawah.shakenstir.client.clientTooltip.ItemTooltipWithNameAndCount;
+import io.github.hawah.shakenstir.client.clientTooltip.ItemTooltipWithCount;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.block.Distiller;
 import io.github.hawah.shakenstir.content.blockEntity.DistillerBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
+import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -59,7 +60,7 @@ public class DistillerHUD extends AbstractBlockTargetHUD {
             switch (state.getValue(Distiller.PART)) {
                 case UPPER -> {
 
-                    components.add(ClientTooltipComponent.create(Component.literal("Content: ").getVisualOrderText()));
+                    components.add(ClientTooltipComponent.create(LangData.TOOLTIP_DISTILLER_CONTENT.get().getVisualOrderText()));
                     Map<Item, Integer> items = new HashMap<>();
                     blockEntity.getInputItems().forEach(itemStack ->
                             items.merge(
@@ -71,7 +72,7 @@ public class DistillerHUD extends AbstractBlockTargetHUD {
                         if (inputItem.isEmpty()) {
                             continue;
                         }
-                        components.add(new ItemTooltipWithNameAndCount(inputItem, 0, 0));
+                        components.add(new ItemTooltipWithCount(inputItem, 0, 0));
                     }
                     float progress = blockEntity.getRecipeProgress() / (float) blockEntity.getMaxProgress();
                     final int PROGRESS_BAR_WIDTH = 25;
@@ -80,7 +81,7 @@ public class DistillerHUD extends AbstractBlockTargetHUD {
                 }
                 case LOWER -> {
                     int burnTicks = blockEntity.getBurnTicks();
-                    components.add(ClientTooltipComponent.create(Component.literal("Burning: ").append(Component.literal(burnTicks/20 + " s").withStyle(ChatFormatting.GRAY)).getVisualOrderText()));
+                    components.add(ClientTooltipComponent.create(LangData.TOOLTIP_DISTILLER_BURNING_TIME.get(Component.literal(String.valueOf(burnTicks / 20)).withStyle(ChatFormatting.WHITE)).getVisualOrderText()));
                 }
                 case PIPE -> {
                     FluidStack product = blockEntity.getProduct();

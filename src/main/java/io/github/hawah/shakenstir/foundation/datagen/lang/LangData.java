@@ -33,7 +33,11 @@ public enum LangData {
     TOOLTIP_TITLE_ICE_LEVEL("tooltip_title_ice_level", "Ice Level: %s", 1),
     TOOLTIP_TITLE_DRUNK_LEVEL("tooltip_title_drunk_level", "Alcohol: %s°", 1),
 
-    TOOLTIP_WHEN_SPIRIT_AS_BASE("tooltip_when_spirit_as_base", "When Applied as Base:", 0, ChatFormatting.DARK_PURPLE),
+    TOOLTIP_SHAKER_FLUID("tooltip_shaker_fluid", "%s mb", 1),
+    TOOLTIP_DISTILLER_CONTENT("tooltip_distiller_content", "Content:", 0, ChatFormatting.BOLD),
+    TOOLTIP_DISTILLER_BURNING_TIME("tooltip_distiller_burning_time", "Burning Time: %ss", 1, ChatFormatting.GRAY),
+
+    TOOLTIP_WHEN_SPIRIT_AS_BASE("tooltip_when_spirit_as_base", "When Applied as Base:", 0, ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD),
     TOOLTIP_SPIRIT_POSITIVE_N_NEGATIVE("tooltip_spirit_positive_negative", "%s or %s", 2),
 
 
@@ -68,6 +72,18 @@ public enum LangData {
 
     CONFIGURATION_SHAKER_ANIMATION_UPLOAD_DISTANCE("configuration.shaker_animation_upload_distance", "Shaker Animation Upload Distance", 0),
     CONFIGURATION_SHAKER_ANIMATION_UPLOAD_DISTANCE_TOOLTIP("configuration.shaker_animation_upload_distance.tooltip", "The distance between the shaker and the player, beyond which the shaker will not animate.", 0),
+
+    ADVANCEMENT_SHAKE_ROOT_TITLE("advancements.shakenstir.shake.root.title", "Shaken, not stirred.", 0),
+    ADVANCEMENT_SHAKE_ROOT_DESC("advancements.shakenstir.shake.root.description", "Gained Shaker", 0),
+    ADVANCEMENT_SHAKE_BUBBLE_TITLE("advancements.shakenstir.shake.bubble.title", "WTF!", 0),
+    ADVANCEMENT_SHAKE_BUBBLE_DESC("advancements.shakenstir.shake.bubble.description", "Shook sparkling water. Regretted it.", 0),
+    ADVANCEMENT_SHAKE_SHAKER_OVERTURN_TITLE("advancements.shakenstir.shake.shaker_overturn.title", "Watch out!", 0),
+    ADVANCEMENT_SHAKE_SHAKER_OVERTURN_DESC("advancements.shakenstir.shake.shaker_overturn.description", "Knock over a shaker.", 0),
+
+    ADVANCEMENT_DRINK_ROOT_TITLE("advancements.shakenstir.drink.root.title", "Hold on. Let me drink.", 0),
+    ADVANCEMENT_DRINK_ROOT_DESC("advancements.shakenstir.drink.root.description", "Gained Spirit Bottle", 0),
+    ADVANCEMENT_DRINK_FIRST_TITLE("advancements.shakenstir.drink.first.title", "Drank first. Thought later.", 0),
+    ADVANCEMENT_DRINK_FIRST_DESC("advancements.shakenstir.drink.first.description", "Got drunk.", 0),
 
     ;
 

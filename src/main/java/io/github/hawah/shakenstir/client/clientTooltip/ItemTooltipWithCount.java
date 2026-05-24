@@ -5,7 +5,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.world.item.ItemStack;
 
-public record ItemTooltipWithNameAndCount(ItemStack itemStack, int ofX, int ofY) implements ClientTooltipComponent {
+public record ItemTooltipWithCount(ItemStack itemStack, int ofX, int ofY) implements ClientTooltipComponent {
     @Override
     public int getHeight(Font font) {
         return 16;

@@ -7,16 +7,19 @@ import net.minecraft.world.entity.player.Player;
 import javax.annotation.Nullable;
 
 public class AdvancementHooks {
+    public static void onShakerOverturn(@Nullable Player player) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            TriggerRegistries.SHAKER_OVERTURN.get().trigger(serverPlayer);
+        }
+    }
     public static void onShakeBubbleExplode(@Nullable Player player) {
         if (player instanceof ServerPlayer serverPlayer) {
-            // TODO 需要补充: 添加额外触发条件，例如检查玩家是否在摇晃的方块附近
             TriggerRegistries.SHAKE_BUBBLE_EXPLODE.get().trigger(serverPlayer);
         }
     }
 
     public static void onFirstDrunk(@Nullable Player player) {
         if (player instanceof ServerPlayer serverPlayer) {
-            // TODO 需要补充: 添加额外触发条件，例如检查是否为玩家首次醉酒
             TriggerRegistries.FIRST_DRUNK.get().trigger(serverPlayer);
         }
     }

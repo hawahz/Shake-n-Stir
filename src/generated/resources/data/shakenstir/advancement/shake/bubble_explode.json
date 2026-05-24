@@ -1,0 +1,29 @@
+{
+  "parent": "shakenstir:shake/root",
+  "criteria": {
+    "shake": {
+      "trigger": "shakenstir:shake_bubble_explode"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "shakenstir.advancements.shakenstir.shake.bubble.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "components": {
+        "shakenstir:has_cup": false
+      },
+      "id": "shakenstir:shaker"
+    },
+    "title": {
+      "translate": "shakenstir.advancements.shakenstir.shake.bubble.title"
+    }
+  },
+  "requirements": [
+    [
+      "shake"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

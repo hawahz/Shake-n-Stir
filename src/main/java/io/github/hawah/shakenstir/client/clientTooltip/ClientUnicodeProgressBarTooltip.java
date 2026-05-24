@@ -7,6 +7,7 @@ import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.ARGB;
 
+@Deprecated
 public record ClientUnicodeProgressBarTooltip(double progress, int width, int ofX, int ofY) implements ClientTooltipComponent {
     public static final char[] chs = new char[]{'▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'};
 

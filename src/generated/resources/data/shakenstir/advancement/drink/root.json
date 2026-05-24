@@ -1,0 +1,33 @@
+{
+  "criteria": {
+    "has_spirit": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#c:spirits"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "background": "minecraft:gui/advancements/backgrounds/adventure",
+    "description": {
+      "translate": "shakenstir.advancements.shakenstir.drink.root.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "id": "shakenstir:bottle"
+    },
+    "title": {
+      "translate": "shakenstir.advancements.shakenstir.drink.root.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_spirit"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

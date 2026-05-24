@@ -1,0 +1,26 @@
+{
+  "parent": "shakenstir:drink/root",
+  "criteria": {
+    "first_drunk": {
+      "trigger": "shakenstir:first_drunk"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "shakenstir.advancements.shakenstir.drink.first.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "id": "shakenstir:whisky"
+    },
+    "title": {
+      "translate": "shakenstir.advancements.shakenstir.drink.first.title"
+    }
+  },
+  "requirements": [
+    [
+      "first_drunk"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

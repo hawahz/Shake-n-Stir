@@ -1,10 +1,12 @@
 package io.github.hawah.shakenstir.foundation.datagen;
 
 import io.github.hawah.shakenstir.ShakenStir;
+import net.minecraft.data.advancements.AdvancementProvider;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @EventBusSubscriber(modid = ShakenStir.MODID)
@@ -26,5 +28,14 @@ public class DataGenerator {
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
+        event.createProvider((output, lookupProvider) -> new AdvancementProvider(
+                output, lookupProvider,
+                // Add generators here
+                List.of(
+                        // Add an instance of our generator to the list parameter. This can be done as many times as you want.
+                        // Having multiple generators is purely for organization, all functionality can be achieved with a single generator.
+                        new ModAdvancementGenerator()
+                )
+        ));
     }
 }

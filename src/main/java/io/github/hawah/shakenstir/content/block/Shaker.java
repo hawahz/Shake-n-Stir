@@ -15,6 +15,7 @@ import io.github.hawah.shakenstir.util.AdvancementHooks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.ParticleUtils;
@@ -159,7 +160,7 @@ public class Shaker extends FallingBlock implements EntityBlock, ITakeUpBlock {
         }
         boolean isKnocked = speed > 0.26 || (level.getRandom().nextDouble() < (speed - 0.21)*2);
         if (isKnocked) {
-            overturn(state, level, pos, livingEntity.getDirection().getOpposite());
+            overturn(state, level, pos, livingEntity.getDirection().getOpposite(), livingEntity instanceof Player player? player: null);
         }
     }
 
@@ -167,6 +168,14 @@ public class Shaker extends FallingBlock implements EntityBlock, ITakeUpBlock {
                          Level level,
                          BlockPos pos,
                          Direction direction) {
+        overturn(state, level, pos, direction, null);
+    }
+
+    public void overturn(BlockState state,
+                         Level level,
+                         BlockPos pos,
+                         Direction direction,
+                         @Nullable Player triggerSource) {
         level.playSound(
                 null,
                 pos,
@@ -177,6 +186,10 @@ public class Shaker extends FallingBlock implements EntityBlock, ITakeUpBlock {
         );
         if (state.getValue(FACING).getAxis().isHorizontal()) {
             return;
+        }
+
+        if (level instanceof ServerLevel && triggerSource != null) {
+            AdvancementHooks.onShakerOverturn(triggerSource);
         }
 
         Vec3 relative = pos.relative(direction.getOpposite()).getCenter().add(pos.getCenter()).multiply(0.5, 0.5, 0.5);

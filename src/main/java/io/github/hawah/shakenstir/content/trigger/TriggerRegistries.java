@@ -13,6 +13,8 @@ public class TriggerRegistries {
 
     public static final DeferredHolder<CriterionTrigger<?>, SimpleTrigger> SHAKE_BUBBLE_EXPLODE =
             TRIGGERS.register("shake_bubble_explode", SimpleTrigger::new);
+    public static final DeferredHolder<CriterionTrigger<?>, SimpleTrigger> SHAKER_OVERTURN =
+            TRIGGERS.register("shaker_overturn", SimpleTrigger::new);
     public static final DeferredHolder<CriterionTrigger<?>, SimpleTrigger> FIRST_DRUNK =
             TRIGGERS.register("first_drunk", SimpleTrigger::new);
     public static final DeferredHolder<CriterionTrigger<?>, SimpleTrigger> DRUNK_HEAVY =

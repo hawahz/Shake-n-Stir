@@ -1,0 +1,33 @@
+{
+  "criteria": {
+    "has_shaker": {
+      "conditions": {
+        "items": [
+          {
+            "items": "shakenstir:shaker"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "background": "minecraft:gui/advancements/backgrounds/adventure",
+    "description": {
+      "translate": "shakenstir.advancements.shakenstir.shake.root.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "id": "shakenstir:shaker"
+    },
+    "title": {
+      "translate": "shakenstir.advancements.shakenstir.shake.root.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_shaker"
+    ]
+  ],
+  "sends_telemetry_event": true
+}
