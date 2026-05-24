@@ -1,0 +1,26 @@
+{
+  "parent": "shakenstir:drink/first_drunk",
+  "criteria": {
+    "first_hit_due_to_lemon": {
+      "trigger": "shakenstir:first_hit_due_to_lemon"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "shakenstir.advancements.shakenstir.drink.first_hit_due_to_lemon.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "id": "shakenstir:lemon"
+    },
+    "title": {
+      "translate": "shakenstir.advancements.shakenstir.drink.first_hit_due_to_lemon.title"
+    }
+  },
+  "requirements": [
+    [
+      "first_hit_due_to_lemon"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

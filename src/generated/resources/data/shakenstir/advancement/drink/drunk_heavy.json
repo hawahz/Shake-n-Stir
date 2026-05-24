@@ -1,0 +1,26 @@
+{
+  "parent": "shakenstir:drink/first_drunk",
+  "criteria": {
+    "drunk_heavy": {
+      "trigger": "shakenstir:drunk_heavy"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "shakenstir.advancements.shakenstir.drink.drunk_heavy.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "shakenstir:whisky"
+    },
+    "title": {
+      "translate": "shakenstir.advancements.shakenstir.drink.drunk_heavy.title"
+    }
+  },
+  "requirements": [
+    [
+      "drunk_heavy"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

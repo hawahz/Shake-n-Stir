@@ -1,0 +1,26 @@
+{
+  "parent": "shakenstir:drink/first_drunk",
+  "criteria": {
+    "protected_by_paralysis": {
+      "trigger": "shakenstir:protected_by_paralysis"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "shakenstir.advancements.shakenstir.drink.protected_by_paralysis.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "id": "shakenstir:sobering_tea"
+    },
+    "title": {
+      "translate": "shakenstir.advancements.shakenstir.drink.protected_by_paralysis.title"
+    }
+  },
+  "requirements": [
+    [
+      "protected_by_paralysis"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

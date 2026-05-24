@@ -33,7 +33,7 @@ public enum LangData {
     TOOLTIP_TITLE_ICE_LEVEL("tooltip_title_ice_level", "Ice Level: %s", 1),
     TOOLTIP_TITLE_DRUNK_LEVEL("tooltip_title_drunk_level", "Alcohol: %s°", 1),
 
-    TOOLTIP_SHAKER_FLUID("tooltip_shaker_fluid", "%s mb", 1),
+    TOOLTIP_SHAKER_FLUID("tooltip_shaker_fluid", "%s %s mb", 2),
     TOOLTIP_DISTILLER_CONTENT("tooltip_distiller_content", "Content:", 0, ChatFormatting.BOLD),
     TOOLTIP_DISTILLER_BURNING_TIME("tooltip_distiller_burning_time", "Burning Time: %ss", 1, ChatFormatting.GRAY),
 
@@ -84,6 +84,21 @@ public enum LangData {
     ADVANCEMENT_DRINK_ROOT_DESC("advancements.shakenstir.drink.root.description", "Gained Spirit Bottle", 0),
     ADVANCEMENT_DRINK_FIRST_TITLE("advancements.shakenstir.drink.first.title", "Drank first. Thought later.", 0),
     ADVANCEMENT_DRINK_FIRST_DESC("advancements.shakenstir.drink.first.description", "Got drunk.", 0),
+
+    ADVANCEMENT_DRINK_HEAVY_TITLE("advancements.shakenstir.drink.drunk_heavy.title", "Heavyweight", 0),
+    ADVANCEMENT_DRINK_HEAVY_DESC("advancements.shakenstir.drink.drunk_heavy.description", "Get heavily drunk.", 0),
+
+    ADVANCEMENT_DRINK_FIRST_FALL_TITLE("advancements.shakenstir.drink.first_fall_by_drunk.title", "Drunken Misstep", 0),
+    ADVANCEMENT_DRINK_FIRST_FALL_DESC("advancements.shakenstir.drink.first_fall_by_drunk.description", "Fall while under the influence.", 0),
+
+    ADVANCEMENT_DRINK_LEMON_HIT_TITLE("advancements.shakenstir.drink.first_hit_due_to_lemon.title", "When Life Gives You Lemons...", 0),
+    ADVANCEMENT_DRINK_LEMON_HIT_DESC("advancements.shakenstir.drink.first_hit_due_to_lemon.description", "Attack after tasting lemon.", 0),
+
+    ADVANCEMENT_DRINK_PARALYSIS_DEATH_TITLE("advancements.shakenstir.drink.died_by_discovering_paralysis.title", "A Fatal Discovery", 0),
+    ADVANCEMENT_DRINK_PARALYSIS_DEATH_DESC("advancements.shakenstir.drink.died_by_discovering_paralysis.description", "Die from paralysis damage.", 0),
+
+    ADVANCEMENT_DRINK_PARALYSIS_PROTECT_TITLE("advancements.shakenstir.drink.protected_by_paralysis.title", "Saved by the Freeze", 0),
+    ADVANCEMENT_DRINK_PARALYSIS_PROTECT_DESC("advancements.shakenstir.drink.protected_by_paralysis.description", "Survive lethal damage thanks to paralysis.", 0),
 
     ;
 

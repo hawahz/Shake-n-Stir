@@ -73,7 +73,7 @@ public record ClientShakeTooltipComponent(ShakeContentHolder contentHolder, int 
             FluidStack fluidStack = contentHolder.fluidStacks().get(i);
             graphics.textWithBackdrop(
                     font,
-                    LangData.TOOLTIP_SHAKER_FLUID.get(fluidStack.getHoverName()),
+                    LangData.TOOLTIP_SHAKER_FLUID.get(fluidStack.getHoverName(), fluidStack.getAmount()),
                     x,
                     (int) (y + currentHeightPrt - splitWeights[i] * height / 2 - font.lineHeight),
                     255,

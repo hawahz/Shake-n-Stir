@@ -103,5 +103,85 @@ public class ModAdvancementGenerator implements AdvancementSubProvider {
                         "first_drunk",
                         TriggerRegistries.FIRST_DRUNK.get().createCriterion(new SimpleTrigger.Instance())
                 ).save(output, ShakenStir.asResource("drink/first_drunk"));
+
+        Advancement.Builder.advancement()
+                .parent(AdvancementSubProvider.createPlaceholder("shakenstir:drink/first_drunk"))
+                .display(
+                        new ItemStackTemplate(ItemRegistries.WHISKY),
+                        LangData.ADVANCEMENT_DRINK_HEAVY_TITLE.get(),
+                        LangData.ADVANCEMENT_DRINK_HEAVY_DESC.get(),
+                        null,
+                        AdvancementType.CHALLENGE,
+                        true,
+                        true,
+                        false
+                ).addCriterion(
+                        "drunk_heavy",
+                        TriggerRegistries.DRUNK_HEAVY.get().createCriterion(new SimpleTrigger.Instance())
+                ).save(output, ShakenStir.asResource("drink/drunk_heavy"));
+
+        Advancement.Builder.advancement()
+                .parent(AdvancementSubProvider.createPlaceholder("shakenstir:drink/first_drunk"))
+                .display(
+                        new ItemStackTemplate(ItemRegistries.BOTTLE),
+                        LangData.ADVANCEMENT_DRINK_FIRST_FALL_TITLE.get(),
+                        LangData.ADVANCEMENT_DRINK_FIRST_FALL_DESC.get(),
+                        null,
+                        AdvancementType.GOAL,
+                        true,
+                        true,
+                        false
+                ).addCriterion(
+                        "first_fall_by_drunk",
+                        TriggerRegistries.FIRST_FALL_BY_DRUNK.get().createCriterion(new SimpleTrigger.Instance())
+                ).save(output, ShakenStir.asResource("drink/first_fall_by_drunk"));
+
+        Advancement.Builder.advancement()
+                .parent(AdvancementSubProvider.createPlaceholder("shakenstir:drink/first_drunk"))
+                .display(
+                        new ItemStackTemplate(ItemRegistries.LEMON),
+                        LangData.ADVANCEMENT_DRINK_LEMON_HIT_TITLE.get(),
+                        LangData.ADVANCEMENT_DRINK_LEMON_HIT_DESC.get(),
+                        null,
+                        AdvancementType.GOAL,
+                        true,
+                        true,
+                        false
+                ).addCriterion(
+                        "first_hit_due_to_lemon",
+                        TriggerRegistries.FIRST_HIT_DUE_TO_LEMON.get().createCriterion(new SimpleTrigger.Instance())
+                ).save(output, ShakenStir.asResource("drink/first_hit_due_to_lemon"));
+
+        Advancement.Builder.advancement()
+                .parent(AdvancementSubProvider.createPlaceholder("shakenstir:drink/first_drunk"))
+                .display(
+                        new ItemStackTemplate(ItemRegistries.BOTTLE),
+                        LangData.ADVANCEMENT_DRINK_PARALYSIS_DEATH_TITLE.get(),
+                        LangData.ADVANCEMENT_DRINK_PARALYSIS_DEATH_DESC.get(),
+                        null,
+                        AdvancementType.CHALLENGE,
+                        true,
+                        true,
+                        false
+                ).addCriterion(
+                        "died_by_discovering_paralysis",
+                        TriggerRegistries.DIED_BY_DISCOVERING_PARALYSIS.get().createCriterion(new SimpleTrigger.Instance())
+                ).save(output, ShakenStir.asResource("drink/died_by_discovering_paralysis"));
+
+        Advancement.Builder.advancement()
+                .parent(AdvancementSubProvider.createPlaceholder("shakenstir:drink/first_drunk"))
+                .display(
+                        new ItemStackTemplate(ItemRegistries.SOBERING_TEA),
+                        LangData.ADVANCEMENT_DRINK_PARALYSIS_PROTECT_TITLE.get(),
+                        LangData.ADVANCEMENT_DRINK_PARALYSIS_PROTECT_DESC.get(),
+                        null,
+                        AdvancementType.GOAL,
+                        true,
+                        true,
+                        false
+                ).addCriterion(
+                        "protected_by_paralysis",
+                        TriggerRegistries.PROTECTED_BY_PARALYSIS.get().createCriterion(new SimpleTrigger.Instance())
+                ).save(output, ShakenStir.asResource("drink/protected_by_paralysis"));
     }
 }

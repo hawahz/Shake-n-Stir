@@ -1,0 +1,26 @@
+{
+  "parent": "shakenstir:drink/first_drunk",
+  "criteria": {
+    "first_fall_by_drunk": {
+      "trigger": "shakenstir:first_fall_by_drunk"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "shakenstir.advancements.shakenstir.drink.first_fall_by_drunk.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "id": "shakenstir:bottle"
+    },
+    "title": {
+      "translate": "shakenstir.advancements.shakenstir.drink.first_fall_by_drunk.title"
+    }
+  },
+  "requirements": [
+    [
+      "first_fall_by_drunk"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

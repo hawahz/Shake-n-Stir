@@ -1,0 +1,26 @@
+{
+  "parent": "shakenstir:drink/first_drunk",
+  "criteria": {
+    "died_by_discovering_paralysis": {
+      "trigger": "shakenstir:died_by_discovering_paralysis"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "shakenstir.advancements.shakenstir.drink.died_by_discovering_paralysis.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "shakenstir:bottle"
+    },
+    "title": {
+      "translate": "shakenstir.advancements.shakenstir.drink.died_by_discovering_paralysis.title"
+    }
+  },
+  "requirements": [
+    [
+      "died_by_discovering_paralysis"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

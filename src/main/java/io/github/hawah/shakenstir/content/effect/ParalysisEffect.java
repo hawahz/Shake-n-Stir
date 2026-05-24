@@ -5,8 +5,8 @@ import io.github.hawah.shakenstir.content.dataAttachment.DataAttachmentTypeRegis
 import io.github.hawah.shakenstir.content.dataAttachment.DeferredDamageAttachment;
 import io.github.hawah.shakenstir.foundation.mixin.LivingEntityAccessor;
 import io.github.hawah.shakenstir.foundation.tags.SnsDamageTags;
+import io.github.hawah.shakenstir.lib.ServerTaskManager;
 import io.github.hawah.shakenstir.util.AdvancementHooks;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.Registries;
@@ -129,13 +129,11 @@ public class ParalysisEffect extends AbstractRemoveHookedMobEffect {
     public static void onEffectAdded(MobEffectEvent.Added event) {
         LivingEntity entity = event.getEntity();
         if (entity.hasEffect(MobEffectRegistries.PARALYSIS)) {
-            Minecraft.getInstance().schedule(
-                    () -> {
-                        for (MobEffectInstance activeEffect : entity.getActiveEffects().stream().filter(effect -> effect.getEffect().value().getCategory().equals(MobEffectCategory.HARMFUL)).toList()) {
-                            activeEffect.getEffect().value().removeAttributeModifiers(entity.getAttributes());
-                        }
-                    }
-            );
+            ServerTaskManager.createTask(() -> true, () -> {
+                for (MobEffectInstance activeEffect : entity.getActiveEffects().stream().filter(effect -> effect.getEffect().value().getCategory().equals(MobEffectCategory.HARMFUL)).toList()) {
+                    activeEffect.getEffect().value().removeAttributeModifiers(entity.getAttributes());
+                }
+            });
         }
     }
 }
