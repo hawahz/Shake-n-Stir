@@ -9,6 +9,7 @@ import io.github.hawah.shakenstir.client.hanlder.ShakerHandler;
 import io.github.hawah.shakenstir.lib.client.utils.TimerWarper;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -31,7 +32,7 @@ public class ShakenStirClient {
     public static final DecoratePlaceHandler DECORATE_PLACE_HANDLER = new DecoratePlaceHandler();
     public static final float ANI_DELTAF = 0.5F;
 
-    public ShakenStirClient(ModContainer container) {
+    public ShakenStirClient(IEventBus eventBus, ModContainer container) {
         // Allows NeoForge to create a config screen for this mod's configs.
         // The config screen is accessed by going to the Mods screen > clicking on your mod > clicking on config.
         // Do not forget to add translations for your config options to the en_us.json file.

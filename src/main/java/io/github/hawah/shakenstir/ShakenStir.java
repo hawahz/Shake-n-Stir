@@ -6,6 +6,7 @@ import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
 import io.github.hawah.shakenstir.content.dataAttachment.DataAttachmentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
+import io.github.hawah.shakenstir.content.entity.EntityTypeRegistries;
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import io.github.hawah.shakenstir.content.fluid.FluidTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
@@ -49,6 +50,7 @@ public class ShakenStir {
         MobEffectRegistries.register(modEventBus);
         DataAttachmentTypeRegistries.register(modEventBus);
         TriggerRegistries.register(modEventBus);
+        EntityTypeRegistries.register(modEventBus);
         NetworkPackets.register();
 
         NeoForge.EVENT_BUS.register(this);

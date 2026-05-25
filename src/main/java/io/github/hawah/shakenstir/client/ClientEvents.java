@@ -5,16 +5,17 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.ShakenStirClient;
+import io.github.hawah.shakenstir.client.clientTooltip.ClientShakeTooltipComponent;
 import io.github.hawah.shakenstir.client.hanlder.GlasswareHandlerRenderState;
 import io.github.hawah.shakenstir.client.model.Models;
 import io.github.hawah.shakenstir.client.model.glassware.GlasswareQuadCollection;
 import io.github.hawah.shakenstir.client.model.glassware.GlasswareUnbakedModelLoader;
-import io.github.hawah.shakenstir.client.clientTooltip.ClientShakeTooltipComponent;
 import io.github.hawah.shakenstir.client.render.GlasswareOutlineRenderer;
 import io.github.hawah.shakenstir.client.render.block.CabinetBlockEntityRenderer;
 import io.github.hawah.shakenstir.client.render.block.DistillerBlockEntityRenderer;
 import io.github.hawah.shakenstir.client.render.block.GlasswareBlockEntityRenderer;
 import io.github.hawah.shakenstir.client.render.block.ShakeBlockEntityRenderer;
+import io.github.hawah.shakenstir.client.render.entity.BartenderRenderer;
 import io.github.hawah.shakenstir.client.render.item.GlasswareSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.ShakeItemSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer;
@@ -27,6 +28,7 @@ import io.github.hawah.shakenstir.content.blockEntity.CabinetBlockEntity;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
+import io.github.hawah.shakenstir.content.entity.EntityTypeRegistries;
 import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundHandItemDataChangedPacket;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundTryPickItemPacket;
@@ -366,6 +368,18 @@ public class ClientEvents {
         @SubscribeEvent
         public static void registerTooltip(RegisterClientTooltipComponentFactoriesEvent event) {
             event.register(ShakeTooltipComponent.class, ClientShakeTooltipComponent::new);
+        }
+
+        @SubscribeEvent
+        public static void registerChunkCacheElement(AddSectionGeometryEvent event) {
+//            event.addRenderer(context -> {
+//                context.getOrCreateChunkBuffer()
+//            });
+        }
+
+        @SubscribeEvent // on the mod event bus only on the physical client
+        public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+            event.registerEntityRenderer(EntityTypeRegistries.BARTENDER.get(), BartenderRenderer::new);
         }
 
     }
