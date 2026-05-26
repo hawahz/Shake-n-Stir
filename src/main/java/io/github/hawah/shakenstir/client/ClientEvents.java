@@ -26,28 +26,33 @@ import io.github.hawah.shakenstir.content.block.Cabinet;
 import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.CabinetBlockEntity;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
+import io.github.hawah.shakenstir.content.dataAttachment.DataAttachmentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
 import io.github.hawah.shakenstir.content.entity.EntityTypeRegistries;
 import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundHandItemDataChangedPacket;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundTryPickItemPacket;
+import io.github.hawah.shakenstir.foundation.utils.ContextKeys;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import io.github.hawah.shakenstir.lib.networking.Networking;
 import io.github.hawah.shakenstir.util.Result;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockTintSource;
+import net.minecraft.client.entity.ClientAvatarEntity;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -56,6 +61,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.model.standalone.SimpleUnbakedStandaloneModel;
+import net.neoforged.neoforge.client.renderstate.AvatarRenderStateModifier;
+import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 import org.jspecify.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -180,7 +187,6 @@ public class ClientEvents {
         event.setGreen  (cg);
         event.setBlue   (cb);
     }
-
     @SubscribeEvent
     public static void onClickInput(InputEvent.InteractionKeyMappingTriggered event) {
         boolean pickBlock = event.isPickBlock();
@@ -269,6 +275,18 @@ public class ClientEvents {
 //                ),
 //                BlockRegistries.SHAKE_BLOCK.get()
 //        );
+        }
+
+        @SubscribeEvent
+        public static void registerRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
+            event.registerAvatarEntityModifier(new AvatarRenderStateModifier() {
+                @Override
+                public <T extends Avatar & ClientAvatarEntity> void accept(T avatar, AvatarRenderState renderState) {
+                    int data = avatar.getData(DataAttachmentTypeRegistries.FALL_DOWN);
+
+                    renderState.setRenderData(ContextKeys.FALLDOWN, data);
+                }
+            });
         }
 
         @SubscribeEvent

@@ -1,15 +1,16 @@
 package io.github.hawah.shakenstir.content.effect;
 
+import com.mojang.logging.LogUtils;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStir;
-import io.github.hawah.shakenstir.foundation.networking.ClientboundForceSetPlayerPosePacket;
-import io.github.hawah.shakenstir.foundation.networking.ClientboundRemoveForcePlayerPosePacket;
+import io.github.hawah.shakenstir.content.dataAttachment.DataAttachmentTypeRegistries;
+import io.github.hawah.shakenstir.foundation.networking.ClientboundPlayerFallDownOrRecoverPacket;
+import io.github.hawah.shakenstir.lib.ServerTaskManager;
 import io.github.hawah.shakenstir.lib.networking.Networking;
 import io.github.hawah.shakenstir.util.AdvancementHooks;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -24,7 +25,7 @@ public class FallDownEffect extends AbstractRemoveHookedMobEffect{
         this.addAttributeModifier(
                 Attributes.MOVEMENT_SPEED,
                 ShakenStir.asResource("drunk_movement_speed"),
-                -0.25,
+                -0.6,
                 AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
         );
     }
@@ -34,7 +35,8 @@ public class FallDownEffect extends AbstractRemoveHookedMobEffect{
         if (mob instanceof Player player) {
             player.setForcedPose(null);
             if (player.level() instanceof ServerLevel) {
-                Networking.sendToAll(new ClientboundRemoveForcePlayerPosePacket(mob.getUUID()));
+                player.removeData(DataAttachmentTypeRegistries.FALL_DOWN);
+                Networking.sendToAll(new ClientboundPlayerFallDownOrRecoverPacket(false, mob.getUUID()));
             }
         }
     }
@@ -42,12 +44,24 @@ public class FallDownEffect extends AbstractRemoveHookedMobEffect{
     @Override
     public void onEffectStarted(LivingEntity mob, int amplifier) {
         if (mob instanceof Player player) {
-            player.setForcedPose(Pose.SWIMMING);
-            Networking.sendToAll(new ClientboundForceSetPlayerPosePacket(mob.getUUID(), Pose.SWIMMING));
+            player.setData(DataAttachmentTypeRegistries.FALL_DOWN, 0);
+            Networking.sendToAll(new ClientboundPlayerFallDownOrRecoverPacket(true, mob.getUUID()));
             AdvancementHooks.onFirstFallByDrunk(player);
         }
         if (mob.level() instanceof ServerLevel serverLevel) {
-            mob.hurtServer(serverLevel, mob.damageSources().fall(), 1);
+            int currentTicks = mob.tickCount;
+            ServerTaskManager.createTask(
+                    () -> mob.tickCount - currentTicks > 7,
+                    () -> {
+                        if (!mob.isRemoved()) {
+                            try {
+                                mob.hurtServer(serverLevel, mob.damageSources().fall(), 1);
+                            } catch (RuntimeException e) {
+                                LogUtils.getLogger().error("Error while applying fall damage", e);
+                            }
+                        }
+                        }
+                    , 7);
         }
     }
 

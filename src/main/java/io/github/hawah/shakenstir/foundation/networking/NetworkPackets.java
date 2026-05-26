@@ -22,9 +22,7 @@ public enum NetworkPackets implements BasePacketPayload.PacketTypeProvider {
     ENTITY_FALL(ServerboundEntityFallPacket.class, ServerboundEntityFallPacket.STREAM_CODEC),
     //S2C
     SHAKE_PARAM_SYNC(ClientboundShakeParamSyncPacket.class, ClientboundShakeParamSyncPacket.STREAM_CODEC),
-    UPDATE_LIVING_POSE(ClientboundUpdateLivingPosePacket.class, ClientboundUpdateLivingPosePacket.STREAM_CODEC),
-    REMOVE_FORCE_PLAYER_POSE(ClientboundRemoveForcePlayerPosePacket.class, ClientboundRemoveForcePlayerPosePacket.STREAM_CODEC),
-    FORCE_PLAYER_POSE(ClientboundForceSetPlayerPosePacket.class, ClientboundForceSetPlayerPosePacket.STREAM_CODEC),
+    PLAYER_FALL_DOWN_OR_RECOVER(ClientboundPlayerFallDownOrRecoverPacket.class, ClientboundPlayerFallDownOrRecoverPacket.STREAM_CODEC),
     ;
     private final PacketRegistry.PacketHolder<?> type;
 

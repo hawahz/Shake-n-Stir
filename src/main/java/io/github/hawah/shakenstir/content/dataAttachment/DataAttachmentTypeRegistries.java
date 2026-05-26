@@ -1,5 +1,6 @@
 package io.github.hawah.shakenstir.content.dataAttachment;
 
+import com.mojang.serialization.Codec;
 import io.github.hawah.shakenstir.ShakenStir;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
@@ -12,7 +13,9 @@ public class DataAttachmentTypeRegistries {
     public static final DeferredRegister<AttachmentType<?>> DATA_ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, ShakenStir.MODID);
 
     public static final Supplier<AttachmentType<DeferredDamageAttachment>> DEFERRED_DEAD = DATA_ATTACHMENT_TYPES.register(
-            "dead", () -> AttachmentType.serializable(DeferredDamageAttachment::empty).build());
+            "deferred_dead", () -> AttachmentType.serializable(DeferredDamageAttachment::empty).build());
+    public static final Supplier<AttachmentType<Integer>> FALL_DOWN = DATA_ATTACHMENT_TYPES.register(
+            "falldown", () -> AttachmentType.builder(() -> -1).serialize(Codec.INT.fieldOf("sns_falldown")).build());
 
     public static void register(IEventBus eventBus) {
         DATA_ATTACHMENT_TYPES.register(eventBus);

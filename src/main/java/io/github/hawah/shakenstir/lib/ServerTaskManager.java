@@ -1,11 +1,16 @@
 package io.github.hawah.shakenstir.lib;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.function.Supplier;
 
+@EventBusSubscriber
 public class ServerTaskManager {
     public static Queue<ServerTask> serverTasks = new ArrayDeque<>();
     public static ServerTask createTask(Supplier<Boolean> checker, Runnable task) {
@@ -23,6 +28,9 @@ public class ServerTaskManager {
     }
 
     public static void tick() {
+        if (serverTasks.isEmpty()) {
+            return;
+        }
         List<ServerTask> toRemove = new ArrayList<>();
         for (ServerTask task : serverTasks) {
             if(task.tick()) {
@@ -72,5 +80,11 @@ public class ServerTaskManager {
         public void runTask() {
             task.run();
         }
+    }
+
+
+    @SubscribeEvent
+    public static void onTick(ServerTickEvent.Post event) {
+        tick();
     }
 }
