@@ -17,7 +17,7 @@ public record ClientProgressBarTooltip(double progress, int width, int ofX, int 
 
     @Override
     public int getWidth(Font font) {
-        return font.width(new StringBuilder().repeat('|', width()).toString()) + ofX();
+        return Math.max(font.width(new StringBuilder().repeat('|', width()).toString()), font.width(".")) + ofX();
     }
 
     @Override

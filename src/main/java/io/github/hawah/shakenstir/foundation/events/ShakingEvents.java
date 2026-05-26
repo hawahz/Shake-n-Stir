@@ -5,13 +5,13 @@ import io.github.hawah.shakenstir.content.block.Cabinet;
 import io.github.hawah.shakenstir.content.blockEntity.CabinetBlockEntity;
 import io.github.hawah.shakenstir.content.blockEntity.DistillerBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.entity.BartenderEntity;
 import io.github.hawah.shakenstir.content.entity.EntityTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ShakerItem;
 import io.github.hawah.shakenstir.util.TooltipHandler;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -117,8 +117,7 @@ public class ShakingEvents {
                 // An AttributeSupplier. This is typically created by calling LivingEntity#createLivingAttributes,
                 // setting your values on it, and calling #build. You can also create the AttributeSupplier from scratch
                 // if you want, see the source of LivingEntity#createLivingAttributes for an example.
-                Mob.createMobAttributes()
-                        .build()
+                BartenderEntity.createAttributes().build()
         );
     }
 }

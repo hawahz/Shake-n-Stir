@@ -1,24 +1,21 @@
 package io.github.hawah.shakenstir.content.entity;
 
-import io.github.hawah.shakenstir.content.block.BlockRegistries;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.profiling.Profiler;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.ai.goal.FloatGoal;
-import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
-import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.parrot.Parrot;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
@@ -42,8 +39,27 @@ public class BartenderEntity extends PathfinderMob {
             BartenderEntity.class, EntityDataSerializers.OPTIONAL_UNSIGNED_INT
     );
 
+    public static final Brain.Provider<BartenderEntity> BRAIN_PROVIDER = Brain.provider(
+            BartenderAi.getSensors(),
+            BartenderAi::getActivities
+    );
+
     public BartenderEntity(EntityType<BartenderEntity> type, Level level) {
         super(type, level);
+        this.getNavigation().setCanOpenDoors(true);
+        this.getNavigation().setCanFloat(true);
+    }
+
+    public static AttributeSupplier.Builder createAttributes() {
+        return Mob.createMobAttributes().add(Attributes.MOVEMENT_SPEED, 0.5);
+    }
+
+    @Override
+    protected Brain<BartenderEntity> makeBrain(Brain.Packed packedBrain) {
+        return BRAIN_PROVIDER.makeBrain(this, packedBrain);
+    }
+
+    private void registerBrainGoals(Brain<BartenderEntity> brain) {
     }
 
     @Override
@@ -85,23 +101,36 @@ public class BartenderEntity extends PathfinderMob {
         this.entityData.set(DATA_SHOULDER_PARROT_LEFT, convertParrotVariant(variant));
     }
 
-    @Override
-    protected void registerGoals() {
-        this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
-        this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
-        this.targetSelector.addGoal(2, new HurtByTargetGoal(this));
-        this.targetSelector.addGoal(1, new MoveToBlockGoal(this, 1, 16) {
-            @Override
-            protected boolean isValidTarget(LevelReader level, BlockPos pos) {
-                return level.getBlockState(pos).is(BlockRegistries.SHAKE_BLOCK);
-            }
-        });
-    }
+//    @Override
+//    protected void registerGoals() {
+//        this.goalSelector.addGoal(1, new FloatGoal(this));
+//        this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
+//        this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
+//        this.targetSelector.addGoal(2, new HurtByTargetGoal(this));
+//        this.targetSelector.addGoal(1, new MoveToBlockGoal(this, 1, 16) {
+//            @Override
+//            protected boolean isValidTarget(LevelReader level, BlockPos pos) {
+//                return level.getBlockState(pos).is(BlockRegistries.SHAKE_BLOCK);
+//            }
+//        });
+//    }
 
     @Override
     public void aiStep() {
         super.aiStep();
+    }
+
+    @Override
+    public Brain<BartenderEntity> getBrain() {
+        return (Brain<BartenderEntity>) super.getBrain();
+    }
+
+    @Override
+    protected void customServerAiStep(ServerLevel level) {
+        ProfilerFiller profiler = Profiler.get();
+        profiler.push("creakingBrain");
+        this.getBrain().tick((ServerLevel)this.level(), this);
+        profiler.pop();
     }
 
     private static Optional<Parrot.Variant> convertParrotVariant(OptionalInt variant) {
