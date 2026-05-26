@@ -100,7 +100,15 @@ public class ModModelProvider extends ModelProvider {
 
     private static void generateMenu(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
         itemModels.generateFlatItem(ItemRegistries.MENU.get(), ModelTemplates.FLAT_ITEM);
-        generateEmptyModel(blockModels, BlockRegistries.BAR_MENU_BLOCK.get(), Blocks.COAL_BLOCK);
+        blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(BlockRegistries.BAR_MENU_BLOCK.get())
+                .with(
+                        PropertyDispatch.initial(HorizontalDirectionalBlock.FACING)
+                                .select(Direction.NORTH, getMultiVariant("block/menu_block"))
+                                .select(Direction.EAST, getMultiVariant("block/menu_block").with(BlockModelGenerators.Y_ROT_90))
+                                .select(Direction.SOUTH, getMultiVariant("block/menu_block").with(BlockModelGenerators.Y_ROT_180))
+                                .select(Direction.WEST, getMultiVariant("block/menu_block").with(BlockModelGenerators.Y_ROT_270))
+                )
+        );
     }
 
     private static void generateIceCube(ItemModelGenerators itemModels) {

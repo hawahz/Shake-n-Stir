@@ -1,7 +1,19 @@
 {
   "variants": {
-    "": {
-      "model": "shakenstir:block/bar_menu"
+    "facing=east": {
+      "model": "shakenstir:block/menu_block",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "shakenstir:block/menu_block"
+    },
+    "facing=south": {
+      "model": "shakenstir:block/menu_block",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "shakenstir:block/menu_block",
+      "y": 270
     }
   }
 }
