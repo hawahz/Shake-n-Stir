@@ -7,6 +7,7 @@ import io.github.hawah.shakenstir.content.recipe.Quality;
 import io.github.hawah.shakenstir.foundation.datapack.DrinkData;
 import io.github.hawah.shakenstir.foundation.datapack.cocktaileType.CocktailType;
 import io.github.hawah.shakenstir.util.SerializeHelper;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -19,6 +20,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import org.joml.Vector2f;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.function.UnaryOperator;
 
 public class DataComponentTypeRegistries {
@@ -139,6 +141,11 @@ public class DataComponentTypeRegistries {
     public static final DataComponentType<BoundingBox> BAR_AREA = register(
             "bar_area",
             builder -> builder.persistent(BoundingBox.CODEC).networkSynchronized(BoundingBox.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<UUID> PLACER = register(
+            "placer",
+            builder -> builder.persistent(UUIDUtil.CODEC).networkSynchronized(UUIDUtil.STREAM_CODEC)
     );
 
     public static void register(IEventBus eventBus) {

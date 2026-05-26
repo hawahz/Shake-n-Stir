@@ -9,9 +9,14 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class Activities {
     public static final DeferredRegister<Activity> ACTIVITY = DeferredRegister.create(Registries.ACTIVITY, ShakenStir.MODID);
-    public static final DeferredHolder<Activity, Activity> WORK_IDLE = ACTIVITY.register("work", () -> new Activity("work"));
+    public static final DeferredHolder<Activity, Activity> WORK_IDLE = register("work_idle");
+    public static final DeferredHolder<Activity, Activity> SHAKING = register("shaking");
 
     public static void register(IEventBus modEventBus) {
         ACTIVITY.register(modEventBus);
+    }
+
+    public static DeferredHolder<Activity, Activity> register(String name) {
+        return ACTIVITY.register(name, () -> new Activity(name));
     }
 }

@@ -5,6 +5,9 @@ import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import io.github.hawah.shakenstir.content.entity.ai.activity.Activities;
 import io.github.hawah.shakenstir.content.entity.ai.behavior.AnywhereRandomStroll;
+import io.github.hawah.shakenstir.content.entity.ai.behavior.CollapseMenu;
+import io.github.hawah.shakenstir.content.entity.ai.behavior.PutMenu;
+import io.github.hawah.shakenstir.content.entity.ai.behavior.SetLookAndInteractNew;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -37,15 +40,26 @@ public class BartenderAi {
     static ActivityData<BartenderEntity> initWorkIdleActivity() {
         return ActivityData.create(
                 Activities.WORK_IDLE.get(),
-                BehaviorPackage.getIdlePackage(),
+                BehaviorPackage.getWorkIdlePackage(),
                 ImmutableSet.of(Pair.of(Memories.BAR_MEMORY.get(), MemoryStatus.VALUE_PRESENT))
         );
     }
 
-    static ActivityData<BartenderEntity> initWorkingActivity() {
+    static ActivityData<BartenderEntity> initWorkActivity() {
         return ActivityData.create(
                 Activity.WORK,
-                ImmutableList.of(),
+                BehaviorPackage.getWorkPackage(),
+                ImmutableSet.of(
+                        Pair.of(Memories.BAR_MEMORY.get(), MemoryStatus.VALUE_PRESENT),
+                        Pair.of(MemoryModuleType.INTERACTION_TARGET, MemoryStatus.VALUE_PRESENT)
+                )
+        );
+    }
+
+    static ActivityData<BartenderEntity> initShakingActivity() {
+        return ActivityData.create(
+                Activities.SHAKING.get(),
+                BehaviorPackage.getShakingPackage(),
                 ImmutableSet.of(
                         Pair.of(Memories.BAR_MEMORY.get(), MemoryStatus.VALUE_PRESENT),
                         Pair.of(MemoryModuleType.INTERACTION_TARGET, MemoryStatus.VALUE_PRESENT)
@@ -58,7 +72,8 @@ public class BartenderAi {
                 initCoreActivity(),
                 initIdleActivity(),
                 initWorkIdleActivity(),
-                initWorkingActivity()
+                initWorkActivity(),
+                initShakingActivity()
         );
     }
 
@@ -108,7 +123,14 @@ public class BartenderAi {
         public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super BartenderEntity>>> getWorkIdlePackage() {
             return ImmutableList.of(
                     getFullLookBehavior(),
-                    Pair.of(3, SetLookAndInteract.create(EntityType.PLAYER, 4))
+                    Pair.of(3, SetLookAndInteractNew.create(EntityType.PLAYER, 5)),
+                    Pair.of(0, CollapseMenu.create())
+            );
+        }
+
+        public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super BartenderEntity>>> getWorkPackage() {
+            return ImmutableList.of(
+                    Pair.of(5, PutMenu.create())
             );
         }
         private static Pair<Integer, BehaviorControl<LivingEntity>> getFullLookBehavior() {
@@ -126,6 +148,12 @@ public class BartenderAi {
                                     Pair.of(new DoNothing(30, 60), 2)
                             )
                     )
+            );
+        }
+
+        public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super BartenderEntity>>> getShakingPackage() {
+            return ImmutableList.of(
+
             );
         }
     }

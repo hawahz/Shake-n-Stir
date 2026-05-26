@@ -40,6 +40,9 @@ public class SnsCreativeTab {
                 output.accept(ItemRegistries.SOBERING_TEA.get());
                 output.accept(ItemRegistries.CABINET.get());
                 output.accept(ItemRegistries.DISTILLER.get());
+
+                output.accept(ItemRegistries.BAR_BUILDER.get());
+                output.accept(ItemRegistries.MENU.get());
             })
             .build()
     );

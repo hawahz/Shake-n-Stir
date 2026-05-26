@@ -2,7 +2,6 @@ package io.github.hawah.shakenstir.lib.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -290,6 +289,16 @@ public enum KeyBinding {
         int button = event.getButton();
         boolean pressed = event.getAction() != 0;
         if (KeyBinding.KeyBuffer.onMousePressed(button, pressed)) {
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onMouseScroll(InputEvent.MouseScrollingEvent event) {
+        if (Minecraft.getInstance().screen != null) {
+            return;
+        }
+        if (KeyBinding.KeyBuffer.onMouseScrolled(event.getScrollDeltaY())) {
             event.setCanceled(true);
         }
     }

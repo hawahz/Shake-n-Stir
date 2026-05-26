@@ -54,7 +54,7 @@ public abstract class AbstractBoxHandler implements IHandler{
                     if (secondPos == null) {
                         setSecondPos(selectedPos);
 
-                        if (this.shouldCheck) {
+                        if (!this.shouldCheck) {
                             return;
                         }
                     }
@@ -202,7 +202,8 @@ public abstract class AbstractBoxHandler implements IHandler{
         if (firstPos != null && secondPos != null && KeyBinding.KeyNode.ALT.isActive()) {
             selectedFace = scrolling <= 0? RaycastHelper.intersectRayWithBox(
                     player.getEyePosition(),
-                    RaycastHelper.getTraceTarget(player, 300, player.getEyePosition())
+                    RaycastHelper.getTraceTarget(player, 300, player.getEyePosition()),
+                    cachedBoundingBox
             ) : selectedFace;
             if (canSelectOpposite()) {
                 selectedFace = selectedFace.getOpposite();
@@ -238,10 +239,7 @@ public abstract class AbstractBoxHandler implements IHandler{
         }
 
         if (firstPos != null) {
-            int gb = 1;
-            if (cachedBoundingBox != null) {
-                gb = isValidSize() && (selectedFace != null)? gb: 0;
-            }
+            int gb = !isValidSize() && (selectedFace != null)? 1: 0;
             submitOutline(gb);
         }
     }
@@ -316,9 +314,9 @@ public abstract class AbstractBoxHandler implements IHandler{
     }
 
     public boolean isValidSize() {
-        return isOversizeX() ||
+        return !(isOversizeX() ||
                 isOversizeY() ||
-                isOversizeZ();
+                isOversizeZ());
     }
 
     protected boolean isOversizeZ() {

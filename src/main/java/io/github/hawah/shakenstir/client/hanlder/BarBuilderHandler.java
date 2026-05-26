@@ -23,7 +23,7 @@ public class BarBuilderHandler extends AbstractBoxHandler {
 
     @Override
     protected boolean onSetSecondPos(BlockPos pos) {
-        return true;
+        return false;
     }
 
     @Override
@@ -38,7 +38,7 @@ public class BarBuilderHandler extends AbstractBoxHandler {
         ItemStack item = getPlayer().getMainHandItem();
         item.set(DataComponentTypeRegistries.BAR_AREA, boundingBox);
         Networking.sendToServer(new ServerboundHandItemDataChangedPacket(getPlayer().getUUID(), InteractionHand.MAIN_HAND, item));
-        return false;
+        return true;
     }
 
     @Override
@@ -70,7 +70,7 @@ public class BarBuilderHandler extends AbstractBoxHandler {
         if (skipSelection && (barArea = getPlayer().getMainHandItem().get(DataComponentTypeRegistries.BAR_AREA)) != null) {
             firstPos = new BlockPos(barArea.minX(), barArea.minY(), barArea.minZ());
             secondPos = new BlockPos(barArea.maxX(), barArea.maxY(), barArea.maxZ());
-            submitOutline(1);
+            submitOutline(0);
             return;
         }
         super.tick();

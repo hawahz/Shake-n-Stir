@@ -64,6 +64,7 @@ public class ModModelProvider extends ModelProvider {
         itemModels.generateFlatItem(ItemRegistries.LEMON.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ItemRegistries.LEMON_SLICE.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ItemRegistries.SOBERING_TEA.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ItemRegistries.BAR_BUILDER.get(), ModelTemplates.FLAT_ITEM);
         // Basic single variant model
         registerCustomBlockModel(blockModels, "block/shaker_lid", BlockRegistries.SHAKE_LID_BLOCK.get());
         generateShaker(blockModels, itemModels);
@@ -93,7 +94,13 @@ public class ModModelProvider extends ModelProvider {
         generateIceCube(itemModels);
         generateCabinet(blockModels, itemModels);
         generateDistiller(blockModels, itemModels);
+        generateMenu(blockModels, itemModels);
 //        generateLongDrinkGlassware(itemModels);
+    }
+
+    private static void generateMenu(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
+        itemModels.generateFlatItem(ItemRegistries.MENU.get(), ModelTemplates.FLAT_ITEM);
+        generateEmptyModel(blockModels, BlockRegistries.BAR_MENU_BLOCK.get(), Blocks.COAL_BLOCK);
     }
 
     private static void generateIceCube(ItemModelGenerators itemModels) {

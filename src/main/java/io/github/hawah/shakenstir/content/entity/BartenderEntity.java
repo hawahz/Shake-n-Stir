@@ -2,24 +2,26 @@ package io.github.hawah.shakenstir.content.entity;
 
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
+import net.minecraft.core.NonNullList;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.parrot.Parrot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -28,7 +30,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-public class BartenderEntity extends PathfinderMob {
+@SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "unchecked"})
+public class BartenderEntity extends AbstractInventoryMob {
 
     public static final EntityDataAccessor<Integer> DATA_ACCESSOR =
             SynchedEntityData.defineId(
@@ -48,6 +51,8 @@ public class BartenderEntity extends PathfinderMob {
             BartenderAi.getSensors(),
             BartenderAi::getActivities
     );
+
+    private final NonNullList<ItemStack> inventory = NonNullList.withSize(6, ItemStack.EMPTY);
 
     public BartenderEntity(EntityType<BartenderEntity> type, Level level) {
         super(type, level);
@@ -106,19 +111,9 @@ public class BartenderEntity extends PathfinderMob {
         this.entityData.set(DATA_SHOULDER_PARROT_LEFT, convertParrotVariant(variant));
     }
 
-//    @Override
-//    protected void registerGoals() {
-//        this.goalSelector.addGoal(1, new FloatGoal(this));
-//        this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
-//        this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
-//        this.targetSelector.addGoal(2, new HurtByTargetGoal(this));
-//        this.targetSelector.addGoal(1, new MoveToBlockGoal(this, 1, 16) {
-//            @Override
-//            protected boolean isValidTarget(LevelReader level, BlockPos pos) {
-//                return level.getBlockState(pos).is(BlockRegistries.SHAKE_BLOCK);
-//            }
-//        });
-//    }
+    public void alertCustomerOrdered() {
+
+    }
 
     @Override
     public void aiStep() {
@@ -150,11 +145,13 @@ public class BartenderEntity extends PathfinderMob {
     @Override
     protected void readAdditionalSaveData(ValueInput input) {
         super.readAdditionalSaveData(input);
+        ContainerHelper.loadAllItems(input, inventory);
     }
 
     @Override
     protected void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);
+        ContainerHelper.saveAllItems(output, inventory);
     }
 
     @Override
@@ -168,5 +165,10 @@ public class BartenderEntity extends PathfinderMob {
             });
         }
         return super.mobInteract(player, hand);
+    }
+
+    @Override
+    public NonNullList<ItemStack> getInventory() {
+        return inventory;
     }
 }

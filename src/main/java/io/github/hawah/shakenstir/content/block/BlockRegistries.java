@@ -52,6 +52,9 @@ public class BlockRegistries {
     public static final DeferredBlock<LiquidBlock> BRANDY_LIQUID = registerLiquid("brandy_liquid", FluidRegistries.BRANDY_FLOWING_FLUID_BLOCK);
     public static final DeferredBlock<LiquidBlock> BUBBLE_LIQUID = registerLiquid("bubble_liquid", FluidRegistries.BRANDY_FLOWING_FLUID_BLOCK);
 
+    public static final DeferredBlock<BarMenuBlock> BAR_MENU_BLOCK = register("bar_menu", BarMenuBlock::new);
+
+
     public static final DeferredRegister<MapCodec<? extends Block>> REGISTRAR = DeferredRegister.create(BuiltInRegistries.BLOCK_TYPE, ShakenStir.MODID);
     public static final Supplier<MapCodec<Shaker>> SHAKE_CODEC = REGISTRAR.register(
             "shake",
@@ -64,6 +67,10 @@ public class BlockRegistries {
     public static final Supplier<MapCodec<Cabinet>> CABINET_CODEC = REGISTRAR.register(
             "cabinet",
             () -> BlockBehaviour.simpleCodec(Cabinet::new)
+    );
+    public static final Supplier<MapCodec<BarMenuBlock>> BAR_MENU_CODEC = REGISTRAR.register(
+            "bar_menu",
+            () -> BlockBehaviour.simpleCodec(BarMenuBlock::new)
     );
 
     public static void register(IEventBus eventBus) {
