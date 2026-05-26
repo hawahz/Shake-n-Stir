@@ -135,7 +135,7 @@ public record ShakeContentHolder(
 
     }
 
-    public class Fluid {
+    public final class Fluid {
         public boolean isEmpty() {
             validate();
             return fluidVolume() == 0;
@@ -160,7 +160,7 @@ public record ShakeContentHolder(
         return new Fluid();
     }
 
-    public class Item {
+    public final class Item {
         public boolean isEmpty() {
             validate();
             return itemCount() == 0;

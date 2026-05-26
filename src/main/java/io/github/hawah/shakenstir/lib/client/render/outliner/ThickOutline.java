@@ -18,12 +18,11 @@ public class ThickOutline extends OutlineElement<ThickOutline> {
 
     /**
      * 渲染向内延伸且角整齐的实体边框
-     * @param poseStack 变换矩阵栈
      * @param cameraPos 当前摄像机坐标 (用于平移到相对坐标)
      * @param buffer    顶点消费者，建议使用 RenderType.entityTranslucentCull() 或 RenderType.debugQuads()
      */
     @Override
-    public void render(PoseStack poseStack, VertexConsumer buffer, Vec3 cameraPos, DeltaTracker partialTick) {
+    public void render(PoseStack.Pose pose, VertexConsumer buffer, Vec3 cameraPos, DeltaTracker partialTick) {
 
         // 构建 AABB 范围，确保 pos0 和 pos1 的大小关系正确
         float delta = partialTick.getGameTimeDeltaPartialTick(true);
@@ -32,7 +31,8 @@ public class ThickOutline extends OutlineElement<ThickOutline> {
                 oPos1.lerp(visualPos1, delta)
         ).inflate(0.002 * (1 + priority)); // 稍微膨胀一点防止与方块表面闪烁
         AABB box = boundingBox;
-
+        PoseStack poseStack = new PoseStack();
+        poseStack.last().set(pose);
         poseStack.pushPose();
 //        box = RenderCompat.applyTransform(box, poseStack, cameraPos, box.getCenter(), delta);
         poseStack.translate(-cameraPos.x(), -cameraPos.y(), -cameraPos.z());

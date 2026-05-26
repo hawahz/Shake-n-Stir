@@ -1,11 +1,15 @@
 package io.github.hawah.shakenstir.content.entity;
 
+import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.HumanoidArm;
@@ -15,6 +19,7 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.parrot.Parrot;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -131,6 +136,7 @@ public class BartenderEntity extends PathfinderMob {
         profiler.push("creakingBrain");
         this.getBrain().tick((ServerLevel)this.level(), this);
         profiler.pop();
+        BartenderAi.updateActivity(this);
     }
 
     private static Optional<Parrot.Variant> convertParrotVariant(OptionalInt variant) {
@@ -149,5 +155,18 @@ public class BartenderEntity extends PathfinderMob {
     @Override
     protected void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);
+    }
+
+    @Override
+    protected InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if (player.getItemInHand(hand).has(DataComponentTypeRegistries.BAR_AREA)) {
+            Optional.ofNullable(player.getItemInHand(hand).get(DataComponentTypeRegistries.BAR_AREA)).ifPresent(barArea -> {
+                // TODO Reachable Prediction
+                if (barArea.getCenter().distManhattan(this.blockPosition()) < 200) {
+                    this.getBrain().setMemory(Memories.BAR_MEMORY.get(), barArea);
+                }
+            });
+        }
+        return super.mobInteract(player, hand);
     }
 }

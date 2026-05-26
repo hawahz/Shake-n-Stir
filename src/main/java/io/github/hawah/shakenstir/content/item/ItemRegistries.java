@@ -45,6 +45,8 @@ public class ItemRegistries {
     public static final DeferredItem<Item> LEMON = register("lemon", Item::new, new Item.Properties().food(Foods.APPLE).component(DataComponents.POTION_CONTENTS, new PotionContents(Optional.empty(), Optional.empty(), List.of(new MobEffectInstance(MobEffectRegistries.LEMON)), Optional.empty())));
     public static final DeferredItem<DecorateItem> LEMON_SLICE = register("lemon_slice", DecorateItem::new);
 
+    public static final DeferredItem<BarBuilder> BAR_BUILDER = register("lemon_juice", BarBuilder::new);
+
     // Spirit
     public static final DeferredItem<SpiritBottleItem> GIN = registerSpirit("gin", BlockRegistries.GIN, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(new FluidStack(FluidRegistries.GIN_SOURCE_FLUID_BLOCK, 1000))));
     public static final DeferredItem<SpiritBottleItem> WHISKY = registerSpirit("whisky", BlockRegistries.WHISKY, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(new FluidStack(FluidRegistries.WHISKY_SOURCE_FLUID_BLOCK, 1000))));

@@ -2,11 +2,16 @@ package io.github.hawah.shakenstir.lib.client.render.outliner;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
+import io.github.hawah.shakenstir.ShakenStir;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.event.ExtractLevelRenderStateEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
@@ -75,7 +80,7 @@ public class Outliner {
         return outline;
     }
 
-    public void render(PoseStack poseStack, MultiBufferSource bufferSource, Vec3 cameraPos, DeltaTracker partialTick) {
+    public void render(PoseStack.Pose poseStack, MultiBufferSource bufferSource, Vec3 cameraPos, DeltaTracker partialTick) {
         outlines.forEach((object, outlineElement) ->
                 outlineElement.render(poseStack, bufferSource.getBuffer(
                         outlineElement instanceof ThickOutline?
@@ -196,4 +201,28 @@ public class Outliner {
             outlines.put(slot, outline);
         }
     }
+
+    public static void extract(ExtractLevelRenderStateEvent event) {
+        event.getRenderState().setRenderData(OUTLINER_RENDER_STATE, new OutlinerRenderState(event.getDeltaTracker()));
+    }
+
+    public static void submit(SubmitNodeCollector submitNodeCollector, PoseStack poseStack, LevelRenderState levelRenderState) {
+        OutlinerRenderState renderData = levelRenderState.getRenderData(OUTLINER_RENDER_STATE);
+        if (renderData == null) {
+            return;
+        }
+        submitNodeCollector.submitCustomGeometry(
+                poseStack,
+                RenderTypes.debugQuads(),
+                (pose, buffer) -> {
+                    getInstance().outlines.forEach((object, outlineElement) ->
+                            outlineElement.render(pose, buffer, levelRenderState.cameraRenderState.pos, renderData.partialTick())
+                    );
+                }
+        );
+    }
+
+    public static final ContextKey<OutlinerRenderState> OUTLINER_RENDER_STATE = ShakenStir.asContextKey("outliner_render_state");
+
+    public record OutlinerRenderState(DeltaTracker partialTick) {};
 }

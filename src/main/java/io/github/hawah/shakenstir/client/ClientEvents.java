@@ -34,6 +34,7 @@ import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundHandItemDataChangedPacket;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundTryPickItemPacket;
 import io.github.hawah.shakenstir.foundation.utils.ContextKeys;
+import io.github.hawah.shakenstir.lib.client.render.outliner.Outliner;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import io.github.hawah.shakenstir.lib.networking.Networking;
 import io.github.hawah.shakenstir.util.Result;
@@ -79,7 +80,6 @@ public class ClientEvents {
     @SubscribeEvent
     public static void onRenderWorld(RenderLevelStageEvent.AfterTranslucentParticles event) {
         ShakenStirClient.TIMER_NORMAL.warp(Minecraft.getInstance().getDeltaTracker());
-        //Outliner.renderInto(event.getPoseStack(), Minecraft.getInstance().renderBuffers().bufferSource(), Minecraft.getInstance().player.getEyePosition(), Minecraft.getInstance().getDeltaTracker());
     }
 
     @SubscribeEvent
@@ -89,6 +89,7 @@ public class ClientEvents {
                 new GlasswareHandlerRenderState(event.getDeltaTracker())
         );
         ShakenStirClient.DECORATE_PLACE_HANDLER.extract(event);
+        Outliner.extract(event);
     }
 
     @SubscribeEvent
@@ -101,6 +102,7 @@ public class ClientEvents {
 
         ShakenStirClient.GLASSWARE_HANDLER.submit(submitNodeCollector, poseStack, levelRenderState);
         ShakenStirClient.DECORATE_PLACE_HANDLER.submit(submitNodeCollector, poseStack, levelRenderState);
+        Outliner.submit(submitNodeCollector, poseStack, levelRenderState);
         poseStack.popPose();
     }
 
@@ -126,6 +128,8 @@ public class ClientEvents {
         ShakenStirClient.GLASSWARE_HANDLER.tick();
         ShakenStirClient.SHAKE_HANDLER.tick();
         ShakenStirClient.CABINET_HUD.tick();
+        ShakenStirClient.BAR_BUILDER_HANDLER.tick();
+        Outliner.tick();
     }
 
     private static double cameraRoll = 0;

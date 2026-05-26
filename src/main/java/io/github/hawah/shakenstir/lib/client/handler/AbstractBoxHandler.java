@@ -30,17 +30,36 @@ public abstract class AbstractBoxHandler implements IHandler{
     protected int scrolling = 0;
     @SuppressWarnings("FieldCanBeLocal")
     protected final int MAX_REACH = 100;
+    protected final boolean shouldCheck;
 
-    public AbstractBoxHandler() {
+    public AbstractBoxHandler(boolean shouldCheck) {
+        this.shouldCheck = shouldCheck;
         KeyBinding.RIGHT.bind(KeyBinding.Action.of(
                 ()-> this.isActive() && selectedPos != null,
                 () -> {
+                    var cancelled = onRightClickPre();
+                    if (cancelled) {
+                        return;
+                    }
                     if (firstPos == null) {
+                        if (onSetFirstPosPre(selectedPos)) {
+                            return;
+                        }
                         firstPos = selectedPos;
+                        if (onSetFirstPosPost(firstPos)) {
+                            return;
+                        }
                         return;
                     }
                     if (secondPos == null) {
                         setSecondPos(selectedPos);
+
+                        if (this.shouldCheck) {
+                            return;
+                        }
+                    }
+                    var skip = onCheck();
+                    if (skip) {
                         return;
                     }
                     firstPos = selectedPos;
@@ -123,6 +142,11 @@ public abstract class AbstractBoxHandler implements IHandler{
 
         List<BlockPos> resultHolder = Arrays.asList(firstPos, secondPos);
 
+        var skip = onSetSecondPos(secondPos);
+        if (skip) {
+            return;
+        }
+
 //        SableLogicTransformCompat.instance().applyReverseAreaTotalTransform(secondPos, resultHolder);
 
         this.firstPos = resultHolder.getFirst();
@@ -156,9 +180,7 @@ public abstract class AbstractBoxHandler implements IHandler{
     @Override
     public void tick() {
         if (!isVisible()) {
-            Outliner.getInstance().thickBox(outlineSlot)
-                    .fade()
-                    .finish();
+            fadeOutline();
         }
 
         if (!isActive()) {
@@ -208,12 +230,44 @@ public abstract class AbstractBoxHandler implements IHandler{
                             (isOversizeX()?"§c" : "") + (Math.abs(size.getX()) + 1) + "§r",
                             (isOversizeY()?"§c" : "") + (Math.abs(size.getY()) + 1) + "§r",
                             (isOversizeZ()?"§c" : "") + (Math.abs(size.getZ()) + 1) + "§r",
-                            (volume > 0
+                            (isOversize(volume)
                                     //Config.ServerConfig.MAX_VOLUME.get()
                                     ? "§c" : "") + volume
                     )
             );
         }
+
+        if (firstPos != null) {
+            int gb = 1;
+            if (cachedBoundingBox != null) {
+                gb = isValidSize() && (selectedFace != null)? gb: 0;
+            }
+            submitOutline(gb);
+        }
+    }
+
+    protected void fadeOutline() {
+        Outliner.getInstance().thickBox(outlineSlot)
+                .fade()
+                .finish();
+    }
+
+    protected void submitOutline(int gb) {
+        Outliner.getInstance()
+                .chaseThickBox(
+                        outlineSlot,
+                        firstPos,
+                        secondPos==null?
+                                selectedPos==null?
+                                firstPos:
+                                selectedPos:
+                                secondPos
+                )
+                .face(selectedFace)
+                .faces(Minecraft.getInstance().screen == null && Minecraft.getInstance().hasControlDown() && !Minecraft.getInstance().hasAltDown() && secondPos != null? Direction.values(): null)
+                .setRGBA(1, gb, gb, 1)
+                .setPriority(0)
+                .finish();
     }
 
 
@@ -232,6 +286,9 @@ public abstract class AbstractBoxHandler implements IHandler{
     }
 
     public void delete() {
+        if (onDelete()) {
+            return;
+        }
         Outliner.getInstance().thickBox(outlineSlot)
                 .setRGBA(1, 0, 0, 1)
                 .lazyFade(40)
@@ -239,6 +296,10 @@ public abstract class AbstractBoxHandler implements IHandler{
                 .finish();
         discard();
 
+    }
+
+    protected boolean onDelete() {
+        return false;
     }
 
     protected void pushOrPullFace(int intDelta, boolean opposite) {
@@ -260,11 +321,21 @@ public abstract class AbstractBoxHandler implements IHandler{
                 isOversizeZ();
     }
 
-    protected abstract boolean isOversizeZ();
+    protected boolean isOversizeZ() {
+        return false;
+    }
 
-    protected abstract boolean isOversizeY();
+    protected boolean isOversizeY() {
+        return false;
+    }
 
-    protected abstract boolean isOversizeX();
+    protected boolean isOversizeX() {
+        return false;
+    }
+
+    protected boolean isOversize(int volume) {
+        return false;
+    }
 
     protected boolean isPhysicalSide() {
         return false;
@@ -300,5 +371,25 @@ public abstract class AbstractBoxHandler implements IHandler{
 
     protected boolean canSelectOpposite() {
         return KeyBinding.hasControlDown() && selectedFace != null && scrolling <= 0;
+    }
+
+    protected boolean onSetSecondPos(BlockPos pos) {
+        return false;
+    }
+
+    protected boolean onCheck() {
+        return false;
+    }
+
+    protected boolean onSetFirstPosPre(BlockPos pos) {
+        return false;
+    }
+
+    protected boolean onSetFirstPosPost(BlockPos pos) {
+        return false;
+    }
+
+    protected boolean onRightClickPre() {
+        return false;
     }
 }

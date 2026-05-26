@@ -3,6 +3,7 @@ package io.github.hawah.shakenstir;
 import io.github.hawah.shakenstir.client.gui.CabinetHud;
 import io.github.hawah.shakenstir.client.gui.DistillerHUD;
 import io.github.hawah.shakenstir.client.gui.ShakeContentHud;
+import io.github.hawah.shakenstir.client.hanlder.BarBuilderHandler;
 import io.github.hawah.shakenstir.client.hanlder.DecoratePlaceHandler;
 import io.github.hawah.shakenstir.client.hanlder.GlasswareHandler;
 import io.github.hawah.shakenstir.client.hanlder.ShakerHandler;
@@ -25,6 +26,7 @@ import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 public class ShakenStirClient {
     public static final TimerWarper TIMER_NORMAL = new TimerWarper();
     public static final ShakerHandler SHAKE_HANDLER = new ShakerHandler();
+    public static final BarBuilderHandler BAR_BUILDER_HANDLER = new BarBuilderHandler();
     public static final ShakeContentHud SHAKE_CONTENT_HUD = new ShakeContentHud();
     public static final CabinetHud CABINET_HUD = new CabinetHud();
     public static final DistillerHUD DISTILLER_HUD = new DistillerHUD();

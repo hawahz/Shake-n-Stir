@@ -28,7 +28,7 @@ public abstract class RenderElement<Self extends RenderElement<Self>> {
         lazySets.removeIf(LazySet::isDiscarded);
     }
 
-    public abstract void render(PoseStack poseStack, VertexConsumer buffer, Vec3 cameraPos, DeltaTracker partialTick);
+    public abstract void render(PoseStack.Pose poseStack, VertexConsumer buffer, Vec3 cameraPos, DeltaTracker partialTick);
 
     public Self discard() {
         discarded = true;
