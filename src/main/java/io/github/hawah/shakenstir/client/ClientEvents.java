@@ -11,10 +11,7 @@ import io.github.hawah.shakenstir.client.model.Models;
 import io.github.hawah.shakenstir.client.model.glassware.GlasswareQuadCollection;
 import io.github.hawah.shakenstir.client.model.glassware.GlasswareUnbakedModelLoader;
 import io.github.hawah.shakenstir.client.render.GlasswareOutlineRenderer;
-import io.github.hawah.shakenstir.client.render.block.CabinetBlockEntityRenderer;
-import io.github.hawah.shakenstir.client.render.block.DistillerBlockEntityRenderer;
-import io.github.hawah.shakenstir.client.render.block.GlasswareBlockEntityRenderer;
-import io.github.hawah.shakenstir.client.render.block.ShakeBlockEntityRenderer;
+import io.github.hawah.shakenstir.client.render.block.*;
 import io.github.hawah.shakenstir.client.render.entity.BartenderRenderer;
 import io.github.hawah.shakenstir.client.render.item.GlasswareSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.ShakeItemSpecialRenderer;
@@ -310,6 +307,10 @@ public class ClientEvents {
             event.registerBlockEntityRenderer(
                     BlockEntityRegistries.DISTILLER_BLOCK_ENTITY.get(),
                     DistillerBlockEntityRenderer::new
+            );
+            event.registerBlockEntityRenderer(
+                    BlockEntityRegistries.BAR_MENU_BLOCK_ENTITY.get(),
+                    BarMenuBlockEntityRenderer::new
             );
         }
 

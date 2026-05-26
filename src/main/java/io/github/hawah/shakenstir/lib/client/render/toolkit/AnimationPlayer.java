@@ -174,8 +174,8 @@ public class AnimationPlayer {
         totalLength = Math.max(totalLength, length);
     }
 
-    public static void updateAll() {
-        players.forEach(AnimationPlayer::update);
+    public static synchronized void updateAll() {
+        new ArrayList<>(players).forEach(AnimationPlayer::update);
     }
 
     @SubscribeEvent

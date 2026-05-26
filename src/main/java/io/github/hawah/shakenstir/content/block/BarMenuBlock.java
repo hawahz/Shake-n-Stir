@@ -45,8 +45,9 @@ public class BarMenuBlock extends HorizontalDirectionalBlock implements EntityBl
 
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
+        Direction direction = context.getHorizontalDirection();
         return this.defaultBlockState()
-                .setValue(FACING, context.getHorizontalDirection())
+                .setValue(FACING, context.isSecondaryUseActive()? direction.getOpposite(): direction)
                 ;
     }
 

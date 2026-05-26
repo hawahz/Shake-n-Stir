@@ -4,10 +4,13 @@ import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistr
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
@@ -17,6 +20,7 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
     }
 
     private UUID placerId = null;
+    public List<FormattedText> content = new ArrayList<>();
 
     @Override
     protected void loadAdditional(ValueInput input) {
