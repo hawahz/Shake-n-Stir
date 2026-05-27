@@ -3,6 +3,7 @@ package io.github.hawah.shakenstir.content.dataComponent;
 import com.mojang.serialization.Codec;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
+import io.github.hawah.shakenstir.content.entity.ai.behavior.recipeProvider.SnsRecipeHolder;
 import io.github.hawah.shakenstir.content.recipe.Quality;
 import io.github.hawah.shakenstir.foundation.datapack.DrinkData;
 import io.github.hawah.shakenstir.foundation.datapack.cocktaileType.CocktailType;
@@ -145,6 +146,11 @@ public class DataComponentTypeRegistries {
     public static final DataComponentType<UUID> PLACER = register(
             "placer",
             builder -> builder.persistent(UUIDUtil.CODEC).networkSynchronized(UUIDUtil.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<SnsRecipeHolder> RECIPE_HOLDER = register(
+            "recipe_holder",
+            builder -> builder.persistent(SnsRecipeHolder.CODEC).networkSynchronized(SnsRecipeHolder.STREAM_CODEC)
     );
 
     public static void register(IEventBus eventBus) {

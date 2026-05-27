@@ -55,6 +55,7 @@ public class ShakingEvents {
         TooltipHandler.addToTooltip(stack, DataComponentTypeRegistries.SPIRIT_CONTENT       , ctx, display, linesConsumer, tooltipFlag);
         TooltipHandler.addToTooltip(stack, DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY, ctx, display, linesConsumer, tooltipFlag);
         TooltipHandler.addToTooltip(stack, DataComponentTypeRegistries.DRINK_DATA           , ctx, display, linesConsumer, tooltipFlag);
+        TooltipHandler.addToTooltip(stack, DataComponentTypeRegistries.RECIPE_HOLDER        , ctx, display, linesConsumer, tooltipFlag);
 //        TooltipHandler.addToTooltip(stack, DataComponentTypeRegistries.SPIRIT_CONTENT       , ctx, display, linesConsumer, tooltipFlag);
     }
 

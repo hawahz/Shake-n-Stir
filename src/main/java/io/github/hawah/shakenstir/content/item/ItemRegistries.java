@@ -65,6 +65,7 @@ public class ItemRegistries {
     public static final DeferredItem<PriorityBlockItem> CABINET = register("cabinet", BlockRegistries.CABINET);
     public static final DeferredItem<PriorityBlockItem> DISTILLER = register("distiller", BlockRegistries.DISTILLER);
     public static final DeferredItem<PriorityBlockItem> BAR_COUNTER = register("bar_counter", BlockRegistries.BAR_COUNTER_BLOCK);
+    public static final DeferredItem<RecipeScroll> RECIPE_SCROLL = register("recipe_scroll", RecipeScroll::new);
 
     public static <T extends Item> DeferredItem<T> register(String name, Function<Item.Properties, T> supply) {
         return ITEM.register(name, (registryName) -> supply.apply(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName))));

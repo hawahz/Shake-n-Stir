@@ -1,9 +1,9 @@
 package io.github.hawah.shakenstir.lib.client.gui;
 
-import com.mojang.logging.LogUtils;
-import io.github.hawah.shakenstir.lib.signal.InstantSignal;
 import io.github.hawah.shakenstir.foundation.mixin.ScreenAccessor;
+import io.github.hawah.shakenstir.lib.signal.InstantSignal;
 import io.github.hawah.shakenstir.util.Textures;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
@@ -13,10 +13,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec2;
 import org.joml.Matrix3x2fStack;
 
-import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
@@ -116,9 +116,7 @@ public abstract class BaseScreen extends Screen {
 
         Matrix3x2fStack poseStack = graphics.pose();
 
-        graphics.nextStratum();
-        this.extractBackground(graphics, mouseX, mouseY, a);
-        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.client.event.ScreenEvent.Render.Background(this, graphics, mouseX, mouseY, a));
+
         renderWindowPre(graphics, mouseX, mouseY, a);
 
         poseStack.pushMatrix();
@@ -149,8 +147,8 @@ public abstract class BaseScreen extends Screen {
         );
     }
 
-    protected void renderWindowPre(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, float partialTick) {}
-    protected void renderWindowPost(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, float partialTick) {}
+    protected void renderWindowPre(GuiGraphicsExtractor graphicsExtractor, int mouseX, int mouseY, float partialTick) {}
+    protected void renderWindowPost(GuiGraphicsExtractor graphicsExtractor, int mouseX, int mouseY, float partialTick) {}
 
     public static void blit(GuiGraphicsExtractor guiGraphics,
                             Identifier texture,
@@ -270,6 +268,25 @@ public abstract class BaseScreen extends Screen {
                 err += dx;
                 y += sy;
             }
+        }
+    }
+
+    public static void itemStackWithTooltip(Font font,
+                                            GuiGraphicsExtractor guiGraphics,
+                                            int x,
+                                            int y,
+                                            int mouseX,
+                                            int mouseY,
+                                            ItemStack tooltipItemStack) {
+        guiGraphics.item(tooltipItemStack, x, y);
+        guiGraphics.itemDecorations(font, tooltipItemStack, x, y);
+        if (mouseX >= x && mouseX < x + 16 && mouseY >= y && mouseY < y + 16) {
+            guiGraphics.setTooltipForNextFrame(
+                    font,
+                    tooltipItemStack,
+                    mouseX,
+                    mouseY
+            );
         }
     }
 

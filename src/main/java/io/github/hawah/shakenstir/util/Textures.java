@@ -17,6 +17,11 @@ public enum Textures {
     ICE_HUD_0("textures/gui/shake_hud.png", 145, 10,15, 16 , 0),
     ICE_HUD_1("textures/gui/shake_hud.png", 160, 10,8, 17 , 0),
     ICE_HUD_2("textures/gui/shake_hud.png", 168, 10,12, 15 , 0),
+    RIGHT_ARROW("textures/gui/buttons.png", 0, 0, 16, 16, 2, 0, 16, 0, 32),
+    LEFT_ARROW("textures/gui/buttons.png", 16, 0, 16, 16, 3, 16, 16, 16, 32),
+    CHECK("textures/gui/buttons.png", 32, 0, 16, 16, 1, 32, 16, 32, 32),
+    SCROLL_BKG("textures/gui/scroll_screen.png", 14, 4, 228, 132, 0)
+
 
     ;
     private final String resource;
@@ -42,7 +47,7 @@ public enum Textures {
     }
 
     public Identifier getResource() {
-        return resourceCache.computeIfAbsent(resource, p -> Identifier.fromNamespaceAndPath(ShakenStir.MODID, resource));
+        return resourceCache.computeIfAbsent(resource, _ -> Identifier.fromNamespaceAndPath(ShakenStir.MODID, resource));
     }
 
     public void blit(GuiGraphicsExtractor guiGraphics, int x, int y, int r, int g, int b ,int a) {

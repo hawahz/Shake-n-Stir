@@ -39,6 +39,10 @@ public enum LangData {
 
     TOOLTIP_WHEN_SPIRIT_AS_BASE("tooltip_when_spirit_as_base", "When Applied as Base:", 0, ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD),
     TOOLTIP_SPIRIT_POSITIVE_N_NEGATIVE("tooltip_spirit_positive_negative", "%s or %s", 2),
+    TOOLTIP_SCROLL_SHAKER_SHAKE_TIME("tooltip_scroll_shaker_shake_time", "Shakes %s times", 1),
+    TOOLTIP_SCROLL_RECIPE_REQUIRED("tooltip_scroll_recipe_required", "Required:", 0, ChatFormatting.BLUE),
+    TOOLTIP_SCROLL_RECIPE_RESULT("tooltip_scroll_recipe_result", "Product: %s", 1),
+    TOOLTIP_SCROLL_RECIPE_SHAKE_TIMES("tooltip_scroll_recipe_shake_times", "Shake %s times", 1),
 
 
     HUD_TIP_BLACKBOARD_SELECT_FIRST_POINT("hud.blackboard_select_first_point", "Select the first point", 0),

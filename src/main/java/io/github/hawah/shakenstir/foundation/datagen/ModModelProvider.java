@@ -65,8 +65,10 @@ public class ModModelProvider extends ModelProvider {
         itemModels.generateFlatItem(ItemRegistries.LEMON_SLICE.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ItemRegistries.SOBERING_TEA.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ItemRegistries.BAR_BUILDER.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ItemRegistries.RECIPE_SCROLL.get(), ModelTemplates.FLAT_ITEM);
         // Basic single variant model
         registerCustomBlockModel(blockModels, "block/shaker_lid", BlockRegistries.SHAKE_LID_BLOCK.get());
+        registerCustomBlockModel(blockModels, "block/bar_counter", BlockRegistries.BAR_COUNTER_BLOCK.get());
         generateShaker(blockModels, itemModels);
         generateSpirit(blockModels, itemModels, BlockRegistries.GIN, ItemRegistries.GIN, "gin");
         generateSpirit(blockModels, itemModels, BlockRegistries.WHISKY, ItemRegistries.WHISKY, "whisky");
@@ -76,6 +78,7 @@ public class ModModelProvider extends ModelProvider {
         generateSpirit(blockModels, itemModels, BlockRegistries.BRANDY, ItemRegistries.BRANDY, "brandy");
         generateSpirit(blockModels, itemModels, BlockRegistries.BOTTLE, ItemRegistries.BOTTLE, "bottle");
         generateEmptyModel(blockModels, BlockRegistries.LONG_DRINK_GLASSWARE.get(), Blocks.GLASS);
+        generateEmptyModel(blockModels, BlockRegistries.RECIPE_SCROLL_BLOCK.get(), Blocks.GLASS);
         generateEmptyModel(blockModels, BlockRegistries.SHORT_DRINK_GLASSWARE.get(), Blocks.GLASS);
         initGlassware(itemModels);
         generateGlassware(ShakenStir.asResource("martini_glass"), itemModels);

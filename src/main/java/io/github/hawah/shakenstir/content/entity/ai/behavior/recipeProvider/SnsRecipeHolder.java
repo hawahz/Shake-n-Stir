@@ -3,26 +3,78 @@ package io.github.hawah.shakenstir.content.entity.ai.behavior.recipeProvider;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
+import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
+import io.github.hawah.shakenstir.lib.StreamCodecUtil;
 import io.github.hawah.shakenstir.util.SerializeHelper;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipProvider;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public record SnsRecipeHolder(
         Type recipe,
         List<ItemStack> requiredItems,
         List<FluidStack> requiredFluids,
-        ItemStack result
-) {
+        int shakeTimes,
+        ItemStack result,
+        String name
+) implements TooltipProvider {
 
     public static final Codec<SnsRecipeHolder> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             SerializeHelper.ofEnum(Type.class).fieldOf("recipe").forGetter(SnsRecipeHolder::recipe),
             ItemStack.CODEC.listOf().fieldOf("required_items").forGetter(SnsRecipeHolder::requiredItems),
             FluidStack.CODEC.listOf().fieldOf("required_fluids").forGetter(SnsRecipeHolder::requiredFluids),
-            ItemStack.CODEC.fieldOf("result_factory").forGetter(SnsRecipeHolder::result)
+            Codec.INT.fieldOf("shake_times").forGetter(SnsRecipeHolder::shakeTimes),
+            ItemStack.CODEC.fieldOf("result_factory").forGetter(SnsRecipeHolder::result),
+            Codec.STRING.fieldOf("name").forGetter(SnsRecipeHolder::name)
     ).apply(inst, SnsRecipeHolder::new));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, SnsRecipeHolder> STREAM_CODEC = StreamCodec.composite(
+            StreamCodecUtil.ofEnum(Type.class), SnsRecipeHolder::recipe,
+            ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()), SnsRecipeHolder::requiredItems,
+            FluidStack.STREAM_CODEC.apply(ByteBufCodecs.list()), SnsRecipeHolder::requiredFluids,
+            ByteBufCodecs.INT, SnsRecipeHolder::shakeTimes,
+            ItemStack.STREAM_CODEC, SnsRecipeHolder::result,
+            ByteBufCodecs.stringUtf8(128), SnsRecipeHolder::name,
+            SnsRecipeHolder::new
+    );
+
+    public SnsRecipeHolder(Type recipe,
+                           List<ItemStack> requiredItems,
+                           List<FluidStack> requiredFluids,
+                           int shakeTimes,
+                           ItemStack result) {
+        this(recipe, requiredItems, requiredFluids, shakeTimes, result, "");
+    }
+
+    public SnsRecipeHolder named(String name) {
+        return new SnsRecipeHolder(recipe, requiredItems, requiredFluids, shakeTimes, result, name);
+    }
+
+    @Override
+    public void addToTooltip(Item.TooltipContext context, Consumer<Component> consumer, TooltipFlag flag, DataComponentGetter components) {
+        consumer.accept(Component.literal(name).withStyle(ChatFormatting.GOLD));
+        consumer.accept(LangData.TOOLTIP_SCROLL_RECIPE_REQUIRED.get());
+        for (ItemStack itemStack : requiredItems) {
+            consumer.accept(Component.literal("- ").append(itemStack.getHoverName()));
+        }
+        for (FluidStack fluidStack : requiredFluids) {
+            consumer.accept(Component.literal("- ").append(fluidStack.getHoverName()).append( " " + fluidStack.getAmount() + "mb"));
+        }
+        consumer.accept(LangData.TOOLTIP_SCROLL_RECIPE_RESULT.get(result.getHoverName()));
+        consumer.accept(LangData.TOOLTIP_SCROLL_RECIPE_SHAKE_TIMES.get(Component.literal(String.valueOf(shakeTimes)).withStyle(ChatFormatting.GOLD)));
+    }
 
     public enum Type {
         SHAKE(GlasswareBlockEntity::pourProduct),

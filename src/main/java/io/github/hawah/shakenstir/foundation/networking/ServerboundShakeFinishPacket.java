@@ -11,7 +11,7 @@ import io.github.hawah.shakenstir.content.recipe.ShakeRecipe;
 import io.github.hawah.shakenstir.content.recipe.ShakeRecipeInput;
 import io.github.hawah.shakenstir.foundation.datapack.DrinkData;
 import io.github.hawah.shakenstir.foundation.datapack.spirit.SpiritData;
-import io.github.hawah.shakenstir.foundation.recipeRecord.ServerRecipeWriter;
+import io.github.hawah.shakenstir.foundation.recipeRecord.ServerRecipeHelper;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.lib.networking.ClientToServerPacket;
 import net.minecraft.core.UUIDUtil;
@@ -96,7 +96,7 @@ public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem,
                     quality,
                     iceCount()
             ));
-            ServerRecipeWriter.writeRecipe(player, new ArrayList<>(itemData), new ArrayList<>(fluidData), resultItem.copy(), SnsRecipeHolder.Type.SHAKE);
+            ServerRecipeHelper.writeRecipe(player, new ArrayList<>(itemData), new ArrayList<>(fluidData), resultItem.copy(), SnsRecipeHolder.Type.SHAKE, shakeSuccessTimes());
             ShakeUtil.clearContent(mainHandItem);
             ShakeUtil.setItemData(mainHandItem, List.of(resultItem));
         });

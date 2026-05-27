@@ -90,4 +90,55 @@ public class ARGBTooltipRenderUtil {
 
         graphics.pose().popMatrix();
     }
+
+    public static void deferredTooltip(GuiGraphicsExtractor graphics, Font font, List<ClientTooltipComponent> lines, int xo, int yo, ClientTooltipPositioner positioner, @Nullable Identifier style, int color) {
+        deferredTooltip(graphics, font, lines, xo, yo, positioner, style, ItemStack.EMPTY, color);
+    }
+
+    public static void deferredTooltip(GuiGraphicsExtractor graphics, Font font, List<ClientTooltipComponent> lines, int xo, int yo, ClientTooltipPositioner positioner, @Nullable Identifier style, ItemStack tooltipStack, int color) {
+        var preEvent = net.neoforged.neoforge.client.ClientHooks.onRenderTooltipPre(tooltipStack, graphics, xo, yo, graphics.guiWidth(), graphics.guiHeight(), lines, font, positioner);
+        if (preEvent.isCanceled()) return;
+
+        font = preEvent.getFont();
+        xo = preEvent.getX();
+        yo = preEvent.getY();
+
+        int textWidth = 0;
+        int tempHeight = lines.size() == 1 ? -2 : 0;
+
+        for (ClientTooltipComponent line : lines) {
+            int lineWidth = line.getWidth(font);
+            if (lineWidth > textWidth) {
+                textWidth = lineWidth;
+            }
+
+            tempHeight += line.getHeight(font);
+        }
+
+        int w = textWidth;
+        int h = tempHeight;
+        Vector2ic positionedTooltip = positioner.positionTooltip(graphics.guiWidth(), graphics.guiHeight(), xo, yo, textWidth, tempHeight);
+        int x = positionedTooltip.x();
+        int y = positionedTooltip.y();
+        graphics.pose().pushMatrix();
+        var textureEvent = net.neoforged.neoforge.client.ClientHooks.onRenderTooltipTexture(tooltipStack, graphics, x, y, preEvent.getFont(), lines, style);
+        extractTooltipBackground(graphics, x, y, textWidth, tempHeight, textureEvent.getTexture(), color);
+        int localY = y;
+
+        for (int i = 0; i < lines.size(); i++) {
+            ClientTooltipComponent line = lines.get(i);
+            line.extractText(graphics, font, x, localY);
+            localY += line.getHeight(font) + (i == 0 ? 2 : 0);
+        }
+
+        localY = y;
+
+        for (int i = 0; i < lines.size(); i++) {
+            ClientTooltipComponent line = lines.get(i);
+            line.extractImage(font, x, localY, w, h, graphics);
+            localY += line.getHeight(font) + (i == 0 ? 2 : 0);
+        }
+
+        graphics.pose().popMatrix();
+    }
 }

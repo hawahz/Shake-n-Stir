@@ -55,6 +55,8 @@ public class BlockRegistries {
     public static final DeferredBlock<BarMenuBlock> BAR_MENU_BLOCK = register("bar_menu", BarMenuBlock::new);
     public static final DeferredBlock<BarCounterBlock> BAR_COUNTER_BLOCK = register("bar_counter", BarCounterBlock::new);
 
+    public static final DeferredBlock<RecipeScrollBlock> RECIPE_SCROLL_BLOCK = register("recipe_scroll", RecipeScrollBlock::new);
+
 
     public static final DeferredRegister<MapCodec<? extends Block>> REGISTRAR = DeferredRegister.create(BuiltInRegistries.BLOCK_TYPE, ShakenStir.MODID);
     public static final Supplier<MapCodec<Shaker>> SHAKE_CODEC = REGISTRAR.register(

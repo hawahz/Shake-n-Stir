@@ -1,18 +1,17 @@
 package io.github.hawah.shakenstir.lib.signal;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 public class InstantSignal {
-    private final List<Consumer<Object[]>> listeners = new ArrayList<>();
+    private final ConcurrentHashMap<Object, Consumer<Object[]>> listeners = new ConcurrentHashMap<>();
     private final int argNum;
-    public InstantSignal bind(Consumer<Object[]> listener) {
-        listeners.add(listener);
+    public InstantSignal bind(Object key, Consumer<Object[]> listener) {
+        listeners.put(key, listener);
         return this;
     }
 
-    public InstantSignal unbind(Consumer<Object[]> listener) {
+    public InstantSignal unbind(Object listener) {
         listeners.remove(listener);
         return this;
     }
@@ -25,7 +24,7 @@ public class InstantSignal {
         if (args.length != argNum) {
             throw new IllegalArgumentException("Incorrect number of arguments");
         }
-        for (Consumer<Object[]> listener : listeners) {
+        for (Consumer<Object[]> listener : listeners.values()) {
             listener.accept(args);
         }
     }
