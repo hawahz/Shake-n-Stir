@@ -1,5 +1,7 @@
 package io.github.hawah.shakenstir.content.entity;
 
+import com.mojang.logging.LogUtils;
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
@@ -29,13 +31,23 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Optional;
 import java.util.OptionalInt;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "unchecked"})
 public class BartenderEntity extends AbstractInventoryMob {
 
     public static final EntityDataAccessor<Integer> DATA_ACCESSOR =
+            SynchedEntityData.defineId(
+                    // The class of the entity.
+                    BartenderEntity.class,
+                    // The entity data accessor type.
+                    EntityDataSerializers.INT
+            );
+    public static final EntityDataAccessor<Integer> ANIM_ACCESSOR =
             SynchedEntityData.defineId(
                     // The class of the entity.
                     BartenderEntity.class,
@@ -79,6 +91,7 @@ public class BartenderEntity extends AbstractInventoryMob {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_ACCESSOR, 0);
+        builder.define(ANIM_ACCESSOR, 0);
         builder.define(DATA_SHOULDER_PARROT_RIGHT, OptionalInt.empty());
         builder.define(DATA_SHOULDER_PARROT_LEFT, OptionalInt.empty());
     }
@@ -137,6 +150,15 @@ public class BartenderEntity extends AbstractInventoryMob {
         BartenderAi.updateActivity(this);
     }
 
+    public AnimState getState() {
+        return AnimState.from(this.getEntityData().get(ANIM_ACCESSOR));
+    }
+
+    public void setState(AnimState state) {
+        this.entityData.set(ANIM_ACCESSOR, state.ordinal());
+    }
+
+
     private static Optional<Parrot.Variant> convertParrotVariant(OptionalInt variant) {
         return variant.isPresent() ? Optional.of(Parrot.Variant.byId(variant.getAsInt())) : Optional.empty();
     }
@@ -163,8 +185,8 @@ public class BartenderEntity extends AbstractInventoryMob {
             player.sendOverlayMessage(Component.literal("interact"));
             Optional.ofNullable(player.getItemInHand(hand).get(DataComponentTypeRegistries.BAR_AREA)).ifPresent(barArea -> {
                 // TODO Reachable Prediction
-                if (barArea.getCenter().distManhattan(this.blockPosition()) < 200) {
-                    this.getBrain().setMemory(Memories.BAR_MEMORY.get(), barArea);
+                if (barArea.area().getCenter().distManhattan(this.blockPosition()) < 200 && level().dimension().equals(barArea.dimension())) {
+                    this.getBrain().setMemory(Memories.BAR_DATA.get(), BarAreaHelper.calculateBarData(barArea.area(), level()));
                 }
             });
         }
@@ -174,5 +196,17 @@ public class BartenderEntity extends AbstractInventoryMob {
     @Override
     public NonNullList<ItemStack> getInventory() {
         return inventory;
+    }
+
+    public enum AnimState {
+        DEFAULT,
+        ;
+        public static AnimState from(int i) {
+            if (i < 0 || i >= values().length) {
+                LogUtils.getLogger().error("Invalid animation state");
+                return DEFAULT;
+            }
+            return AnimState.values()[i];
+        }
     }
 }

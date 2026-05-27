@@ -17,15 +17,15 @@ import org.jspecify.annotations.NonNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 @ParametersAreNonnullByDefault
 public class Outliner {
     private static Outliner INSTANCE = null;
 
-    private final HashMap<Object, OutlineElement<?>> outlines = new HashMap<>();
-    private final HashMap<Object, OutlineElement<?>> overOutlines = new HashMap<>();
+    private final ConcurrentHashMap<Object, OutlineElement<?>> outlines = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Object, OutlineElement<?>> overOutlines = new ConcurrentHashMap<>();
 
     public static boolean hasInstance() {
         return INSTANCE != null;
@@ -211,15 +211,34 @@ public class Outliner {
         if (renderData == null) {
             return;
         }
-        submitNodeCollector.submitCustomGeometry(
-                poseStack,
-                RenderTypes.debugQuads(),
-                (pose, buffer) -> {
-                    getInstance().outlines.forEach((object, outlineElement) ->
-                            outlineElement.render(pose, buffer, levelRenderState.cameraRenderState.pos, renderData.partialTick())
-                    );
+        getInstance().outlines.forEach(
+                (_, outline) -> {
+                    if (outline instanceof FineOutline) {
+                        submitNodeCollector.submitCustomGeometry(
+                                poseStack,
+                                RenderTypes.lines(),
+                                (pose, buffer) ->
+                                        outline.render(pose, buffer, levelRenderState.cameraRenderState.pos, renderData.partialTick())
+                        );
+                    } else if (outline instanceof ThickOutline) {
+                        submitNodeCollector.submitCustomGeometry(
+                                poseStack,
+                                RenderTypes.debugQuads(),
+                                (pose, buffer) ->
+                                        outline.render(pose, buffer, levelRenderState.cameraRenderState.pos, renderData.partialTick())
+                        );
+                    }
                 }
         );
+//        submitNodeCollector.submitCustomGeometry(
+//                poseStack,
+//                RenderTypes.debugQuads(),
+//                (pose, buffer) -> {
+//                    getInstance().outlines.forEach((object, outlineElement) ->
+//                            outlineElement.render(pose, buffer, levelRenderState.cameraRenderState.pos, renderData.partialTick())
+//                    );
+//                }
+//        );
     }
 
     public static final ContextKey<OutlinerRenderState> OUTLINER_RENDER_STATE = ShakenStir.asContextKey("outliner_render_state");

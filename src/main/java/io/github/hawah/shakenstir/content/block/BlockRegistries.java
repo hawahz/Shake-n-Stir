@@ -53,6 +53,7 @@ public class BlockRegistries {
     public static final DeferredBlock<LiquidBlock> BUBBLE_LIQUID = registerLiquid("bubble_liquid", FluidRegistries.BRANDY_FLOWING_FLUID_BLOCK);
 
     public static final DeferredBlock<BarMenuBlock> BAR_MENU_BLOCK = register("bar_menu", BarMenuBlock::new);
+    public static final DeferredBlock<BarCounterBlock> BAR_COUNTER_BLOCK = register("bar_counter", BarCounterBlock::new);
 
 
     public static final DeferredRegister<MapCodec<? extends Block>> REGISTRAR = DeferredRegister.create(BuiltInRegistries.BLOCK_TYPE, ShakenStir.MODID);

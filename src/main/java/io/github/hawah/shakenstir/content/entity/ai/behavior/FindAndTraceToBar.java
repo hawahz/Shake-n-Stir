@@ -7,8 +7,8 @@ import net.minecraft.world.entity.ai.behavior.OneShot;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
+import java.util.List;
 import java.util.Optional;
 
 public class FindAndTraceToBar {
@@ -20,20 +20,20 @@ public class FindAndTraceToBar {
         return BehaviorBuilder.create(
                 i -> i.group(
                                 i.absent(MemoryModuleType.WALK_TARGET),
-                                i.present(Memories.BAR_MEMORY.get())
+                                i.present(Memories.BAR_DATA.get())
                         )
                         .apply(
                                 i,
                                 (walkTarget, barMemory) -> (level, body, timestamp) -> {
-                                    BoundingBox boundingBox = i.get(barMemory);
-                                    if (boundingBox.isInside(body.blockPosition())) {
+                                    List<BlockPos> validArea = i.get(barMemory).bartenderArea();
+                                    if (validArea.contains(body.blockPosition()) || validArea.isEmpty()) {
                                         return false;
                                     }
-                                    BlockPos.MutableBlockPos mutable = boundingBox.getCenter().mutable();
 //                                    mutable.setY(boundingBox.minY());
 
 
-                                    walkTarget.setOrErase(Optional.of(mutable.getCenter()).map(pos -> new WalkTarget(pos, speedModifier, 0)));
+                                    walkTarget.setOrErase(Optional.of(validArea.get(level.getRandom().nextInt(validArea.size())))
+                                            .map(pos -> new WalkTarget(pos, speedModifier, 0)));
                                     return true;
                                 }
                         )

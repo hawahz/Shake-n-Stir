@@ -6,6 +6,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShapeRenderer;
 import net.minecraft.util.ARGB;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -27,6 +28,12 @@ public class FineOutline extends OutlineElement<FineOutline> {
 
         // 平移到相对于摄像机的坐标
         poseStack.translate(box.minX - cameraPos.x, box.minY - cameraPos.y, box.minZ - cameraPos.z);
+        float delta = partialTick.getGameTimeDeltaPartialTick(true);
+
+        int cr = (int) Mth.lerp(delta, or, r) * 255,
+                cg = (int) Mth.lerp(delta, og, g) * 255,
+                cb = (int) Mth.lerp(delta, ob, b) * 255,
+                ca = (int) Mth.lerp(delta, oa, a) * 255;
 
         float width = (float) box.getXsize();
         float height = (float) box.getYsize();
@@ -35,11 +42,11 @@ public class FineOutline extends OutlineElement<FineOutline> {
         ShapeRenderer.renderShape(
                 poseStack,
                 buffer,
-                Block.box(0, 0, 0, width, height, depth),
+                Block.box(0, 0, 0, width * 16, height * 16, depth * 16),
                 0,
                 0,
                 0,
-                ARGB.black(102),
+                ARGB.color(ca, cr, cg, cb),
                 Minecraft.getInstance().gameRenderer.getGameRenderState().windowRenderState.appropriateLineWidth
         );
 

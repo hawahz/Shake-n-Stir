@@ -37,6 +37,7 @@ public class ShakenStir {
     public static final String MODID = "shakenstir";
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
+    public static final boolean FORCE_CHECK_SIDE = false;
 
     public ShakenStir(IEventBus modEventBus, ModContainer modContainer) {
 
@@ -64,6 +65,7 @@ public class ShakenStir {
         modEventBus.addListener(this::addCreative);
 
         modContainer.registerConfig(ModConfig.Type.SERVER, Config.Server.SPEC);
+        modContainer.registerConfig(ModConfig.Type.COMMON, Config.Common.SPEC);
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {

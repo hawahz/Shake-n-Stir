@@ -14,7 +14,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.joml.Vector2f;
@@ -138,9 +137,9 @@ public class DataComponentTypeRegistries {
             builder -> builder.persistent(CocktailType.CODEC).networkSynchronized(CocktailType.STREAM_CODEC)
     );
 
-    public static final DataComponentType<BoundingBox> BAR_AREA = register(
+    public static final DataComponentType<BarAreaHolder> BAR_AREA = register(
             "bar_area",
-            builder -> builder.persistent(BoundingBox.CODEC).networkSynchronized(BoundingBox.STREAM_CODEC)
+            builder -> builder.persistent(BarAreaHolder.CODEC).networkSynchronized(BarAreaHolder.STREAM_CODEC)
     );
 
     public static final DataComponentType<UUID> PLACER = register(

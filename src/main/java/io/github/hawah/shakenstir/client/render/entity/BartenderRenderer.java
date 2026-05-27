@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.client.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.hawah.shakenstir.ShakenStir;
+import io.github.hawah.shakenstir.content.dataAttachment.DataAttachmentTypeRegistries;
 import io.github.hawah.shakenstir.content.entity.BartenderEntity;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -10,12 +11,12 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
-import net.minecraft.client.renderer.entity.layers.PlayerItemInHandLayer;
 import net.minecraft.client.renderer.entity.layers.WingsLayer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.ClientAsset;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
@@ -32,7 +33,7 @@ public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, Bar
 
     public BartenderRenderer(EntityRendererProvider.Context context) {
         super(context, new BartenderModel(context.bakeLayer(ModelLayers.PLAYER_SLIM)), 0.5F);
-        this.addLayer(new PlayerItemInHandLayer<>(this));
+        this.addLayer(new BartenderItemInHandLayer<>(this));
 //        this.addLayer(new ArrowLayer<>(this, context));
 //        this.addLayer(new Deadmau5EarsLayer(this, context.getModelSet()));
 //        this.addLayer(new CapeLayer(this, context.getModelSet(), context.getEquipmentAssets()));
@@ -151,12 +152,21 @@ public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, Bar
                 this.itemModelResolver.updateForLiving(state.heldOnHead, useItem, ItemDisplayContext.HEAD, entity);
             }
         }
+        state.brainState = entity.getData(DataAttachmentTypeRegistries.BRAIN_STATE);
     }
 
 
     @Override
     public void submit(BartenderRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
         super.submit(state, poseStack, submitNodeCollector, camera);
+        submitNodeCollector.submitNameTag(
+                poseStack, state.nameTagAttachment, 0, Component.literal(state.brainState), !state.isDiscrete, state.lightCoords, state.distanceToCameraSq, camera
+        );
+    }
+
+    @Override
+    protected boolean shouldShowName(BartenderEntity entity, double distanceToCameraSq) {
+        return super.shouldShowName(entity, distanceToCameraSq);
     }
 
     @Override

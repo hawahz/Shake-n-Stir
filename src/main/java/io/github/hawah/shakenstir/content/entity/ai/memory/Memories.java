@@ -23,6 +23,7 @@ public class Memories {
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Integer>> IDLE_TIME = register("idle_time", Codec.INT);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<RecipeHolder>> RECIPE = register("recipe", RecipeHolder.CODEC);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<MemoryEntitiesHolder<Player>>> UNSERVED_CUSTOMER = register("unserved_customer");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<BarData>> BAR_DATA = register("bar_data", BarData.CODEC);
 
 
     public static void register(IEventBus modEventBus) {

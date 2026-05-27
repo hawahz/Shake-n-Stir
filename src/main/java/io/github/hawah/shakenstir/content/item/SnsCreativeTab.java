@@ -43,6 +43,7 @@ public class SnsCreativeTab {
 
                 output.accept(ItemRegistries.BAR_BUILDER.get());
                 output.accept(ItemRegistries.MENU.get());
+                output.accept(ItemRegistries.BAR_COUNTER.get());
             })
             .build()
     );

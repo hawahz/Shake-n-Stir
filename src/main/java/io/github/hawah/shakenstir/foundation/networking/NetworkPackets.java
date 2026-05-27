@@ -23,6 +23,12 @@ public enum NetworkPackets implements BasePacketPayload.PacketTypeProvider {
     //S2C
     SHAKE_PARAM_SYNC(ClientboundShakeParamSyncPacket.class, ClientboundShakeParamSyncPacket.STREAM_CODEC),
     PLAYER_FALL_DOWN_OR_RECOVER(ClientboundPlayerFallDownOrRecoverPacket.class, ClientboundPlayerFallDownOrRecoverPacket.STREAM_CODEC),
+
+
+    // Debug Only
+
+    // S2C
+    DEBUG_BLOCK_DISPLAY(ClientboundDebugBlockDisplayPacket.class, ClientboundDebugBlockDisplayPacket.STREAM_CODEC),
     ;
     private final PacketRegistry.PacketHolder<?> type;
 

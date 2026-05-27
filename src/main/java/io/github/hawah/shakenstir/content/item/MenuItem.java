@@ -18,7 +18,9 @@ public class MenuItem extends DataTransportableBlockItem {
     public void onAddingData(BlockPlaceContext placeContext, BlockState placementState) {
         ItemStack itemInHand = placeContext.getItemInHand();
         Player player = placeContext.getPlayer();
-        itemInHand.set(DataComponentTypeRegistries.PLACER, player.getUUID());
+        if (player != null) {
+            itemInHand.set(DataComponentTypeRegistries.PLACER, player.getUUID());
+        }
     }
 
     @Override

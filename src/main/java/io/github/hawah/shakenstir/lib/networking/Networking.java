@@ -1,9 +1,12 @@
 package io.github.hawah.shakenstir.lib.networking;
 
+import com.mojang.logging.LogUtils;
+import io.github.hawah.shakenstir.ShakenStir;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -14,14 +17,32 @@ public class Networking {
 
 
     public static void sendToServer(ClientToServerPacket packet) {
+        if (ShakenStir.FORCE_CHECK_SIDE) {
+            if (FMLEnvironment.getDist().isDedicatedServer()) {
+                LogUtils.getLogger().error("Attempted to send packet to client from server");
+                return;
+            }
+        }
         ClientPacketDistributor.sendToServer(packet);
     }
 
     public static void sendToPlayer(ServerToClientPacket packet, ServerPlayer player) {
+        if (ShakenStir.FORCE_CHECK_SIDE) {
+            if (FMLEnvironment.getDist().isClient()) {
+                LogUtils.getLogger().error("Attempted to send packet to client from client");
+                return;
+            }
+        }
         PacketDistributor.sendToPlayer(player, packet);
     }
 
     public static void sendToAll(ServerToClientPacket packet) {
+        if (ShakenStir.FORCE_CHECK_SIDE) {
+            if (FMLEnvironment.getDist().isClient()) {
+                LogUtils.getLogger().error("Attempted to send packet to all client from client");
+                return;
+            }
+        }
         PacketDistributor.sendToAllPlayers(packet);
     }
 

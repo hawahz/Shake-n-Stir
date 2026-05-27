@@ -7,6 +7,20 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 // Demonstrates how to use Neo's config APIs
 public class Config {
 
+    public static class Common {
+        public static final ModConfigSpec SPEC;
+        public static final ModConfigSpec.BooleanValue DEBUG_MODE;
+
+        static {
+            ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
+
+            DEBUG_MODE = builder
+                    .define("debug_mode", false);
+
+            SPEC = builder.build();
+        }
+    }
+
     public static class Server {
         public static final ModConfigSpec SPEC;
 

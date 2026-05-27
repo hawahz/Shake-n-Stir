@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
+import io.github.hawah.shakenstir.Config;
+import io.github.hawah.shakenstir.content.dataAttachment.DataAttachmentTypeRegistries;
 import io.github.hawah.shakenstir.content.entity.ai.activity.Activities;
 import io.github.hawah.shakenstir.content.entity.ai.behavior.*;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
@@ -40,7 +42,7 @@ public class BartenderAi {
         return ActivityData.create(
                 Activities.WORK_IDLE.get(),
                 BehaviorPackage.getWorkIdlePackage(),
-                ImmutableSet.of(Pair.of(Memories.BAR_MEMORY.get(), MemoryStatus.VALUE_PRESENT))
+                ImmutableSet.of(Pair.of(Memories.BAR_DATA.get(), MemoryStatus.VALUE_PRESENT))
         );
     }
 
@@ -49,7 +51,7 @@ public class BartenderAi {
                 Activity.WORK,
                 BehaviorPackage.getWorkPackage(),
                 ImmutableSet.of(
-                        Pair.of(Memories.BAR_MEMORY.get(), MemoryStatus.VALUE_PRESENT),
+                        Pair.of(Memories.BAR_DATA.get(), MemoryStatus.VALUE_PRESENT),
                         Pair.of(MemoryModuleType.INTERACTION_TARGET, MemoryStatus.VALUE_PRESENT)
                 )
         );
@@ -60,7 +62,7 @@ public class BartenderAi {
                 Activities.PRODUCT.get(),
                 BehaviorPackage.getProductPackage(),
                 ImmutableSet.of(
-                        Pair.of(Memories.BAR_MEMORY.get(), MemoryStatus.VALUE_PRESENT),
+                        Pair.of(Memories.BAR_DATA.get(), MemoryStatus.VALUE_PRESENT),
                         Pair.of(MemoryModuleType.INTERACTION_TARGET, MemoryStatus.VALUE_PRESENT)
                 )
         );
@@ -138,6 +140,12 @@ public class BartenderAi {
             return ImmutableList.of(
                     getFullLookBehavior(),
                     Pair.of(99, SetLookAndInteractNew.create(EntityType.PLAYER, 5)),
+                    Pair.of(3, new RunOne<>(
+                            ImmutableList.of(
+                                    Pair.of(new DoNothing(30, 60), 2),
+                                    Pair.of(BarRandomStroll.create(0.5F), 1)
+                    )
+                    )),
                     Pair.of(0, CollapseMenu.create()),
                     Pair.of(4, FindAndTraceToBar.create(0.5F))
             );
@@ -159,7 +167,8 @@ public class BartenderAi {
 
         public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super BartenderEntity>>> getWorkPackage() {
             return ImmutableList.of(
-                    Pair.of(5, PutMenu.create()),
+                    Pair.of(6, PutMenu.create()),
+                    Pair.of(5, ApproachingCustomer.create()),
                     Pair.of(99, TargetValidationChecker.create(8)),
                     Pair.of(
                             4,
@@ -212,5 +221,8 @@ public class BartenderAi {
 
     public static void updateActivity(BartenderEntity bartender) {
         bartender.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.WORK, Activities.WORK_IDLE.get(), Activity.IDLE));
+        if (Config.Common.DEBUG_MODE.get()) {
+            bartender.setData(DataAttachmentTypeRegistries.BRAIN_STATE.get(), bartender.getBrain().getActiveNonCoreActivity().map(Activity::getName).orElse("Null"));
+        }
     }
 }

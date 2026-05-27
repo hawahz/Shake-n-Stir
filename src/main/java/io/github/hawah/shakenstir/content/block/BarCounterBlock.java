@@ -1,4 +1,9 @@
 package io.github.hawah.shakenstir.content.block;
 
-public class BarCounterBlock {
+import net.minecraft.world.level.block.Block;
+
+public class BarCounterBlock extends Block {
+    public BarCounterBlock(Properties properties) {
+        super(properties);
+    }
 }
