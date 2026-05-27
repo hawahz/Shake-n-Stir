@@ -41,4 +41,8 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
         super.applyImplicitComponents(components);
         placerId = components.get(DataComponentTypeRegistries.PLACER);
     }
+
+    public UUID getPlacerId() {
+        return placerId;
+    }
 }

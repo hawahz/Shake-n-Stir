@@ -239,7 +239,7 @@ public abstract class AbstractBoxHandler implements IHandler{
         }
 
         if (firstPos != null) {
-            int gb = !isValidSize() && (selectedFace != null)? 1: 0;
+            int gb = isValidSize()? 1: 0;
             submitOutline(gb);
         }
     }
@@ -250,7 +250,7 @@ public abstract class AbstractBoxHandler implements IHandler{
                 .finish();
     }
 
-    protected void submitOutline(int gb) {
+    protected void submitOutline(double gb) {
         Outliner.getInstance()
                 .chaseThickBox(
                         outlineSlot,
@@ -263,7 +263,7 @@ public abstract class AbstractBoxHandler implements IHandler{
                 )
                 .face(selectedFace)
                 .faces(Minecraft.getInstance().screen == null && Minecraft.getInstance().hasControlDown() && !Minecraft.getInstance().hasAltDown() && secondPos != null? Direction.values(): null)
-                .setRGBA(1, gb, gb, 1)
+                .setRGBA(1F, (float) gb, (float) gb, 1)
                 .setPriority(0)
                 .finish();
     }

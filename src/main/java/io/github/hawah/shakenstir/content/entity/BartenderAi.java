@@ -1,13 +1,11 @@
 package io.github.hawah.shakenstir.content.entity;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import io.github.hawah.shakenstir.content.entity.ai.activity.Activities;
-import io.github.hawah.shakenstir.content.entity.ai.behavior.AnywhereRandomStroll;
-import io.github.hawah.shakenstir.content.entity.ai.behavior.CollapseMenu;
-import io.github.hawah.shakenstir.content.entity.ai.behavior.PutMenu;
-import io.github.hawah.shakenstir.content.entity.ai.behavior.SetLookAndInteractNew;
+import io.github.hawah.shakenstir.content.entity.ai.behavior.*;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -29,6 +27,7 @@ public class BartenderAi {
     static ActivityData<BartenderEntity> initCoreActivity() {
         return ActivityData.create(Activity.CORE, BehaviorPackage.getCorePackage());
     }
+
 
     static ActivityData<BartenderEntity> initIdleActivity() {
         return ActivityData.create(
@@ -58,8 +57,8 @@ public class BartenderAi {
 
     static ActivityData<BartenderEntity> initShakingActivity() {
         return ActivityData.create(
-                Activities.SHAKING.get(),
-                BehaviorPackage.getShakingPackage(),
+                Activities.PRODUCT.get(),
+                BehaviorPackage.getProductPackage(),
                 ImmutableSet.of(
                         Pair.of(Memories.BAR_MEMORY.get(), MemoryStatus.VALUE_PRESENT),
                         Pair.of(MemoryModuleType.INTERACTION_TARGET, MemoryStatus.VALUE_PRESENT)
@@ -94,10 +93,17 @@ public class BartenderAi {
             );
         }
 
+
+        /**
+         * IDLE 状态为最初的状态，在该状态下，酒保会：
+         * 随机游动；尝试将玩家，猫设置为看着的目标；站着不动。
+         * 当酒保拥有工作区域之后，则进入状态 WORK_IDLE
+         * Almost Done
+         */
         public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super BartenderEntity>>> getIdlePackage() {
             return ImmutableList.of(
                     getFullLookBehavior(),
-                    Pair.of(3, SetLookAndInteract.create(EntityType.PLAYER, 4)),
+                    Pair.of(3, SetEntityLookTarget.create(EntityType.PLAYER, 8.0F)),
                     Pair.of(
                             2,
                             new RunOne<>(
@@ -120,19 +126,71 @@ public class BartenderAi {
             );
         }
 
+        /**
+         * WORK_IDLE 状态意为酒保在有工作区域，但没有玩家时，会：
+         * 尝试找到玩家，并将玩家设置为交互对象，如果成功则会进入到WORK状态；
+         * 尝试将放置的菜单收起；
+         * 返回工作区域。
+         * TODO 添加一些其他随机动画，属于一个Activity
+         */
+
         public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super BartenderEntity>>> getWorkIdlePackage() {
             return ImmutableList.of(
                     getFullLookBehavior(),
-                    Pair.of(3, SetLookAndInteractNew.create(EntityType.PLAYER, 5)),
-                    Pair.of(0, CollapseMenu.create())
+                    Pair.of(99, SetLookAndInteractNew.create(EntityType.PLAYER, 5)),
+                    Pair.of(0, CollapseMenu.create()),
+                    Pair.of(4, FindAndTraceToBar.create(0.5F))
             );
         }
 
+        /**
+         * WORK 状态为酒保在有工作区域，有没被IGNORED的玩家，也就是顾客时，会：
+         * 检查记忆中的顾客是否是可行的，如果不是可行的，则返回到WORK_IDLE状态；
+         *
+         * 先尝试找到存有菜单的容器；
+         * 然后从容器当中取出菜单；
+         * 走到吧台区域内离玩家最近的位置
+         *
+         * 尝试放置菜单；
+         * 在没有注视目标，但有交互对象的时候，看向最近的玩家；
+         *
+         * 当菜单发出信号时，会存储选择的配方，已经配方对应的顾客，然后转到PRODUCT状态
+         */
+
         public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super BartenderEntity>>> getWorkPackage() {
             return ImmutableList.of(
-                    Pair.of(5, PutMenu.create())
+                    Pair.of(5, PutMenu.create()),
+                    Pair.of(99, TargetValidationChecker.create(8)),
+                    Pair.of(
+                            4,
+                            new RunOne<>(
+                                    ImmutableMap.of(
+                                            MemoryModuleType.INTERACTION_TARGET, MemoryStatus.VALUE_PRESENT,
+                                            MemoryModuleType.LOOK_TARGET, MemoryStatus.VALUE_ABSENT
+                                    ),
+                                    ImmutableList.of(
+                                            Pair.of(SetEntityLookTarget.create(EntityType.PLAYER, 8.0F), 1),
+                                            Pair.of(new DoNothing(30, 60), 1)
+                                    )
+                            )
+                    )
             );
         }
+
+        /**
+         * PRODUCT 状态为酒保有当前需要生产的配方时，会：
+         * 开始执行配方内容，Shake or Stir；
+         * 配方执行结束后，产物加入到Memory里面，移除配方并把配方的顾客加入到记忆当中；
+         * 根据配方检索的顾客找到最近的吧台，上菜，将玩家设为IGNORED，直到玩家和酒保交互之后才会重新注意；
+         * 如果配方对应的玩家已经不在可交互范围内了，则触发动画，继续下一个配方；
+         * 上菜后移除产物和配方的Memory，检索剩余工作，如果已经清空，那么结束PRODUCT，返回WORK状态。
+         */
+        public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super BartenderEntity>>> getProductPackage() {
+            return ImmutableList.of(
+
+            );
+        }
+
         private static Pair<Integer, BehaviorControl<LivingEntity>> getFullLookBehavior() {
             return Pair.of(
                     5,
@@ -148,12 +206,6 @@ public class BartenderAi {
                                     Pair.of(new DoNothing(30, 60), 2)
                             )
                     )
-            );
-        }
-
-        public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super BartenderEntity>>> getShakingPackage() {
-            return ImmutableList.of(
-
             );
         }
     }

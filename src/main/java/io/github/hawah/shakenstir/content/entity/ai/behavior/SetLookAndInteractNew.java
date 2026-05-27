@@ -30,15 +30,15 @@ public class SetLookAndInteractNew {
                                     if (closest.isEmpty()) {
                                         closestFallback = i.<NearestVisibleLivingEntities>get(nearestEntities)
                                                 .findClosest(e -> e.distanceToSqr(body) <= interactionRangeSqr && e.is(type));
+                                        if (closestFallback.isEmpty()) {
+                                            return false;
+                                        }
                                     }
-                                    if (closest.isEmpty() && closestFallback.isEmpty()) {
-                                        return false;
-                                    } else {
-                                        LivingEntity closestEntity = closest.orElse(closestFallback.orElseThrow());
-                                        interactionTarget.set(closestEntity);
-                                        lookTarget.set(new EntityTracker(closestEntity, true));
-                                        return true;
-                                    }
+                                    assert !closest.isEmpty() || !closestFallback.isEmpty();
+                                    LivingEntity closestEntity = closest.orElse(closestFallback.orElse(null));
+                                    interactionTarget.set(closestEntity);
+                                    lookTarget.set(new EntityTracker(closestEntity, true));
+                                    return true;
                                 }
                         )
         );

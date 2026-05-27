@@ -24,7 +24,7 @@ import java.util.List;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class BarMenuBlockEntityRenderer implements BlockEntityRenderer<BarMenuBlockEntity, BarMenuBlockEntityRenderState> {
-    public BarMenuBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+    public BarMenuBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) {
     }
 
     @Override

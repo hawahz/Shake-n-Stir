@@ -12,34 +12,34 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-public class IgnoredEntities {
-    private static final IgnoredEntities EMPTY = new IgnoredEntities();
-    private final List<LivingEntity> ignoredEntities;
-    private final Predicate<LivingEntity> lineOfSightTest;
+public class MemoryEntitiesHolder<T extends LivingEntity> {
+    private static final MemoryEntitiesHolder<LivingEntity> EMPTY = new MemoryEntitiesHolder<>();
+    private final List<T> ignoredEntities;
+    private final Predicate<T> lineOfSightTest;
 
-    private IgnoredEntities() {
+    private MemoryEntitiesHolder() {
         this.ignoredEntities = List.of();
         this.lineOfSightTest = ignored -> false;
     }
 
-    public IgnoredEntities(ServerLevel level, LivingEntity body, List<LivingEntity> livingEntities) {
+    public MemoryEntitiesHolder(ServerLevel level, LivingEntity body, List<T> livingEntities) {
         this.ignoredEntities = livingEntities;
-        Object2BooleanOpenHashMap<LivingEntity> cache = new Object2BooleanOpenHashMap<>(livingEntities.size());
+        Object2BooleanOpenHashMap<T> cache = new Object2BooleanOpenHashMap<>(livingEntities.size());
         Predicate<LivingEntity> targetTest = targetEntity -> Sensor.isEntityTargetable(level, body, targetEntity);
         this.lineOfSightTest = otherEntity -> cache.computeIfAbsent(otherEntity, targetTest);
     }
 
-    public static IgnoredEntities empty() {
+    public static MemoryEntitiesHolder<LivingEntity> empty() {
         return EMPTY;
     }
 
     @VisibleForDebug
-    public List<LivingEntity> nearbyEntities() {
+    public List<T> nearbyEntities() {
         return this.ignoredEntities;
     }
 
-    public Optional<LivingEntity> findClosest(Predicate<LivingEntity> filter) {
-        for (LivingEntity nearbyEntity : this.ignoredEntities) {
+    public Optional<T> findClosest(Predicate<T> filter) {
+        for (T nearbyEntity : this.ignoredEntities) {
             if (filter.test(nearbyEntity) && this.lineOfSightTest.test(nearbyEntity)) {
                 return Optional.of(nearbyEntity);
             }
@@ -48,20 +48,20 @@ public class IgnoredEntities {
         return Optional.empty();
     }
 
-    public Iterable<LivingEntity> findAll(Predicate<LivingEntity> filter) {
+    public Iterable<T> findAll(Predicate<T> filter) {
         return Iterables.filter(this.ignoredEntities, entity -> filter.test(entity) && this.lineOfSightTest.test(entity));
     }
 
-    public Stream<LivingEntity> find(Predicate<LivingEntity> filter) {
+    public Stream<T> find(Predicate<T> filter) {
         return this.ignoredEntities.stream().filter(entity -> filter.test(entity) && this.lineOfSightTest.test(entity));
     }
 
-    public boolean contains(LivingEntity targetEntity) {
+    public boolean contains(T targetEntity) {
         return this.ignoredEntities.contains(targetEntity) && this.lineOfSightTest.test(targetEntity);
     }
 
-    public boolean contains(Predicate<LivingEntity> filter) {
-        for (LivingEntity nearbyEntity : this.ignoredEntities) {
+    public boolean contains(Predicate<T> filter) {
+        for (T nearbyEntity : this.ignoredEntities) {
             if (filter.test(nearbyEntity) && this.lineOfSightTest.test(nearbyEntity)) {
                 return true;
             }

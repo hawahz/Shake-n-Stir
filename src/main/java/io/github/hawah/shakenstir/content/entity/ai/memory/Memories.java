@@ -5,7 +5,9 @@ import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.entity.ai.behavior.recipeProvider.RecipeHolder;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -16,10 +18,11 @@ import java.util.Optional;
 public class Memories {
     public static final DeferredRegister<MemoryModuleType<?>> MEMORY_MODULE_TYPE = DeferredRegister.create(Registries.MEMORY_MODULE_TYPE, ShakenStir.MODID);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<BoundingBox>> BAR_MEMORY = register("bar_memory", BoundingBox.CODEC);
-    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<IgnoredEntities>> IGNORED_ENTITIES = register("ignored_entities");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<MemoryEntitiesHolder<LivingEntity>>> IGNORED_ENTITIES = register("ignored_entities");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<GlobalPos>> MENU = register("menu", GlobalPos.CODEC);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Integer>> IDLE_TIME = register("idle_time", Codec.INT);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<RecipeHolder>> RECIPE = register("recipe", RecipeHolder.CODEC);
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<MemoryEntitiesHolder<Player>>> UNSERVED_CUSTOMER = register("unserved_customer");
 
 
     public static void register(IEventBus modEventBus) {

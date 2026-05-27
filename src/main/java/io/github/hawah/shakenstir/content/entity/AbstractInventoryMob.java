@@ -42,8 +42,7 @@ public abstract class AbstractInventoryMob extends PathfinderMob {
     public boolean insertItem(ItemStack stack) {
         for (int i = 0; i < getInventory().size(); i++) {
             ItemStack itemStack = getInventorySlot(i);
-            if (itemStack.isEmpty()) {
-                setInventorySlot(i, stack);
+            if (itemStack.isEmpty() && setInventorySlot(i, stack)) {
                 return true;
             }
             if (ItemStack.isSameItemSameComponents(itemStack, stack)) {

@@ -38,6 +38,7 @@ public class BarBuilderHandler extends AbstractBoxHandler {
         ItemStack item = getPlayer().getMainHandItem();
         item.set(DataComponentTypeRegistries.BAR_AREA, boundingBox);
         Networking.sendToServer(new ServerboundHandItemDataChangedPacket(getPlayer().getUUID(), InteractionHand.MAIN_HAND, item));
+        getPlayer().swing(InteractionHand.MAIN_HAND);
         return true;
     }
 
@@ -64,13 +65,14 @@ public class BarBuilderHandler extends AbstractBoxHandler {
 
         if (!isActive()) {
             skipSelection = true;
+            discard();
             return;
         }
         BoundingBox barArea;
         if (skipSelection && (barArea = getPlayer().getMainHandItem().get(DataComponentTypeRegistries.BAR_AREA)) != null) {
             firstPos = new BlockPos(barArea.minX(), barArea.minY(), barArea.minZ());
             secondPos = new BlockPos(barArea.maxX(), barArea.maxY(), barArea.maxZ());
-            submitOutline(0);
+            submitOutline(0.5);
             return;
         }
         super.tick();

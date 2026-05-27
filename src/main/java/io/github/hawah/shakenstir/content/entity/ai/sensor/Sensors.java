@@ -14,6 +14,7 @@ public class Sensors {
     public static final DeferredRegister<SensorType<?>> SENSORS = DeferredRegister.create(Registries.SENSOR_TYPE, ShakenStir.MODID);
 
     public static final Supplier<SensorType<BarCounterSensor>> BAR_COUNTER_SENSOR = register("bar_counter_sensor", BarCounterSensor::new);
+    public static final Supplier<SensorType<UnservedCustomerSensor>> UNSERVED_CUSTOMER_SENSOR = register("unserved_customer_sensor", UnservedCustomerSensor::new);
 
 
     public static <T extends Sensor<?>> DeferredHolder<SensorType<?>, SensorType<T>> register(String name, Supplier<T> sensor) {

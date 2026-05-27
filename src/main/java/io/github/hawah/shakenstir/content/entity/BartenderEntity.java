@@ -2,7 +2,9 @@ package io.github.hawah.shakenstir.content.entity;
 
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
+import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -58,6 +60,7 @@ public class BartenderEntity extends AbstractInventoryMob {
         super(type, level);
         this.getNavigation().setCanOpenDoors(true);
         this.getNavigation().setCanFloat(true);
+        this.setItemInHand(InteractionHand.MAIN_HAND, ItemRegistries.MENU.toStack());
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -157,6 +160,7 @@ public class BartenderEntity extends AbstractInventoryMob {
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (player.getItemInHand(hand).has(DataComponentTypeRegistries.BAR_AREA)) {
+            player.sendOverlayMessage(Component.literal("interact"));
             Optional.ofNullable(player.getItemInHand(hand).get(DataComponentTypeRegistries.BAR_AREA)).ifPresent(barArea -> {
                 // TODO Reachable Prediction
                 if (barArea.getCenter().distManhattan(this.blockPosition()) < 200) {
