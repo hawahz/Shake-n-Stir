@@ -1,8 +1,10 @@
 package io.github.hawah.shakenstir.content.entity.ai.behavior;
 
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.entity.BartenderEntity;
 import io.github.hawah.shakenstir.content.entity.ai.memory.BarData;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
+import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.item.MenuItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,7 +23,7 @@ import java.util.Comparator;
 import java.util.Optional;
 
 public class PutMenu {
-    public static <T extends Mob> OneShot<T> create() {
+    public static <T extends BartenderEntity> OneShot<T> create() {
         return BehaviorBuilder.create(
                 i -> i.group(
                                 i.present(Memories.BAR_DATA.get()),
@@ -31,6 +33,7 @@ public class PutMenu {
                         .apply(
                                 i,
                                 (barMemory, menu, interactionTarget) -> (level, body, timestamp) -> {
+                                    body.tryGetOnHand(ItemRegistries.MENU);
                                     if (isHoldingMenu(body)) {
                                         BarData barData = i.get(barMemory);
                                         Optional<BlockPos> closest = barData.barCounter().stream().min(Comparator.comparing(pos -> pos.distSqr(i.get(interactionTarget).blockPosition())));

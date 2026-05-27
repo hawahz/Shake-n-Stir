@@ -2,7 +2,7 @@ package io.github.hawah.shakenstir.content.entity.ai.memory;
 
 import com.mojang.serialization.Codec;
 import io.github.hawah.shakenstir.ShakenStir;
-import io.github.hawah.shakenstir.content.entity.ai.behavior.recipeProvider.RecipeHolder;
+import io.github.hawah.shakenstir.content.entity.ai.behavior.recipeProvider.SnsRecipeHolder;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.LivingEntity;
@@ -21,7 +21,7 @@ public class Memories {
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<MemoryEntitiesHolder<LivingEntity>>> IGNORED_ENTITIES = register("ignored_entities");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<GlobalPos>> MENU = register("menu", GlobalPos.CODEC);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Integer>> IDLE_TIME = register("idle_time", Codec.INT);
-    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<RecipeHolder>> RECIPE = register("recipe", RecipeHolder.CODEC);
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<SnsRecipeHolder>> RECIPE = register("recipe", SnsRecipeHolder.CODEC);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<MemoryEntitiesHolder<Player>>> UNSERVED_CUSTOMER = register("unserved_customer");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<BarData>> BAR_DATA = register("bar_data", BarData.CODEC);
 

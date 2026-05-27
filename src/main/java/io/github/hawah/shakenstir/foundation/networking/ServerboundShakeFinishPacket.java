@@ -3,6 +3,7 @@ package io.github.hawah.shakenstir.foundation.networking;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.IFluidDataHolder;
 import io.github.hawah.shakenstir.content.dataComponent.IItemDataHolder;
+import io.github.hawah.shakenstir.content.entity.ai.behavior.recipeProvider.SnsRecipeHolder;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.recipe.Quality;
 import io.github.hawah.shakenstir.content.recipe.RecipeTypeRegistries;
@@ -10,6 +11,7 @@ import io.github.hawah.shakenstir.content.recipe.ShakeRecipe;
 import io.github.hawah.shakenstir.content.recipe.ShakeRecipeInput;
 import io.github.hawah.shakenstir.foundation.datapack.DrinkData;
 import io.github.hawah.shakenstir.foundation.datapack.spirit.SpiritData;
+import io.github.hawah.shakenstir.foundation.recipeRecord.ServerRecipeWriter;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.lib.networking.ClientToServerPacket;
 import net.minecraft.core.UUIDUtil;
@@ -64,7 +66,7 @@ public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem,
         }
 
         RecipeManager recipeManager = level.recipeAccess();
-        ShakeRecipeInput recipeInput = new ShakeRecipeInput(itemData, fluidData, 30);
+        ShakeRecipeInput recipeInput = new ShakeRecipeInput(itemData, fluidData, shakeSuccessTimes());
         Optional<RecipeHolder<ShakeRecipe>> result = recipeManager.getRecipeFor(
                 RecipeTypeRegistries.SHAKE_RECIPE.get(),
                 recipeInput,
@@ -94,6 +96,7 @@ public record ServerboundShakeFinishPacket(UUID playerUUID, ItemStack shakeItem,
                     quality,
                     iceCount()
             ));
+            ServerRecipeWriter.writeRecipe(player, new ArrayList<>(itemData), new ArrayList<>(fluidData), resultItem.copy(), SnsRecipeHolder.Type.SHAKE);
             ShakeUtil.clearContent(mainHandItem);
             ShakeUtil.setItemData(mainHandItem, List.of(resultItem));
         });

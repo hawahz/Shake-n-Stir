@@ -66,7 +66,7 @@ public class ShakeRecipeProvider extends RecipeProvider {
                 .withFluid(SnsFluidTags.SPIRIT, 500)
                 .orWith(SnsSharedTags.SWEET)
                 .orWith(SnsSharedTags.SOUR)
-                .shake(20)
+                .shake(15)
                 .build()
                 .unlockedBy("has_spirit", this.has(SnsItemTags.SPIRIT))
                 .save(output, getName("sour_product"));
@@ -81,7 +81,7 @@ public class ShakeRecipeProvider extends RecipeProvider {
                 .withFluid(SnsFluidTags.SPIRIT, 500)
                 .orWith(SnsSharedTags.BITTER)
                 .orWith(SnsSharedTags.SWEET)
-                .shake(10)
+                .shake(8)
                 .build()
                 .unlockedBy("has_spirit", this.has(SnsItemTags.SPIRIT))
                 .save(output, getName("cocktail_product"));
@@ -96,7 +96,7 @@ public class ShakeRecipeProvider extends RecipeProvider {
                 .withFluid(SnsFluidTags.SPIRIT, 500)
                 .orWith(SnsSharedTags.SWEET)
                 .orWith(SnsSharedTags.JUICE)
-                .shake(10)
+                .shake(8)
                 .build()
                 .unlockedBy("has_spirit", this.has(SnsItemTags.SPIRIT))
                 .save(output, getName("colada_product"));

@@ -10,19 +10,19 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-public record RecipeHolder(
+public record SnsRecipeHolder(
         Type recipe,
         List<ItemStack> requiredItems,
         List<FluidStack> requiredFluids,
         ItemStack result
 ) {
 
-    public static final Codec<RecipeHolder> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            SerializeHelper.ofEnum(Type.class).fieldOf("recipe").forGetter(RecipeHolder::recipe),
-            ItemStack.CODEC.listOf().fieldOf("required_items").forGetter(RecipeHolder::requiredItems),
-            FluidStack.CODEC.listOf().fieldOf("required_fluids").forGetter(RecipeHolder::requiredFluids),
-            ItemStack.CODEC.fieldOf("result_factory").forGetter(RecipeHolder::result)
-    ).apply(inst, RecipeHolder::new));
+    public static final Codec<SnsRecipeHolder> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            SerializeHelper.ofEnum(Type.class).fieldOf("recipe").forGetter(SnsRecipeHolder::recipe),
+            ItemStack.CODEC.listOf().fieldOf("required_items").forGetter(SnsRecipeHolder::requiredItems),
+            FluidStack.CODEC.listOf().fieldOf("required_fluids").forGetter(SnsRecipeHolder::requiredFluids),
+            ItemStack.CODEC.fieldOf("result_factory").forGetter(SnsRecipeHolder::result)
+    ).apply(inst, SnsRecipeHolder::new));
 
     public enum Type {
         SHAKE(GlasswareBlockEntity::pourProduct),

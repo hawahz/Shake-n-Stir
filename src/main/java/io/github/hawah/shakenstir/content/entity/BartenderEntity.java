@@ -5,6 +5,7 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -25,6 +26,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.parrot.Parrot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
@@ -37,7 +39,7 @@ import java.util.OptionalInt;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-@SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "unchecked"})
+@SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "unchecked", "resource"})
 public class BartenderEntity extends AbstractInventoryMob {
 
     public static final EntityDataAccessor<Integer> DATA_ACCESSOR =
@@ -82,9 +84,6 @@ public class BartenderEntity extends AbstractInventoryMob {
     @Override
     protected Brain<BartenderEntity> makeBrain(Brain.Packed packedBrain) {
         return BRAIN_PROVIDER.makeBrain(this, packedBrain);
-    }
-
-    private void registerBrainGoals(Brain<BartenderEntity> brain) {
     }
 
     @Override
@@ -197,6 +196,31 @@ public class BartenderEntity extends AbstractInventoryMob {
     public NonNullList<ItemStack> getInventory() {
         return inventory;
     }
+
+    public void setMainHandItem(ItemStack itemStack) {
+        if (!this.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()) {
+            this.insertItem(this.getItemInHand(InteractionHand.MAIN_HAND));
+        }
+        this.setItemInHand(InteractionHand.MAIN_HAND, itemStack);
+    }
+
+    public void setMainHandItemAndShrink(ItemStack itemStack) {
+        this.setMainHandItem(itemStack.copyAndClear());
+    }
+
+    public void tryGetOnHand(Holder<Item> item) {
+        this.getInventory().stream()
+                .filter(itemStack -> itemStack.is(item))
+                .findFirst()
+                .ifPresent(this::setMainHandItemAndShrink);
+    }
+    public void tryGetOnHand(Item item) {
+        this.getInventory().stream()
+                .filter(itemStack -> itemStack.is(item))
+                .findFirst()
+                .ifPresent(this::setMainHandItemAndShrink);
+    }
+
 
     public enum AnimState {
         DEFAULT,
