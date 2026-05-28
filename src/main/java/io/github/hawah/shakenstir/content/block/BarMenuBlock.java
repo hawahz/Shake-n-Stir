@@ -6,6 +6,7 @@ import io.github.hawah.shakenstir.content.entity.BartenderEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -74,6 +75,7 @@ public class BarMenuBlock extends HorizontalDirectionalBlock implements EntityBl
         if (level.getBlockEntity(pos) instanceof BarMenuBlockEntity blockEntity) {
             UUID placerId = blockEntity.getPlacerId();
             Entity entity = level.getEntity(placerId);
+            player.swing(InteractionHand.MAIN_HAND);
             if (entity instanceof Player playerPlacer) {
                 playerPlacer.sendOverlayMessage(Component.literal("alert"));
             } else if (entity instanceof BartenderEntity bartender) {

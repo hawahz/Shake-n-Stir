@@ -20,7 +20,8 @@ public enum Textures {
     RIGHT_ARROW("textures/gui/buttons.png", 0, 0, 16, 16, 2, 0, 16, 0, 32),
     LEFT_ARROW("textures/gui/buttons.png", 16, 0, 16, 16, 3, 16, 16, 16, 32),
     CHECK("textures/gui/buttons.png", 32, 0, 16, 16, 1, 32, 16, 32, 32),
-    SCROLL_BKG("textures/gui/scroll_screen.png", 14, 4, 228, 132, 0)
+    SCROLL_BKG("textures/gui/scroll_screen.png", 14, 4, 228, 132, 0),
+    MENU_BKG("textures/gui/menu.png", 48, 13, 160, 230, 0)
 
 
     ;

@@ -227,18 +227,27 @@ public class ClientEvents {
         if (ShakenStirClient.DECORATE_PLACE_HANDLER.onMousePressed(button, down)) {
             event.setCanceled(true);
         };
+        if (ShakenStirClient.MENU_HUD.onMousePressed(button, down)) {
+            event.setCanceled(true);
+        }
     }
 
     @SubscribeEvent
     public static void onMouseScroll(InputEvent.MouseScrollingEvent event) {
         LocalPlayer player = getPlayer();
-        if (player == null || !(player.getMainHandItem().getItem() instanceof GlasswareItem) || !player.isShiftKeyDown()) {
+        if (player == null) {
             return;
         }
-        double scrollDeltaY = event.getScrollDeltaY();
-        player.getMainHandItem().set(DataComponentTypeRegistries.GLASSWARE_ROTATION, (float) (player.getMainHandItem().getOrDefault(DataComponentTypeRegistries.GLASSWARE_ROTATION, 0F) + scrollDeltaY * 10));
-        Networking.sendToServer(new ServerboundHandItemDataChangedPacket(player.getUUID(), InteractionHand.MAIN_HAND, player.getMainHandItem()));
-        event.setCanceled(true);
+        double delta = event.getScrollDeltaY();
+        if (player.getMainHandItem().getItem() instanceof GlasswareItem && player.isShiftKeyDown()) {
+            player.getMainHandItem().set(DataComponentTypeRegistries.GLASSWARE_ROTATION, (float) (player.getMainHandItem().getOrDefault(DataComponentTypeRegistries.GLASSWARE_ROTATION, 0F) + delta * 10));
+            Networking.sendToServer(new ServerboundHandItemDataChangedPacket(player.getUUID(), InteractionHand.MAIN_HAND, player.getMainHandItem()));
+            event.setCanceled(true);
+        }
+        if (ShakenStirClient.MENU_HUD.onMouseScroll(delta)) {
+            event.setCanceled(true);
+        }
+
     }
 
     @SubscribeEvent
@@ -362,6 +371,7 @@ public class ClientEvents {
             event.registerAboveAll(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "shake_content_hud"), ShakenStirClient.SHAKE_CONTENT_HUD);
             event.registerAboveAll(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "cabinet_hud"), ShakenStirClient.CABINET_HUD);
             event.registerAboveAll(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "distiller_hud"), ShakenStirClient.DISTILLER_HUD);
+            event.registerAboveAll(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "bar_menu_hud"), ShakenStirClient.MENU_HUD);
         }
 
         @SubscribeEvent
