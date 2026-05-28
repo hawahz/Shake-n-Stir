@@ -1,6 +1,8 @@
 package io.github.hawah.shakenstir.client.render.item.thirdPerson;
 
 import io.github.hawah.shakenstir.client.ClientSharedShakeParams;
+import io.github.hawah.shakenstir.client.render.entity.BartenderRenderState;
+import io.github.hawah.shakenstir.content.entity.BartenderEntity;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.item.ShakerItem;
 import io.github.hawah.shakenstir.foundation.utils.ContextKeys;
@@ -53,6 +55,6 @@ public class ThirdPersonArmFixer {
                                               float ageInTicks,
                                               float multiplier,
                                               HumanoidArm arm) {
-        return !state.getMainHandItemStack().is(ItemRegistries.SHAKER) || !state.isUsingItem;
+        return !(state.getMainHandItemStack().is(ItemRegistries.SHAKER) && state.isUsingItem) && !(state instanceof BartenderRenderState bartenderRenderState && bartenderRenderState.animState != BartenderEntity.AnimState.DEFAULT);
     }
 }

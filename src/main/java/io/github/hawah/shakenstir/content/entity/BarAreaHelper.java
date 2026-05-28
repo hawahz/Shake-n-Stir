@@ -3,6 +3,7 @@ package io.github.hawah.shakenstir.content.entity;
 import io.github.hawah.shakenstir.Config;
 import io.github.hawah.shakenstir.content.block.BarCounterBlock;
 import io.github.hawah.shakenstir.content.entity.ai.memory.BarData;
+import io.github.hawah.shakenstir.foundation.tags.SnsBlockTags;
 import io.github.hawah.shakenstir.lib.client.render.outliner.Outliner;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -116,11 +117,11 @@ public class BarAreaHelper {
     }
 
     public static int checkPosValid(BlockPos pos, Level level) {
-        if (!level.getBlockState(pos).isEmpty()) {
+        if (!level.getBlockState(pos).is(SnsBlockTags.BAR_AREA_IGNORED)) {
             return 1;
         } else if (!level.getBlockState(pos.below()).isFaceSturdy(level, pos, Direction.UP)) {
             return -1;
-        } else if (!level.getBlockState(pos.above()).isEmpty()) {
+        } else if (!level.getBlockState(pos.above()).is(SnsBlockTags.BAR_AREA_IGNORED)) {
             return 2;
         }
         return 0;

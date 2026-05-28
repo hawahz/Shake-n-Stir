@@ -6,39 +6,25 @@ import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.world.entity.ai.behavior.OneShot;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class CollapseMenu {
+public class CheckMenuValid {
     public static OneShot<BartenderEntity> create() {
         return BehaviorBuilder.create(
                 i -> i.group(
                                 i.present(Memories.BAR_DATA.get()),
                                 i.present(Memories.MENU.get()),
-                                i.present(Memories.IDLE_TIME.get()),
-                                i.absent(MemoryModuleType.INTERACTION_TARGET),
                                 i.absent(Memories.IDLING.get())
                         )
                         .apply(
                                 i,
-                                (barMemory, menu, idleTime, interactionTarget, _) -> (level, body, timestamp) -> {
-                                    if (body.tickCount - i.get(idleTime) < 1200) {
-                                        return false;
-                                    }
+                                (barMemory, menu, _) -> (level, body, timestamp) -> {
                                     GlobalPos globalPos = i.<GlobalPos>get(menu);
                                     if (globalPos.dimension() == level.dimension()) {
                                         BlockState state = level.getBlockState(globalPos.pos());
                                         if (!state.is(BlockRegistries.BAR_MENU_BLOCK)) {
-                                            return true;
+                                            menu.erase();
                                         }
-                                        ItemStack itemStack = state.getCloneItemStack(level, globalPos.pos(), true);
-                                        body.getBrain().eraseMemory(Memories.MENU.get());
-                                        var success = body.insertItem(itemStack);
-                                        if (!success) {
-                                            return false;
-                                        }
-                                        level.removeBlock(globalPos.pos(), false);
                                         return true;
                                     }
                                     return false;

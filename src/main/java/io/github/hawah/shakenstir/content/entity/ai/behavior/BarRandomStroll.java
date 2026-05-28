@@ -30,6 +30,9 @@ public class BarRandomStroll {
                                 i,
                                 (walkTarget, barMemory) -> (level, body, timestamp) -> {
                                     List<BlockPos> validPos = i.get(barMemory).bartenderArea();
+                                    if (validPos.isEmpty()) {
+                                        return false;
+                                    }
                                     Optional<BlockPos> target = Optional.ofNullable(validPos.get(level.getRandom().nextInt(validPos.size())));
                                     walkTarget.setOrErase(target.map(pos -> new WalkTarget(pos, speedModifier, 0)));
                                     target.ifPresent(pos -> Debug.drawBlock(pos, level));

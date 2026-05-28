@@ -1,6 +1,9 @@
 package io.github.hawah.shakenstir.client.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.hawah.shakenstir.client.animation.BartenderAnimation;
+import io.github.hawah.shakenstir.content.entity.BartenderEntity;
+import net.minecraft.client.animation.KeyframeAnimation;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -30,6 +33,11 @@ public class BartenderModel extends HumanoidModel<BartenderRenderState> {
     public final ModelPart jacket;
     private final boolean slim;
 
+    public KeyframeAnimation shakeAnimation;
+    public KeyframeAnimation readyShakeAnimation;
+    public KeyframeAnimation idleFrontAnimation;
+    public KeyframeAnimation idleBackAnimation;
+
     public BartenderModel(ModelPart root) {
         super(root, RenderTypes::entityTranslucent);
         this.slim = true;
@@ -39,6 +47,10 @@ public class BartenderModel extends HumanoidModel<BartenderRenderState> {
         this.rightPants = this.rightLeg.getChild("right_pants");
         this.jacket = this.body.getChild("jacket");
         this.bodyParts = List.of(this.head, this.body, this.leftArm, this.rightArm, this.leftLeg, this.rightLeg);
+        shakeAnimation = BartenderAnimation.SHAKE_LOWER.bake(root());
+        readyShakeAnimation = BartenderAnimation.READY.bake(root());
+        idleFrontAnimation = BartenderAnimation.IDLE_FRONT.bake(root());
+        idleBackAnimation = BartenderAnimation.IDLE_BACK.bake(root());
     }
 
     public static MeshDefinition createMesh(CubeDeformation scale, boolean slim) {
@@ -118,7 +130,15 @@ public class BartenderModel extends HumanoidModel<BartenderRenderState> {
         this.rightPants.visible = state.showRightPants;
         this.leftSleeve.visible = state.showLeftSleeve;
         this.rightSleeve.visible = state.showRightSleeve;
+
         super.setupAnim(state);
+        if (state.animState.equals(BartenderEntity.AnimState.SHAKING)) {
+            this.shakeAnimation.apply((long) (state.shakeAmount * 1000), 1);
+        } else if (state.animState.equals(BartenderEntity.AnimState.READY_TO_SHAKE)) {
+            this.readyShakeAnimation.apply((long) (state.readyShakeAmount * 1000), 1);
+        }
+        this.idleFrontAnimation.apply(1000, state.idleFrontAmount);
+        this.idleBackAnimation.apply(1000, state.idleBackAmount);
     }
 
     public void translateToHand(AvatarRenderState state, HumanoidArm arm, PoseStack poseStack) {

@@ -44,7 +44,8 @@ public class PutMenu {
                                             item.set(DataComponentTypeRegistries.PLACER, body.getUUID());
                                             if (blockItem.place(new BlockPlaceContext(level, null, InteractionHand.MAIN_HAND, item, blockHitResult)).consumesAction()) {
                                                 menu.set(new GlobalPos(barData.dimension(), pos));
-                                                body.swing(InteractionHand.MAIN_HAND);
+                                                body.swing(InteractionHand.MAIN_HAND, true);
+                                                item.shrink(1);
                                                 return true;
                                             }
                                             return false;
@@ -57,6 +58,6 @@ public class PutMenu {
     }
 
     private static boolean isHoldingMenu(Mob body) {
-        return body.getMainHandItem().getItem() instanceof MenuItem;
+        return !body.getMainHandItem().isEmpty() && body.getMainHandItem().getItem() instanceof MenuItem;
     }
 }

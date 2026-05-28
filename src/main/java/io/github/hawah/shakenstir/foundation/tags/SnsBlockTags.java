@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.Block;
 
 public class SnsBlockTags {
     public static final TagKey<Block> BLOCKING_FLUID = common("blocking_fluid");
+    public static final TagKey<Block> BAR_AREA_IGNORED = common("bar_area_ignored");
 
 
     private static TagKey<Block> common(String name) {

@@ -1,5 +1,6 @@
 package io.github.hawah.shakenstir.client.render.entity;
 
+import io.github.hawah.shakenstir.content.entity.BartenderEntity;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.resources.DefaultPlayerSkin;
@@ -31,6 +32,12 @@ public class BartenderRenderState extends HumanoidRenderState {
     public int id;
     public boolean showExtraEars = false;
     public final ItemStackRenderState heldOnHead = new ItemStackRenderState();
+
+    public BartenderEntity.AnimState animState = BartenderEntity.AnimState.DEFAULT;
+    public float shakeAmount;
+    public float readyShakeAmount;
+    public float idleFrontAmount;
+    public float idleBackAmount;
 
     public float fallFlyingScale() {
         return Mth.clamp(this.fallFlyingTimeInTicks * this.fallFlyingTimeInTicks / 100.0F, 0.0F, 1.0F);

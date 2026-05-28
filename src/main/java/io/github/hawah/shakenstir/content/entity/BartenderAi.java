@@ -57,6 +57,17 @@ public class BartenderAi {
         );
     }
 
+    static ActivityData<BartenderEntity> initIdleFrontActivity() {
+        return ActivityData.create(
+                Activities.IDLE_FRONT.get(),
+                BehaviorPackage.getIdleFrontPackage(),
+                ImmutableSet.of(
+                        Pair.of(Memories.BAR_DATA.get(), MemoryStatus.VALUE_PRESENT),
+                        Pair.of(Memories.IDLING.get(), MemoryStatus.VALUE_PRESENT)
+                )
+        );
+    }
+
     static ActivityData<BartenderEntity> initShakingActivity() {
         return ActivityData.create(
                 Activities.PRODUCT.get(),
@@ -74,7 +85,8 @@ public class BartenderAi {
                 initIdleActivity(),
                 initWorkIdleActivity(),
                 initWorkActivity(),
-                initShakingActivity()
+                initShakingActivity(),
+                initIdleFrontActivity()
         );
     }
 
@@ -91,7 +103,8 @@ public class BartenderAi {
             return ImmutableList.of(
                     Pair.of(0, new Swim<>(0.8F)),
                     Pair.of(0, new LookAtTargetSink(45, 90)),
-                    Pair.of(1, new MoveToTargetSink())
+                    Pair.of(1, new MoveToTargetSink()),
+                    Pair.of(1, HideItemInHand.create())
             );
         }
 
@@ -139,15 +152,24 @@ public class BartenderAi {
         public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super BartenderEntity>>> getWorkIdlePackage() {
             return ImmutableList.of(
                     getFullLookBehavior(),
-                    Pair.of(99, SetLookAndInteractNew.create(EntityType.PLAYER, 5)),
+                    Pair.of(0, SetLookAndInteractNew.create(EntityType.PLAYER, 5)),
                     Pair.of(3, new RunOne<>(
+                            ImmutableMap.of(
+                                    Memories.IDLING.get(), MemoryStatus.VALUE_ABSENT
+                            ),
                             ImmutableList.of(
                                     Pair.of(new DoNothing(30, 60), 2),
                                     Pair.of(BarRandomStroll.create(0.5F), 1)
                     )
                     )),
                     Pair.of(0, CollapseMenu.create()),
-                    Pair.of(4, FindAndTraceToBar.create(0.5F))
+                    Pair.of(4, FindAndTraceToBar.create(0.5F)),
+                    Pair.of(5, new RunOne<>(
+                            ImmutableList.of(
+                                    Pair.of(FindAndTraceToBarCorner.create(0.5F), 1),
+                                    Pair.of(new DoNothing(30, 60), 3)
+                            ))
+                    )
             );
         }
 
@@ -169,7 +191,8 @@ public class BartenderAi {
             return ImmutableList.of(
                     Pair.of(6, PutMenu.create()),
                     Pair.of(5, ApproachingCustomer.create()),
-                    Pair.of(99, TargetValidationChecker.create(8)),
+                    Pair.of(0, TargetValidationChecker.create(8)),
+                    Pair.of(0, CheckMenuValid.create()),
                     Pair.of(
                             4,
                             new RunOne<>(
@@ -200,6 +223,18 @@ public class BartenderAi {
             );
         }
 
+        public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super BartenderEntity>>> getIdleFrontPackage() {
+            return ImmutableList.of(
+                    Pair.of(0, SetLookAndInteractNew.create(EntityType.PLAYER, 5)),
+                    Pair.of(4, new RunOne<>(
+                            ImmutableList.of(
+                                    Pair.of(new StartIdleFront(), 1),
+                                    Pair.of(new StartIdleBack(), 1)
+                            ))
+                    )
+            );
+        }
+
         private static Pair<Integer, BehaviorControl<LivingEntity>> getFullLookBehavior() {
             return Pair.of(
                     5,
@@ -220,7 +255,7 @@ public class BartenderAi {
     }
 
     public static void updateActivity(BartenderEntity bartender) {
-        bartender.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.WORK, Activities.WORK_IDLE.get(), Activity.IDLE));
+        bartender.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.WORK, Activities.IDLE_FRONT.get(), Activities.WORK_IDLE.get(), Activity.IDLE));
         if (Config.Common.DEBUG_MODE.get()) {
             bartender.setData(DataAttachmentTypeRegistries.BRAIN_STATE.get(), bartender.getBrain().getActiveNonCoreActivity().map(Activity::getName).orElse("Null"));
         }

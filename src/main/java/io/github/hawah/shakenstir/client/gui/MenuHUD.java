@@ -39,6 +39,11 @@ public class MenuHUD extends AbstractBlockTargetHUD{
     double price = 0;
 
     @Override
+    protected boolean isVisible() {
+        return super.isVisible() && Minecraft.getInstance().hasControlDown();
+    }
+
+    @Override
     protected @NonNull Block block() {
         return BlockRegistries.BAR_MENU_BLOCK.get();
     }

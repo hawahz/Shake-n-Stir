@@ -153,11 +153,21 @@ public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, Bar
             }
         }
         state.brainState = entity.getData(DataAttachmentTypeRegistries.BRAIN_STATE);
+        state.shakeAmount = entity.getShakeAmount(partialTicks);
+        state.readyShakeAmount = entity.getReadyShakeAmount(partialTicks);
+        state.idleFrontAmount = entity.getIdleFrontAmount(partialTicks);
+        state.idleBackAmount = entity.getIdleBackAmount(partialTicks);
+        state.animState = entity.getState();
     }
 
 
     @Override
     public void submit(BartenderRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+
+        if (state.animState == BartenderEntity.AnimState.SHAKING) {
+            model.shakeAnimation.apply((long) (state.shakeAmount * 1000), 1);
+        }
+
         super.submit(state, poseStack, submitNodeCollector, camera);
         submitNodeCollector.submitNameTag(
                 poseStack, state.nameTagAttachment, 0, Component.literal(state.brainState), !state.isDiscrete, state.lightCoords, state.distanceToCameraSq, camera

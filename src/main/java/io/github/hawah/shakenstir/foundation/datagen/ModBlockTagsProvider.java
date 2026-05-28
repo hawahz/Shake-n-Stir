@@ -5,6 +5,7 @@ import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.foundation.tags.SnsBlockTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
+import net.minecraft.tags.BlockTags;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -31,6 +32,11 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
                 .add(BlockRegistries.CABINET.get())
                 .add(BlockRegistries.BOTTLE.get())
                 .add(BlockRegistries.DISTILLER.get())
+        ;
+        this.tag(SnsBlockTags.BAR_AREA_IGNORED)
+                .addTag(BlockTags.AIR)
+                .addTag(BlockTags.SIGNS)
+                .add(BlockRegistries.BAR_MENU_BLOCK.get())
         ;
     }
 }
