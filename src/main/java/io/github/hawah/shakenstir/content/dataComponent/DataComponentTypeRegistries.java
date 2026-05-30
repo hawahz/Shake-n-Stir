@@ -2,11 +2,13 @@ package io.github.hawah.shakenstir.content.dataComponent;
 
 import com.mojang.serialization.Codec;
 import io.github.hawah.shakenstir.ShakenStir;
+import io.github.hawah.shakenstir.content.blockEntity.BarMenuBlockEntity;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
-import io.github.hawah.shakenstir.content.entity.ai.behavior.recipeProvider.SnsRecipeHolder;
+import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.content.recipe.Quality;
 import io.github.hawah.shakenstir.foundation.datapack.DrinkData;
 import io.github.hawah.shakenstir.foundation.datapack.cocktaileType.CocktailType;
+import io.github.hawah.shakenstir.lib.util.MutablePair;
 import io.github.hawah.shakenstir.util.SerializeHelper;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentType;
@@ -151,6 +153,11 @@ public class DataComponentTypeRegistries {
     public static final DataComponentType<SnsRecipeHolder> RECIPE_HOLDER = register(
             "recipe_holder",
             builder -> builder.persistent(SnsRecipeHolder.CODEC).networkSynchronized(SnsRecipeHolder.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<List<MutablePair<SnsRecipeHolder, BarMenuBlockEntity.PriceAndCount>>> RECIPES_DATA = register(
+            "recipes_data",
+            builder -> builder.persistent(BarMenuBlockEntity.LIST_RECIPE_CODEC).networkSynchronized(BarMenuBlockEntity.LIST_RECIPES_STREAM_CODEC)
     );
 
     public static void register(IEventBus eventBus) {

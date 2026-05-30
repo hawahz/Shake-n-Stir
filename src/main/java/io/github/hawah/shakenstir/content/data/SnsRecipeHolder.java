@@ -1,4 +1,4 @@
-package io.github.hawah.shakenstir.content.entity.ai.behavior.recipeProvider;
+package io.github.hawah.shakenstir.content.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

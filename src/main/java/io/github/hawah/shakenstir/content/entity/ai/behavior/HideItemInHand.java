@@ -1,5 +1,6 @@
-package io.github.hawah.shakenstir.content.entity;
+package io.github.hawah.shakenstir.content.entity.ai.behavior;
 
+import io.github.hawah.shakenstir.content.entity.BartenderEntity;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.behavior.OneShot;

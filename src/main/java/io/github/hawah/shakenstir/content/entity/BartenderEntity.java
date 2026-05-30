@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.content.entity;
 
 import com.mojang.logging.LogUtils;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
+import io.github.hawah.shakenstir.client.animation.AnimationStateMachine;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
@@ -13,6 +14,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.ContainerHelper;
@@ -246,14 +248,20 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
                 .ifPresent(this::setMainHandItemAndShrink);
     }
 
+    public final AnimationStateMachine animationStateMachine = new AnimationStateMachine();
+
     @Override
     public void tick() {
         super.tick();
         updateReady();
         updateShake();
         updateIdle();
+        if (this.level().isClientSide()) {
+            updateStateMachine();
+        }
     }
-
+    public void updateStateMachine() {
+    }
     public void updateIdle() {
         this.idleFrontAmountO = this.idleFrontAmount;
         this.idleBackAmountO = this.idleBackAmount;
@@ -330,19 +338,31 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         return Mth.lerp(partialTicks, this.idleBackAmountO, this.idleBackAmount);
     }
 
-    public enum AnimState {
-        DEFAULT,
-        READY_TO_SHAKE,
-        SHAKING,
-        IDLE_FRONT,
-        IDLE_BACK
+    public enum AnimState implements StringRepresentable {
+        DEFAULT("idle"),
+        READY_TO_SHAKE("readyToShake"),
+        SHAKING("shake"),
+        IDLE_FRONT("idleFront"),
+        IDLE_BACK("idleBack")
         ;
+
+        private final String name;
+
+        AnimState(String name) {
+            this.name = name;
+        }
+
         public static AnimState from(int i) {
             if (i < 0 || i >= values().length) {
                 LogUtils.getLogger().error("Invalid animation state");
                 return DEFAULT;
             }
             return AnimState.values()[i];
+        }
+
+        @Override
+        public String getSerializedName() {
+            return name;
         }
     }
 }

@@ -4,7 +4,7 @@ import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.client.RecipeSyncData;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
-import io.github.hawah.shakenstir.content.entity.ai.behavior.recipeProvider.SnsRecipeHolder;
+import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;

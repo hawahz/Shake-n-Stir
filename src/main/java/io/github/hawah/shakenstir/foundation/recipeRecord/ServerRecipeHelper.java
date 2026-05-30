@@ -3,7 +3,7 @@ package io.github.hawah.shakenstir.foundation.recipeRecord;
 import com.google.common.collect.EvictingQueue;
 import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
-import io.github.hawah.shakenstir.content.entity.ai.behavior.recipeProvider.SnsRecipeHolder;
+import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.item.SnsCreativeTab;
 import io.github.hawah.shakenstir.util.Paths;

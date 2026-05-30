@@ -1,5 +1,6 @@
 package io.github.hawah.shakenstir.client.render.entity;
 
+import io.github.hawah.shakenstir.client.animation.AnimationStateMachine;
 import io.github.hawah.shakenstir.content.entity.BartenderEntity;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
@@ -32,6 +33,8 @@ public class BartenderRenderState extends HumanoidRenderState {
     public int id;
     public boolean showExtraEars = false;
     public final ItemStackRenderState heldOnHead = new ItemStackRenderState();
+
+    public AnimationStateMachine stateMachine;
 
     public BartenderEntity.AnimState animState = BartenderEntity.AnimState.DEFAULT;
     public float shakeAmount;

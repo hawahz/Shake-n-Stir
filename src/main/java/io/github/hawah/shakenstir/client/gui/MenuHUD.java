@@ -5,7 +5,7 @@ import io.github.hawah.shakenstir.client.ClickInteractions;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.BarMenuBlockEntity;
-import io.github.hawah.shakenstir.content.entity.ai.behavior.recipeProvider.SnsRecipeHolder;
+import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundMenuBEChanged;
 import io.github.hawah.shakenstir.lib.client.gui.BaseScreen;
@@ -40,7 +40,7 @@ public class MenuHUD extends AbstractBlockTargetHUD{
 
     @Override
     protected boolean isVisible() {
-        return super.isVisible() && Minecraft.getInstance().hasControlDown();
+        return super.isVisible() && !Minecraft.getInstance().hasControlDown();
     }
 
     @Override
@@ -56,6 +56,8 @@ public class MenuHUD extends AbstractBlockTargetHUD{
             currentSelect = -1;
             targetSelect = -1;
             currentIndex = -1;
+            counts = 0;
+            price = 0;
             return;
         }
 

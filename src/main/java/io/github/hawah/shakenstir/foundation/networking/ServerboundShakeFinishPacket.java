@@ -3,7 +3,7 @@ package io.github.hawah.shakenstir.foundation.networking;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.IFluidDataHolder;
 import io.github.hawah.shakenstir.content.dataComponent.IItemDataHolder;
-import io.github.hawah.shakenstir.content.entity.ai.behavior.recipeProvider.SnsRecipeHolder;
+import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.recipe.Quality;
 import io.github.hawah.shakenstir.content.recipe.RecipeTypeRegistries;

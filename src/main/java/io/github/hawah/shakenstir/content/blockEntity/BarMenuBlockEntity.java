@@ -3,12 +3,13 @@ package io.github.hawah.shakenstir.content.blockEntity;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
-import io.github.hawah.shakenstir.content.entity.ai.behavior.recipeProvider.SnsRecipeHolder;
+import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.lib.util.MutablePair;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -27,9 +28,20 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
             PriceAndCount.CODEC.fieldOf("counts").forGetter(MutablePair<SnsRecipeHolder, PriceAndCount>::right)
     ).apply(instance, MutablePair::of));
 
+    public static final StreamCodec<RegistryFriendlyByteBuf, MutablePair<SnsRecipeHolder, PriceAndCount>> RECIPES_STREAM_CODEC = StreamCodec.composite(
+            SnsRecipeHolder.STREAM_CODEC, MutablePair::left,
+            PriceAndCount.STREAM_CODEC, MutablePair::right,
+            MutablePair::of
+    );
+
     public static final Codec<List<MutablePair<SnsRecipeHolder, PriceAndCount>>> LIST_RECIPE_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             RECIPIES_CODEC.listOf().fieldOf("Recipes").forGetter((l) -> l)
     ).apply(instance, ArrayList::new));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, List<MutablePair<SnsRecipeHolder, PriceAndCount>>> LIST_RECIPES_STREAM_CODEC = StreamCodec.composite(
+            RECIPES_STREAM_CODEC.apply(ByteBufCodecs.list()), (l) -> l,
+            ArrayList::new
+    );
 
     public BarMenuBlockEntity(BlockPos worldPosition, BlockState blockState) {
         super(BlockEntityRegistries.BAR_MENU_BLOCK_ENTITY.get(), worldPosition, blockState);
@@ -62,6 +74,7 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
     protected void applyImplicitComponents(DataComponentGetter components) {
         super.applyImplicitComponents(components);
         placerId = components.get(DataComponentTypeRegistries.PLACER);
+        this.recipes = components.getOrDefault(DataComponentTypeRegistries.RECIPES_DATA, new ArrayList<>());
     }
 
     public UUID getPlacerId() {
