@@ -2,7 +2,10 @@ package io.github.hawah.shakenstir.content.entity;
 
 import com.mojang.logging.LogUtils;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
+import io.github.hawah.shakenstir.client.animation.AnimationState;
 import io.github.hawah.shakenstir.client.animation.AnimationStateMachine;
+import io.github.hawah.shakenstir.client.render.entity.BartenderModel;
+import io.github.hawah.shakenstir.content.blockEntity.BarMenuBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
@@ -13,7 +16,6 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -75,20 +77,16 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     );
 
     private final NonNullList<ItemStack> inventory = NonNullList.withSize(6, ItemStack.EMPTY);
-
-    private float shakeAmount = 0;
-    public float shakeAmountO = 0;
     public float readyShakeAmount = 0;
     public float readyShakeAmountO = 0;
-    private float idleFrontAmount;
-    private float idleFrontAmountO;
-    private float idleBackAmount;
-    private float idleBackAmountO;
 
     public BartenderEntity(EntityType<BartenderEntity> type, Level level) {
         super(type, level);
         this.getNavigation().setCanOpenDoors(true);
         this.getNavigation().setCanFloat(true);
+        if (level.isClientSide()) {
+            initStateMachine();
+        }
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -142,7 +140,27 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     }
 
     public void alertCustomerOrdered() {
-
+        this.getBrain().getMemory(Memories.MENU.get()).ifPresent(
+                menu -> {
+                    if (!level().dimension().equals(menu.dimension())) {
+                        return;
+                    }
+                    if (!(level().getBlockEntity(menu.pos()) instanceof BarMenuBlockEntity blockEntity)) {
+                        return;
+                    }
+                    blockEntity.recipes
+                            .stream()
+                            .filter(item ->
+                                    item.right().count > 0)
+                            .findFirst()
+                            .ifPresent(item -> {
+                                getBrain().setMemory(Memories.RECIPE.get(), item.left());
+                                item.right().count--;
+                                blockEntity.markChanged();
+                            }
+                    );
+                }
+        );
     }
 
     @Override
@@ -201,7 +219,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
             Optional.ofNullable(itemInHand.get(DataComponentTypeRegistries.BAR_AREA)).ifPresent(barArea -> {
                 // TODO Reachable Prediction
                 if (barArea.area().getCenter().distManhattan(this.blockPosition()) < 200 && level().dimension().equals(barArea.dimension())) {
-                    this.getBrain().setMemory(Memories.BAR_DATA.get(), BarAreaHelper.calculateBarData(barArea.area(), level()));
+                    this.getBrain().setMemory(Memories.BAR_MEMORY.get(), BarAreaHelper.calculateBarData(barArea.area(), level()));
                 }
             });
         }
@@ -241,41 +259,38 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
                 .findFirst()
                 .ifPresent(this::setMainHandItemAndShrink);
     }
+
     public void tryGetOnHand(Item item) {
         this.getInventory().stream()
                 .filter(itemStack -> itemStack.is(item))
                 .findFirst()
                 .ifPresent(this::setMainHandItemAndShrink);
     }
+    public AnimationStateMachine animationStateMachine;
 
-    public final AnimationStateMachine animationStateMachine = new AnimationStateMachine();
+    private void initStateMachine() {
+        animationStateMachine = new AnimationStateMachine();
+        AnimationState idle = new AnimationState(BartenderModel.DEFAULT);
+        AnimationState ready = new AnimationState(BartenderModel.READY).fadeInMs(200).fadeOutMs(250);
+        AnimationState shake = new AnimationState(BartenderModel.SHAKE).fadeInMs(250).fadeOutMs(500);
+        AnimationState idleFront = new AnimationState(BartenderModel.IDLE_FRONT).fadeInMs(500).fadeOutMs(250);
+        AnimationState idleBack = new AnimationState(BartenderModel.IDLE_BACK).fadeInMs(500).fadeOutMs(250);
+        idle.registerConnection("readyToShake", ready);
+        ready.registerConnection("shake", shake);
+        shake.registerConnection("idle", idle);
+        idle.registerConnection("idleFront", idleFront);
+        idle.registerConnection("idleBack", idleBack);
+        idleFront.registerConnection("idle", idle);
+        idleBack.registerConnection("idle", idle);
+
+        animationStateMachine.state = "idle";
+        animationStateMachine.start(idle);
+    }
 
     @Override
     public void tick() {
         super.tick();
         updateReady();
-        updateShake();
-        updateIdle();
-        if (this.level().isClientSide()) {
-            updateStateMachine();
-        }
-    }
-    public void updateStateMachine() {
-    }
-    public void updateIdle() {
-        this.idleFrontAmountO = this.idleFrontAmount;
-        this.idleBackAmountO = this.idleBackAmount;
-        if (this.getState().equals(AnimState.IDLE_FRONT)) {
-            this.idleFrontAmount = Mth.clamp(this.idleFrontAmount + 2 / 20F, 0 , 1);
-        } else {
-            this.idleFrontAmount = Mth.clamp(this.idleFrontAmount - 4 / 20F, 0 , 1);
-        }
-
-        if (this.getState().equals(AnimState.IDLE_BACK)) {
-            this.idleBackAmount = Mth.clamp(this.idleBackAmount + 2 / 20F, 0 , 1);
-        } else {
-            this.idleBackAmount = Mth.clamp(this.idleBackAmount - 4 / 20F, 0 , 1);
-        }
     }
 
     public void updateReady() {
@@ -288,27 +303,6 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         } else {
             this.readyShakeAmount = 0;
         }
-    }
-
-    public void updateShake() {
-        this.shakeAmountO = this.shakeAmount;
-        if (this.getState().equals(AnimState.SHAKING)) {
-            this.shakeAmount = this.shakeAmount + 1/20F;
-        } else {
-            this.shakeAmount = 0;
-        }
-    }
-
-    public float getShakeAmount(float partialTicks) {
-        return Mth.lerp(partialTicks, this.shakeAmountO, this.shakeAmount);
-    }
-
-    public float getReadyShakeAmount(float partialTicks) {
-        return Mth.lerp(partialTicks, this.readyShakeAmountO, this.readyShakeAmount);
-    }
-
-    public float getIdleFrontAmount(float partialTicks) {
-        return Mth.lerp(partialTicks, this.idleFrontAmountO, this.idleFrontAmount);
     }
 
     @Override
@@ -332,10 +326,6 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
             }
         }
         return null;
-    }
-
-    public float getIdleBackAmount(float partialTicks) {
-        return Mth.lerp(partialTicks, this.idleBackAmountO, this.idleBackAmount);
     }
 
     public enum AnimState implements StringRepresentable {

@@ -42,7 +42,7 @@ public class BartenderAi {
         return ActivityData.create(
                 Activities.WORK_IDLE.get(),
                 BehaviorPackage.getWorkIdlePackage(),
-                ImmutableSet.of(Pair.of(Memories.BAR_DATA.get(), MemoryStatus.VALUE_PRESENT))
+                ImmutableSet.of(Pair.of(Memories.BAR_MEMORY.get(), MemoryStatus.VALUE_PRESENT))
         );
     }
 
@@ -51,7 +51,7 @@ public class BartenderAi {
                 Activity.WORK,
                 BehaviorPackage.getWorkPackage(),
                 ImmutableSet.of(
-                        Pair.of(Memories.BAR_DATA.get(), MemoryStatus.VALUE_PRESENT),
+                        Pair.of(Memories.BAR_MEMORY.get(), MemoryStatus.VALUE_PRESENT),
                         Pair.of(MemoryModuleType.INTERACTION_TARGET, MemoryStatus.VALUE_PRESENT)
                 )
         );
@@ -62,18 +62,19 @@ public class BartenderAi {
                 Activities.IDLE_FRONT.get(),
                 BehaviorPackage.getIdleFrontPackage(),
                 ImmutableSet.of(
-                        Pair.of(Memories.BAR_DATA.get(), MemoryStatus.VALUE_PRESENT),
+                        Pair.of(Memories.BAR_MEMORY.get(), MemoryStatus.VALUE_PRESENT),
                         Pair.of(Memories.IDLING.get(), MemoryStatus.VALUE_PRESENT)
                 )
         );
     }
 
-    static ActivityData<BartenderEntity> initShakingActivity() {
+    static ActivityData<BartenderEntity> initProductActivity() {
         return ActivityData.create(
                 Activities.PRODUCT.get(),
                 BehaviorPackage.getProductPackage(),
                 ImmutableSet.of(
-                        Pair.of(Memories.BAR_DATA.get(), MemoryStatus.VALUE_PRESENT),
+                        Pair.of(Memories.BAR_MEMORY.get(), MemoryStatus.VALUE_PRESENT),
+                        Pair.of(Memories.RECIPE.get(), MemoryStatus.VALUE_PRESENT),
                         Pair.of(MemoryModuleType.INTERACTION_TARGET, MemoryStatus.VALUE_PRESENT)
                 )
         );
@@ -85,7 +86,7 @@ public class BartenderAi {
                 initIdleActivity(),
                 initWorkIdleActivity(),
                 initWorkActivity(),
-                initShakingActivity(),
+                initProductActivity(),
                 initIdleFrontActivity()
         );
     }
@@ -219,7 +220,7 @@ public class BartenderAi {
          */
         public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super BartenderEntity>>> getProductPackage() {
             return ImmutableList.of(
-
+                    Pair.of(0, new CollectShakeIngredient())
             );
         }
 
@@ -255,7 +256,7 @@ public class BartenderAi {
     }
 
     public static void updateActivity(BartenderEntity bartender) {
-        bartender.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.WORK, Activities.IDLE_FRONT.get(), Activities.WORK_IDLE.get(), Activity.IDLE));
+        bartender.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activities.PRODUCT.get(), Activity.WORK, Activities.IDLE_FRONT.get(), Activities.WORK_IDLE.get(), Activity.IDLE));
         if (Config.Common.DEBUG_MODE.get()) {
             bartender.setData(DataAttachmentTypeRegistries.BRAIN_STATE.get(), bartender.getBrain().getActiveNonCoreActivity().map(Activity::getName).orElse("Null"));
         }

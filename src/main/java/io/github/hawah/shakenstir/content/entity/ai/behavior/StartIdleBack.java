@@ -20,7 +20,7 @@ public class StartIdleBack extends Behavior<BartenderEntity> {
 
     public StartIdleBack() {
         super(ImmutableMap.of(
-                Memories.BAR_DATA.get(), MemoryStatus.VALUE_PRESENT,
+                Memories.BAR_MEMORY.get(), MemoryStatus.VALUE_PRESENT,
                 Memories.IDLING.get(), MemoryStatus.VALUE_PRESENT,
                 MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT
         ), 1000);

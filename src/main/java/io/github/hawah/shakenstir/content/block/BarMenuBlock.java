@@ -101,7 +101,6 @@ public class BarMenuBlock extends HorizontalDirectionalBlock implements EntityBl
                 playerPlacer.sendOverlayMessage(Component.literal("alert"));
             } else if (entity instanceof BartenderEntity bartender) {
                 bartender.alertCustomerOrdered();
-                bartender.setState(BartenderEntity.AnimState.READY_TO_SHAKE);
             }
         }
         return super.useWithoutItem(state, level, pos, player, hitResult);

@@ -10,7 +10,7 @@ import net.minecraft.world.entity.animal.parrot.Parrot;
 import net.minecraft.world.entity.player.PlayerSkin;
 import org.jspecify.annotations.Nullable;
 
-public class BartenderRenderState extends HumanoidRenderState {
+public class BartenderRenderState extends HumanoidRenderState implements IStateProvider {
     public PlayerSkin skin = DefaultPlayerSkin.getDefaultSkin();
     public float capeFlap;
     public float capeLean;
@@ -37,13 +37,14 @@ public class BartenderRenderState extends HumanoidRenderState {
     public AnimationStateMachine stateMachine;
 
     public BartenderEntity.AnimState animState = BartenderEntity.AnimState.DEFAULT;
-    public float shakeAmount;
-    public float readyShakeAmount;
-    public float idleFrontAmount;
-    public float idleBackAmount;
 
     public float fallFlyingScale() {
         return Mth.clamp(this.fallFlyingTimeInTicks * this.fallFlyingTimeInTicks / 100.0F, 0.0F, 1.0F);
     }
     public String brainState = "";
+
+    @Override
+    public String state() {
+        return animState.getSerializedName();
+    }
 }

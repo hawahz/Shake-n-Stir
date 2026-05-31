@@ -16,9 +16,11 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 public class RecipeScroll extends BlockItem {
     public RecipeScroll(Properties properties) {
@@ -36,8 +38,14 @@ public class RecipeScroll extends BlockItem {
             return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
         if (level.isClientSide()) {
-            ScreenOpener.open(new ScrollScreen(player.getItemInHand(hand)));
-            player.swing(hand);
+            // FIXME
+            new Runnable() {
+                @Override
+                public void run() {
+                    ScreenOpener.open(new ScrollScreen(player.getItemInHand(hand)));
+                    player.swing(hand);
+                }
+            }.run();
         } else if (ServerRecipeHelper.recipes.containsKey(player.getUUID())) {
             Networking.sendToPlayer(new ClientboundSyncRecipeData(ServerRecipeHelper.recipes.get(player.getUUID()).stream().toList()), (ServerPlayer) player);
         }
@@ -50,7 +58,7 @@ public class RecipeScroll extends BlockItem {
         Level level = context.getLevel();
         ItemStack itemInHand = context.getItemInHand();
         if (level.getBlockEntity(clickedPos) instanceof BarMenuBlockEntity blockEntity && itemInHand.has(DataComponentTypeRegistries.RECIPE_HOLDER)) {
-            blockEntity.recipes.add(MutablePair.of(itemInHand.get(DataComponentTypeRegistries.RECIPE_HOLDER), new BarMenuBlockEntity.PriceAndCount(0, 0)));
+            blockEntity.recipes.add(MutablePair.of(itemInHand.get(DataComponentTypeRegistries.RECIPE_HOLDER), new BarMenuBlockEntity.PriceAndCount(0, 0, ItemResource.of(Items.GOLD_INGOT))));
             blockEntity.markChanged();
             context.getPlayer().swing(context.getHand());
         }

@@ -20,7 +20,7 @@ public class FindAndTraceToBar {
         return BehaviorBuilder.create(
                 i -> i.group(
                                 i.absent(MemoryModuleType.WALK_TARGET),
-                                i.present(Memories.BAR_DATA.get())
+                                i.present(Memories.BAR_MEMORY.get())
                         )
                         .apply(
                                 i,

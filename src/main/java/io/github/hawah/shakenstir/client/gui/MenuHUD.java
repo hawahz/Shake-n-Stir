@@ -8,6 +8,7 @@ import io.github.hawah.shakenstir.content.blockEntity.BarMenuBlockEntity;
 import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundMenuBEChanged;
+import io.github.hawah.shakenstir.lib.client.KeyBinding;
 import io.github.hawah.shakenstir.lib.client.gui.BaseScreen;
 import io.github.hawah.shakenstir.lib.networking.Networking;
 import io.github.hawah.shakenstir.util.Result;
@@ -17,12 +18,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.glfw.GLFW;
 
 import static io.github.hawah.shakenstir.client.gui.MC.getLevel;
+import static io.github.hawah.shakenstir.client.gui.MC.getPlayer;
 
 public class MenuHUD extends AbstractBlockTargetHUD{
 
@@ -207,7 +212,28 @@ public class MenuHUD extends AbstractBlockTargetHUD{
         if (!isVisible()) {
             return false;
         }
+        if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT && pressed) {
+            return onModifyCostItem();
+        }
         return false;
+    }
+
+    public boolean onModifyCostItem() {
+        if (!isOwner() || KeyBinding.hasShiftDown()) {
+            return false;
+        }
+        if (currentIndex < 0 || getPlayer() == null) {
+            return false;
+        }
+        ItemStack itemStack = getPlayer().getMainHandItem();
+        BarMenuBlockEntity.PriceAndCount priceAndCount = cachedEntity.recipes.get(currentIndex).right();
+        if (itemStack.isEmpty()) {
+            priceAndCount.price = 0;
+            priceAndCount.item = ItemResource.EMPTY;
+        } else {
+            priceAndCount.item = ItemResource.of(itemStack);
+        }
+        return true;
     }
 
     public boolean onMouseScroll(double delta) {

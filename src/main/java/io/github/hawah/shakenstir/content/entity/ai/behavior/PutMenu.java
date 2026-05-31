@@ -26,7 +26,7 @@ public class PutMenu {
     public static <T extends BartenderEntity> OneShot<T> create() {
         return BehaviorBuilder.create(
                 i -> i.group(
-                                i.present(Memories.BAR_DATA.get()),
+                                i.present(Memories.BAR_MEMORY.get()),
                                 i.absent(Memories.MENU.get()),
                                 i.present(MemoryModuleType.INTERACTION_TARGET)
                         )

@@ -14,7 +14,7 @@ public class CollapseMenu {
     public static OneShot<BartenderEntity> create() {
         return BehaviorBuilder.create(
                 i -> i.group(
-                                i.present(Memories.BAR_DATA.get()),
+                                i.present(Memories.BAR_MEMORY.get()),
                                 i.present(Memories.MENU.get()),
                                 i.present(Memories.IDLE_TIME.get()),
                                 i.absent(MemoryModuleType.INTERACTION_TARGET),

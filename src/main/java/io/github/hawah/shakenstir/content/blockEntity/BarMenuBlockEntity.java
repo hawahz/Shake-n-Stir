@@ -2,10 +2,9 @@ package io.github.hawah.shakenstir.content.blockEntity;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
+import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.lib.util.MutablePair;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentGetter;
@@ -16,6 +15,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,20 +84,24 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
     public static class PriceAndCount {
         public int price = 0;
         public int count = 0;
+        public ItemResource item;
         public static final Codec<PriceAndCount> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.INT.fieldOf("price").forGetter(PriceAndCount::getPrice),
-                Codec.INT.fieldOf("count").forGetter(PriceAndCount::getCount)
+                Codec.INT.fieldOf("count").forGetter(PriceAndCount::getCount),
+                ItemResource.CODEC.fieldOf("item").forGetter(PriceAndCount::getItem)
         ).apply(instance, PriceAndCount::new));
 
-        public static final StreamCodec<ByteBuf, PriceAndCount> STREAM_CODEC = StreamCodec.composite(
+        public static final StreamCodec<RegistryFriendlyByteBuf, PriceAndCount> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.INT, PriceAndCount::getPrice,
                 ByteBufCodecs.INT, PriceAndCount::getCount,
+                ItemResource.STREAM_CODEC, PriceAndCount::getItem,
                 PriceAndCount::new
         );
 
-        public PriceAndCount(int price, int count) {
+        public PriceAndCount(int price, int count, ItemResource item) {
             this.price = price;
             this.count = count;
+            this.item = item;
         }
 
         private int getPrice() {
@@ -106,6 +110,10 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
 
         private int getCount() {
             return count;
+        }
+
+        private ItemResource getItem() {
+            return item;
         }
     }
 }

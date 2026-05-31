@@ -4,7 +4,7 @@ import io.github.hawah.shakenstir.foundation.utils.AbstractState;
 import net.minecraft.client.animation.KeyframeAnimation;
 import net.minecraft.util.Mth;
 
-import javax.annotation.Nullable;
+import java.util.List;
 
 public class AnimationState extends AbstractState<AnimationState> {
 
@@ -15,14 +15,17 @@ public class AnimationState extends AbstractState<AnimationState> {
 
     private long curFadeInTime = 0;
     private long curFadeOutTime = 0;
-    public float currentFade = 1;
+    public float currentFade = 0;
     public boolean isClosed = false;
 
     public long millisSinceStart = 0;
 
     public long loop = Long.MAX_VALUE;
 
-    protected AnimationState() {
+    public final int animIndex;
+
+    public AnimationState(int animIndex) {
+        this.animIndex = animIndex;
     }
 
     public AnimationState fadeTime(long fadeMs) {
@@ -67,23 +70,39 @@ public class AnimationState extends AbstractState<AnimationState> {
         this.millisSinceStart = (timeStampMs - this.startTimeStampMs) % loop;
     }
 
-    public void apply(@Nullable KeyframeAnimation animation) {
-        if (animation != null) {
-            animation.apply(millisSinceStart, currentFade);
+    public void apply(List<KeyframeAnimation> animation) {
+        if (isClosed) {
+            return;
+        }
+        KeyframeAnimation keyframeAnimation = animation.get(animIndex);
+        if (keyframeAnimation != null) {
+            keyframeAnimation.apply(millisSinceStart, currentFade);
         }
     }
 
     public void mixtureState(long timeStampMs) {
         if (!isActive()) {
-            currentFade = 1 - Mth.inverseLerp(timeStampMs, endTimeStampMs, endTimeStampMs + curFadeOutTime);
-            currentFade = Mth.clamp(currentFade, 0, 1);
-            if (currentFade == 0) {
+            if (curFadeOutTime == 0) {
+                currentFade = 0;
                 isClosed = true;
+                return;
             }
+            currentFade = 1 - Mth.inverseLerp(timeStampMs - endTimeStampMs, 0, curFadeOutTime);
+            currentFade = Mth.clamp(currentFade, 0, 1);
+            if (currentFade <= 0) {
+                isClosed = true;
+                currentFade = 0;
+            }
+            System.out.println(timeStampMs + " perv:" + currentFade);
             return;
         }
-        currentFade = Mth.inverseLerp(timeStampMs, startTimeStampMs, startTimeStampMs + curFadeInTime);
+        if (curFadeInTime == 0) {
+            currentFade = 1;
+            return;
+        }
+        currentFade = Mth.inverseLerp(timeStampMs - startTimeStampMs, 0, curFadeInTime);
         currentFade = Mth.clamp(currentFade, 0, 1);
+        System.out.println(timeStampMs + " cur:" + currentFade);
     }
 
     public boolean shouldMixture() {

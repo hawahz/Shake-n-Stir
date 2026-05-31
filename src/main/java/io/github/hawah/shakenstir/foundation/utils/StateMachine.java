@@ -19,14 +19,17 @@ public abstract class StateMachine<T extends AbstractState<T>> {
 
     public abstract long getTimeMs();
 
-    public void transfer(String state) {
+    public boolean transfer(String state) {
         T nextState;
         if ((nextState = currentState.transferTo(state)).equals(currentState)) {
-            return;
+            return false;
         }
+        System.out.println("Transferring from " + this.state + " to " + state);
+        this.state = state;
         previousState = currentState;
         currentState = nextState;
         previousState.exit(getTimeMs());
         currentState.enter(getTimeMs());
+        return true;
     }
 }

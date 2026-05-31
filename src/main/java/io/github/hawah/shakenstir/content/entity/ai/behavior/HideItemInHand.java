@@ -11,7 +11,7 @@ public class HideItemInHand {
     public static OneShot<BartenderEntity> create() {
         return BehaviorBuilder.create(
                 i -> i.group(
-                                i.present(Memories.BAR_DATA.get()),
+                                i.present(Memories.BAR_MEMORY.get()),
                                 i.present(Memories.MENU.get())
                         )
                         .apply(

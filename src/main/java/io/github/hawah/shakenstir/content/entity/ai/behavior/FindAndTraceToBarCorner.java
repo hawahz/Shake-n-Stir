@@ -24,7 +24,7 @@ public class FindAndTraceToBarCorner {
                 i -> i.group(
                                 i.absent(MemoryModuleType.WALK_TARGET),
                                 i.absent(Memories.IDLING.get()),
-                                i.present(Memories.BAR_DATA.get())
+                                i.present(Memories.BAR_MEMORY.get())
                         )
                         .apply(
                                 i,

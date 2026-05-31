@@ -1,6 +1,7 @@
 package io.github.hawah.shakenstir.content.entity;
 
 import net.minecraft.core.NonNullList;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.item.ItemStack;
@@ -58,6 +59,12 @@ public abstract class AbstractInventoryMob extends PathfinderMob {
             }
         }
         return false;
+    }
+
+    public void addItem(ItemStack stack) {
+        if (!insertItem(stack) && level() instanceof ServerLevel serverLevel) {
+            spawnAtLocation(serverLevel, stack);
+        }
     }
 
     public int getInventorySlotLimit(int slot) {

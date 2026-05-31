@@ -19,7 +19,7 @@ public class ApproachingCustomer {
         return BehaviorBuilder.create(
                 i -> i.group(
                                 i.present(MemoryModuleType.INTERACTION_TARGET),
-                                i.present(Memories.BAR_DATA.get()),
+                                i.present(Memories.BAR_MEMORY.get()),
                                 i.absent(MemoryModuleType.WALK_TARGET)
                         )
                         .apply(

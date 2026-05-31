@@ -101,7 +101,7 @@ public class BartenderAnimation {
 		))
 		.build();
 
-	public static final AnimationDefinition DOUBLE = AnimationDefinition.Builder.withLength(0.6667F).looping()
+	public static final AnimationDefinition SHAKE_DOUBLE = AnimationDefinition.Builder.withLength(0.6667F).looping()
 		.addAnimation("head", new AnimationChannel(AnimationChannel.Targets.POSITION, 
 			new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
 			new Keyframe(0.0833F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
