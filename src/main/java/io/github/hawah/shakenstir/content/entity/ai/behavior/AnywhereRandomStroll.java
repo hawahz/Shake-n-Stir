@@ -15,7 +15,7 @@ public class AnywhereRandomStroll {
     private static final int MAX_Y_DIST = 7;
 
     public static OneShot<PathfinderMob> create(float speedModifier) {
-        return create(speedModifier, 10, 7);
+        return create(speedModifier, 5, 2);
     }
 
     public static OneShot<PathfinderMob> create(float speedModifier, int maxXyDist, int maxYDist) {

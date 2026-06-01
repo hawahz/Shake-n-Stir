@@ -4,6 +4,7 @@ import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.Unit;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.behavior.OneShot;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
@@ -46,7 +47,7 @@ public class FindAndTraceToBarCorner {
 
                                     walkTarget.setOrErase(Optional.of(validArea.get(level.getRandom().nextInt(validArea.size())))
                                             .map(pos -> new WalkTarget(pos, speedModifier, 0)));
-                                    idling.set(true);
+                                    idling.set(Unit.INSTANCE);
                                     return true;
                                 }
                         )

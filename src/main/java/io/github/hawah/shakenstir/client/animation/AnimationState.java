@@ -93,7 +93,6 @@ public class AnimationState extends AbstractState<AnimationState> {
                 isClosed = true;
                 currentFade = 0;
             }
-            System.out.println(timeStampMs + " perv:" + currentFade);
             return;
         }
         if (curFadeInTime == 0) {
@@ -102,7 +101,6 @@ public class AnimationState extends AbstractState<AnimationState> {
         }
         currentFade = Mth.inverseLerp(timeStampMs - startTimeStampMs, 0, curFadeInTime);
         currentFade = Mth.clamp(currentFade, 0, 1);
-        System.out.println(timeStampMs + " cur:" + currentFade);
     }
 
     public boolean shouldMixture() {

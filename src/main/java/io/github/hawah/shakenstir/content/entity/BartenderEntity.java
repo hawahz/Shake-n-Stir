@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.content.entity;
 
 import com.mojang.logging.LogUtils;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
+import io.github.hawah.shakenstir.Config;
 import io.github.hawah.shakenstir.client.animation.AnimationState;
 import io.github.hawah.shakenstir.client.animation.AnimationStateMachine;
 import io.github.hawah.shakenstir.client.render.entity.BartenderModel;
@@ -27,6 +28,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.animal.parrot.Parrot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -76,7 +78,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
             BartenderAi::getActivities
     );
 
-    private final NonNullList<ItemStack> inventory = NonNullList.withSize(6, ItemStack.EMPTY);
+    private final NonNullList<ItemStack> inventory = NonNullList.withSize(9, ItemStack.EMPTY);
     public float readyShakeAmount = 0;
     public float readyShakeAmountO = 0;
 
@@ -146,6 +148,10 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
                         return;
                     }
                     if (!(level().getBlockEntity(menu.pos()) instanceof BarMenuBlockEntity blockEntity)) {
+                        this.getBrain().eraseMemory(Memories.MENU.get());
+                        return;
+                    }
+                    if (this.getBrain().checkMemory(Memories.RECIPE.get(), MemoryStatus.VALUE_PRESENT)) {
                         return;
                     }
                     blockEntity.recipes
@@ -154,7 +160,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
                                     item.right().count > 0)
                             .findFirst()
                             .ifPresent(item -> {
-                                getBrain().setMemory(Memories.RECIPE.get(), item.left());
+                                getBrain().setMemory(Memories.RECIPE.get(), item.left().copy());
                                 item.right().count--;
                                 blockEntity.markChanged();
                             }
@@ -166,6 +172,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     @Override
     public void aiStep() {
         super.aiStep();
+        this.updateSwingTime();
     }
 
     @Override
@@ -176,7 +183,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     @Override
     protected void customServerAiStep(ServerLevel level) {
         ProfilerFiller profiler = Profiler.get();
-        profiler.push("creakingBrain");
+        profiler.push("bartenderBrain");
         this.getBrain().tick((ServerLevel)this.level(), this);
         profiler.pop();
         BartenderAi.updateActivity(this);
@@ -233,6 +240,22 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         else if (itemInHand.is(Items.STICK)) {
             setOwner(player);
             player.sendOverlayMessage(Component.literal("Now you are the owner"));
+        } else if (player.isShiftKeyDown() && Config.Common.DEBUG_MODE.get()) {
+            StringBuilder sb = new StringBuilder();
+            for (ItemStack itemStack : inventory) {
+                if (itemStack.has(DataComponentTypeRegistries.SPIRIT_CONTENT)) {
+                    sb.append(itemStack.getDisplayName().getString())
+                            .append(" ")
+                            .append(itemStack.get(DataComponentTypeRegistries.SPIRIT_CONTENT).fluidStack().amount())
+                            .append(" mB\n");
+                } else {
+                    sb.append(itemStack.getDisplayName().getString())
+                            .append("\n");
+                }
+            }
+            player.sendSystemMessage(Component.literal(sb.toString()));
+        }else {
+            alertCustomerOrdered();
         }
         return super.mobInteract(player, hand);
     }
@@ -330,7 +353,11 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
 
     //TODO
     public boolean isShaking() {
-        return false;
+        return getState().equals(AnimState.SHAKING) || getState().equals(AnimState.READY_TO_SHAKE);
+    }
+
+    public void startShaking() {
+        setState(AnimState.READY_TO_SHAKE);
     }
 
     public enum AnimState implements StringRepresentable {

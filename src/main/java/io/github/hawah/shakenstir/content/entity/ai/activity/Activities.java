@@ -10,7 +10,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public class Activities {
     public static final DeferredRegister<Activity> ACTIVITY = DeferredRegister.create(Registries.ACTIVITY, ShakenStir.MODID);
     public static final DeferredHolder<Activity, Activity> WORK_IDLE = register("work_idle");
-    public static final DeferredHolder<Activity, Activity> PRODUCT = register("shaking");
+    public static final DeferredHolder<Activity, Activity> PRODUCT = register("product");
     public static final DeferredHolder<Activity, Activity> IDLE_FRONT = register("idle_front");
 
     public static void register(IEventBus modEventBus) {

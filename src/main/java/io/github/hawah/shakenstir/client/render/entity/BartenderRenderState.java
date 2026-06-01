@@ -10,6 +10,9 @@ import net.minecraft.world.entity.animal.parrot.Parrot;
 import net.minecraft.world.entity.player.PlayerSkin;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BartenderRenderState extends HumanoidRenderState implements IStateProvider {
     public PlayerSkin skin = DefaultPlayerSkin.getDefaultSkin();
     public float capeFlap;
@@ -51,4 +54,7 @@ public class BartenderRenderState extends HumanoidRenderState implements IStateP
     public boolean shakeInHand = false;
     public boolean shaking = false;
     public ItemStackRenderState shakerItem = new ItemStackRenderState();
+
+    public List<ItemStackRenderState> inventory = new ArrayList<>();
+
 }

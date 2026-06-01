@@ -11,6 +11,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Unit;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
@@ -34,6 +36,7 @@ import java.util.*;
 
 public class CollectShakeIngredient extends Behavior<BartenderEntity> {
 
+    public static final boolean SHOULD_ADD_TO_INVENTORY = true;
 
     public CollectShakeIngredient() {
         super(
@@ -67,12 +70,83 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
             wanderingFluids.clear();
             wanderingFluids.addAll(recipe.requiredFluids());
         });
+        checkAndUpdateCarriedItem(body);
+    }
+
+    private void checkAndUpdateCarriedItem(BartenderEntity body) {
+        NonNullList<ItemStack> inventory = body.getInventory();
+
+        for (ItemStack itemStack : inventory) {
+            if (itemStack.isEmpty()) {
+                continue;
+            }
+
+            SpiritContent sc = itemStack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY);
+
+            if (!sc.isEmpty()) {
+                FluidStack spiritFluid = sc.fluidStack();
+
+                for (int j = 0; j < wanderingFluids.size(); j++) {
+                    FluidStack required = wanderingFluids.get(j);
+
+                    if (spiritFluid.is(required.getFluid())) {
+                        int availableAmount = spiritFluid.getAmount();
+                        int requiredAmount = required.getAmount();
+                        int toReduce = Math.min(availableAmount, requiredAmount);
+
+                        if (toReduce > 0) {
+                            required.shrink(toReduce);
+                            if (required.isEmpty()) {
+                                wanderingFluids.remove(j);
+                                j--;
+                            }
+
+                            if (wanderingFluids.isEmpty()) {
+                                return;
+                            }
+                            break;
+                        }
+                    }
+                }
+            } else {
+                for (int j = 0; j < wanderingItems.size(); j++) {
+                    ItemStack required = wanderingItems.get(j);
+
+                    if (ItemStack.isSameItemSameComponents(itemStack, required)) {
+                        int availableCount = itemStack.getCount();
+                        int requiredCount = required.getCount();
+                        int toReduce = Math.min(availableCount, requiredCount);
+
+                        if (toReduce > 0) {
+                            required.shrink(toReduce);
+                            if (required.isEmpty()) {
+                                wanderingItems.remove(j);
+                                j--;
+                            }
+
+                            if (wanderingItems.isEmpty()) {
+                                return;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            if (wanderingFluids.isEmpty() && wanderingItems.isEmpty()) {
+                break;
+            }
+        }
+    }
+
+    @Override
+    protected void stop(ServerLevel level, BartenderEntity body, long timestamp) {
+        body.getBrain().eraseMemory(MemoryModuleType.VISITED_BLOCK_POSITIONS);
     }
 
     @Override
     protected void tick(ServerLevel level, BartenderEntity body, long timestamp) {
         if (wanderingItems.isEmpty() && wanderingFluids.isEmpty()) {
-            body.getBrain().setMemory(Memories.RECIPE_READY.get(), true);
+            body.getBrain().setMemory(Memories.RECIPE_READY.get(), Unit.INSTANCE);
             this.doStop(level, body, timestamp);
             return;
         }
@@ -146,7 +220,7 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
                             try (Transaction tx = Transaction.openRoot()) {
                                 int extracted = container.extract(i, resource, toExtract, tx);
 
-                                if (extracted > 0) {
+                                if (extracted > 0 && SHOULD_ADD_TO_INVENTORY) {
                                     ItemStack extractedStack = resource.toStack(extracted);
 
                                     OptionalInt emptySlot = findEmptyInventorySlot(body);
@@ -158,6 +232,7 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
                                             j--;
                                         }
                                         tx.commit();
+                                        body.swing(InteractionHand.MAIN_HAND);
                                     } else {
                                     }
                                 }
@@ -183,7 +258,7 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
                             try (Transaction tx = Transaction.openRoot()) {
                                 int extracted = container.extract(i, resource, toExtract, tx);
 
-                                if (extracted > 0) {
+                                if (extracted > 0 && SHOULD_ADD_TO_INVENTORY) {
                                     ItemStack extractedStack = resource.toStack(extracted);
 
                                     OptionalInt emptySlot = findEmptyInventorySlot(body);
@@ -195,6 +270,7 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
                                             j--;
                                         }
                                         tx.commit();
+                                        body.swing(InteractionHand.MAIN_HAND);
                                     } else {
                                     }
                                 }

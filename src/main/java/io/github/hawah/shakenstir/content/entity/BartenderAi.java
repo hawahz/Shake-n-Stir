@@ -220,7 +220,8 @@ public class BartenderAi {
          */
         public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super BartenderEntity>>> getProductPackage() {
             return ImmutableList.of(
-                    Pair.of(0, new CollectShakeIngredient())
+                    Pair.of(0, new CollectShakeIngredient()),
+                    Pair.of(0, new BartenderProduct())
             );
         }
 

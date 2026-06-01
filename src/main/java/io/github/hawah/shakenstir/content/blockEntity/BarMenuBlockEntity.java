@@ -66,16 +66,23 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
     }
 
     public void setRecipeItem(int index, ItemStack item) {
-        recipes.get(index).right().item = ItemResource.of(item);
+        if (item.isEmpty()) {
+            recipes.get(index).right().item = ItemResource.EMPTY;
+        } else {
+            recipes.get(index).right().item = ItemResource.of(item);
+        }
         setRecipeDirty();
     }
 
     public void addRecipe(SnsRecipeHolder recipe) {
-        recipes.add(new MutablePair<>(recipe, new PriceAndCount(0, 0, null)));
+        recipes.add(new MutablePair<>(recipe, new PriceAndCount(0, 0, ItemResource.EMPTY)));
         setRecipeDirty();
     }
 
     public void setPriceAndCount(int index, PriceAndCount priceAndCount) {
+        if (priceAndCount.item == null || priceAndCount.item.isEmpty()) {
+            priceAndCount.item = ItemResource.EMPTY;
+        }
         recipes.get(index).setRight(priceAndCount);
         setRecipeDirty();
     }
@@ -94,8 +101,8 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
         for (MutablePair<SnsRecipeHolder, PriceAndCount> recipe : recipes) {
             if (recipe.right().count > 0) {
                 boolean found = false;
-                for (int i = 0; i < cachedRecipeCosts.size(); i++) {
-                    ItemStack cost = cachedRecipeCosts.get(i);
+                for (ItemStack cachedRecipeCost : cachedRecipeCosts) {
+                    ItemStack cost = cachedRecipeCost.copy();
                     if (recipe.right().item.test(itemStack -> ItemStack.isSameItemSameComponents(cost, itemStack))) {
                         cost.grow(recipe.right().count);
                         found = true;
@@ -145,7 +152,7 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
         public static final Codec<PriceAndCount> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.INT.fieldOf("price").forGetter(PriceAndCount::getPrice),
                 Codec.INT.fieldOf("count").forGetter(PriceAndCount::getCount),
-                ItemResource.CODEC.fieldOf("item").forGetter(PriceAndCount::getItem)
+                ItemResource.OPTIONAL_CODEC.fieldOf("item").forGetter(PriceAndCount::getItem)
         ).apply(instance, PriceAndCount::new));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, PriceAndCount> STREAM_CODEC = StreamCodec.composite(
@@ -158,7 +165,7 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
         public PriceAndCount(int price, int count, ItemResource item) {
             this.price = price;
             this.count = count;
-            this.item = item;
+            this.item = item != null ? item : ItemResource.EMPTY;
         }
 
         private int getPrice() {
@@ -171,6 +178,10 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
 
         private ItemResource getItem() {
             return item;
+        }
+
+        public PriceAndCount copy() {
+            return new PriceAndCount(price, count, ItemResource.of(item.toStack()));
         }
     }
 }

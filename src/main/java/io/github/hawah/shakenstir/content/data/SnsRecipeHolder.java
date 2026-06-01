@@ -59,7 +59,7 @@ public record SnsRecipeHolder(
     }
 
     public SnsRecipeHolder named(String name) {
-        return new SnsRecipeHolder(recipe, requiredItems, requiredFluids, shakeTimes, result, name);
+        return new SnsRecipeHolder(recipe, requiredItems.stream().map(ItemStack::copy).toList(), requiredFluids.stream().map(FluidStack::copy).toList(), shakeTimes, result.copy(), name);
     }
 
     @Override
@@ -74,6 +74,10 @@ public record SnsRecipeHolder(
         }
         consumer.accept(LangData.TOOLTIP_SCROLL_RECIPE_RESULT.get(result.getHoverName()));
         consumer.accept(LangData.TOOLTIP_SCROLL_RECIPE_SHAKE_TIMES.get(Component.literal(String.valueOf(shakeTimes)).withStyle(ChatFormatting.GOLD)));
+    }
+
+    public SnsRecipeHolder copy() {
+        return new SnsRecipeHolder(recipe, requiredItems.stream().map(ItemStack::copy).toList(), requiredFluids.stream().map(FluidStack::copy).toList(), shakeTimes, result.copy(), name);
     }
 
     public enum Type {
