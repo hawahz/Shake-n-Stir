@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.content.entity.ai.behavior;
 
 import io.github.hawah.shakenstir.content.entity.BartenderEntity;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
+import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.behavior.OneShot;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
@@ -18,7 +19,7 @@ public class HideItemInHand {
                                 i,
                                 (barMemory, menu) -> (level, body, timestamp) -> {
                                     ItemStack itemInHand = body.getItemInHand(InteractionHand.MAIN_HAND);
-                                    if (itemInHand.isEmpty()) {
+                                    if (itemInHand.isEmpty() || itemInHand.is(ItemRegistries.SHAKER)) {
                                         return true;
                                     }
                                     if (body.insertItem(itemInHand)) {

@@ -15,7 +15,6 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.WingsLayer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
-import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.ClientAsset;
 import net.minecraft.core.component.DataComponents;
@@ -29,8 +28,6 @@ import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.List;
 
 public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, BartenderRenderState, BartenderModel> {
 
@@ -172,19 +169,6 @@ public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, Bar
         );
 
         HumanoidMobRenderer.extractHumanoidRenderState(entity, state, partialTicks, this.itemModelResolver);
-
-        entity.getInventory().forEach(
-                itemStack -> {
-                    ItemStackRenderState itemStackRenderState = new ItemStackRenderState();
-                    this.itemModelResolver.updateForLiving(
-                            itemStackRenderState,
-                            itemStack,
-                            ItemDisplayContext.GUI,
-                            entity
-                    );
-                    state.inventory.add(itemStackRenderState);
-                }
-        );
     }
 
 
@@ -196,17 +180,6 @@ public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, Bar
             submitNodeCollector.submitNameTag(
                     poseStack, state.nameTagAttachment, 0, Component.literal(state.brainState).append(" " + state.stateMachine.state), !state.isDiscrete, state.lightCoords, state.distanceToCameraSq, camera
             );
-
-            List<ItemStackRenderState> inventory = state.inventory;
-            for (int i = 0, inventorySize = inventory.size(); i < inventorySize; i++) {
-                ItemStackRenderState itemStackRenderState = inventory.get(i);
-                poseStack.pushPose();
-                poseStack.translate(0.0F, 0.0F, 0.05F + (i * 0.05F));
-                itemStackRenderState.submit(
-                        poseStack, submitNodeCollector, state.lightCoords, 0, state.outlineColor
-                );
-                poseStack.popPose();
-            }
         }
     }
 

@@ -19,11 +19,9 @@ import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -341,17 +339,53 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
         if (target != null) {
             return target.blockEntity.equals(level.getBlockEntity(target.pos()));
         }
-        List<ChunkPos> list = ChunkPos.rangeClosed(ChunkPos.containing(body.blockPosition()), Math.floorDiv(32, 16) + 1)
-                .toList();
-        for (ChunkPos chunk: list){
-            LevelChunk chunkAt = level.getChunkSource().getChunkNow(chunk.x(), chunk.z());
-            for (BlockEntity blockEntity : chunkAt.getBlockEntities().values()) {
-                TakeUpItemTarget tar;
-                if ((tar = TakeUpItemTarget.tryGetCabinetDirectlyOrJustContainer(blockEntity, level)) != null && isTargetValid(tar, body, level)) {
-                    this.target = tar;
-                    return true;
+        var barData = body.getBrain().getMemory(Memories.BAR_MEMORY.get()).orElse(null);
+        if (barData == null) return false;
+        var area = barData.bartenderArea();
+
+        var expandedArea = new HashSet<BlockPos>();
+        for (var pos : area) {
+            for (int dx = -5; dx <= 5; dx++) {
+                for (int dy = -5; dy <= 5; dy++) {
+                    for (int dz = -5; dz <= 5; dz++) {
+                        expandedArea.add(pos.offset(dx, dy, dz));
+                    }
                 }
             }
+        }
+
+        int minX = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE;
+        int minZ = Integer.MAX_VALUE, maxZ = Integer.MIN_VALUE;
+        for (var pos : area) {
+            minX = Math.min(minX, pos.getX() - 5);
+            maxX = Math.max(maxX, pos.getX() + 5);
+            minZ = Math.min(minZ, pos.getZ() - 5);
+            maxZ = Math.max(maxZ, pos.getZ() + 5);
+        }
+
+        var bodyPos = body.blockPosition();
+        record Candidate(TakeUpItemTarget target, double distSqr) {}
+        var candidates = new ArrayList<Candidate>();
+
+        for (int cx = minX >> 4; cx <= maxX >> 4; cx++) {
+            for (int cz = minZ >> 4; cz <= maxZ >> 4; cz++) {
+                var chunkAt = level.getChunkSource().getChunkNow(cx, cz);
+                if (chunkAt == null) continue;
+                for (var blockEntity : chunkAt.getBlockEntities().values()) {
+                    var bePos = blockEntity.getBlockPos();
+                    if (!expandedArea.contains(bePos)) continue;
+                    TakeUpItemTarget tar;
+                    if ((tar = TakeUpItemTarget.tryGetCabinetDirectlyOrJustContainer(blockEntity, level)) != null && isTargetValid(tar, body, level)) {
+                        candidates.add(new Candidate(tar, bePos.distSqr(bodyPos)));
+                    }
+                }
+            }
+        }
+
+        candidates.sort(Comparator.comparingDouble(Candidate::distSqr));
+        if (!candidates.isEmpty()) {
+            this.target = candidates.getFirst().target;
+            return true;
         }
         return false;
     }

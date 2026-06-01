@@ -91,6 +91,15 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
             setState(State.POURING);
         }
         if (state.equals(State.POURING)) {
+//            body.getBrain().getMemory(Memories.BAR_MEMORY.get()).ifPresent(barData -> {
+//                List<BlockPos> blockPos = barData.barCounter();
+//                for (BlockPos blockPo : blockPos) {
+//                    if (level.getBlockState(blockPo).isEmpty()) {
+//
+//                        break;
+//                    }
+//                }
+//            });
             setState(State.END);
         }
 

@@ -253,6 +253,8 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
                             .append("\n");
                 }
             }
+            sb.append("Inventory: ")
+                    .append(getItemInHand(InteractionHand.MAIN_HAND));
             player.sendSystemMessage(Component.literal(sb.toString()));
         }else {
             alertCustomerOrdered();
