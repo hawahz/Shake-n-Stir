@@ -56,13 +56,7 @@ public class MenuHUD extends AbstractBlockTargetHUD{
     @Override
     public void render(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
         if (!isVisible()) {
-            cachedEntity = null;
-            fadeInProgress = 0;
-            currentSelect = -1;
-            targetSelect = -1;
-            currentIndex = -1;
-            counts = 0;
-            price = 0;
+            reset();
             return;
         }
 
@@ -122,13 +116,29 @@ public class MenuHUD extends AbstractBlockTargetHUD{
                     0x00FFFFFF | ((int)(0xF3 * fadeInProgress) << 24)
             );
 
-            guiGraphics.text(
-                    mc.font,
-                    String.valueOf(priceAndCount.price),
-                    (xRight) - DIST - length,
-                    y,
+//            guiGraphics.text(
+//                    mc.font,
+//                    String.valueOf(priceAndCount.price),
+//                    (xRight) - DIST - length,
+//                    y,
+//                    0x00FFFFFF | ((int)(0xF3 * fadeInProgress) << 24)
+//            );
+
+            guiGraphics.item(
+                    priceAndCount.item.toStack(),
+                    xRight - DIST - 16,
+                    y - lineHeight/2,
                     0x00FFFFFF | ((int)(0xF3 * fadeInProgress) << 24)
             );
+
+            guiGraphics.itemDecorations(
+                    mc.font,
+                    priceAndCount.item.toStack(),
+                    xRight - DIST - 16,
+                    y - lineHeight/2,
+                    String.valueOf(priceAndCount.price)
+            );
+
             if (priceAndCount.count > 0) {
                 int nameLength = mc.font.width(snsRecipeHolder.name());
                 guiGraphics.itemDecorations(
@@ -171,6 +181,16 @@ public class MenuHUD extends AbstractBlockTargetHUD{
 
         pose.popMatrix();
 
+    }
+
+    private void reset() {
+        cachedEntity = null;
+        fadeInProgress = 0;
+        currentSelect = -1;
+        targetSelect = -1;
+        currentIndex = -1;
+        counts = 0;
+        price = 0;
     }
 
     private void extractRect(GuiGraphicsExtractor guiGraphics, int x, int y, int height, int width) {
@@ -274,13 +294,13 @@ public class MenuHUD extends AbstractBlockTargetHUD{
             if (!isOwner()) {
                 counts += pitch / 50;
                 counts = Mth.clamp(counts, 0, 4);
-                priceAndCount.count = (int) counts;
+                cachedEntity.setRecipeCount(getCurrentIndex(), (int) counts);
             } else {
                 price += pitch / 50;
                 price = Math.max(price, 0);
-                priceAndCount.price = (int) price;
+                cachedEntity.setRecipePrice(getCurrentIndex(), (int) price);
             }
-            Networking.sendToServer(new ServerboundMenuBEChanged(priceAndCount, currentIndex, ClientDataHolder.Picker.pos()));
+            Networking.sendToServer(new ServerboundMenuBEChanged(cachedEntity.recipes.get(getCurrentIndex()).right(), currentIndex, ClientDataHolder.Picker.pos()));
             return new Result(true);
         }
         return Result.empty();

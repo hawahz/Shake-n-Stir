@@ -415,6 +415,11 @@ public class ClientEvents {
             event.registerEntityRenderer(EntityTypeRegistries.BARTENDER.get(), BartenderRenderer::new);
         }
 
+        @SubscribeEvent
+        public static void registerSprite(TextureAtlasStitchedEvent event) {
+
+        }
+
     }
 
     public static Result onMouseMove(final double yaw, final double pitch) {

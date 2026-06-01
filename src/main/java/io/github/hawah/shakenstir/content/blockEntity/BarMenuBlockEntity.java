@@ -12,6 +12,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -49,9 +50,65 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
 
     private UUID placerId = null;
     public List<MutablePair<SnsRecipeHolder, PriceAndCount>> recipes = new ArrayList<>();
+    public boolean dirty = true;
 
     // Temp
     public List<FormattedText> content = new ArrayList<>();
+
+    public void setRecipePrice(int index, int price) {
+        recipes.get(index).right().price = price;
+        setRecipeDirty();
+    }
+
+    public void setRecipeCount(int index, int count) {
+        recipes.get(index).right().count = count;
+        setRecipeDirty();
+    }
+
+    public void setRecipeItem(int index, ItemStack item) {
+        recipes.get(index).right().item = ItemResource.of(item);
+        setRecipeDirty();
+    }
+
+    public void addRecipe(SnsRecipeHolder recipe) {
+        recipes.add(new MutablePair<>(recipe, new PriceAndCount(0, 0, null)));
+        setRecipeDirty();
+    }
+
+    public void setPriceAndCount(int index, PriceAndCount priceAndCount) {
+        recipes.get(index).setRight(priceAndCount);
+        setRecipeDirty();
+    }
+
+    public void setRecipeDirty() {
+        dirty = true;
+    }
+
+    private final List<ItemStack> cachedRecipeCosts = new ArrayList<>();
+
+    public List<ItemStack> getRecipeCosts() {
+        if (!dirty) {
+            return cachedRecipeCosts;
+        }
+        cachedRecipeCosts.clear();
+        for (MutablePair<SnsRecipeHolder, PriceAndCount> recipe : recipes) {
+            if (recipe.right().count > 0) {
+                boolean found = false;
+                for (int i = 0; i < cachedRecipeCosts.size(); i++) {
+                    ItemStack cost = cachedRecipeCosts.get(i);
+                    if (recipe.right().item.test(itemStack -> ItemStack.isSameItemSameComponents(cost, itemStack))) {
+                        cost.grow(recipe.right().count);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    cachedRecipeCosts.add(recipe.right().item.toStack(recipe.right().count));
+                }
+            }
+        }
+        return cachedRecipeCosts;
+    }
 
     @Override
     protected void loadAdditional(ValueInput input) {

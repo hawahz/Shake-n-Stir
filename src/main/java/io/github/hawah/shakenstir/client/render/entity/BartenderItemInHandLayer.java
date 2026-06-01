@@ -24,6 +24,7 @@ public class BartenderItemInHandLayer<S extends BartenderRenderState, M extends 
         super(renderer);
     }
 
+    @Override
     protected void submitArmWithItem(
             S state, ItemStackRenderState item, ItemStack itemStack, HumanoidArm arm, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords
     ) {

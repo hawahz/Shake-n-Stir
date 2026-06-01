@@ -32,6 +32,14 @@ public class GlasswareItem extends PriorityBlockItem {
         super(block, properties);
     }
 
+    public static ItemStack getMartiniGlass() {
+        return SnsCreativeTab.createShortDrink("martini_glass");
+    }
+
+    public static ItemStack getMargaritaGlass() {
+        return SnsCreativeTab.createShortDrink("margarita_glass");
+    }
+
     @Override
     public InteractionResult place(BlockPlaceContext placeContext) {
         if (!Direction.UP.equals(placeContext.getClickedFace())) {

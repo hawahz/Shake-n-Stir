@@ -88,6 +88,9 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
                 this.onReachedTarget(this.target, level, body);
             }
         }
+
+        wanderingItems.removeIf(ItemStack::isEmpty);
+        wanderingFluids.removeIf(FluidStack::isEmpty);
     }
 
     private int ticksSinceReachingTarget;
@@ -100,7 +103,7 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
     public static final int SEARCH_TIME = 40;
 
     private void onReachedTarget(TakeUpItemTarget target, ServerLevel level, BartenderEntity body) {
-        if (!this.isWithinTargetDistance(2.0, target, level, body, body.getEyePosition())) {
+        if (!this.isWithinTargetDistance(1.0, target, level, body, body.getEyePosition())) {
             this.onStartTravelling(body);
         } else {
             this.ticksSinceReachingTarget++;
@@ -110,6 +113,7 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
                 setVisitedBlockPos(body, body.level(), target.pos);
                 interactionState = InteractionState.SEARCH;
                 setTransportingState(TransportItemState.TRAVELLING);
+                this.target = null;
             }
         }
     }
@@ -148,7 +152,7 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
                                     OptionalInt emptySlot = findEmptyInventorySlot(body);
                                     if (emptySlot.isPresent()) {
                                         body.getInventory().set(emptySlot.getAsInt(), extractedStack);
-                                        required.shrink(extracted);
+                                        required.shrink(spiritFluid.getAmount());
                                         if (required.isEmpty()) {
                                             wanderingFluids.remove(j);
                                             j--;
@@ -229,9 +233,7 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
     }
 
     private void onTravelToTarget(TakeUpItemTarget target, ServerLevel level, BartenderEntity body) {
-        if (this.isWithinTargetDistance(3.0, target, level, body, body.getEyePosition())) {
-            this.startOnReachedTargetInteraction(target, body);
-        } else if (this.isWithinTargetDistance(getInteractionRange(body), target, level, body, body.getEyePosition())) {
+        if (this.isWithinTargetDistance(getInteractionRange(body), target, level, body, body.getEyePosition())) {
             this.startOnReachedTargetInteraction(target, body);
         } else {
             this.walkTowardsTarget(body);

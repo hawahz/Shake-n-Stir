@@ -47,4 +47,8 @@ public class BartenderRenderState extends HumanoidRenderState implements IStateP
     public String state() {
         return animState.getSerializedName();
     }
+
+    public boolean shakeInHand = false;
+    public boolean shaking = false;
+    public ItemStackRenderState shakerItem = new ItemStackRenderState();
 }

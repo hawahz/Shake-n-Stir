@@ -328,6 +328,11 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         return null;
     }
 
+    //TODO
+    public boolean isShaking() {
+        return false;
+    }
+
     public enum AnimState implements StringRepresentable {
         DEFAULT("idle"),
         READY_TO_SHAKE("readyToShake"),

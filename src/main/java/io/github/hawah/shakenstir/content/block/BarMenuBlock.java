@@ -83,9 +83,9 @@ public class BarMenuBlock extends HorizontalDirectionalBlock implements EntityBl
         BlockEntity blockEntity = params.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         List<ItemStack> drop = super.getDrops(state, params);
         if (blockEntity instanceof BarMenuBlockEntity bar) {
-            drop = drop.stream().map(itemStack -> {
+            drop = drop.stream().peek(itemStack -> {
+                bar.recipes.forEach(recipe -> recipe.right().count = 0);
                 itemStack.set(DataComponentTypeRegistries.RECIPES_DATA, new ArrayList<>(bar.recipes));
-                return itemStack;
             }).toList();
         }
         return drop;

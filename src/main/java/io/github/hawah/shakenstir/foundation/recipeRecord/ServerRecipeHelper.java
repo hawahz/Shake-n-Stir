@@ -4,8 +4,8 @@ import com.google.common.collect.EvictingQueue;
 import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
+import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
-import io.github.hawah.shakenstir.content.item.SnsCreativeTab;
 import io.github.hawah.shakenstir.util.Paths;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
@@ -53,7 +53,7 @@ public class ServerRecipeHelper {
         if (!result.is(ItemRegistries.CONTENT_HOLDER)) {
             return ItemStack.EMPTY;
         }
-        ItemStack martiniGlass = getMartiniGlass();
+        ItemStack martiniGlass = GlasswareItem.getMartiniGlass();
         DataComponentMap components = result.getComponents();
         if (components.has(DataComponents.DYED_COLOR)) {
             martiniGlass.set(DataComponents.DYED_COLOR, components.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0)));
@@ -69,14 +69,6 @@ public class ServerRecipeHelper {
             martiniGlass.set(DataComponentTypeRegistries.DRINK_DATA, components.get(DataComponentTypeRegistries.DRINK_DATA));
         }
         return martiniGlass;
-    }
-    
-    public static ItemStack getMartiniGlass() {
-        return SnsCreativeTab.createShortDrink("martini_glass");
-    }
-
-    public static ItemStack getMargaritaGlass() {
-        return SnsCreativeTab.createShortDrink("margarita_glass");
     }
 
     @SubscribeEvent

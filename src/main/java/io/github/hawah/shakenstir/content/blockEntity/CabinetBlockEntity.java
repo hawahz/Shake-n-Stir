@@ -1,35 +1,24 @@
 package io.github.hawah.shakenstir.content.blockEntity;
 
-import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.content.block.Cabinet;
 import io.github.hawah.shakenstir.foundation.item.SpiritBottleItem;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
-import org.jspecify.annotations.Nullable;
 
 
-public class CabinetBlockEntity extends BlockEntity implements ItemOwner {
+public class CabinetBlockEntity extends AutoUpdateBlockEntity implements ItemOwner {
 
     public static final int CABNET_SIZE = 2;
 
@@ -40,22 +29,6 @@ public class CabinetBlockEntity extends BlockEntity implements ItemOwner {
     }
 
     @Override
-    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag var4;
-        try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(this.problemPath(), LogUtils.getLogger())) {
-            TagValueOutput output = TagValueOutput.createWithContext(reporter, registries);
-            saveAdditional(output);
-            var4 = output.buildResult();
-        }
-        return var4;
-    }
-
-    @Override
     protected void saveAdditional(ValueOutput output) {
         ContainerHelper.saveAllItems(output, contents);
         super.saveAdditional(output);
@@ -63,6 +36,7 @@ public class CabinetBlockEntity extends BlockEntity implements ItemOwner {
 
     @Override
     protected void loadAdditional(ValueInput input) {
+        contents.clear();
         ContainerHelper.loadAllItems(input, contents);
         super.loadAdditional(input);
     }
@@ -161,18 +135,6 @@ public class CabinetBlockEntity extends BlockEntity implements ItemOwner {
             return 0;
         }
     };
-
-    protected void markChanged() {
-        setChanged();
-        if (getLevel() instanceof ServerLevel serverLevel){
-            serverLevel.players().forEach(
-                    player -> player.connection.send(getUpdatePacket())
-            );
-            // FIXME
-            //noinspection UnstableApiUsage
-            net.neoforged.neoforge.attachment.AttachmentSync.syncBlockEntityUpdates(this, serverLevel.players());
-        }
-    }
 
     @Override
     public Level level() {

@@ -1,9 +1,11 @@
 package io.github.hawah.shakenstir.client.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.hawah.shakenstir.Config;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.dataAttachment.DataAttachmentTypeRegistries;
 import io.github.hawah.shakenstir.content.entity.BartenderEntity;
+import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -155,6 +157,15 @@ public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, Bar
         state.brainState = entity.getData(DataAttachmentTypeRegistries.BRAIN_STATE);
         state.animState = entity.getState();
         state.stateMachine = entity.animationStateMachine;
+
+        state.shakeInHand = entity.getItemInHand(InteractionHand.MAIN_HAND).is(ItemRegistries.SHAKER);
+        state.shaking = entity.isShaking();
+        this.itemModelResolver.updateForLiving(
+                state.shakerItem,
+                ItemRegistries.SHAKER.toStack(),
+                ItemDisplayContext.THIRD_PERSON_RIGHT_HAND,
+                entity
+        );
     }
 
 
@@ -162,9 +173,11 @@ public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, Bar
     public void submit(BartenderRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
 
         super.submit(state, poseStack, submitNodeCollector, camera);
-        submitNodeCollector.submitNameTag(
-                poseStack, state.nameTagAttachment, 0, Component.literal(state.brainState).append(" " + state.stateMachine.state), !state.isDiscrete, state.lightCoords, state.distanceToCameraSq, camera
-        );
+        if (Config.Common.DEBUG_MODE.get()) {
+            submitNodeCollector.submitNameTag(
+                    poseStack, state.nameTagAttachment, 0, Component.literal(state.brainState).append(" " + state.stateMachine.state), !state.isDiscrete, state.lightCoords, state.distanceToCameraSq, camera
+            );
+        }
     }
 
     @Override

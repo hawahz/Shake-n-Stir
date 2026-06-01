@@ -19,8 +19,7 @@ public record ServerboundMenuBEChanged(BarMenuBlockEntity.PriceAndCount priceAnd
     @Override
     public void handle(ServerPlayer player) {
         if (player.level().getBlockEntity(pos) instanceof BarMenuBlockEntity blockEntity && index() >= 0 && index < blockEntity.recipes.size()) {
-            blockEntity.recipes.get(index).setRight(priceAndCount);
-            blockEntity.markChanged();
+            blockEntity.setPriceAndCount(index(), priceAndCount());
         }
     }
 
