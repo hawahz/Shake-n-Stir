@@ -233,6 +233,7 @@ public class TransformWarper {
                  if (!this.active) {
                      print();
                  }
+                 System.out.println(this.active? "Active": "Inactive");
              }
              if (!this.active) {
                  return false;

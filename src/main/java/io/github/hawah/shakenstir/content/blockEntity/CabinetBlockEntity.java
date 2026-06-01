@@ -78,7 +78,7 @@ public class CabinetBlockEntity extends AutoUpdateBlockEntity implements ItemOwn
 
         @Override
         public ItemResource getResource(int index) {
-            if (index < CABNET_SIZE && index > 0) {
+            if (index < CABNET_SIZE && index >= 0) {
                 return ItemResource.of(contents.get(index));
             }
             return ItemResource.EMPTY;
@@ -86,7 +86,7 @@ public class CabinetBlockEntity extends AutoUpdateBlockEntity implements ItemOwn
 
         @Override
         public long getAmountAsLong(int index) {
-            if (index < CABNET_SIZE && index > 0) {
+            if (index < CABNET_SIZE && index>=0) {
                 return contents.get(index).getCount();
             }
             return 0;
@@ -94,7 +94,7 @@ public class CabinetBlockEntity extends AutoUpdateBlockEntity implements ItemOwn
 
         @Override
         public long getCapacityAsLong(int index, ItemResource resource) {
-            if (index < CABNET_SIZE && index > 0) {
+            if (index < CABNET_SIZE && index>=0) {
                 return 1;
             }
             return 0;
@@ -102,12 +102,12 @@ public class CabinetBlockEntity extends AutoUpdateBlockEntity implements ItemOwn
 
         @Override
         public boolean isValid(int index, ItemResource resource) {
-            return index < CABNET_SIZE && index > 0;
+            return index < CABNET_SIZE && index>=0;
         }
 
         @Override
         public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
-            if (index < CABNET_SIZE && index > 0) {
+            if (index < CABNET_SIZE && index>=0) {
                 ItemStack stack = resource.toStack(amount);
                 if (contents.get(index).isEmpty()) {
                     contents.set(index, stack);
@@ -120,7 +120,7 @@ public class CabinetBlockEntity extends AutoUpdateBlockEntity implements ItemOwn
 
         @Override
         public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
-            if (index < CABNET_SIZE && index > 0) {
+            if (index < CABNET_SIZE && index>=0) {
                 ItemStack stack = contents.get(index);
                 if (!stack.isEmpty()) {
                     int count = Math.min(stack.getCount(), amount);

@@ -167,7 +167,7 @@ public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, Bar
         this.itemModelResolver.updateForLiving(
                 state.shakerItem,
                 ItemRegistries.SHAKER.toStack(),
-                ItemDisplayContext.THIRD_PERSON_RIGHT_HAND,
+                ItemDisplayContext.GUI,
                 entity
         );
 

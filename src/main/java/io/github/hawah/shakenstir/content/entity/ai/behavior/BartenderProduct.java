@@ -6,10 +6,12 @@ import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
 import io.github.hawah.shakenstir.content.entity.BartenderEntity;
 import io.github.hawah.shakenstir.content.entity.ai.memory.BarData;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
+import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.behavior.Behavior;
@@ -61,6 +63,7 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
     @Override
     protected void start(ServerLevel level, BartenderEntity body, long timestamp) {
         endTime = -1;
+        lookAtStamp = -1;
         setState(State.APPROACHING_CUSTOMER);
     }
 
@@ -97,14 +100,15 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
 
     private void doTurnForShake(ServerLevel level, BartenderEntity body, long timestamp) {
         if (lookAtStamp < 0) {
-            lookAtStamp = timestamp + 20L;
+            lookAtStamp = timestamp + 40L;
         } else if (timestamp > lookAtStamp) {
+            body.setItemInHand(InteractionHand.MAIN_HAND, ItemRegistries.SHAKER.toStack());
             setState(State.SHAKING);
             return;
         }
         body.getBrain().getMemory(MemoryModuleType.INTERACTION_TARGET)
                 .ifPresent(target -> {
-                    Vec3 lookAt = target.position().subtract(body.position()).yRot(Mth.HALF_PI).add(body.position());
+                    Vec3 lookAt = target.position().subtract(body.position()).yRot(Mth.PI * 0.4F).add(body.position());
                     body.getLookControl().setLookAt(lookAt);
                     body.setYBodyRot(body.yHeadRot);
                 });
@@ -227,6 +231,7 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
         );
         body.setState(BartenderEntity.AnimState.DEFAULT);
         body.getBrain().eraseMemory(Memories.RECIPE.get());
+        body.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
     }
 
     @Override

@@ -19,6 +19,7 @@ import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -66,9 +67,9 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
         super.start(level, body, timestamp);
         body.getBrain().getMemory(Memories.RECIPE.get()).ifPresent(recipe -> {
             wanderingItems.clear();
-            wanderingItems.addAll(recipe.requiredItems());
+            wanderingItems.addAll(recipe.requiredItems().stream().map(ItemStack::copy).toList());
             wanderingFluids.clear();
-            wanderingFluids.addAll(recipe.requiredFluids());
+            wanderingFluids.addAll(recipe.requiredFluids().stream().map(FluidStack::copy).toList());
         });
         checkAndUpdateCarriedItem(body);
     }
@@ -101,9 +102,6 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
                                 j--;
                             }
 
-                            if (wanderingFluids.isEmpty()) {
-                                return;
-                            }
                             break;
                         }
                     }
@@ -124,9 +122,6 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
                                 j--;
                             }
 
-                            if (wanderingItems.isEmpty()) {
-                                return;
-                            }
                             break;
                         }
                     }
@@ -174,7 +169,7 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
     }
 
     InteractionState interactionState = null;
-    public static final int SEARCH_TIME = 40;
+    public static final int SEARCH_TIME = 20;
 
     private void onReachedTarget(TakeUpItemTarget target, ServerLevel level, BartenderEntity body) {
         if (!this.isWithinTargetDistance(1.0, target, level, body, body.getEyePosition())) {
@@ -346,12 +341,16 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
         if (target != null) {
             return target.blockEntity.equals(level.getBlockEntity(target.pos()));
         }
-        LevelChunk chunkAt = level.getChunkAt(body.blockPosition());
-        for (BlockEntity blockEntity : chunkAt.getBlockEntities().values()) {
-            TakeUpItemTarget tar;
-            if ((tar = TakeUpItemTarget.tryGetCabinetDirectlyOrJustContainer(blockEntity, level)) != null && isTargetValid(tar, body, level)) {
-                this.target = tar;
-                return true;
+        List<ChunkPos> list = ChunkPos.rangeClosed(ChunkPos.containing(body.blockPosition()), Math.floorDiv(32, 16) + 1)
+                .toList();
+        for (ChunkPos chunk: list){
+            LevelChunk chunkAt = level.getChunkSource().getChunkNow(chunk.x(), chunk.z());
+            for (BlockEntity blockEntity : chunkAt.getBlockEntities().values()) {
+                TakeUpItemTarget tar;
+                if ((tar = TakeUpItemTarget.tryGetCabinetDirectlyOrJustContainer(blockEntity, level)) != null && isTargetValid(tar, body, level)) {
+                    this.target = tar;
+                    return true;
+                }
             }
         }
         return false;
