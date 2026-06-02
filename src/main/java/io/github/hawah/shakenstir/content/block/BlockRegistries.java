@@ -75,6 +75,10 @@ public class BlockRegistries {
             "bar_menu",
             () -> BlockBehaviour.simpleCodec(BarMenuBlock::new)
     );
+    public static final Supplier<MapCodec<BarCounterBlock>> BAR_COUNTER_CODEC = REGISTRAR.register(
+            "bar_counter",
+            () -> BlockBehaviour.simpleCodec(BarCounterBlock::new)
+    );
 
     public static void register(IEventBus eventBus) {
         BLOCKS.register(eventBus);

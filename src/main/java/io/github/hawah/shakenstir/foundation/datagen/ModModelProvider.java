@@ -1,27 +1,23 @@
 package io.github.hawah.shakenstir.foundation.datagen;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
+import com.mojang.math.Quadrant;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.client.render.item.GlasswareSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.ShakeItemSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer;
 import io.github.hawah.shakenstir.content.HasCup;
-import io.github.hawah.shakenstir.content.block.BlockRegistries;
-import io.github.hawah.shakenstir.content.block.Cabinet;
-import io.github.hawah.shakenstir.content.block.Distiller;
-import io.github.hawah.shakenstir.foundation.block.DistillerPart;
-import io.github.hawah.shakenstir.content.block.SpiritBlock;
+import io.github.hawah.shakenstir.content.block.*;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.foundation.block.DistillerPart;
 import io.github.hawah.shakenstir.foundation.item.SpiritBottleItem;
 import net.minecraft.client.color.item.Dye;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
 import net.minecraft.client.data.models.MultiVariant;
-import net.minecraft.client.data.models.blockstates.BlockModelDefinitionGenerator;
-import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
-import net.minecraft.client.data.models.blockstates.PropertyDispatch;
+import net.minecraft.client.data.models.blockstates.*;
 import net.minecraft.client.data.models.model.*;
 import net.minecraft.client.renderer.block.dispatch.Variant;
 import net.minecraft.client.renderer.item.ClientItem;
@@ -68,7 +64,7 @@ public class ModModelProvider extends ModelProvider {
         itemModels.generateFlatItem(ItemRegistries.RECIPE_SCROLL.get(), ModelTemplates.FLAT_ITEM);
         // Basic single variant model
         registerCustomBlockModel(blockModels, "block/shaker_lid", BlockRegistries.SHAKE_LID_BLOCK.get());
-        registerCustomBlockModel(blockModels, "block/bar_counter", BlockRegistries.BAR_COUNTER_BLOCK.get());
+        generateBarCounterModel(blockModels, itemModels);
         generateShaker(blockModels, itemModels);
         generateSpirit(blockModels, itemModels, BlockRegistries.GIN, ItemRegistries.GIN, "gin");
         generateSpirit(blockModels, itemModels, BlockRegistries.WHISKY, ItemRegistries.WHISKY, "whisky");
@@ -439,6 +435,163 @@ public class ModModelProvider extends ModelProvider {
                                 .select(Direction.WEST, getMultiVariant(modelPath).with(BlockModelGenerators.Y_ROT_270))
                 )
         );
+    }
+
+    private static void generateBarCounterModel(
+            BlockModelGenerators blockModels,
+            ItemModelGenerators itemModels
+    ) {
+        Identifier baseModelId =
+                ShakenStir.asResource("block/bar_counter_base");
+
+        MultiPartGenerator generator =
+                MultiPartGenerator.multiPart(
+                        BlockRegistries.BAR_COUNTER_BLOCK.get()
+                );
+
+        /*
+         * Base 永远渲染
+         */
+        for (Direction facing : List.of(
+                Direction.NORTH,
+                Direction.EAST,
+                Direction.SOUTH,
+                Direction.WEST
+        )) {
+            generator.with(
+                    new ConditionBuilder()
+                            .term(HorizontalDirectionalBlock.FACING, facing),
+                    new MultiVariant(
+                            WeightedList.of(
+                                    new Variant(baseModelId)
+                                            .withYRot(
+                                                    yRotToQuadrant(
+                                                            facingToYRot(facing)
+                                                    )
+                                            )
+                            )
+                    )
+            );
+        }
+
+        /*
+         * Overlay 按连接状态渲染
+         */
+        for (Direction facing : List.of(
+                Direction.NORTH,
+                Direction.EAST,
+                Direction.SOUTH,
+                Direction.WEST
+        )) {
+            for (boolean north : List.of(false, true))
+                for (boolean east  : List.of(false, true))
+                    for (boolean south : List.of(false, true))
+                        for (boolean west  : List.of(false, true)) {
+
+                            OverlayInfo overlay =
+                                    selectOverlay(
+                                            north,
+                                            east,
+                                            south,
+                                            west
+                                    );
+
+                            int baseYRot = 0;
+
+                            Variant overlayVariant =
+                                    new Variant(overlay.model)
+                                            .withYRot(
+                                                    yRotToQuadrant(
+                                                            (baseYRot + overlay.yRot) % 360
+                                                    )
+                                            );
+
+                            generator.with(
+                                    new ConditionBuilder()
+                                            .term(HorizontalDirectionalBlock.FACING, facing)
+                                            .term(BarCounterBlock.NORTH, north)
+                                            .term(BarCounterBlock.EAST, east)
+                                            .term(BarCounterBlock.SOUTH, south)
+                                            .term(BarCounterBlock.WEST, west),
+
+                                    new MultiVariant(
+                                            WeightedList.of(
+                                                    overlayVariant
+                                            )
+                                    )
+                            );
+                        }
+        }
+
+        blockModels.blockStateOutput.accept(generator);
+
+        ItemModel.Unbaked itemModel =
+                ItemModelUtils.composite(ItemModelUtils.plainModel(baseModelId), ItemModelUtils.plainModel(ShakenStir.asResource("block/bar_counter_single_overlay")));
+
+        itemModels.itemModelOutput.accept(
+                ItemRegistries.BAR_COUNTER.get(),
+                itemModel
+        );
+    }
+
+    private static int facingToYRot(Direction facing) {
+        return switch (facing) {
+            case EAST -> 90;
+            case SOUTH -> 180;
+            case WEST -> 270;
+            default -> 0;
+        };
+    }
+
+    private static Quadrant yRotToQuadrant(int degrees) {
+        return switch (degrees) {
+            case 90 -> Quadrant.R90;
+            case 180 -> Quadrant.R180;
+            case 270 -> Quadrant.R270;
+            default -> Quadrant.R0;
+        };
+    }
+
+    private record OverlayInfo(Identifier model, int yRot) {}
+
+    private static OverlayInfo selectOverlay(boolean north, boolean east, boolean south, boolean west) {
+        Identifier northOverlay = ShakenStir.asResource("block/bar_counter_north_overlay");
+        Identifier nosideOverlay = ShakenStir.asResource("block/bar_counter_noside_overlay");
+        Identifier onesideOverlay = ShakenStir.asResource("block/bar_counter_oneside_overlay");
+        Identifier oppositeOverlay = ShakenStir.asResource("block/bar_counter_opposite_overlay");
+        Identifier singleOverlay = ShakenStir.asResource("block/bar_counter_single_overlay");
+        Identifier nearOverlay = ShakenStir.asResource("block/bar_counter_near_overlay");
+
+        int count = (north ? 1 : 0) + (east ? 1 : 0) + (south ? 1 : 0) + (west ? 1 : 0);
+
+        if (count == 4) {
+            return new OverlayInfo(nosideOverlay, 0);
+        }
+        if (count == 3) {
+            if (!north) return new OverlayInfo(onesideOverlay, 0);
+            if (!east) return new OverlayInfo(onesideOverlay, 90);
+            if (!south) return new OverlayInfo(onesideOverlay, 180);
+            return new OverlayInfo(onesideOverlay, 270); // missing west
+        }
+        if (east && west) {
+            return new OverlayInfo(oppositeOverlay, 0);
+        }
+        if (north && south) {
+            return new OverlayInfo(oppositeOverlay, 90);
+        }
+        if (count == 1) {
+            if (north) return new OverlayInfo(northOverlay, 0);
+            if (east) return new OverlayInfo(northOverlay, 90);
+            if (south) return new OverlayInfo(northOverlay, 180);
+            return new OverlayInfo(northOverlay, 270); // west
+        }
+        if (count == 2) {
+            if (north && east) return new OverlayInfo(nearOverlay, 90);
+            if (east && south) return new OverlayInfo(nearOverlay, 180);
+            if (south && west) return new OverlayInfo(nearOverlay, 270);
+            return new OverlayInfo(nearOverlay, 0);
+        }
+        return new OverlayInfo(singleOverlay, 0);
     }
 
 

@@ -1,6 +1,15 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "shakenstir:block/bar_counter"
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "shakenstir:block/bar_counter_base"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "shakenstir:block/bar_counter_single_overlay"
+      }
+    ]
   }
 }

@@ -13,6 +13,8 @@ import io.github.hawah.shakenstir.client.model.glassware.GlasswareUnbakedModelLo
 import io.github.hawah.shakenstir.client.render.GlasswareOutlineRenderer;
 import io.github.hawah.shakenstir.client.render.block.*;
 import io.github.hawah.shakenstir.client.render.entity.BartenderRenderer;
+import io.github.hawah.shakenstir.client.render.gui.MenuRenderState;
+import io.github.hawah.shakenstir.client.render.gui.MenuRenderer;
 import io.github.hawah.shakenstir.client.render.item.GlasswareSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.ShakeItemSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer;
@@ -418,6 +420,11 @@ public class ClientEvents {
         @SubscribeEvent
         public static void registerSprite(TextureAtlasStitchedEvent event) {
 
+        }
+
+        @SubscribeEvent
+        public static void registerRenderer(RegisterPictureInPictureRenderersEvent event) {
+            event.register(MenuRenderState.class, MenuRenderer::new);
         }
 
     }

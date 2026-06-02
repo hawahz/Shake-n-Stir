@@ -60,6 +60,8 @@ public class MenuHUD extends AbstractBlockTargetHUD{
             return;
         }
 
+//        guiGraphics.submitPictureInPictureRenderState(new MenuRenderState());
+
         BlockPos pos = ClientDataHolder.Picker.pos();
         if (getLevel() == null || pos == null) {
             return;
