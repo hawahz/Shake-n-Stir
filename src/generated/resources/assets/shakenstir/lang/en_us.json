@@ -38,6 +38,8 @@
   "item.shakenstir.whisky": "Whisky",
   "itemGroup.shakenstir": "Shake n Stir",
   "itemGroup.shakenstir.tab": "Shake n Stir",
+  "itemGroup.shakenstir.tab.bar": "Shake n Stir - Bar",
+  "itemGroup.shakenstir.tab.bartending": "Shake n Stir - Bartending",
   "shakenstir.advancements.shakenstir.drink.died_by_discovering_paralysis.description": "Die from paralysis damage.",
   "shakenstir.advancements.shakenstir.drink.died_by_discovering_paralysis.title": "A Fatal Discovery",
   "shakenstir.advancements.shakenstir.drink.drunk_heavy.description": "Get heavily drunk.",

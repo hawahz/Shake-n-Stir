@@ -68,4 +68,6 @@ public class RecipeScroll extends BlockItem {
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
         return !oldStack.has(DataComponentTypeRegistries.RECIPE_HOLDER) && newStack.has(DataComponentTypeRegistries.RECIPE_HOLDER) || super.shouldCauseReequipAnimation(oldStack, newStack, slotChanged);
     }
+
+
 }

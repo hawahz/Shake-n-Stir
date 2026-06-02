@@ -32,8 +32,8 @@
   "item.shakenstir.tequila": "龙舌兰",
   "item.shakenstir.vodka": "伏特加",
   "item.shakenstir.whisky": "威士忌",
-  "itemGroup.shakenstir": "摇匀搅拌",
-  "itemGroup.shakenstir.tab": "摇匀搅拌",
+  "itemGroup.shakenstir": "摇匀搅香",
+  "itemGroup.shakenstir.tab": "摇匀搅香",
   "shakenstir.configuration.enable_wrong_fluid_in_bottle": "允许瓶中装入错误液体",
   "shakenstir.configuration.enable_wrong_fluid_in_bottle.tooltip": "",
   "shakenstir.hud.blackboard_change_distance": "更改触及距离",
@@ -118,5 +118,7 @@
   "item.shakenstir.bar_counter": "吧台",
   "item.shakenstir.menu": "酒单",
   "item.shakenstir.rag": "抹布",
-  "item.shakenstir.recipe_scroll": "配方卷"
+  "item.shakenstir.recipe_scroll": "配方卷",
+  "itemGroup.shakenstir.tab.bar": "摇匀搅香 - 酒吧",
+  "itemGroup.shakenstir.tab.bartending": "摇匀搅香 - 调制"
 }

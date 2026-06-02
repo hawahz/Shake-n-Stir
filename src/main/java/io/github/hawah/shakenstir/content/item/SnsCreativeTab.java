@@ -15,9 +15,9 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public class SnsCreativeTab {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(BuiltInRegistries.CREATIVE_MODE_TAB, ShakenStir.MODID);
     //CREATIVE_MODE_TABS is a DeferredRegister<CreativeModeTab>
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> SHAKENSTIR_TAB = CREATIVE_MODE_TABS.register("shakenstir_tab", () -> CreativeModeTab.builder()
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> SHAKENSTIR_TAB_BARTENDING = CREATIVE_MODE_TABS.register("shakenstir_bartending_tab", () -> CreativeModeTab.builder()
             //Set the title of the tab. Don't forget to add a translation!
-            .title(Component.translatable("itemGroup." + ShakenStir.MODID + ".tab"))
+            .title(Component.translatable("itemGroup." + ShakenStir.MODID + ".tab.bartending"))
             //Set the icon of the tab.
             .icon(() -> new ItemStack(ItemRegistries.SHAKER.get()))
             //Add your items to the tab.
@@ -38,12 +38,22 @@ public class SnsCreativeTab {
                 output.accept(ItemRegistries.LEMON.get());
                 output.accept(ItemRegistries.LEMON_SLICE.get());
                 output.accept(ItemRegistries.SOBERING_TEA.get());
+            })
+            .build()
+    );
+
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> SHAKENSTIR_TAB_BAR = CREATIVE_MODE_TABS.register("shakenstir_tab_bar", () -> CreativeModeTab.builder()
+            //Set the title of the tab. Don't forget to add a translation!
+            .title(Component.translatable("itemGroup." + ShakenStir.MODID + ".tab.bar"))
+            //Set the icon of the tab.
+            .icon(() -> new ItemStack(ItemRegistries.CABINET.get()))
+            //Add your items to the tab.
+            .displayItems((params, output) -> {
+                output.accept(ItemRegistries.BAR_COUNTER.get());
                 output.accept(ItemRegistries.CABINET.get());
                 output.accept(ItemRegistries.DISTILLER.get());
-
-                output.accept(ItemRegistries.RAG.get());
                 output.accept(ItemRegistries.MENU.get());
-                output.accept(ItemRegistries.BAR_COUNTER.get());
+                output.accept(ItemRegistries.RAG.get());
                 output.accept(ItemRegistries.RECIPE_SCROLL.get());
             })
             .build()
