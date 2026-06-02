@@ -136,11 +136,12 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
         try (Transaction transaction = Transaction.openRoot()) {
             int inserted = itemHandler.insert(ItemResource.of(itemStack), 1, transaction);
             if (!player.isCreative()) {
-                itemStack.shrink(inserted);
+
                 if (itemStack.getCraftingRemainder() != null) {
                     ItemStack remains = itemStack.getCraftingRemainder().create();
                     player.addItem(remains);
                 }
+                itemStack.shrink(inserted);
             }
             if (getFluidAmount() != 0) {
                 level().playSound(
@@ -170,7 +171,7 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
             int top;
             ItemResource resource = ItemResource.EMPTY;
             for (top = itemHandler.size() - 1; top >= 0; top--) {
-                if (!(resource = itemHandler.getResource(top)).isEmpty() && !resource.is(ItemRegistries.CONTENT_HOLDER.get())) {
+                if (!(resource = itemHandler.getResource(top)).isEmpty() && !resource.is(ItemRegistries.CONTENT_HOLDER.get()) && resource.toStack().getCraftingRemainder() == null) {
                     break;
                 }
             }

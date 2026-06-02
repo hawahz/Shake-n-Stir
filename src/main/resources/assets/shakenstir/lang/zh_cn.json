@@ -114,5 +114,9 @@
   "shakenstir.tooltip_scroll_recipe_result": "成品: %s",
   "shakenstir.tooltip_scroll_recipe_shake_times": "摇和%s次",
   "shakenstir.tooltip_scroll_shaker_shake_time": "摇和%s次",
-  "shakenstir.tooltip_shaker_fluid": "%s %s mb"
+  "shakenstir.tooltip_shaker_fluid": "%s %s mb",
+  "item.shakenstir.bar_counter": "吧台",
+  "item.shakenstir.menu": "酒单",
+  "item.shakenstir.rag": "抹布",
+  "item.shakenstir.recipe_scroll": "配方卷"
 }

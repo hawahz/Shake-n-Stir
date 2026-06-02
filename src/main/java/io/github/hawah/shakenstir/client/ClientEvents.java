@@ -34,6 +34,7 @@ import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundHandItemDataChangedPacket;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundTryPickItemPacket;
 import io.github.hawah.shakenstir.foundation.utils.ContextKeys;
+import io.github.hawah.shakenstir.lib.client.gui.KeyTipHUD;
 import io.github.hawah.shakenstir.lib.client.render.outliner.Outliner;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import io.github.hawah.shakenstir.lib.networking.Networking;
@@ -381,6 +382,7 @@ public class ClientEvents {
             event.registerAboveAll(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "cabinet_hud"), ShakenStirClient.CABINET_HUD);
             event.registerAboveAll(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "distiller_hud"), ShakenStirClient.DISTILLER_HUD);
             event.registerAboveAll(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "bar_menu_hud"), ShakenStirClient.MENU_HUD);
+            event.registerAboveAll(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "key_tip_hud"), new KeyTipHUD());
         }
 
         @SubscribeEvent

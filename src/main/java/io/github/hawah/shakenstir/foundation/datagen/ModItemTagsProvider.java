@@ -33,6 +33,7 @@ public class ModItemTagsProvider extends ItemTagsProvider {
                 .addTag(Tags.Items.FOODS_BERRY)
                 //.addTag(Tags.Items.FOODS_CANDY)
                 .add(Items.HONEYCOMB)
+                .add(Items.HONEY_BOTTLE)
                 .add(Items.SUGAR);
 
         this.tag(SnsItemTags.BITTER)

@@ -39,6 +39,9 @@ public class GlasswareRenderer {
 
         double bottom;
         double top;
+        if (state.model() == null) {
+            return;
+        }
         if (state.model().getModel() instanceof GlasswareQuadCollection quadCollection) {
             bottom = quadCollection.start().y() * 0.8;
             top = quadCollection.end().y();
