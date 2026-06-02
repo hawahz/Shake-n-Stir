@@ -45,7 +45,7 @@ public class ItemRegistries {
     public static final DeferredItem<Item> LEMON = register("lemon", Item::new, new Item.Properties().food(Foods.APPLE).component(DataComponents.POTION_CONTENTS, new PotionContents(Optional.empty(), Optional.empty(), List.of(new MobEffectInstance(MobEffectRegistries.LEMON)), Optional.empty())));
     public static final DeferredItem<DecorateItem> LEMON_SLICE = register("lemon_slice", DecorateItem::new);
 
-    public static final DeferredItem<BarBuilder> BAR_BUILDER = register("bar_builder", BarBuilder::new);
+    public static final DeferredItem<Rag> RAG = register("rag", Rag::new);
     public static final DeferredItem<MenuItem> MENU = register("menu", MenuItem::new);
 
     // Spirit

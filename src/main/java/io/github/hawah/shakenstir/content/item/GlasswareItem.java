@@ -33,7 +33,11 @@ public class GlasswareItem extends PriorityBlockItem {
     }
 
     public static ItemStack getMartiniGlass() {
-        return SnsCreativeTab.createShortDrink("martini_glass");
+        return getShortGlass("martini_glass");
+    }
+
+    public static ItemStack getShortGlass(String name) {
+        return SnsCreativeTab.createShortDrink(name);
     }
 
     public static ItemStack getMargaritaGlass() {

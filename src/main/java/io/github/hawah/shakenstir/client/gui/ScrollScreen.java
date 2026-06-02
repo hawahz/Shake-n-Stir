@@ -16,6 +16,7 @@ import io.github.hawah.shakenstir.util.Textures;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.CommonComponents;
@@ -50,6 +51,13 @@ public class ScrollScreen extends BaseScreen {
         pageRange = RecipeSyncData.recipes.size();
         nextPage();
         prevPage();
+    }
+    int glassIdx = 0;
+    public void changeGlass() {
+        glassIdx = glassIdx + 1;
+        if (glassIdx > 1) {
+            glassIdx = 0;
+        }
     }
 
     @Override
@@ -212,7 +220,7 @@ public class ScrollScreen extends BaseScreen {
             itemStackWithTooltip(font, graphicsExtractor, leftX + (itemSize + i)*(16+DISTANCE), guiTop + 24, mouseX, mouseY, stack);
         }
 
-        ItemStack result = ServerRecipeHelper.getShakerProductFromItemHolder(snsRecipeHolder.result());
+        ItemStack result = ServerRecipeHelper.getShakerProductFromItemHolder(snsRecipeHolder.result(), glassIdx);
 
         itemStackWithTooltip(font, graphicsExtractor, width/2 - 8, guiTop + 70, mouseX, mouseY, result);
 
@@ -225,6 +233,16 @@ public class ScrollScreen extends BaseScreen {
                     mouseY + font.lineHeight
             );
         }
+    }
+
+    @Override
+    public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
+        if (x >= width/2 - 8 && x < width/2 + 8 && y >= guiTop + 70 && y < guiTop + 70 + 16) {
+            changeGlass();
+            AbstractWidget.playButtonClickSound(Minecraft.getInstance().getSoundManager());
+            return true;
+        }
+        return super.mouseScrolled(x, y, scrollX, scrollY);
     }
 
     public void nextPage() {

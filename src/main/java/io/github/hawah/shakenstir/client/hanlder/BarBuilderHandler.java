@@ -86,6 +86,6 @@ public class BarBuilderHandler extends AbstractBoxHandler {
     @Override
     public boolean isActive() {
         return getPlayer() != null &&
-                getPlayer().getMainHandItem().is(ItemRegistries.BAR_BUILDER);
+                getPlayer().getMainHandItem().is(ItemRegistries.RAG);
     }
 }

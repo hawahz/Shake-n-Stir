@@ -49,11 +49,11 @@ public class ServerRecipeHelper {
         });
     }
     
-    public static ItemStack getShakerProductFromItemHolder(ItemStack result) {
+    public static ItemStack getShakerProductFromItemHolder(ItemStack result, int index) {
         if (!result.is(ItemRegistries.CONTENT_HOLDER)) {
             return ItemStack.EMPTY;
         }
-        ItemStack martiniGlass = GlasswareItem.getMartiniGlass();
+        ItemStack martiniGlass = GlasswareItem.getShortGlass(List.of("martini_glass", "margarita_glass").get(index));
         DataComponentMap components = result.getComponents();
         if (components.has(DataComponents.DYED_COLOR)) {
             martiniGlass.set(DataComponents.DYED_COLOR, components.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0)));

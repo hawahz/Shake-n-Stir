@@ -19,6 +19,7 @@ public enum Models implements IModel<QuadCollection> {
     MARTINI_GLASS("martini_glass", "block/martini_glass"),
     MARGARITA_GLASS("margarita_glass", "block/margarita_glass"),
     COLLINS_GLASS("collins_glass", "block/collins_glass"),
+    SHAKER_SHAKER_HAND("shaker_handle", "block/addition/shaker_shaker_hand"),
     ;
     private final StandaloneModelKey<QuadCollection> key;
     private final Identifier location;

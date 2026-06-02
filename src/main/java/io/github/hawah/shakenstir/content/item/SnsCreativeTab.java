@@ -41,7 +41,7 @@ public class SnsCreativeTab {
                 output.accept(ItemRegistries.CABINET.get());
                 output.accept(ItemRegistries.DISTILLER.get());
 
-                output.accept(ItemRegistries.BAR_BUILDER.get());
+                output.accept(ItemRegistries.RAG.get());
                 output.accept(ItemRegistries.MENU.get());
                 output.accept(ItemRegistries.BAR_COUNTER.get());
                 output.accept(ItemRegistries.RECIPE_SCROLL.get());
