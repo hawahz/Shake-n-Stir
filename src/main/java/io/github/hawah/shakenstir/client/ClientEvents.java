@@ -20,6 +20,7 @@ import io.github.hawah.shakenstir.client.render.item.ShakeItemSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer;
 import io.github.hawah.shakenstir.content.HasCup;
 import io.github.hawah.shakenstir.content.ShakeTooltipComponent;
+import io.github.hawah.shakenstir.content.Warped;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.block.Cabinet;
 import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
@@ -332,6 +333,12 @@ public class ClientEvents {
                     Identifier.fromNamespaceAndPath(ShakenStir.MODID, "has_cup"),
                     // The map codec
                     HasCup.MAP_CODEC
+            );
+            event.register(
+                    // The name to reference as the type
+                    Identifier.fromNamespaceAndPath(ShakenStir.MODID, "warped"),
+                    // The map codec
+                    Warped.MAP_CODEC
             );
         }
 

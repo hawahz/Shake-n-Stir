@@ -122,4 +122,9 @@ public class GlasswareItem extends PriorityBlockItem {
     public ItemUseAnimation getUseAnimation(ItemStack itemStack) {
         return ItemUseAnimation.DRINK;
     }
+
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        return !ItemStack.isSameItem(oldStack, newStack);
+    }
 }

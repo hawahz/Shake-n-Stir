@@ -2,9 +2,9 @@ package io.github.hawah.shakenstir.client.gui;
 
 import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.client.RecipeSyncData;
+import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
-import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
@@ -14,12 +14,15 @@ import io.github.hawah.shakenstir.lib.client.gui.BaseScreen;
 import io.github.hawah.shakenstir.lib.client.gui.element.TextureButton;
 import io.github.hawah.shakenstir.util.Textures;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 
@@ -88,6 +91,8 @@ public class ScrollScreen extends BaseScreen {
                     if (RecipeSyncData.recipes.size() > this.scrollPtr && !RecipeSyncData.recipes.isEmpty()) {
                         itemStack.set(DataComponentTypeRegistries.RECIPE_HOLDER, RecipeSyncData.recipes.get(this.scrollPtr).named(nameField.getValue().isEmpty()? suggestion: nameField.getValue()));
                     }
+                    Minecraft.getInstance().player.swing(InteractionHand.MAIN_HAND);
+                    Minecraft.getInstance().player.playSound(SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, 1.0F, 1.0F);
                     this.onClose();
                 }
         )

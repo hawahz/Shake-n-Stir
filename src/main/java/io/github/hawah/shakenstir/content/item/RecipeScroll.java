@@ -43,7 +43,6 @@ public class RecipeScroll extends BlockItem {
                 @Override
                 public void run() {
                     ScreenOpener.open(new ScrollScreen(player.getItemInHand(hand)));
-                    player.swing(hand);
                 }
             }.run();
         } else if (ServerRecipeHelper.recipes.containsKey(player.getUUID())) {
@@ -63,5 +62,10 @@ public class RecipeScroll extends BlockItem {
             context.getPlayer().swing(context.getHand());
         }
         return super.useOn(context);
+    }
+
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        return !oldStack.has(DataComponentTypeRegistries.RECIPE_HOLDER) && newStack.has(DataComponentTypeRegistries.RECIPE_HOLDER) || super.shouldCauseReequipAnimation(oldStack, newStack, slotChanged);
     }
 }

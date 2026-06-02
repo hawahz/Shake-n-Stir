@@ -1,6 +1,14 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "shakenstir:item/recipe_scroll"
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "shakenstir:item/recipe_scroll_unwarped"
+    },
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "shakenstir:item/recipe_scroll"
+    },
+    "property": "shakenstir:warped"
   }
 }

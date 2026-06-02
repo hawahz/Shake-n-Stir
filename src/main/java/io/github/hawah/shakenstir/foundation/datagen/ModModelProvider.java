@@ -7,6 +7,7 @@ import io.github.hawah.shakenstir.client.render.item.GlasswareSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.ShakeItemSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer;
 import io.github.hawah.shakenstir.content.HasCup;
+import io.github.hawah.shakenstir.content.Warped;
 import io.github.hawah.shakenstir.content.block.*;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
@@ -61,7 +62,7 @@ public class ModModelProvider extends ModelProvider {
         itemModels.generateFlatItem(ItemRegistries.LEMON_SLICE.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ItemRegistries.SOBERING_TEA.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ItemRegistries.BAR_BUILDER.get(), ModelTemplates.FLAT_ITEM);
-        itemModels.generateFlatItem(ItemRegistries.RECIPE_SCROLL.get(), ModelTemplates.FLAT_ITEM);
+        generateScroll(itemModels);
         // Basic single variant model
         registerCustomBlockModel(blockModels, "block/shaker_lid", BlockRegistries.SHAKE_LID_BLOCK.get());
         generateBarCounterModel(blockModels, itemModels);
@@ -107,6 +108,25 @@ public class ModModelProvider extends ModelProvider {
                                 .select(Direction.SOUTH, getMultiVariant("block/menu_block").with(BlockModelGenerators.Y_ROT_180))
                                 .select(Direction.WEST, getMultiVariant("block/menu_block").with(BlockModelGenerators.Y_ROT_270))
                 )
+        );
+    }
+
+    private static void generateScroll(ItemModelGenerators itemModels) {
+        ItemModel.Unbaked scrollUnwarped = ItemModelUtils.plainModel(itemModels.createFlatItemModel(ItemRegistries.RECIPE_SCROLL.get(), "_unwarped", ModelTemplates.FLAT_ITEM));
+        ItemModel.Unbaked scroll = ItemModelUtils.plainModel(itemModels.createFlatItemModel(ItemRegistries.RECIPE_SCROLL.get(), ModelTemplates.FLAT_ITEM));
+
+
+
+        ConditionalItemModel.Unbaked model = new ConditionalItemModel.Unbaked(
+                Optional.empty(),
+                new Warped(),
+                scroll,
+                scrollUnwarped
+        );
+
+        itemModels.itemModelOutput.accept(
+                ItemRegistries.RECIPE_SCROLL.get(),
+                model
         );
     }
 
