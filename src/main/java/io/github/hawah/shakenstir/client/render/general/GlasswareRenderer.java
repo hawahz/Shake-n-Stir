@@ -133,7 +133,7 @@ public class GlasswareRenderer {
             Vector3dc end = quadCollection.end();
             int color = state.color();
             float heightRate = state.height();
-
+            LiquidRenderer.setTexture(LiquidRenderer.DEFAULT);
             LiquidRenderer.submitLiquid(poseStack, submitNodeCollector, start, end, heightRate, lightCoords, color);
         }
     }

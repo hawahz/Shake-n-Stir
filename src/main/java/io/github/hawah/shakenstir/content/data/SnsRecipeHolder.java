@@ -57,9 +57,9 @@ public record SnsRecipeHolder(
             FluidStack.STREAM_CODEC.apply(ByteBufCodecs.list()), SnsRecipeHolder::requiredFluids,
             ByteBufCodecs.INT, SnsRecipeHolder::shakeTimes,
             ItemStack.STREAM_CODEC, SnsRecipeHolder::result,
-            ByteBufCodecs.stringUtf8(128), SnsRecipeHolder::name,
-            GlasswareBlockEntity.Decoration.STREAM_CODEC.apply(ByteBufCodecs.list()), SnsRecipeHolder::decorations,
             ByteBufCodecs.stringUtf8(128), SnsRecipeHolder::holderGlass,
+            GlasswareBlockEntity.Decoration.STREAM_CODEC.apply(ByteBufCodecs.list()), SnsRecipeHolder::decorations,
+            ByteBufCodecs.stringUtf8(128), SnsRecipeHolder::name,
             SnsRecipeHolder::new
     );
 

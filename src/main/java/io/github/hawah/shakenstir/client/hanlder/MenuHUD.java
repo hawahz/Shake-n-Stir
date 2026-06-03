@@ -1,5 +1,6 @@
 package io.github.hawah.shakenstir.client.hanlder;
 
+import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.ClickInteractions;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
@@ -22,7 +23,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -129,21 +129,25 @@ public class MenuHUD extends AbstractBlockTargetHUD implements IHandler {
             int length = mc.font.width(String.valueOf(priceAndCount.price));
             int y = screenHeight / 2 - Textures.MENU_BKG.getHeight() / 2 + DISTANCE_TOP + lineHeight * 2 * i;
             int DIST = 5;
+            guiGraphics.item(
+                    GlasswareItem.getShortGlass(snsRecipeHolder.holderGlass()),
+                    xLeft + DIST,
+                    y - 8
+            );
+            guiGraphics.itemDecorations(
+                    mc.font,
+                    ItemRegistries.CONTENT_HOLDER.toStack(),
+                    xLeft + DIST,
+                    y - 8,
+                    String.valueOf(priceAndCount.count)
+            );
             guiGraphics.text(
                     mc.font,
                     snsRecipeHolder.name(),
-                    xLeft + DIST,
+                    xLeft + DIST + 20,
                     y,
                     0x00FFFFFF | ((int)(0xF3 * fadeInProgress) << 24)
             );
-
-//            guiGraphics.text(
-//                    mc.font,
-//                    String.valueOf(priceAndCount.price),
-//                    (xRight) - DIST - length,
-//                    y,
-//                    0x00FFFFFF | ((int)(0xF3 * fadeInProgress) << 24)
-//            );
 
             guiGraphics.item(
                     priceAndCount.item.toStack(),
@@ -270,7 +274,7 @@ public class MenuHUD extends AbstractBlockTargetHUD implements IHandler {
         if (itemStack.getItem() instanceof GlasswareItem) {
             SnsRecipeHolder recipeHolder = cachedEntity.recipes.get(currentIndex).left();
             SnsRecipeHolder newHolder = recipeHolder
-                    .glass(itemStack.getOrDefault(DataComponents.ITEM_MODEL, Component.literal("martini_glass")).toString())
+                    .glass(itemStack.getOrDefault(DataComponents.ITEM_MODEL, ShakenStir.asResource("martini_glass")).getPath())
                     .decorations(itemStack.getOrDefault(DataComponentTypeRegistries.GLASSWARE_DECORATIONS, List.of()))
             ;
             cachedEntity.recipes.get(currentIndex).setLeft(newHolder);

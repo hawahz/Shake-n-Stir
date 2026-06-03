@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.content.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.authlib.GameProfile;
+import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
@@ -15,7 +16,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.NonNullList;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -46,7 +46,9 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
                 Memories.RECIPE.get(),
                 MemoryStatus.VALUE_PRESENT,
                 Memories.RECIPE_READY.get(),
-                MemoryStatus.VALUE_PRESENT
+                MemoryStatus.VALUE_PRESENT,
+                Memories.MEMORY_GLASSWARE.get(),
+                MemoryStatus.REGISTERED
         ));
     }
 
@@ -167,17 +169,21 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
     long pouringTimeout = -1;
 
     private void doPouring(ServerLevel level, BartenderEntity body, long timestamp) {
-        if (body.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof GlasswareItem glasswareItem) {
+        ItemStack itemInHand = body.getItemInHand(InteractionHand.MAIN_HAND);
+        if (itemInHand.getItem() instanceof GlasswareItem glasswareItem) {
             if (pouringCD < timestamp) {
                 body.getBrain().getMemory(Memories.BAR_MEMORY.get()).ifPresent(barData -> {
                     List<BlockPos> counters = barData.barCounter();
-                    counters.stream().max(Comparator.comparing(bp -> body.distanceToSqr(bp.getCenter())))
+                    counters.stream().min(Comparator.comparing(bp -> body.distanceToSqr(bp.getCenter())))
                             .ifPresent(blockPos -> {
                                 Vector2f localPos = new Vector2f(level.getRandom().nextFloat(), level.getRandom().nextFloat());
-                                body.getItemInHand(InteractionHand.MAIN_HAND).set(DataComponentTypeRegistries.GLASSWARE_ROTATION, body.getYRot() + 45);
+                                itemInHand.set(DataComponentTypeRegistries.GLASSWARE_ROTATION, body.getYRot() + 45);
+//                                itemInHand.set(DataComponents.ITEM_MODEL, recipeHolder.holderGlass());
                                 UseOnContext useOnContext = new UseOnContext(
+                                        level,
                                         new FakePlayer(level, new GameProfile(UUID.randomUUID(), "bartender")),
                                         InteractionHand.MAIN_HAND,
+                                        itemInHand,
                                         new BlockHitResult(
                                                 blockPos.getCenter().add(localPos.x(), 0.5, localPos.y()),
                                                 Direction.UP,
@@ -208,6 +214,8 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
             body.swing(InteractionHand.MAIN_HAND);
             setState(State.DECORATING);
             return;
+        } else if (pouringTimeout > 0) {
+            return;
         }
         int glasswareIdx = -1;
         for (int i = 0; i < body.getInventory().size(); i++) {
@@ -220,7 +228,7 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
             setState(State.END);
         }
         pouringCD = timestamp + 40;
-        ItemStack shortGlass = GlasswareItem.getShortGlass(Identifier.parse(recipeHolder.holderGlass()));
+        ItemStack shortGlass = GlasswareItem.getShortGlass(ShakenStir.asResource(recipeHolder.holderGlass()));
         body.setItemInHand(InteractionHand.MAIN_HAND, shortGlass);
         body.setInventorySlot(glasswareIdx, ItemStack.EMPTY);
     }
@@ -303,6 +311,8 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
         }
         if (endTime > 0 && timestamp > endTime) {
             setState(State.FINISH_SHAKING);
+            body.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            body.setState(BartenderEntity.AnimState.DEFAULT);
             if (recipeHolder != null) {
                 body.getBrain().setMemory(Memories.ITEM_TO_FIND.get(), recipeHolder.getItemToFind());
                 glasswareFindTimeout = timestamp + 5 * 20 * 60;

@@ -59,6 +59,7 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
     protected void start(ServerLevel level, BartenderEntity body, long timestamp) {
         itemToFind.clear();
         itemToFind.addAll(getItemToFind(body));
+        body.getBrain().eraseMemory(MemoryModuleType.VISITED_BLOCK_POSITIONS);
     }
 
     @Override
@@ -207,11 +208,11 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
     ) {
         AABB boundingBox = body.getBoundingBox();
         AABB movedBoundBox = AABB.ofSize(fromPos, boundingBox.getXsize(), boundingBox.getYsize(), boundingBox.getZsize());
-        return target.state.getCollisionShape(level, target.pos).bounds().inflate(distance, 0.5, distance).move(target.pos).intersects(movedBoundBox);
+        return target.state.getCollisionShape(level, target.pos).bounds().inflate(distance, body.getEyeY(), distance).move(target.pos).intersects(movedBoundBox);
     }
 
     private static double getInteractionRange(PathfinderMob body) {
-        return hasFinishedPath(body) ? 1.0 : 0.5;
+        return hasFinishedPath(body) ? 1.2 : 1.0;
     }
 
     private static boolean hasFinishedPath(PathfinderMob body) {
@@ -226,12 +227,12 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
 
     @Override
     protected boolean canStillUse(ServerLevel level, BartenderEntity body, long timestamp) {
-        return super.canStillUse(level, body, timestamp);
+        return true;
     }
 
     @Override
     protected boolean timedOut(long timestamp) {
-        return super.timedOut(timestamp);
+        return false;
     }
 
     @Override

@@ -144,7 +144,17 @@ public class ShakerItem extends PriorityBlockItem implements IPickMarkedItem {
         }
         if (other.is(SnsItemTags.SHAKE_PLACABLE) && ShakeUtil.getItemData(self).itemCount() < ShakeBlockEntity.MAX_HOLD_ITEMS) {
             ArrayList<ItemStack> itemStacks = new ArrayList<>(ShakeUtil.getItemStacks(self));
-            itemStacks.add(other.split(1));
+            itemStacks.add(other.copyWithCount(1));
+            if (other.getCraftingRemainder() != null) {
+                if (other.count() > 1) {
+                    player.addItem(other.getCraftingRemainder().create());
+                    other.shrink(1);
+                } else {
+                    carriedItem.set(other.getCraftingRemainder().create());
+                }
+            } else {
+                other.shrink(1);
+            }
             ShakeUtil.setItemData(self, itemStacks);
             player.playSound(
                     SoundEvents.GLASS_HIT
