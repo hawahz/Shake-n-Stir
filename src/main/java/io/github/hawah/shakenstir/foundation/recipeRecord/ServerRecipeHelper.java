@@ -76,7 +76,7 @@ public class ServerRecipeHelper {
         Player player = event.getEntity();
         EvictingQueue<SnsRecipeHolder> snsRecipeHolders = recipes.remove(player.getUUID());
         String playerName = player.getName().getString();
-        if (player.level() instanceof ServerLevel serverLevel){
+        if (player.level() instanceof ServerLevel serverLevel && snsRecipeHolders != null){
             Path dir = Paths.getPlayerDataPath(serverLevel, (ServerPlayer) player).resolve("recipe");
             Path path = dir.resolve("recipes").toAbsolutePath();
             CompoundTag data = new CompoundTag();
