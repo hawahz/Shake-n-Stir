@@ -105,7 +105,8 @@ public class BartenderAi {
                     Pair.of(0, new Swim<>(0.8F)),
                     Pair.of(0, new LookAtTargetSink(45, 90)),
                     Pair.of(1, new MoveToTargetSink()),
-                    Pair.of(1, HideItemInHand.create())
+                    Pair.of(1, HideItemInHand.create()),
+                    Pair.of(1, new BartenderFindItem())
             );
         }
 

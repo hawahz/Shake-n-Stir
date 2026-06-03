@@ -85,6 +85,7 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
             }
             if (endTime > 0 && timestamp > endTime) {
                 setState(State.FINISH_SHAKING);
+//                body.getBrain().setMemory();
             }
         }
         if (state.equals(State.FINISH_SHAKING)) {
