@@ -16,6 +16,7 @@ import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -38,7 +39,7 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
         ));
     }
 
-    final List<ItemStack> itemToFind = new ArrayList<>();
+    final List<Ingredient> itemToFind = new ArrayList<>();
     TakeUpItemTarget target;
 
     TransportItemState state = TransportItemState.TRAVELLING;
@@ -79,7 +80,7 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
             }
         }
 
-        itemToFind.removeIf(ItemStack::isEmpty);
+//        itemToFind.removeIf(ItemStack::isEmpty);
     }
 
     private void onReachedTarget(TakeUpItemTarget target, ServerLevel level, BartenderEntity body) {
@@ -110,10 +111,10 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
 
             ItemStack itemStack = resource.toStack(container.getAmountAsInt(i));{
             for (int j = 0; j < itemToFind.size(); j++) {
-                ItemStack required = itemToFind.get(j);
+                Ingredient required = itemToFind.get(j);
 
-                if (ItemStack.isSameItemSameComponents(itemStack, required)) {
-                    int requiredCount = required.getCount();
+                if (required.test(itemStack)) {
+                    int requiredCount = 1;
                     int availableCount = container.getAmountAsInt(i);
                     int toExtract = Math.min(availableCount, requiredCount);
 
@@ -127,11 +128,7 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
                                 OptionalInt emptySlot = findEmptyInventorySlot(body);
                                 if (emptySlot.isPresent()) {
                                     body.getInventory().set(emptySlot.getAsInt(), extractedStack);
-                                    required.shrink(extracted);
-                                    if (required.isEmpty()) {
-                                        itemToFind.remove(j);
-                                        j--;
-                                    }
+                                    itemToFind.remove(j);
                                     tx.commit();
                                     body.swing(InteractionHand.MAIN_HAND);
                                 }
@@ -242,7 +239,7 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
         return super.debugString();
     }
 
-    public static List<ItemStack> getItemToFind(PathfinderMob mob) {
+    public static List<Ingredient> getItemToFind(PathfinderMob mob) {
         return mob.getBrain().getMemory(Memories.ITEM_TO_FIND.get()).orElse(List.of());
     }
     public boolean pickTarget(ServerLevel level, BartenderEntity body) {

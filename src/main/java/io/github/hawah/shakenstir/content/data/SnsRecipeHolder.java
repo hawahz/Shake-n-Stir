@@ -28,6 +28,8 @@ public record SnsRecipeHolder(
         List<FluidStack> requiredFluids,
         int shakeTimes,
         ItemStack result,
+        String holderGlass,
+        List<GlasswareBlockEntity.Decoration> decorations,
         String name
 ) implements TooltipProvider {
 
@@ -37,6 +39,8 @@ public record SnsRecipeHolder(
             FluidStack.CODEC.listOf().fieldOf("required_fluids").forGetter(SnsRecipeHolder::requiredFluids),
             Codec.INT.fieldOf("shake_times").forGetter(SnsRecipeHolder::shakeTimes),
             ItemStack.CODEC.fieldOf("result_factory").forGetter(SnsRecipeHolder::result),
+            Codec.STRING.fieldOf("holder_glass").forGetter(SnsRecipeHolder::holderGlass),
+            GlasswareBlockEntity.Decoration.CODEC.listOf().fieldOf("decorations").forGetter(SnsRecipeHolder::decorations),
             Codec.STRING.fieldOf("name").forGetter(SnsRecipeHolder::name)
     ).apply(inst, SnsRecipeHolder::new));
 
@@ -47,6 +51,8 @@ public record SnsRecipeHolder(
             ByteBufCodecs.INT, SnsRecipeHolder::shakeTimes,
             ItemStack.STREAM_CODEC, SnsRecipeHolder::result,
             ByteBufCodecs.stringUtf8(128), SnsRecipeHolder::name,
+            GlasswareBlockEntity.Decoration.STREAM_CODEC.apply(ByteBufCodecs.list()), SnsRecipeHolder::decorations,
+            ByteBufCodecs.stringUtf8(128), SnsRecipeHolder::holderGlass,
             SnsRecipeHolder::new
     );
 
@@ -55,11 +61,45 @@ public record SnsRecipeHolder(
                            List<FluidStack> requiredFluids,
                            int shakeTimes,
                            ItemStack result) {
-        this(recipe, requiredItems, requiredFluids, shakeTimes, result, "");
+        this(recipe, requiredItems, requiredFluids, shakeTimes, result, "martini_glass", List.of(), "");
     }
 
     public SnsRecipeHolder named(String name) {
-        return new SnsRecipeHolder(recipe, requiredItems.stream().map(ItemStack::copy).toList(), requiredFluids.stream().map(FluidStack::copy).toList(), shakeTimes, result.copy(), name);
+        return new SnsRecipeHolder(
+                recipe,
+                requiredItems.stream().map(ItemStack::copy).toList(),
+                requiredFluids.stream().map(FluidStack::copy).toList(),
+                shakeTimes,
+                result.copy(),
+                holderGlass(),
+                decorations(),
+                name);
+    }
+
+    public SnsRecipeHolder glass(String glassType) {
+        return new SnsRecipeHolder(
+                recipe,
+                requiredItems.stream().map(ItemStack::copy).toList(),
+                requiredFluids.stream().map(FluidStack::copy).toList(),
+                shakeTimes,
+                result.copy(),
+                glassType,
+                decorations,
+                name()
+        );
+    }
+
+    public SnsRecipeHolder decorations(List<GlasswareBlockEntity.Decoration> decorations) {
+        return new SnsRecipeHolder(
+                recipe,
+                requiredItems.stream().map(ItemStack::copy).toList(),
+                requiredFluids.stream().map(FluidStack::copy).toList(),
+                shakeTimes,
+                result.copy(),
+                holderGlass(),
+                decorations,
+                name()
+        );
     }
 
     @Override
@@ -77,7 +117,16 @@ public record SnsRecipeHolder(
     }
 
     public SnsRecipeHolder copy() {
-        return new SnsRecipeHolder(recipe, requiredItems.stream().map(ItemStack::copy).toList(), requiredFluids.stream().map(FluidStack::copy).toList(), shakeTimes, result.copy(), name);
+        return new SnsRecipeHolder(
+                recipe,
+                requiredItems.stream().map(ItemStack::copy).toList(),
+                requiredFluids.stream().map(FluidStack::copy).toList(),
+                shakeTimes,
+                result.copy(),
+                holderGlass(),
+                decorations,
+                name
+        );
     }
 
     public enum Type {

@@ -28,7 +28,7 @@ import org.joml.Vector2d;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import static io.github.hawah.shakenstir.client.hanlder.PACKAGE.*;
+import static io.github.hawah.shakenstir.client.hanlder.MC.*;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault

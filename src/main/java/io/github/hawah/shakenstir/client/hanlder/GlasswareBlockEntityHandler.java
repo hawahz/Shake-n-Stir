@@ -32,10 +32,10 @@ public class GlasswareBlockEntityHandler implements IHandler {
 
     @Override
     public boolean isActive() {
-        if (PACKAGE.getPlayer() == null) {
+        if (MC.getPlayer() == null) {
             return false;
         }
-        return PACKAGE.getPlayer().getMainHandItem().isEmpty() &&
+        return MC.getPlayer().getMainHandItem().isEmpty() &&
                 ClientDataHolder.Picker.block().isPresent() &&
                 ClientDataHolder.Picker.block().get() instanceof Glassware &&
                 KeyBinding.hasShiftDown() &&

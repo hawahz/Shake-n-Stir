@@ -49,7 +49,7 @@ import org.lwjgl.glfw.GLFW;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.github.hawah.shakenstir.client.hanlder.PACKAGE.*;
+import static io.github.hawah.shakenstir.client.hanlder.MC.*;
 
 public class DecoratePlaceHandler implements IHandler {
 

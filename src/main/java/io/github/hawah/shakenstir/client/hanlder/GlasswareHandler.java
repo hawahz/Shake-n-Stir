@@ -79,12 +79,12 @@ public class GlasswareHandler implements IHandler {
 
     @Override
     public boolean isActive() {
-        if (PACKAGE.getPlayer() == null) {
+        if (MC.getPlayer() == null) {
             return false;
         }
         BlockState state;
         BlockPos pos;
-        return PACKAGE.getPlayer().getMainHandItem().getItem() instanceof GlasswareItem &&
+        return MC.getPlayer().getMainHandItem().getItem() instanceof GlasswareItem &&
                 ClientDataHolder.Picker.block().isPresent() &&
                 Direction.UP.equals(ClientDataHolder.Picker.direction()) &&
                 (pos = ClientDataHolder.Picker.pos()) != null &&
@@ -104,7 +104,7 @@ public class GlasswareHandler implements IHandler {
     }
 
     public IModel<?> getModel() {
-        return parseItemStack(PACKAGE.getItem()).orElse(Models.MARGARITA_GLASS);
+        return parseItemStack(MC.getItem()).orElse(Models.MARGARITA_GLASS);
     }
 
     public void submit(SubmitNodeCollector submitNodeCollector, PoseStack poseStack, LevelRenderState levelRenderState) {

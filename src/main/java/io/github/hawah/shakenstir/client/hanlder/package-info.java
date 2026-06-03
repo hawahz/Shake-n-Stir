@@ -1,12 +1,20 @@
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 package io.github.hawah.shakenstir.client.hanlder;
 
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-class PACKAGE {
+
+class MC {
+
+    @Nullable
     public static LocalPlayer getPlayer() {
         return Minecraft.getInstance().player;
     }
@@ -15,6 +23,7 @@ class PACKAGE {
         return getPlayer().getMainHandItem();
     }
 
+    @Nullable
     public static Level level() {
         return Minecraft.getInstance().level;
     }

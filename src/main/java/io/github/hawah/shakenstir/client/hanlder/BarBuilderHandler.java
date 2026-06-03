@@ -12,7 +12,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
-import static io.github.hawah.shakenstir.client.hanlder.PACKAGE.getPlayer;
+import static io.github.hawah.shakenstir.client.hanlder.MC.getPlayer;
 
 
 public class BarBuilderHandler extends AbstractBoxHandler {

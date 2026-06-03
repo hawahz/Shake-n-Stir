@@ -1,15 +1,19 @@
-package io.github.hawah.shakenstir.client.gui;
+package io.github.hawah.shakenstir.client.hanlder;
 
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.ClickInteractions;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
+import io.github.hawah.shakenstir.client.gui.AbstractBlockTargetHUD;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.BarMenuBlockEntity;
 import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
+import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundMenuBEChanged;
 import io.github.hawah.shakenstir.lib.client.KeyBinding;
 import io.github.hawah.shakenstir.lib.client.gui.BaseScreen;
+import io.github.hawah.shakenstir.lib.client.handler.IHandler;
 import io.github.hawah.shakenstir.lib.networking.Networking;
 import io.github.hawah.shakenstir.util.Result;
 import io.github.hawah.shakenstir.util.Textures;
@@ -17,6 +21,8 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -26,10 +32,13 @@ import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.glfw.GLFW;
 
-import static io.github.hawah.shakenstir.client.gui.MC.getLevel;
-import static io.github.hawah.shakenstir.client.gui.MC.getPlayer;
+import java.util.List;
 
-public class MenuHUD extends AbstractBlockTargetHUD{
+import static io.github.hawah.shakenstir.client.hanlder.MC.getPlayer;
+import static io.github.hawah.shakenstir.client.hanlder.MC.level;
+
+@SuppressWarnings("resource")
+public class MenuHUD extends AbstractBlockTargetHUD implements IHandler {
 
     public MenuHUD() {
         ClickInteractions.registerMouseMove(this::onMouseMove);
@@ -44,7 +53,17 @@ public class MenuHUD extends AbstractBlockTargetHUD{
     double price = 0;
 
     @Override
-    protected boolean isVisible() {
+    public void tick() {
+
+    }
+
+    @Override
+    public boolean isActive() {
+        return false;
+    }
+
+    @Override
+    public boolean isVisible() {
         return super.isVisible() && !Minecraft.getInstance().hasControlDown();
     }
 
@@ -63,12 +82,12 @@ public class MenuHUD extends AbstractBlockTargetHUD{
 //        guiGraphics.submitPictureInPictureRenderState(new MenuRenderState());
 
         BlockPos pos = ClientDataHolder.Picker.pos();
-        if (getLevel() == null || pos == null) {
+        if (level() == null || pos == null) {
             return;
         }
 
         if (cachedEntity == null) {
-            if (getLevel().getBlockEntity(pos) instanceof BarMenuBlockEntity blockEntity) {
+            if (level().getBlockEntity(pos) instanceof BarMenuBlockEntity blockEntity) {
                 cachedEntity = blockEntity;
             } else {
                 return;
@@ -248,6 +267,15 @@ public class MenuHUD extends AbstractBlockTargetHUD{
             return false;
         }
         ItemStack itemStack = getPlayer().getMainHandItem();
+        if (itemStack.getItem() instanceof GlasswareItem) {
+            SnsRecipeHolder recipeHolder = cachedEntity.recipes.get(currentIndex).left();
+            SnsRecipeHolder newHolder = recipeHolder
+                    .glass(itemStack.getOrDefault(DataComponents.ITEM_MODEL, Component.literal("martini_glass")).toString())
+                    .decorations(itemStack.getOrDefault(DataComponentTypeRegistries.GLASSWARE_DECORATIONS, List.of()))
+            ;
+            cachedEntity.recipes.get(currentIndex).setLeft(newHolder);
+            return true;
+        }
         BarMenuBlockEntity.PriceAndCount priceAndCount = cachedEntity.recipes.get(currentIndex).right();
         if (itemStack.isEmpty()) {
             priceAndCount.price = 0;

@@ -2,7 +2,7 @@ package io.github.hawah.shakenstir;
 
 import io.github.hawah.shakenstir.client.gui.CabinetHud;
 import io.github.hawah.shakenstir.client.gui.DistillerHUD;
-import io.github.hawah.shakenstir.client.gui.MenuHUD;
+import io.github.hawah.shakenstir.client.hanlder.MenuHUD;
 import io.github.hawah.shakenstir.client.gui.ShakeContentHud;
 import io.github.hawah.shakenstir.client.hanlder.BarBuilderHandler;
 import io.github.hawah.shakenstir.client.hanlder.DecoratePlaceHandler;
