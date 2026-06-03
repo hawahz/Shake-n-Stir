@@ -1,8 +1,10 @@
 package io.github.hawah.shakenstir.content.data;
 
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
+import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import io.github.hawah.shakenstir.lib.StreamCodecUtil;
 import io.github.hawah.shakenstir.util.SerializeHelper;
@@ -16,12 +18,17 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipProvider;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public record SnsRecipeHolder(
         Type recipe,
         List<ItemStack> requiredItems,
@@ -129,9 +136,18 @@ public record SnsRecipeHolder(
         );
     }
 
+    public List<Ingredient> getItemToFind() {
+        List<Ingredient> itemToFind = new ArrayList<>();
+        itemToFind.add(Ingredient.of(ItemRegistries.SHORT_DRINK_GLASSWARE));
+        for (GlasswareBlockEntity.Decoration decoration : decorations) {
+            itemToFind.add(Ingredient.of(decoration.itemStack().getItem()));
+        }
+        return itemToFind;
+    }
+
     public enum Type {
         SHAKE(GlasswareBlockEntity::pourProduct),
-        STIR((g, i) -> {})
+        STIR((_, _) -> {})
         ;
         private final BiConsumer<GlasswareBlockEntity, ItemStack> action;
 

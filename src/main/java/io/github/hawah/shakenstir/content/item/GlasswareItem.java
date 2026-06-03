@@ -8,6 +8,7 @@ import io.github.hawah.shakenstir.foundation.datapack.DrinkData;
 import io.github.hawah.shakenstir.foundation.item.PriorityBlockItem;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -38,6 +39,12 @@ public class GlasswareItem extends PriorityBlockItem {
 
     public static ItemStack getShortGlass(String name) {
         return SnsCreativeTab.createShortDrink(name);
+    }
+
+    public static ItemStack getShortGlass(Identifier glass) {
+        ItemStack stack = getMartiniGlass();
+        stack.set(DataComponents.ITEM_MODEL, glass);
+        return stack;
     }
 
     public static ItemStack getMargaritaGlass() {
@@ -84,7 +91,9 @@ public class GlasswareItem extends PriorityBlockItem {
             );
             placeContext.getItemInHand().set(DataComponentTypeRegistries.GLASSWARE_POSITION, localPos);
             assert placeContext.getPlayer() != null;
-            placeContext.getItemInHand().set(DataComponentTypeRegistries.GLASSWARE_ROTATION, placeContext.getPlayer().getYRot());
+            if (!placeContext.getItemInHand().has(DataComponentTypeRegistries.GLASSWARE_ROTATION)) {
+                placeContext.getItemInHand().set(DataComponentTypeRegistries.GLASSWARE_ROTATION, placeContext.getPlayer().getYRot());
+            }
             return true;
         };
         return false;

@@ -1,14 +1,21 @@
 package io.github.hawah.shakenstir.content.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
+import com.mojang.authlib.GameProfile;
+import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
+import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
 import io.github.hawah.shakenstir.content.entity.BartenderEntity;
 import io.github.hawah.shakenstir.content.entity.ai.memory.BarData;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
+import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.NonNullList;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -19,11 +26,14 @@ import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.fluids.FluidStack;
+import org.joml.Vector2f;
 
-import java.util.Comparator;
-import java.util.Optional;
+import java.util.*;
 
 public class BartenderProduct extends Behavior<BartenderEntity> {
 
@@ -46,6 +56,7 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
         SHAKING,
         FINISH_SHAKING,
         POURING,
+        DECORATING,
         END
     }
 
@@ -59,12 +70,21 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
     protected boolean timedOut(long timestamp) {
         return endTime > 0 && timestamp > endTime && state.equals(State.END);
     }
-
+    SnsRecipeHolder recipeHolder;
+    long glasswareFindTimeout = 0;
     @Override
     protected void start(ServerLevel level, BartenderEntity body, long timestamp) {
         endTime = -1;
         lookAtStamp = -1;
+        pouringTimeout = -1;
+        pouringCD = -1;
+        decoratingTimeout = -1;
+        decoratingPlaceTimeout = -1;
         setState(State.APPROACHING_CUSTOMER);
+        body.getBrain().getMemory(Memories.RECIPE.get()).ifPresent(recipe -> {
+            recipeHolder = recipe;
+        });
+        decorations.clear();
     }
 
     @Override
@@ -77,33 +97,141 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
             this.doTurnForShake(level, body, timestamp);
         }
         if (state.equals(State.SHAKING)) {
-            if (!body.isShaking()) {
-                body.startShaking();
-            }
-            if (body.getState().equals(BartenderEntity.AnimState.SHAKING)) {
-                this.doShaking(level, body, timestamp);
-            }
-            if (endTime > 0 && timestamp > endTime) {
-                setState(State.FINISH_SHAKING);
-//                body.getBrain().setMemory();
-            }
+            this.doShaking(level, body, timestamp);
         }
         if (state.equals(State.FINISH_SHAKING)) {
-            setState(State.POURING);
+            this.prepareForPouring(body, timestamp);
         }
         if (state.equals(State.POURING)) {
-//            body.getBrain().getMemory(Memories.BAR_MEMORY.get()).ifPresent(barData -> {
-//                List<BlockPos> blockPos = barData.barCounter();
-//                for (BlockPos blockPo : blockPos) {
-//                    if (level.getBlockState(blockPo).isEmpty()) {
-//
-//                        break;
-//                    }
-//                }
-//            });
+            this.doPouring(level, body, timestamp);
+        }
+        if (state.equals(State.DECORATING)) {
+            this.doDecorating(level, body, timestamp);
+        }
+    }
+    List<GlasswareBlockEntity.Decoration> decorations = new ArrayList<>();
+    long decoratingTimeout = -1;
+    long decoratingPlaceTimeout = -1;
+    private void doDecorating(ServerLevel level, BartenderEntity body, long timestamp) {
+        if (decorations.isEmpty() && body.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()) {
+            decorations.addAll(recipeHolder.decorations());
+            if (decorations.isEmpty()) {
+                setState(State.END);
+                return;
+            }
+        }
+        if (body.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()) {
+            GlasswareBlockEntity.Decoration deco = decorations.getFirst();
+            if (deco.itemStack().isEmpty()) {
+                return;
+            }
+            NonNullList<ItemStack> inventory = body.getInventory();
+            for (int i = 0, inventorySize = inventory.size(); i < inventorySize; i++) {
+                ItemStack itemStack = inventory.get(i);
+                if (itemStack.is(deco.itemStack().getItem())) {
+                    body.setItemInHand(InteractionHand.MAIN_HAND, deco.itemStack());
+                    body.setInventorySlot(i, ItemStack.EMPTY);
+                    break;
+                }
+            }
+        }
+        if (decoratingTimeout < 0) {
+            decoratingTimeout = timestamp + 10 + level.getRandom().nextInt(3);
+        }
+        if (decoratingTimeout >= timestamp) {
+            return;
+        }
+        decoratingTimeout = timestamp + 10 + level.getRandom().nextInt(3);
+        body.getBrain().getMemory(Memories.MEMORY_GLASSWARE.get()).ifPresent(
+                glassware -> {
+                    if (level.getBlockEntity(glassware.pos()) instanceof GlasswareBlockEntity glasswareBlockEntity){
+                        GlasswareBlockEntity.Decoration deco = decorations.getFirst();
+                        glasswareBlockEntity.insertDecoration(deco);
+                    }
+                }
+        );
+        body.swing(InteractionHand.MAIN_HAND);
+        if (!decorations.isEmpty()){
+            decorations.removeFirst();
+        }
+        body.getItemInHand(InteractionHand.MAIN_HAND).shrink(1);
+        if (body.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()) {
+            body.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        }
+        if (decorations.isEmpty()) {
             setState(State.END);
         }
+    }
 
+    long pouringCD = -1;
+    long pouringTimeout = -1;
+
+    private void doPouring(ServerLevel level, BartenderEntity body, long timestamp) {
+        if (body.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof GlasswareItem glasswareItem) {
+            if (pouringCD < timestamp) {
+                body.getBrain().getMemory(Memories.BAR_MEMORY.get()).ifPresent(barData -> {
+                    List<BlockPos> counters = barData.barCounter();
+                    counters.stream().max(Comparator.comparing(bp -> body.distanceToSqr(bp.getCenter())))
+                            .ifPresent(blockPos -> {
+                                Vector2f localPos = new Vector2f(level.getRandom().nextFloat(), level.getRandom().nextFloat());
+                                body.getItemInHand(InteractionHand.MAIN_HAND).set(DataComponentTypeRegistries.GLASSWARE_ROTATION, body.getYRot() + 45);
+                                UseOnContext useOnContext = new UseOnContext(
+                                        new FakePlayer(level, new GameProfile(UUID.randomUUID(), "bartender")),
+                                        InteractionHand.MAIN_HAND,
+                                        new BlockHitResult(
+                                                blockPos.getCenter().add(localPos.x(), 0.5, localPos.y()),
+                                                Direction.UP,
+                                                blockPos,
+                                                false
+                                        )
+                                );
+                                glasswareItem.useOn(useOnContext);
+                                body.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                                body.getBrain().setMemory(Memories.MEMORY_GLASSWARE.get(), new GlobalPos(level.dimension(), blockPos));
+                    });
+                });
+                pouringTimeout = timestamp + 20;
+            }
+            return;
+        }
+        if (pouringTimeout < timestamp && pouringTimeout > 0) {
+            body.getBrain().getMemory(Memories.MEMORY_GLASSWARE.get()).ifPresent(
+                    glassware -> {
+                        if (level.getBlockEntity(glassware.pos()) instanceof GlasswareBlockEntity glasswareBlockEntity){
+                            recipeHolder.recipe().apply(
+                                    glasswareBlockEntity,
+                                    recipeHolder.result()
+                            );
+                        }
+                    }
+            );
+            body.swing(InteractionHand.MAIN_HAND);
+            setState(State.DECORATING);
+            return;
+        }
+        int glasswareIdx = -1;
+        for (int i = 0; i < body.getInventory().size(); i++) {
+            if (body.getInventorySlot(i).getItem() instanceof GlasswareItem) {
+                glasswareIdx = i;
+                break;
+            }
+        }
+        if (glasswareIdx < 0) {
+            setState(State.END);
+        }
+        pouringCD = timestamp + 40;
+        ItemStack shortGlass = GlasswareItem.getShortGlass(Identifier.parse(recipeHolder.holderGlass()));
+        body.setItemInHand(InteractionHand.MAIN_HAND, shortGlass);
+        body.setInventorySlot(glasswareIdx, ItemStack.EMPTY);
+    }
+
+    private void prepareForPouring(BartenderEntity body, long timestamp) {
+        if (glasswareFindTimeout < timestamp) {
+            setState(State.END);
+        }
+        if (body.getBrain().checkMemory(Memories.ITEM_TO_FIND.get(), MemoryStatus.VALUE_ABSENT)) {
+            setState(State.POURING);
+        }
     }
 
     private long lookAtStamp = -1;
@@ -165,8 +293,20 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
     }
 
     private void doShaking(ServerLevel level, BartenderEntity body, long timestamp) {
-        if (endTime < 0) {
-            endTime = timestamp + SHAKING_DURATION;
+        if (!body.isShaking()) {
+            body.startShaking();
+        }
+        if (body.getState().equals(BartenderEntity.AnimState.SHAKING)) {
+            if (endTime < 0) {
+                endTime = timestamp + SHAKING_DURATION;
+            }
+        }
+        if (endTime > 0 && timestamp > endTime) {
+            setState(State.FINISH_SHAKING);
+            if (recipeHolder != null) {
+                body.getBrain().setMemory(Memories.ITEM_TO_FIND.get(), recipeHolder.getItemToFind());
+                glasswareFindTimeout = timestamp + 5 * 20 * 60;
+            }
         }
 
     }

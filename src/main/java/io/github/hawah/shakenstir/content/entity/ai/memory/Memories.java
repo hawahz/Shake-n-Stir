@@ -29,6 +29,7 @@ public class Memories {
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<MemoryEntitiesHolder<Player>>> UNSERVED_CUSTOMER = register("unserved_customer");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<BarData>> BAR_MEMORY = register("bar_memory", BarData.CODEC);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<List<Ingredient>>> ITEM_TO_FIND = register("item_to_find", Ingredient.CODEC.listOf());
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<GlobalPos>> MEMORY_GLASSWARE = register("memory_glassware", GlobalPos.CODEC);
 
 
     public static void register(IEventBus modEventBus) {
