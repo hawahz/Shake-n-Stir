@@ -87,6 +87,11 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
         setRecipeDirty();
     }
 
+    public void setRecipe(int index, SnsRecipeHolder recipeHolder) {
+        recipes.get(index).setLeft(recipeHolder);
+        setRecipeDirty();
+    }
+
     public void setRecipeDirty() {
         dirty = true;
     }

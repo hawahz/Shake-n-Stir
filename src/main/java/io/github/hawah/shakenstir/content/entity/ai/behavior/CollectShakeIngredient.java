@@ -181,6 +181,8 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
                 interactionState = InteractionState.SEARCH;
                 setTransportingState(TransportItemState.TRAVELLING);
                 this.target = null;
+            } else {
+                body.getLookControl().setLookAt(target.pos.getCenter());
             }
         }
     }
@@ -433,7 +435,7 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
     protected void setVisitedBlockPos(PathfinderMob body, Level level, BlockPos target) {
         Set<GlobalPos> visitedPositions = new HashSet<>(getVisitedPositions(body));
         visitedPositions.add(new GlobalPos(level.dimension(), target));
-        if (visitedPositions.size() > 10) {
+        if (visitedPositions.size() > 50) {
 //            this.enterCooldownAfterNoMatchingTargetFound(body);
         } else {
             body.getBrain().setMemoryWithExpiry(MemoryModuleType.VISITED_BLOCK_POSITIONS, visitedPositions, 6000L);

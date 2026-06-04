@@ -21,6 +21,7 @@ public enum NetworkPackets implements BasePacketPayload.PacketTypeProvider {
     TRY_PICK_ITEM(ServerboundTryPickItemPacket.class, ServerboundTryPickItemPacket.STREAM_CODEC),
     ENTITY_FALL(ServerboundEntityFallPacket.class, ServerboundEntityFallPacket.STREAM_CODEC),
     MENU_BE_CHANGED(ServerboundMenuBEChanged.class, ServerboundMenuBEChanged.STREAM_CODEC),
+    MENU_BE_RECIPE_CHANGED(ServerboundMenuBERecipeChanged.class, ServerboundMenuBERecipeChanged.STREAM_CODEC),
     //S2C
     SHAKE_PARAM_SYNC(ClientboundShakeParamSyncPacket.class, ClientboundShakeParamSyncPacket.STREAM_CODEC),
     PLAYER_FALL_DOWN_OR_RECOVER(ClientboundPlayerFallDownOrRecoverPacket.class, ClientboundPlayerFallDownOrRecoverPacket.STREAM_CODEC),

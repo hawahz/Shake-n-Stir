@@ -89,6 +89,7 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
             this.onStartTravelling(body);
         } else {
             this.ticksSinceReachingTarget++;
+            body.getLookControl().setLookAt(target.pos.getCenter());
             if (this.ticksSinceReachingTarget >= SEARCH_TIME) {
                 extractRequiredItemFromTarget(target, body);
                 this.ticksSinceReachingTarget = 0;
@@ -160,7 +161,7 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
     protected void setVisitedBlockPos(PathfinderMob body, Level level, BlockPos target) {
         Set<GlobalPos> visitedPositions = new HashSet<>(getVisitedPositions(body));
         visitedPositions.add(new GlobalPos(level.dimension(), target));
-        if (visitedPositions.size() > 10) {
+        if (visitedPositions.size() > 50) {
 //            this.enterCooldownAfterNoMatchingTargetFound(body);
         } else {
             body.getBrain().setMemoryWithExpiry(MemoryModuleType.VISITED_BLOCK_POSITIONS, visitedPositions, 6000L);
@@ -195,8 +196,11 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
         }
     }
 
+    long interactionDuration = 0;
+
     private void startOnReachedTargetInteraction(TakeUpItemTarget target, BartenderEntity body) {
         this.setTransportingState(TransportItemState.INTERACTING);
+        interactionDuration = -1;
     }
 
     private void setTransportingState(TransportItemState state) {

@@ -12,29 +12,21 @@ import io.github.hawah.shakenstir.lib.networking.Networking;
 import io.github.hawah.shakenstir.util.IModel;
 import io.github.hawah.shakenstir.util.SerializeHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.PatchedDataComponentMap;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
@@ -45,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class GlasswareBlockEntity extends BlockEntity {
+public class GlasswareBlockEntity extends AutoUpdateBlockEntity {
 
     // To Save
     public final Vector2f position = new Vector2f();
@@ -89,7 +81,7 @@ public class GlasswareBlockEntity extends BlockEntity {
         if (level.isClientSide()) {
             Networking.sendToServer(new ServerboundInsertDecorationPacket(decoration, worldPosition));
         }
-        setChanged();
+        markChanged();
         return true;
     }
 
@@ -99,7 +91,7 @@ public class GlasswareBlockEntity extends BlockEntity {
         }
         contentComponents.setAll(itemStack.getComponents());
         heightRate = 1.0F;
-        this.setChanged();
+        this.markChanged();
         if (getLevel() instanceof ServerLevel serverLevel){
             serverLevel.players().forEach(
                     player -> player.connection.send(getUpdatePacket())
@@ -140,22 +132,6 @@ public class GlasswareBlockEntity extends BlockEntity {
                 valueInput.read("Decoration", Decoration.CODEC).ifPresent(decorationsList::add);
             }
         }
-    }
-
-    @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag var4;
-        try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(this.problemPath(), LogUtils.getLogger())) {
-            TagValueOutput output = TagValueOutput.createWithContext(reporter, registries);
-            saveAdditional(output);
-            var4 = output.buildResult();
-        }
-        return var4;
     }
 
     @Override
@@ -237,6 +213,8 @@ public class GlasswareBlockEntity extends BlockEntity {
                 ItemStack.OPTIONAL_STREAM_CODEC, Decoration::itemStack,
                 Decoration::new
         );
+
+
 
         public static final Codec<Decoration> CODEC = RecordCodecBuilder.create(inst -> inst.group(
                 Vec3.CODEC.fieldOf("position").forGetter(Decoration::position),

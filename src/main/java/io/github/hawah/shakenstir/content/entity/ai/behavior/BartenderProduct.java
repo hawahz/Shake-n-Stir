@@ -38,6 +38,10 @@ import java.util.*;
 public class BartenderProduct extends Behavior<BartenderEntity> {
 
     public static final int SHAKING_DURATION = 100;
+    public static final int DECORATING_DURATION = 10;
+    public static final int POURING_DURATION = 20;
+    public static final int POURING_CD = 20;
+    public static final long LOOKAT_DURATION = 40L;
     private long endTime = -1;
     private BlockPos target = null;
 
@@ -82,6 +86,7 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
         pouringCD = -1;
         decoratingTimeout = -1;
         decoratingPlaceTimeout = -1;
+        placePos = null;
         setState(State.APPROACHING_CUSTOMER);
         body.getBrain().getMemory(Memories.RECIPE.get()).ifPresent(recipe -> {
             recipeHolder = recipe;
@@ -131,19 +136,19 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
             for (int i = 0, inventorySize = inventory.size(); i < inventorySize; i++) {
                 ItemStack itemStack = inventory.get(i);
                 if (itemStack.is(deco.itemStack().getItem())) {
-                    body.setItemInHand(InteractionHand.MAIN_HAND, deco.itemStack());
+                    body.setItemInHand(InteractionHand.MAIN_HAND, deco.itemStack().copy());
                     body.setInventorySlot(i, ItemStack.EMPTY);
                     break;
                 }
             }
         }
         if (decoratingTimeout < 0) {
-            decoratingTimeout = timestamp + 10 + level.getRandom().nextInt(3);
+            decoratingTimeout = timestamp + DECORATING_DURATION + level.getRandom().nextInt(3);
         }
         if (decoratingTimeout >= timestamp) {
             return;
         }
-        decoratingTimeout = timestamp + 10 + level.getRandom().nextInt(3);
+        decoratingTimeout = timestamp + DECORATING_DURATION + level.getRandom().nextInt(3);
         body.getBrain().getMemory(Memories.MEMORY_GLASSWARE.get()).ifPresent(
                 glassware -> {
                     if (level.getBlockEntity(glassware.pos()) instanceof GlasswareBlockEntity glasswareBlockEntity){
@@ -167,36 +172,42 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
 
     long pouringCD = -1;
     long pouringTimeout = -1;
-
+    BlockPos placePos;
     private void doPouring(ServerLevel level, BartenderEntity body, long timestamp) {
         ItemStack itemInHand = body.getItemInHand(InteractionHand.MAIN_HAND);
         if (itemInHand.getItem() instanceof GlasswareItem glasswareItem) {
             if (pouringCD < timestamp) {
+                Vector2f localPos = new Vector2f(level.getRandom().nextFloat() % 1 - 0.5F, level.getRandom().nextFloat() % 1 - 0.5F);
+                itemInHand.set(DataComponentTypeRegistries.GLASSWARE_ROTATION, body.getYRot() + 45);
+                UseOnContext useOnContext = new UseOnContext(
+                        level,
+                        new FakePlayer(level, new GameProfile(UUID.randomUUID(), "bartender")),
+                        InteractionHand.MAIN_HAND,
+                        itemInHand,
+                        new BlockHitResult(
+                                placePos.getCenter().add(localPos.x(), 0.5, localPos.y()),
+                                Direction.UP,
+                                placePos,
+                                false
+                        )
+                );
+                glasswareItem.useOn(useOnContext);
+                body.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                body.getBrain().setMemory(Memories.MEMORY_GLASSWARE.get(), new GlobalPos(level.dimension(), placePos));
+                pouringTimeout = timestamp + POURING_CD;
+            } else if (placePos == null) {
                 body.getBrain().getMemory(Memories.BAR_MEMORY.get()).ifPresent(barData -> {
                     List<BlockPos> counters = barData.barCounter();
-                    counters.stream().min(Comparator.comparing(bp -> body.distanceToSqr(bp.getCenter())))
+                    counters.stream()
+                            .filter(pos -> level.getBlockState(pos).isEmpty())
+                            .min(Comparator.comparing(bp -> body.distanceToSqr(bp.getCenter())))
                             .ifPresent(blockPos -> {
-                                Vector2f localPos = new Vector2f(level.getRandom().nextFloat(), level.getRandom().nextFloat());
-                                itemInHand.set(DataComponentTypeRegistries.GLASSWARE_ROTATION, body.getYRot() + 45);
-//                                itemInHand.set(DataComponents.ITEM_MODEL, recipeHolder.holderGlass());
-                                UseOnContext useOnContext = new UseOnContext(
-                                        level,
-                                        new FakePlayer(level, new GameProfile(UUID.randomUUID(), "bartender")),
-                                        InteractionHand.MAIN_HAND,
-                                        itemInHand,
-                                        new BlockHitResult(
-                                                blockPos.getCenter().add(localPos.x(), 0.5, localPos.y()),
-                                                Direction.UP,
-                                                blockPos,
-                                                false
-                                        )
-                                );
-                                glasswareItem.useOn(useOnContext);
-                                body.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-                                body.getBrain().setMemory(Memories.MEMORY_GLASSWARE.get(), new GlobalPos(level.dimension(), blockPos));
-                    });
+                                placePos = blockPos;
+                            });
                 });
-                pouringTimeout = timestamp + 20;
+            } else {
+                BehaviorUtils.setWalkAndLookTargetMemories(body, placePos, 0.5F, 2);
+                body.getLookControl().setLookAt(placePos.getCenter());
             }
             return;
         }
@@ -227,18 +238,28 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
         if (glasswareIdx < 0) {
             setState(State.END);
         }
-        pouringCD = timestamp + 40;
+        pouringCD = timestamp + POURING_DURATION;
         ItemStack shortGlass = GlasswareItem.getShortGlass(ShakenStir.asResource(recipeHolder.holderGlass()));
         body.setItemInHand(InteractionHand.MAIN_HAND, shortGlass);
         body.setInventorySlot(glasswareIdx, ItemStack.EMPTY);
     }
 
+    long prepareWalkTimeout = -1;
+    public static final int PREPARE_WALK_DURATION = 20;
     private void prepareForPouring(BartenderEntity body, long timestamp) {
         if (glasswareFindTimeout < timestamp) {
             setState(State.END);
         }
+
+
         if (body.getBrain().checkMemory(Memories.ITEM_TO_FIND.get(), MemoryStatus.VALUE_ABSENT)) {
-            setState(State.POURING);
+            if (prepareWalkTimeout < 0) {
+                prepareWalkTimeout = timestamp + PREPARE_WALK_DURATION;
+            }
+
+            if (prepareWalkTimeout < timestamp) {
+                setState(State.POURING);
+            }
         }
     }
 
@@ -246,7 +267,7 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
 
     private void doTurnForShake(ServerLevel level, BartenderEntity body, long timestamp) {
         if (lookAtStamp < 0) {
-            lookAtStamp = timestamp + 40L;
+            lookAtStamp = timestamp + LOOKAT_DURATION;
         } else if (timestamp > lookAtStamp) {
             body.setItemInHand(InteractionHand.MAIN_HAND, ItemRegistries.SHAKER.toStack());
             setState(State.SHAKING);
@@ -254,7 +275,7 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
         }
         body.getBrain().getMemory(MemoryModuleType.INTERACTION_TARGET)
                 .ifPresent(target -> {
-                    Vec3 lookAt = target.position().subtract(body.position()).yRot(Mth.PI * 0.4F).add(body.position());
+                    Vec3 lookAt = target.getEyePosition().subtract(body.getEyePosition()).yRot(Mth.PI * 0.4F).add(body.position());
                     body.getLookControl().setLookAt(lookAt);
                     body.setYBodyRot(body.yHeadRot);
                 });

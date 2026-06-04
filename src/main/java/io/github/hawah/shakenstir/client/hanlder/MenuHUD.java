@@ -12,6 +12,7 @@ import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistr
 import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundMenuBEChanged;
+import io.github.hawah.shakenstir.foundation.networking.ServerboundMenuBERecipeChanged;
 import io.github.hawah.shakenstir.lib.client.KeyBinding;
 import io.github.hawah.shakenstir.lib.client.gui.BaseScreen;
 import io.github.hawah.shakenstir.lib.client.handler.IHandler;
@@ -163,17 +164,6 @@ public class MenuHUD extends AbstractBlockTargetHUD implements IHandler {
                     y - lineHeight/2,
                     String.valueOf(priceAndCount.price)
             );
-
-            if (priceAndCount.count > 0) {
-                int nameLength = mc.font.width(snsRecipeHolder.name());
-                guiGraphics.itemDecorations(
-                        Minecraft.getInstance().font,
-                        ItemRegistries.CONTENT_HOLDER.toStack(),
-                        xLeft + DIST + nameLength - 11,
-                        y - lineHeight/2,
-                        String.valueOf(priceAndCount.count)
-                );
-            }
         }
 
         if (mc.hasAltDown()) {
@@ -278,6 +268,7 @@ public class MenuHUD extends AbstractBlockTargetHUD implements IHandler {
                     .decorations(itemStack.getOrDefault(DataComponentTypeRegistries.GLASSWARE_DECORATIONS, List.of()))
             ;
             cachedEntity.recipes.get(currentIndex).setLeft(newHolder);
+            Networking.sendToServer(new ServerboundMenuBERecipeChanged(newHolder, currentIndex, cachedEntity.getBlockPos()));
             return true;
         }
         BarMenuBlockEntity.PriceAndCount priceAndCount = cachedEntity.recipes.get(currentIndex).right();

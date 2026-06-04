@@ -140,7 +140,9 @@ public record SnsRecipeHolder(
         List<Ingredient> itemToFind = new ArrayList<>();
         itemToFind.add(Ingredient.of(ItemRegistries.SHORT_DRINK_GLASSWARE));
         for (GlasswareBlockEntity.Decoration decoration : decorations) {
-            itemToFind.add(Ingredient.of(decoration.itemStack().getItem()));
+            if (!decoration.itemStack().isEmpty()) {
+                itemToFind.add(Ingredient.of(decoration.itemStack().getItem()));
+            }
         }
         return itemToFind;
     }
