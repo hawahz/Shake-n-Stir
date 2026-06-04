@@ -31,7 +31,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.fluids.FluidStack;
-import org.joml.Vector2f;
 
 import java.util.*;
 
@@ -123,6 +122,30 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
         if (decorations.isEmpty() && body.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()) {
             decorations.addAll(recipeHolder.decorations());
             if (decorations.isEmpty()) {
+                body.getBrain().getMemory(Memories.MEMORY_GLASSWARE.get()).ifPresent(
+                        pos -> {
+                            if (!level.dimension().equals(pos.dimension())) {
+                                return;
+                            }
+                            if (!(level.getBlockEntity(pos.pos()) instanceof GlasswareBlockEntity be)) {
+                                return;
+                            }
+                            // Compute direction from bartender to glassware, place on far edge
+                            Vec3 blockCenter = Vec3.atCenterOf(pos.pos());
+                            double dx = blockCenter.x() - body.getX();
+                            double dz = blockCenter.z() - body.getZ();
+
+                            float localX, localZ;
+                            if (Math.abs(dx) > Math.abs(dz)) {
+                                localX = dx > 0 ? 1.0F : 0.0F;
+                                localZ = 0.5F;
+                            } else {
+                                localX = 0.5F;
+                                localZ = dz > 0 ? 1.0F : 0.0F;
+                            }
+                            be.moveTo(localX, localZ);
+                        }
+                );
                 setState(State.END);
                 return;
             }
@@ -166,7 +189,32 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
             body.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         }
         if (decorations.isEmpty()) {
+            body.getBrain().getMemory(Memories.MEMORY_GLASSWARE.get()).ifPresent(
+                    pos -> {
+                        if (!level.dimension().equals(pos.dimension())) {
+                            return;
+                        }
+                        if (!(level.getBlockEntity(pos.pos()) instanceof GlasswareBlockEntity be)) {
+                            return;
+                        }
+                            // Compute direction from bartender to glassware, place on far edge
+                            Vec3 blockCenter = Vec3.atCenterOf(pos.pos());
+                            double dx = blockCenter.x() - body.getX();
+                            double dz = blockCenter.z() - body.getZ();
+
+                            float localX, localZ;
+                            if (Math.abs(dx) > Math.abs(dz)) {
+                                localX = dx > 0 ? 1.0F : 0.0F;
+                                localZ = 0.5F;
+                            } else {
+                                localX = 0.5F;
+                                localZ = dz > 0 ? 1.0F : 0.0F;
+                            }
+                            be.moveTo(localX, localZ);
+                    }
+            );
             setState(State.END);
+            return;
         }
     }
 
@@ -177,7 +225,26 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
         ItemStack itemInHand = body.getItemInHand(InteractionHand.MAIN_HAND);
         if (itemInHand.getItem() instanceof GlasswareItem glasswareItem) {
             if (pouringCD < timestamp) {
-                Vector2f localPos = new Vector2f(level.getRandom().nextFloat() % 1 - 0.5F, level.getRandom().nextFloat() % 1 - 0.5F);
+                // Place on the top face, near the edge closest to the bartender
+                Vec3 bodyPos = body.position();
+                Vec3 center = placePos.getCenter();
+                double dx = bodyPos.x() - center.x();
+                double dz = bodyPos.z() - center.z();
+                float edgeInset = 0.05F;
+
+                double posX, posZ;
+                if (Math.abs(dx) > Math.abs(dz)) {
+                    // Bartender is more on the X axis — place on X-facing edge
+                    posX = dx > 0 ? placePos.getX() + 1.0 - edgeInset : placePos.getX() + edgeInset;
+                    posZ = placePos.getZ() + level.getRandom().nextFloat();
+                } else {
+                    // Bartender is more on the Z axis — place on Z-facing edge
+                    posX = placePos.getX() + level.getRandom().nextFloat();
+                    posZ = dz > 0 ? placePos.getZ() + 1.0 - edgeInset : placePos.getZ() + edgeInset;
+                }
+
+                Vec3 hitPos = new Vec3(posX, placePos.getY() + 1.0, posZ);
+
                 itemInHand.set(DataComponentTypeRegistries.GLASSWARE_ROTATION, body.getYRot() + 45);
                 UseOnContext useOnContext = new UseOnContext(
                         level,
@@ -185,7 +252,7 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
                         InteractionHand.MAIN_HAND,
                         itemInHand,
                         new BlockHitResult(
-                                placePos.getCenter().add(localPos.x(), 0.5, localPos.y()),
+                                hitPos,
                                 Direction.UP,
                                 placePos,
                                 false

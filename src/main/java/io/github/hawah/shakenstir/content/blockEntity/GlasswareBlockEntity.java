@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.model.Models;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundInsertDecorationPacket;
 import io.github.hawah.shakenstir.lib.StreamCodecUtil;
 import io.github.hawah.shakenstir.lib.networking.Networking;
@@ -88,6 +89,10 @@ public class GlasswareBlockEntity extends AutoUpdateBlockEntity {
 
     public void moveTo(float localX, float localY) {
         positionRate.set(localX, localY);
+        positionRate.set(
+                Mth.clamp(positionRate.x(), GlasswareItem.DEAD_ZONE, 1 - GlasswareItem.DEAD_ZONE),
+                Mth.clamp(positionRate.y(), GlasswareItem.DEAD_ZONE, 1 - GlasswareItem.DEAD_ZONE)
+        );
         markChanged();
     }
 
@@ -114,7 +119,7 @@ public class GlasswareBlockEntity extends AutoUpdateBlockEntity {
         blockEntity.height = Mth.lerp(ShakenStirClient.ANI_DELTAF * 0.5F, blockEntity.height, blockEntity.heightRate);
 
         blockEntity.oPosition.set(blockEntity.position);
-        blockEntity.position.lerp(blockEntity.positionRate, ShakenStirClient.ANI_DELTAF * 0.2F);
+        blockEntity.position.lerp(blockEntity.positionRate, ShakenStirClient.ANI_DELTAF * 0.5F);
     }
 
     public Vector2f getVisualPosition() {

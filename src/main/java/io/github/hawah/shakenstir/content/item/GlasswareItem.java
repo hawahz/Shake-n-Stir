@@ -76,6 +76,8 @@ public class GlasswareItem extends PriorityBlockItem {
         return super.use(level, player, hand);
     }
 
+    public static final float DEAD_ZONE = 0.25F;
+
     @Override
     protected boolean placeBlock(BlockPlaceContext placeContext, BlockState placementState) {
         if (!Direction.UP.equals(placeContext.getClickedFace())) {
@@ -84,7 +86,7 @@ public class GlasswareItem extends PriorityBlockItem {
         if (super.placeBlock(placeContext, placementState)) {
             Vec3 clickLocation = placeContext.getClickLocation().subtract(placeContext.getClickedPos().getX(), placeContext.getClickedPos().getY(), placeContext.getClickedPos().getZ());
             Vector2f localPos = new Vector2f((float) clickLocation.x(), (float) clickLocation.z());
-            final float DEAD_ZONE = 0.25F;
+
             localPos.set(
                     Mth.clamp(localPos.x(), DEAD_ZONE, 1 - DEAD_ZONE),
                     Mth.clamp(localPos.y(), DEAD_ZONE, 1 - DEAD_ZONE)
