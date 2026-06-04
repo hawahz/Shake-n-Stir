@@ -28,14 +28,25 @@ public class SerializeHelper {
     );
 
     public static void saveVector2f(ValueOutput output, Vector2f vec) {
+        saveVector2fNamed(output, vec, "Vector2f");
+    }
+
+    public static void saveVector2fNamed(ValueOutput output, Vector2f vec, String name) {
         float x = vec.x();
         float y = vec.y();
         int data = (int) (x * 1000) | ((int) (y * 1000) << 16);
-        output.putInt("Vector2f", data);
+        output.putInt(name, data);
     }
 
     public static void loadVector2f(ValueInput input, Vector2f dst) {
         int data = input.getInt("Vector2f").orElse(0);
+        float x = (data & 0xFFFF) / 1000f;
+        float y = (data >> 16 & 0xFFFF) / 1000f;
+        dst.set(x, y);
+    }
+
+    public static void loadVector2fNamed(ValueInput input, Vector2f dst, String name) {
+        int data = input.getInt(name).orElse(0);
         float x = (data & 0xFFFF) / 1000f;
         float y = (data >> 16 & 0xFFFF) / 1000f;
         dst.set(x, y);

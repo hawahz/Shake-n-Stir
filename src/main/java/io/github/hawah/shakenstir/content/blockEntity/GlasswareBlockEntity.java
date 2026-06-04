@@ -40,7 +40,7 @@ import java.util.Optional;
 public class GlasswareBlockEntity extends AutoUpdateBlockEntity {
 
     // To Save
-    public final Vector2f position = new Vector2f();
+    public final Vector2f positionRate = new Vector2f();
     public float rotation;
     // Item
     public Identifier model = null;
@@ -57,6 +57,7 @@ public class GlasswareBlockEntity extends AutoUpdateBlockEntity {
     public final Vector2f oPosition = new Vector2f();
     public float oRotation = 0;
     public float oHeight = 0;
+    public final Vector2f position = new Vector2f();
     public float height = 0;
     // End
 
@@ -85,6 +86,11 @@ public class GlasswareBlockEntity extends AutoUpdateBlockEntity {
         return true;
     }
 
+    public void moveTo(float localX, float localY) {
+        positionRate.set(localX, localY);
+        markChanged();
+    }
+
     public boolean pourProduct(ItemStack itemStack) {
         if (!this.contentComponents.isEmpty()) {
             return false;
@@ -106,13 +112,23 @@ public class GlasswareBlockEntity extends AutoUpdateBlockEntity {
     public static void onAnimationTick(Level ignoredLevel, BlockPos ignoredPos, BlockState ignoredState, GlasswareBlockEntity blockEntity) {
         blockEntity.oHeight = blockEntity.height;
         blockEntity.height = Mth.lerp(ShakenStirClient.ANI_DELTAF * 0.5F, blockEntity.height, blockEntity.heightRate);
+
+        blockEntity.oPosition.set(blockEntity.position);
+        blockEntity.position.lerp(blockEntity.positionRate, ShakenStirClient.ANI_DELTAF * 0.2F);
+    }
+
+    public Vector2f getVisualPosition() {
+        return position;
     }
 
 
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        SerializeHelper.loadVector2f(input, position);
+        SerializeHelper.loadVector2f(input, positionRate);
+        if (input.getInt("position").isPresent()) {
+            SerializeHelper.loadVector2fNamed(input, position, "position");
+        }
         rotation = input.getFloatOr("Rot", 0.0f);
         model = input.getString("Model").map(Identifier::tryParse).orElse(null);
         pureName = input.read("PureName", ComponentSerialization.CODEC).orElse(null);
@@ -122,8 +138,6 @@ public class GlasswareBlockEntity extends AutoUpdateBlockEntity {
         contentComponents.setAll(content);
         if (!contentComponents.isEmpty()) {
             heightRate = 1.0F;
-//            height = 1.0F;
-//            oHeight = 1.0F;
         }
         Optional<ValueInput.ValueInputList> decorations = input.childrenList("Decorations");
         decorationsList.clear();
@@ -137,7 +151,7 @@ public class GlasswareBlockEntity extends AutoUpdateBlockEntity {
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        SerializeHelper.saveVector2f(output, position);
+        SerializeHelper.saveVector2f(output, positionRate);
         output.putFloat("Rot", rotation);
         if (model != null) {
             output.putString("Model", model.toString());
@@ -151,6 +165,9 @@ public class GlasswareBlockEntity extends AutoUpdateBlockEntity {
         if (defaultName != null) {
             output.store("DefaultName", ComponentSerialization.CODEC, defaultName);
         }
+        if (oPosition.equals(position)) {
+            SerializeHelper.saveVector2fNamed(output, position, "position");
+        }
         ValueOutput.ValueOutputList decorations = output.childrenList("Decorations");
         for (Decoration decoration : decorationsList) {
             decorations.addChild().store("Decoration", Decoration.CODEC, decoration);
@@ -162,7 +179,9 @@ public class GlasswareBlockEntity extends AutoUpdateBlockEntity {
     @Override
     protected void applyImplicitComponents(DataComponentGetter components) {
         super.applyImplicitComponents(components);
-        position.set(components.getOrDefault(DataComponentTypeRegistries.GLASSWARE_POSITION, new Vector2f()));
+        positionRate.set(components.getOrDefault(DataComponentTypeRegistries.GLASSWARE_POSITION, new Vector2f()));
+        position.set(positionRate);
+        oPosition.set(positionRate);
         rotation = components.getOrDefault(DataComponentTypeRegistries.GLASSWARE_ROTATION, 0.0f);
         if (components.has(DataComponentTypeRegistries.DRINK_DATA)) {
             this.contentComponents.clearPatch();

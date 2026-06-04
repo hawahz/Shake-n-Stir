@@ -23,7 +23,7 @@ public class GlasswareBlockEntityRenderer implements BlockEntityRenderer<Glasswa
     @Override
     public void extractRenderState(GlasswareBlockEntity blockEntity, GlasswareBlockEntityRenderState state, float partialTicks, Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
-        state.position.set(blockEntity.position);
+        state.position.set(blockEntity.oPosition).lerp(blockEntity.position, partialTicks);
         state.rotate = blockEntity.rotation;
         state.model = blockEntity.getModel();
         state.height = Mth.lerp(partialTicks, blockEntity.oHeight, blockEntity.height);

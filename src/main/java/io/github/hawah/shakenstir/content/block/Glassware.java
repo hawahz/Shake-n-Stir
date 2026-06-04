@@ -148,7 +148,7 @@ public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         if (level.getBlockEntity(pos) instanceof GlasswareBlockEntity blockEntity && blockEntity.getLevel() != null && blockEntity.getLevel().isClientSide()) {
             IModel<?> model = blockEntity.getModel();
-            return model.getShape().move(blockEntity.position.x(), 0, blockEntity.position.y());
+            return model.getShape().move(blockEntity.getVisualPosition().x(), 0, blockEntity.getVisualPosition().y());
         }
         return super.getShape(state, level, pos, context);
     }

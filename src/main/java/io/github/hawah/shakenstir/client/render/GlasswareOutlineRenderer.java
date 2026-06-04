@@ -22,7 +22,7 @@ public record GlasswareOutlineRenderer(
 
     @Override
     public boolean render(BlockOutlineRenderState renderState, MultiBufferSource.BufferSource buffer, PoseStack poseStack, boolean translucentPass, LevelRenderState levelRenderState) {
-        Vector2f position = blockEntity.position;
+        Vector2f position = blockEntity.getVisualPosition();
         float rotation = blockEntity.rotation;
         IModel<?> model = blockEntity.getModel();
 

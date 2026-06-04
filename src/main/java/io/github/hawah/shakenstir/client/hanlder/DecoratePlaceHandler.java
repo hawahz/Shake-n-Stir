@@ -154,16 +154,16 @@ public class DecoratePlaceHandler implements IHandler {
         poseStack.translate(-camPos.x(), -camPos.y(), -camPos.z());
 
         poseStack.translate(
-                blockEntity.position.x() + pos.getX(),
+                blockEntity.getVisualPosition().x() + pos.getX(),
                 pos.getY(),
-                pos.getZ() + blockEntity.position.y()
+                pos.getZ() + blockEntity.getVisualPosition().y()
         );
         poseStack.mulPose(Axis.YN.rotationDegrees(blockEntity.rotation));
 
         Vec3 localPos = location.subtract(
-                (blockEntity.position.x() + pos.getX()   ),
+                (blockEntity.getVisualPosition().x() + pos.getX()   ),
                 (pos.getY()                              ),
-                (blockEntity.position.y() + pos.getZ())  )
+                (blockEntity.getVisualPosition().y() + pos.getZ())  )
                 .yRot((float) Math.toRadians(blockEntity.rotation));
 
         poseStack.translate(localPos.x(), localPos.y() + y, localPos.z());
@@ -237,9 +237,9 @@ public class DecoratePlaceHandler implements IHandler {
         }
         if (level().getBlockEntity(pos) instanceof GlasswareBlockEntity blockEntity/* && blockEntity.hasContent()*/) {
             Vec3 location = ClientDataHolder.Picker.location().subtract(
-                    blockEntity.position.x() + pos.getX(),
+                    blockEntity.getVisualPosition().x() + pos.getX(),
                     pos.getY() - y,
-                    blockEntity.position.y() + pos.getZ()
+                    blockEntity.getVisualPosition().y() + pos.getZ()
             ).yRot((float) Math.toRadians(blockEntity.rotation));
             if (blockEntity.insertDecoration(new GlasswareBlockEntity.Decoration(location, new Quaternionf(quaternionf), getItem().copyWithCount(1)))) {
                 getPlayer().swing(InteractionHand.MAIN_HAND);
