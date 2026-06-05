@@ -231,9 +231,6 @@ public class ClientEvents {
         if (ShakenStirClient.DECORATE_PLACE_HANDLER.onMousePressed(button, down)) {
             event.setCanceled(true);
         };
-        if (ShakenStirClient.MENU_HUD.onMousePressed(button, down)) {
-            event.setCanceled(true);
-        }
     }
 
     @SubscribeEvent
