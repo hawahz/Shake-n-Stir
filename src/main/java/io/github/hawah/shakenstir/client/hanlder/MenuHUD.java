@@ -7,14 +7,8 @@ import io.github.hawah.shakenstir.client.gui.EditorMenuScreen;
 import io.github.hawah.shakenstir.client.gui.MenuScreen;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.BarMenuBlockEntity;
-import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
-import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
-import io.github.hawah.shakenstir.content.item.GlasswareItem;
-import io.github.hawah.shakenstir.foundation.networking.ServerboundMenuBERecipeChanged;
-import io.github.hawah.shakenstir.lib.client.KeyBinding;
 import io.github.hawah.shakenstir.lib.client.gui.ScreenOpener;
 import io.github.hawah.shakenstir.lib.client.handler.IHandler;
-import io.github.hawah.shakenstir.lib.networking.Networking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
@@ -23,19 +17,15 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.util.Lazy;
-import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 
-import static io.github.hawah.shakenstir.client.hanlder.MC.getPlayer;
 import static io.github.hawah.shakenstir.client.hanlder.MC.level;
 
 @SuppressWarnings("resource")
@@ -126,41 +116,4 @@ public class MenuHUD extends AbstractBlockTargetHUD implements IHandler {
     private boolean isOwner() {
         return cachedEntity.getPlacerId().equals(Minecraft.getInstance().player.getUUID());
     }
-
-    public boolean onMousePressed(int button, boolean pressed) {
-        if (!isVisible()) {
-            return false;
-        }
-        return false;
-    }
-
-    public boolean onModifyCostItem() {
-        if (!isOwner() || KeyBinding.hasShiftDown()) {
-            return false;
-        }
-        if (currentIndex < 0 || getPlayer() == null) {
-            return false;
-        }
-        ItemStack itemStack = getPlayer().getMainHandItem();
-        if (itemStack.getItem() instanceof GlasswareItem) {
-            SnsRecipeHolder recipeHolder = cachedEntity.recipes.get(currentIndex).left();
-            SnsRecipeHolder newHolder = recipeHolder
-                    .glass(itemStack.getOrDefault(DataComponents.ITEM_MODEL, ShakenStir.asResource("martini_glass")).getPath())
-                    .decorations(itemStack.getOrDefault(DataComponentTypeRegistries.GLASSWARE_DECORATIONS, List.of()))
-            ;
-            cachedEntity.recipes.get(currentIndex).setLeft(newHolder);
-            Networking.sendToServer(new ServerboundMenuBERecipeChanged(newHolder, currentIndex, cachedEntity.getBlockPos()));
-            return true;
-        }
-        BarMenuBlockEntity.PriceAndCount priceAndCount = cachedEntity.recipes.get(currentIndex).right();
-        if (itemStack.isEmpty()) {
-            priceAndCount.price = 0;
-            priceAndCount.item = ItemResource.EMPTY;
-        } else {
-            priceAndCount.item = ItemResource.of(itemStack);
-        }
-        return true;
-    }
-
-
 }
