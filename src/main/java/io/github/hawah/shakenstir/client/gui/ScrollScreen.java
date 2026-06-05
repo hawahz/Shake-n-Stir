@@ -66,7 +66,6 @@ public class ScrollScreen extends BaseScreen {
         ClientboundSyncRecipeData.SIGNAL.bind(this, this::changeRecipes);
 
         setTextureSize(BACKGROUND.getWidth(), BACKGROUND.getHeight());
-        guiLeft += 20;
         super.init();
         int x = guiLeft;
         int y = guiTop + 2;

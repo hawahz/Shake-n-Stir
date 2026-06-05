@@ -1,10 +1,12 @@
 package io.github.hawah.shakenstir.client.hanlder;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.ClickInteractions;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
 import io.github.hawah.shakenstir.client.gui.AbstractBlockTargetHUD;
+import io.github.hawah.shakenstir.client.gui.MenuScreen;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.BarMenuBlockEntity;
 import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
@@ -15,15 +17,20 @@ import io.github.hawah.shakenstir.foundation.networking.ServerboundMenuBEChanged
 import io.github.hawah.shakenstir.foundation.networking.ServerboundMenuBERecipeChanged;
 import io.github.hawah.shakenstir.lib.client.KeyBinding;
 import io.github.hawah.shakenstir.lib.client.gui.BaseScreen;
+import io.github.hawah.shakenstir.lib.client.gui.ScreenOpener;
 import io.github.hawah.shakenstir.lib.client.handler.IHandler;
 import io.github.hawah.shakenstir.lib.networking.Networking;
 import io.github.hawah.shakenstir.util.Result;
 import io.github.hawah.shakenstir.util.Textures;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -53,6 +60,8 @@ public class MenuHUD extends AbstractBlockTargetHUD implements IHandler {
     double counts = 0;
     double price = 0;
 
+    protected boolean isActive = false;
+
     @Override
     public void tick() {
 
@@ -60,12 +69,12 @@ public class MenuHUD extends AbstractBlockTargetHUD implements IHandler {
 
     @Override
     public boolean isActive() {
-        return false;
+        return isActive;
     }
 
     @Override
     public boolean isVisible() {
-        return super.isVisible() && !Minecraft.getInstance().hasControlDown();
+        return super.isVisible() && !Minecraft.getInstance().hasControlDown() && Minecraft.getInstance().screen == null;
     }
 
     @Override
@@ -79,9 +88,6 @@ public class MenuHUD extends AbstractBlockTargetHUD implements IHandler {
             reset();
             return;
         }
-
-//        guiGraphics.submitPictureInPictureRenderState(new MenuRenderState());
-
         BlockPos pos = ClientDataHolder.Picker.pos();
         if (level() == null || pos == null) {
             return;
@@ -94,6 +100,27 @@ public class MenuHUD extends AbstractBlockTargetHUD implements IHandler {
                 return;
             }
         }
+
+        if (true) {
+            int screenWidth = guiGraphics.guiWidth();
+            int screenHeight = guiGraphics.guiHeight();
+            boolean keyDown = InputConstants.isKeyDown(Minecraft.getInstance().getWindow(), GLFW.GLFW_KEY_F);
+            if (keyDown) {
+                ScreenOpener.open(new MenuScreen(cachedEntity));
+            }
+            guiGraphics.tooltip(
+                    Minecraft.getInstance().font,
+                    List.of(ClientTooltipComponent.create(Component.literal("Press ").append(Component.literal("F").withStyle(ChatFormatting.AQUA)).getVisualOrderText())),
+                    screenWidth/2,
+                    screenHeight/2,
+                    DefaultTooltipPositioner.INSTANCE,
+                    null
+            );
+            return;
+        }
+
+//        guiGraphics.submitPictureInPictureRenderState(new MenuRenderState());
+
 
         fadeInProgress = Mth.lerp(ShakenStirClient.ANI_DELTAF * deltaTracker.getGameTimeDeltaTicks(), fadeInProgress, 1);
         if (currentSelect >= 0 && targetSelect >= 0) {
