@@ -16,6 +16,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -158,6 +159,11 @@ public class DataComponentTypeRegistries {
     public static final DataComponentType<List<MutablePair<SnsRecipeHolder, BarMenuBlockEntity.PriceAndCount>>> RECIPES_DATA = register(
             "recipes_data",
             builder -> builder.persistent(BarMenuBlockEntity.LIST_RECIPE_CODEC).networkSynchronized(BarMenuBlockEntity.LIST_RECIPES_STREAM_CODEC)
+    );
+
+    public static final DataComponentType<Identifier> MENU_BKG = register(
+            "menu_bkg",
+            builder -> builder.persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC)
     );
 
     public static void register(IEventBus eventBus) {

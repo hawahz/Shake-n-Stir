@@ -26,6 +26,7 @@ import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -49,7 +50,7 @@ public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
     public static final BooleanProperty LONG_DRINK = BooleanProperty.create("long_drink");
 
     public Glassware(Properties properties) {
-        super(properties.noOcclusion().isViewBlocking((_, _, _)->false));
+        super(properties.noOcclusion().isViewBlocking((_, _, _)->false).sound(SoundType.GLASS));
         this.registerDefaultState(this.stateDefinition.any().setValue(LONG_DRINK, false));
     }
 

@@ -114,18 +114,12 @@ public abstract class BaseScreen extends Screen {
 
 //        a = AnimationTickHolder.getPartialTicks();
 
-        Matrix3x2fStack poseStack = graphics.pose();
-
-
         renderWindowPre(graphics, mouseX, mouseY, a);
 
-        poseStack.pushMatrix();
-        applyScaleTransform(poseStack);
         if (!disableRenderComponents) {
             for (Renderable renderable : getRenderables())
                 renderable.extractRenderState(graphics, mouseX, mouseY, a);
         }
-        poseStack.pushMatrix();
 
         renderWindowPost(graphics, mouseX, mouseY, a);
     }

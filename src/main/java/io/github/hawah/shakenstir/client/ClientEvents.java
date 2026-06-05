@@ -7,14 +7,13 @@ import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.clientTooltip.ClientShakeTooltipComponent;
 import io.github.hawah.shakenstir.client.hanlder.GlasswareHandlerRenderState;
+import io.github.hawah.shakenstir.client.hanlder.MenuHUD;
 import io.github.hawah.shakenstir.client.model.Models;
 import io.github.hawah.shakenstir.client.model.glassware.GlasswareQuadCollection;
 import io.github.hawah.shakenstir.client.model.glassware.GlasswareUnbakedModelLoader;
 import io.github.hawah.shakenstir.client.render.GlasswareOutlineRenderer;
 import io.github.hawah.shakenstir.client.render.block.*;
 import io.github.hawah.shakenstir.client.render.entity.BartenderRenderer;
-import io.github.hawah.shakenstir.client.render.gui.MenuRenderState;
-import io.github.hawah.shakenstir.client.render.gui.MenuRenderer;
 import io.github.hawah.shakenstir.client.render.item.GlasswareSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.ShakeItemSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer;
@@ -130,6 +129,7 @@ public class ClientEvents {
         ShakenStirClient.SHAKE_HANDLER.tick();
         ShakenStirClient.CABINET_HUD.tick();
         ShakenStirClient.BAR_BUILDER_HANDLER.tick();
+        ShakenStirClient.MENU_HUD.tick();
         Outliner.tick();
     }
 
@@ -248,10 +248,6 @@ public class ClientEvents {
             Networking.sendToServer(new ServerboundHandItemDataChangedPacket(player.getUUID(), InteractionHand.MAIN_HAND, player.getMainHandItem()));
             event.setCanceled(true);
         }
-        if (ShakenStirClient.MENU_HUD.onMouseScroll(delta)) {
-            event.setCanceled(true);
-        }
-
     }
 
     @SubscribeEvent
@@ -386,6 +382,12 @@ public class ClientEvents {
         }
 
         @SubscribeEvent
+        public static void registerKeyMapping(RegisterKeyMappingsEvent event) {
+            event.registerCategory(MenuHUD.MENU_CAT);
+            event.register(MenuHUD.OPEN_MENU.get());
+        }
+
+        @SubscribeEvent
         public static void registerBlockColorHandlers(RegisterColorHandlersEvent.BlockTintSources event) {
             event.register(
                     List.of(
@@ -433,7 +435,6 @@ public class ClientEvents {
 
         @SubscribeEvent
         public static void registerRenderer(RegisterPictureInPictureRenderersEvent event) {
-            event.register(MenuRenderState.class, MenuRenderer::new);
         }
 
     }

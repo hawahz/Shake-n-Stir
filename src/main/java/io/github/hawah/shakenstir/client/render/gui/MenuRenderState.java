@@ -1,33 +1,29 @@
 package io.github.hawah.shakenstir.client.render.gui;
 
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.gui.navigation.ScreenAxis;
+import net.minecraft.client.gui.navigation.ScreenPosition;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
-import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState;
+import net.minecraft.client.gui.render.TextureSetup;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
+import net.minecraft.client.renderer.texture.DynamicTexture;
 import org.jspecify.annotations.Nullable;
 
-public class MenuRenderState implements PictureInPictureRenderState {
+public record MenuRenderState(DynamicTexture texture) implements GuiElementRenderState {
     @Override
-    public int x0() {
-        return 0;
+    public void buildVertices(VertexConsumer vertexConsumer) {
     }
 
     @Override
-    public int x1() {
-        return 256;
+    public RenderPipeline pipeline() {
+        return RenderPipelines.GUI_TEXTURED;
     }
 
     @Override
-    public int y0() {
-        return 0;
-    }
-
-    @Override
-    public int y1() {
-        return 256;
-    }
-
-    @Override
-    public float scale() {
-        return 1;
+    public TextureSetup textureSetup() {
+        return null;
     }
 
     @Override
@@ -37,6 +33,6 @@ public class MenuRenderState implements PictureInPictureRenderState {
 
     @Override
     public @Nullable ScreenRectangle bounds() {
-        return null;
+        return new ScreenRectangle(ScreenPosition.of(ScreenAxis.HORIZONTAL, 0, 0), 16, 16);
     }
 }

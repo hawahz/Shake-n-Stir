@@ -22,10 +22,14 @@ public enum NetworkPackets implements BasePacketPayload.PacketTypeProvider {
     ENTITY_FALL(ServerboundEntityFallPacket.class, ServerboundEntityFallPacket.STREAM_CODEC),
     MENU_BE_CHANGED(ServerboundMenuBEChanged.class, ServerboundMenuBEChanged.STREAM_CODEC),
     MENU_BE_RECIPE_CHANGED(ServerboundMenuBERecipeChanged.class, ServerboundMenuBERecipeChanged.STREAM_CODEC),
+    MENU_BE_BKG_CHANGED(ServerboundUploadBarMenuBkgPacket.class, ServerboundUploadBarMenuBkgPacket.STREAM_CODEC),
+    REQUEST_BACKGROUND(ServerboundRequestBackgroundPacket.class, ServerboundRequestBackgroundPacket.STREAM_CODEC),
+    MENU_UPDATE_BKG(ServerboundMenuBlockUpdateBackgroundPacket.class, ServerboundMenuBlockUpdateBackgroundPacket.STREAM_CODEC),
     //S2C
     SHAKE_PARAM_SYNC(ClientboundShakeParamSyncPacket.class, ClientboundShakeParamSyncPacket.STREAM_CODEC),
     PLAYER_FALL_DOWN_OR_RECOVER(ClientboundPlayerFallDownOrRecoverPacket.class, ClientboundPlayerFallDownOrRecoverPacket.STREAM_CODEC),
     CLIENT_SYNC_RECIPE_DATA(ClientboundSyncRecipeData.class, ClientboundSyncRecipeData.STREAM_CODEC),
+    RECEIVE_BACKGROUND(ClientboundReceiveBackgroundPacket.class, ClientboundReceiveBackgroundPacket.STREAM_CODEC),
 
 
     // Debug Only

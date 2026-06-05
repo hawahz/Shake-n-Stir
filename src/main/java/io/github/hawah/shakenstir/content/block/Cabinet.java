@@ -37,7 +37,7 @@ public class Cabinet extends HorizontalDirectionalBlock implements EntityBlock, 
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public Cabinet(Properties properties) {
-        super(properties.noOcclusion().sound(SoundType.WOOD));
+        super(properties.noOcclusion().sound(SoundType.WOOD).strength(2.0F, 3.0F));
         this.registerDefaultState(defaultBlockState()
                 .setValue(LEFT, false)
                 .setValue(RIGHT, false)

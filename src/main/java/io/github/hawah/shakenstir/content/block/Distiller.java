@@ -53,7 +53,7 @@ public class Distiller extends Block implements EntityBlock{
     public static final Map<Direction, VoxelShape> PIPE_SHAPES = Shapes.rotateAll(box(5, 0, 0, 11, 16, 10));
 
     public Distiller(Properties properties) {
-        super(properties);
+        super(properties.sound(SoundType.METAL));
         this.registerDefaultState(
                 this.stateDefinition
                         .any()

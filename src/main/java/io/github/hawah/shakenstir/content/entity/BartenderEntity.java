@@ -8,8 +8,10 @@ import io.github.hawah.shakenstir.client.animation.AnimationStateMachine;
 import io.github.hawah.shakenstir.client.render.entity.BartenderModel;
 import io.github.hawah.shakenstir.content.blockEntity.BarMenuBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.entity.ai.activity.Activities;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.content.item.MenuItem;
 import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
@@ -28,8 +30,10 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.animal.parrot.Parrot;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -141,7 +145,11 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         this.entityData.set(DATA_SHOULDER_PARROT_LEFT, convertParrotVariant(variant));
     }
 
-    public void alertCustomerOrdered() {
+    public void alertCustomerOrdered(Player customer) {
+        if (getBrain().getActiveNonCoreActivity().map(activity -> Activities.PRODUCT.get().equals(activity)).orElse(false)) {
+            return;
+        }
+        getBrain().setMemory(MemoryModuleType.INTERACTION_TARGET, customer);
         this.getBrain().getMemory(Memories.MENU.get()).ifPresent(
                 menu -> {
                     if (!level().dimension().equals(menu.dimension())) {
@@ -221,23 +229,33 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack itemInHand = player.getItemInHand(hand);
-        if (itemInHand.has(DataComponentTypeRegistries.BAR_AREA) && getOwner() != null && player.is(getOwner())) {
-            player.sendOverlayMessage(Component.literal("Set work area success"));
-            Optional.ofNullable(itemInHand.get(DataComponentTypeRegistries.BAR_AREA)).ifPresent(barArea -> {
-                // TODO Reachable Prediction
-                if (barArea.area().getCenter().distManhattan(this.blockPosition()) < 200 && level().dimension().equals(barArea.dimension())) {
-                    this.getBrain().setMemory(Memories.BAR_MEMORY.get(), BarAreaHelper.calculateBarData(barArea.area(), level()));
+        if (getOwner() != null && player.is(getOwner())) {
+            if (itemInHand.has(DataComponentTypeRegistries.BAR_AREA)) {
+                player.sendOverlayMessage(Component.literal("Set work area success"));
+                Optional.ofNullable(itemInHand.get(DataComponentTypeRegistries.BAR_AREA)).ifPresent(barArea -> {
+                    // TODO Reachable Prediction
+                    if (barArea.area().getCenter().distManhattan(this.blockPosition()) < 200 && level().dimension().equals(barArea.dimension())) {
+                        this.getBrain().setMemory(Memories.BAR_MEMORY.get(), BarAreaHelper.calculateBarData(barArea.area(), level()));
+                    }
+                });
+                return InteractionResult.SUCCESS;
+            } else if (itemInHand.is(ItemRegistries.MENU)) {
+                for (int i = 0; i < getInventory().size(); i++) {
+                    if (getInventorySlot(i).getItem() instanceof MenuItem) {
+                        ItemEntity itemEntity = new ItemEntity(level(), getX(), getY(), getZ(), getInventorySlot(i));
+                        level().addFreshEntity(itemEntity);
+                        setInventorySlot(i, ItemStack.EMPTY);
+                    }
                 }
-            });
-        }
-        else if (itemInHand.is(ItemRegistries.MENU)) {
-            int count = itemInHand.getCount();
-            this.insertItem(itemInHand);
-            if (player.isCreative()) {
-                itemInHand.setCount(count);
+                int count = itemInHand.getCount();
+                this.insertItem(itemInHand);
+                if (player.isCreative()) {
+                    itemInHand.setCount(count);
+                }
+                return InteractionResult.SUCCESS;
             }
         }
-        else if (itemInHand.is(Items.STICK)) {
+        if (itemInHand.is(Items.STICK) && getOwner() == null) {
             setOwner(player);
             player.sendOverlayMessage(Component.literal("Now you are the owner"));
         } else if (player.isShiftKeyDown() && Config.Common.DEBUG_MODE.get()) {
@@ -257,7 +275,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
                     .append(getItemInHand(InteractionHand.MAIN_HAND));
             player.sendSystemMessage(Component.literal(sb.toString()));
         }else {
-            alertCustomerOrdered();
+            alertCustomerOrdered(player);
         }
         return super.mobInteract(player, hand);
     }

@@ -38,5 +38,10 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
                 .addTag(BlockTags.SIGNS)
                 .add(BlockRegistries.BAR_MENU_BLOCK.get())
         ;
+
+        this.tag(BlockTags.MINEABLE_WITH_AXE)
+                .add(BlockRegistries.BAR_COUNTER_BLOCK.get())
+                .add(BlockRegistries.CABINET.get())
+        ;
     }
 }

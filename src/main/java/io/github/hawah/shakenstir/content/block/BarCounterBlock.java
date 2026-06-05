@@ -26,7 +26,7 @@ public class BarCounterBlock extends HorizontalDirectionalBlock {
 
 
     public BarCounterBlock(Properties properties) {
-        super(properties.sound(SoundType.WOOD));
+        super(properties.sound(SoundType.WOOD).strength(2.0F, 3.0F));
         this.registerDefaultState(this.defaultBlockState()
                 .setValue(NORTH, false)
                 .setValue(EAST, false)

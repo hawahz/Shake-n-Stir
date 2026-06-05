@@ -11,6 +11,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -60,6 +61,31 @@ public class BarMenuBlock extends HorizontalDirectionalBlock implements EntityBl
     }
 
     @Override
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof BarMenuBlockEntity barMenuBlockEntity) {
+            if (!level.isClientSide() && player.preventsBlockDrops()) {
+                ItemStack itemStack = new ItemStack(state.getBlock());
+                barMenuBlockEntity.recipes.forEach(recipe -> recipe.right().count = 0);
+                if (!barMenuBlockEntity.recipes.isEmpty()){
+                    itemStack.set(DataComponentTypeRegistries.RECIPES_DATA, new ArrayList<>(barMenuBlockEntity.recipes));
+                }
+                if (barMenuBlockEntity.bkg != null) {
+                    itemStack.set(DataComponentTypeRegistries.MENU_BKG, barMenuBlockEntity.bkg);
+                }
+                if (itemStack.isComponentsPatchEmpty()) {
+                    return super.playerWillDestroy(level, pos, state, player);
+                }
+                ItemEntity entity = new ItemEntity(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, itemStack);
+                entity.setDefaultPickUpDelay();
+                level.addFreshEntity(entity);
+            }
+        }
+
+        return super.playerWillDestroy(level, pos, state, player);
+    }
+
+    @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction direction = context.getHorizontalDirection();
         return this.defaultBlockState()
@@ -86,6 +112,9 @@ public class BarMenuBlock extends HorizontalDirectionalBlock implements EntityBl
             drop = drop.stream().peek(itemStack -> {
                 bar.recipes.forEach(recipe -> recipe.right().count = 0);
                 itemStack.set(DataComponentTypeRegistries.RECIPES_DATA, new ArrayList<>(bar.recipes));
+                if (bar.bkg != null) {
+                    itemStack.set(DataComponentTypeRegistries.MENU_BKG, bar.bkg);
+                }
             }).toList();
         }
         return drop;
@@ -100,7 +129,7 @@ public class BarMenuBlock extends HorizontalDirectionalBlock implements EntityBl
             if (entity instanceof Player playerPlacer) {
                 playerPlacer.sendOverlayMessage(Component.literal("alert"));
             } else if (entity instanceof BartenderEntity bartender) {
-                bartender.alertCustomerOrdered();
+                bartender.alertCustomerOrdered(player);
             }
         }
         return super.useWithoutItem(state, level, pos, player, hitResult);

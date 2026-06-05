@@ -2,8 +2,12 @@ package io.github.hawah.shakenstir.content.blockEntity;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.foundation.networking.ServerboundMenuBlockUpdateBackgroundPacket;
+import io.github.hawah.shakenstir.foundation.networking.ServerboundUploadBarMenuBkgPacket;
+import io.github.hawah.shakenstir.lib.networking.Networking;
 import io.github.hawah.shakenstir.lib.util.MutablePair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
@@ -12,6 +16,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -23,6 +28,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
+
 
     public static final Codec<MutablePair<SnsRecipeHolder, PriceAndCount>> RECIPIES_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             SnsRecipeHolder.CODEC.fieldOf("Recipe").forGetter(MutablePair<SnsRecipeHolder, PriceAndCount>::left),
@@ -50,6 +56,20 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
 
     private UUID placerId = null;
     public List<MutablePair<SnsRecipeHolder, PriceAndCount>> recipes = new ArrayList<>();
+    public Identifier bkg = null;
+
+    public void setPackedBkg(int[] packedBkg) {
+        int[] pkg = new int[packedBkg.length];
+        System.arraycopy(packedBkg, 0, pkg, 0, packedBkg.length);
+        if (getLevel().isClientSide()) {
+            String UniqueName = "bkg_" + System.currentTimeMillis();
+            bkg = ShakenStir.asResource(UniqueName);
+            Networking.sendToServer(new ServerboundUploadBarMenuBkgPacket(pkg, pkg.length, UniqueName));
+            Networking.sendToServer(new ServerboundMenuBlockUpdateBackgroundPacket(bkg, getBlockPos()));
+        }
+        markChanged();
+    }
+
     public boolean dirty = true;
 
     // Temp
@@ -94,6 +114,7 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
 
     public void setRecipeDirty() {
         dirty = true;
+        markChanged();
     }
 
     private final List<ItemStack> cachedRecipeCosts = new ArrayList<>();
@@ -127,6 +148,7 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
         super.loadAdditional(input);
         placerId = input.read("PlacerId", UUIDUtil.CODEC).orElse(null);
         recipes.clear();
+        input.read("Loc", Identifier.CODEC).ifPresent(identifier -> this.bkg = identifier);
         input.read("Recipes", LIST_RECIPE_CODEC).ifPresent(recipes::addAll);
     }
 
@@ -136,6 +158,9 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
         if (placerId != null) {
             output.store("PlacerId", UUIDUtil.CODEC, placerId);
         }
+        if (bkg != null) {
+            output.store("Loc", Identifier.CODEC, bkg);
+        }
         output.store("Recipes", LIST_RECIPE_CODEC, recipes);
     }
 
@@ -144,6 +169,7 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
         super.applyImplicitComponents(components);
         placerId = components.get(DataComponentTypeRegistries.PLACER);
         this.recipes = components.getOrDefault(DataComponentTypeRegistries.RECIPES_DATA, new ArrayList<>());
+        this.bkg = components.get(DataComponentTypeRegistries.MENU_BKG);
     }
 
     public UUID getPlacerId() {
