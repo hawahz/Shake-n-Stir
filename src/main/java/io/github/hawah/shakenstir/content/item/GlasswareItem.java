@@ -9,7 +9,10 @@ import io.github.hawah.shakenstir.foundation.item.PriorityBlockItem;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -104,6 +107,24 @@ public class GlasswareItem extends PriorityBlockItem {
     @Override
     public int getUseDuration(ItemStack itemStack, LivingEntity user) {
         return itemStack.has(DataComponentTypeRegistries.DRINK_DATA)? 32: 0;
+    }
+
+    @Override
+    public void onUseTick(Level level, LivingEntity livingEntity, ItemStack itemStack, int ticksRemaining) {
+        RandomSource random = level.getRandom();
+        if (shouldEmitParticlesAndSounds(ticksRemaining, getUseDuration(itemStack, livingEntity))) {
+            float drinkVolume = 0.5F;
+            float drinkPitch = Mth.randomBetween(random, 0.9F, 1.0F);
+            SoundEvent consumeSound = SoundEvents.GENERIC_DRINK.value();
+            livingEntity.playSound(consumeSound, drinkVolume, drinkPitch);
+        }
+    }
+
+    public boolean shouldEmitParticlesAndSounds(int useItemRemainingTicks, int useDuration) {
+        int itemUsedForTicks = useDuration - useItemRemainingTicks;
+        int waitTicksBeforeUseEffects = (int)(useDuration * 0.21875F);
+        boolean isValidTime = itemUsedForTicks > waitTicksBeforeUseEffects;
+        return isValidTime && useItemRemainingTicks % 4 == 0;
     }
 
     @Override

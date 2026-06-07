@@ -1,11 +1,11 @@
 package io.github.hawah.shakenstir.client.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.hawah.shakenstir.Config;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.dataAttachment.DataAttachmentTypeRegistries;
 import io.github.hawah.shakenstir.content.entity.BartenderEntity;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -15,12 +15,14 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.WingsLayer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.ClientAsset;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.PlayerModelType;
@@ -176,16 +178,39 @@ public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, Bar
     public void submit(BartenderRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
 
         super.submit(state, poseStack, submitNodeCollector, camera);
-        if (Config.Common.DEBUG_MODE.get()) {
-            submitNodeCollector.submitNameTag(
-                    poseStack, state.nameTagAttachment, 0, Component.literal(state.brainState).append(" " + state.stateMachine.state), !state.isDiscrete, state.lightCoords, state.distanceToCameraSq, camera
-            );
+        if (state.nameTagAttachment == null) {
+            return;
         }
-    }
+        String str = state.speaking;
+        if (str.isEmpty()) {
+            return;
+        }
+        FormattedCharSequence text = Component.literal(str).getVisualOrderText();
+        int width = getFont().width(str);
+        Vec3 nameTagAttachment = state.nameTagAttachment;
 
-    @Override
-    protected boolean shouldShowName(BartenderEntity entity, double distanceToCameraSq) {
-        return super.shouldShowName(entity, distanceToCameraSq);
+        poseStack.pushPose();
+        poseStack.translate(nameTagAttachment.x, nameTagAttachment.y + 1, nameTagAttachment.z);
+        poseStack.mulPose(camera.orientation);
+        poseStack.scale(0.025F, -0.025F, 0.025F);
+        submitNodeCollector.submitText(
+                poseStack,
+                -width/2F, 0,
+                text,
+                false,
+                Font.DisplayMode.POLYGON_OFFSET,
+                state.lightCoords,
+                -1,
+                0,
+                0
+        );
+
+        submitNodeCollector.submitCustomGeometry(
+                poseStack,
+                RenderTypes.text(ShakenStir.asResource("textures/entity/speak_bubble.png")),
+                new ConversationRenderer(state, getFont(), str)
+        );
+        poseStack.popPose();
     }
 
     @Override
@@ -196,4 +221,5 @@ public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, Bar
     private static PlayerSkin create(String body, PlayerModelType model) {
         return new PlayerSkin(new ClientAsset.ResourceTexture(ShakenStir.asResource(body)), null, null, model, true);
     }
+
 }

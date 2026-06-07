@@ -120,5 +120,6 @@
   "item.shakenstir.rag": "抹布",
   "item.shakenstir.recipe_scroll": "配方卷",
   "itemGroup.shakenstir.tab.bar": "摇匀搅香 - 酒吧",
-  "itemGroup.shakenstir.tab.bartending": "摇匀搅香 - 调制"
+  "itemGroup.shakenstir.tab.bartending": "摇匀搅香 - 调制",
+  "item.shakenstir.bartender_spawner": "酒保领带"
 }

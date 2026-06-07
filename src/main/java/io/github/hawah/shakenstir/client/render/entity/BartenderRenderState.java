@@ -57,4 +57,6 @@ public class BartenderRenderState extends HumanoidRenderState implements IStateP
 
     public List<ItemStackRenderState> inventory = new ArrayList<>();
 
+    public String speaking = "";
+
 }
