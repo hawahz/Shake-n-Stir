@@ -7,6 +7,7 @@ import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistr
 import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundMenuBEChanged;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundMenuBERecipeChanged;
+import io.github.hawah.shakenstir.lib.client.KeyBinding;
 import io.github.hawah.shakenstir.lib.networking.Networking;
 import io.github.hawah.shakenstir.util.Textures;
 import net.minecraft.client.AttackIndicatorStatus;
@@ -33,6 +34,7 @@ public class EditorMenuScreen extends AbstractMenuScreen {
     private static final Identifier HOTBAR_ATTACK_INDICATOR_PROGRESS_SPRITE = Identifier.withDefaultNamespace("hud/hotbar_attack_indicator_progress");
     private ItemStack carriedItem = null;
     private boolean dirty = false;
+    private int brushSize = 3;
 
     @Override
     public void onClose() {
@@ -87,6 +89,33 @@ public class EditorMenuScreen extends AbstractMenuScreen {
                     carriedItem,
                     mouseX - 8, mouseY - 8
             );
+        }
+
+        if (KeyBinding.hasShiftDown() || KeyBinding.hasAltDown() || KeyBinding.hasControlDown()) {
+            int radius = brushSize / 2;
+            int previewColor = 0x60FFFFFF;
+            int cx = mouseX;
+            int cy = mouseY;
+            int x = radius;
+            int y = 0;
+            int p = 1 - radius;
+            while (x >= y) {
+                guiGraphics.fill(cx + x, cy + y, cx + x + 1, cy + y + 1, previewColor);
+                guiGraphics.fill(cx + y, cy + x, cx + y + 1, cy + x + 1, previewColor);
+                guiGraphics.fill(cx - y, cy + x, cx - y + 1, cy + x + 1, previewColor);
+                guiGraphics.fill(cx - x, cy + y, cx - x + 1, cy + y + 1, previewColor);
+                guiGraphics.fill(cx - x, cy - y, cx - x + 1, cy - y + 1, previewColor);
+                guiGraphics.fill(cx - y, cy - x, cx - y + 1, cy - x + 1, previewColor);
+                guiGraphics.fill(cx + y, cy - x, cx + y + 1, cy - x + 1, previewColor);
+                guiGraphics.fill(cx + x, cy - y, cx + x + 1, cy - y + 1, previewColor);
+                y++;
+                if (p <= 0) {
+                    p += 2 * y + 1;
+                } else {
+                    x--;
+                    p += 2 * (y - x) + 1;
+                }
+            }
         }
 
     }
@@ -203,6 +232,11 @@ public class EditorMenuScreen extends AbstractMenuScreen {
         int currentSelect = getCurrentSelect((int) x, (int) y);
         boolean changed = prevSelect != currentSelect;
         prevSelect = currentSelect;
+        if (KeyBinding.hasControlDown()) {
+            brushSize += (int) Math.round(scrollY);
+            brushSize = Mth.clamp(brushSize, 1, 24);
+            return true;
+        }
         if (currentSelect >= 0 && currentSelect < cachedBlockEntity.recipes.size()) {
             if (changed) {
                 price = cachedBlockEntity.recipes.get(currentIndex).right().price;
@@ -229,7 +263,7 @@ public class EditorMenuScreen extends AbstractMenuScreen {
         mouseY = y;
         MousePos localMousePosO = getLocalMousePos(mouseXo, mouseYo);
         MousePos localMousePos = getLocalMousePos(mouseX, mouseY);
-        if (mouseDown && carriedItem == null) {
+        if (mouseDown && carriedItem == null && (KeyBinding.hasAltDown() || KeyBinding.hasShiftDown())) {
             int x0 = localMousePosO.x() - guiLeft;
             int y0 = localMousePosO.y() - guiTop;
             int x1 = localMousePos.x() - guiLeft;
@@ -239,14 +273,15 @@ public class EditorMenuScreen extends AbstractMenuScreen {
             int dy = Math.abs(y1 - y0);
             int steps = Math.max(dx, dy);
 
+            int color = KeyBinding.hasShiftDown() ? -1 : 0;
             if (steps > 0) {
                 for (int i = 0; i <= steps; i++) {
                     int px = x0 + (x1 - x0) * i / steps;
                     int py = y0 + (y1 - y0) * i / steps;
-                    drawCircleOn(px, py, 3, -1);
+                    drawCircleOn(px, py, brushSize, color);
                 }
             } else {
-                drawCircleOn(x0, y0, 3, -1);
+                drawCircleOn(x0, y0, brushSize, color);
             }
         }
         super.mouseMoved(x, y);
@@ -279,7 +314,8 @@ public class EditorMenuScreen extends AbstractMenuScreen {
                             .glass(carriedItem.getOrDefault(DataComponents.ITEM_MODEL, ShakenStir.asResource("martini_glass")).getPath())
                             .decorations(carriedItem.getOrDefault(DataComponentTypeRegistries.GLASSWARE_DECORATIONS, List.of()))
                             ;
-                    cachedBlockEntity.recipes.get(currentIndex).setLeft(newHolder);
+                    cachedBlockEntity.recipes.get(currentIndex)
+                            .setLeft(carriedItem.has(DataComponents.DYED_COLOR)?newHolder.displayItem(carriedItem.copy()): newHolder);
                     Networking.sendToServer(new ServerboundMenuBERecipeChanged(newHolder, currentIndex, cachedBlockEntity.getBlockPos()));
                 } else {
                     cachedBlockEntity.setRecipeItem(currentSelect, carriedItem.copyWithCount(1));

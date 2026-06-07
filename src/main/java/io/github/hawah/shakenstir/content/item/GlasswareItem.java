@@ -4,7 +4,7 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
-import io.github.hawah.shakenstir.foundation.datapack.DrinkData;
+import io.github.hawah.shakenstir.content.recipe.datapack.DrinkData;
 import io.github.hawah.shakenstir.foundation.item.PriorityBlockItem;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -19,6 +19,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
+import net.minecraft.world.item.component.DyedItemColor;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -27,6 +29,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2f;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
@@ -52,6 +55,19 @@ public class GlasswareItem extends PriorityBlockItem {
 
     public static ItemStack getMargaritaGlass() {
         return SnsCreativeTab.createShortDrink("margarita_glass");
+    }
+    
+    public static @Nullable ItemStack getDefaultDisplay(ItemStack contentHolder) {
+        if (contentHolder.getOrDefault(DataComponentTypeRegistries.SHAKE_PRODUCT_POURABLE, false)) {
+            ItemStack drop = getMartiniGlass();
+            drop.set(DataComponents.ITEM_NAME, contentHolder.get(DataComponents.ITEM_NAME));
+            drop.set(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY, contentHolder.get(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY));
+            drop.set(DataComponentTypeRegistries.DRINK_DATA, contentHolder.get(DataComponentTypeRegistries.DRINK_DATA));
+            drop.set(DataComponents.DYED_COLOR, contentHolder.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0)));
+            drop.set(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT.withHidden(DataComponents.DYED_COLOR, true));
+            return drop;
+        }
+        return null;
     }
 
     @Override

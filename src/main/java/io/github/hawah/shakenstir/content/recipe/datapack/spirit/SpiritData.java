@@ -1,10 +1,10 @@
-package io.github.hawah.shakenstir.foundation.datapack.spirit;
+package io.github.hawah.shakenstir.content.recipe.datapack.spirit;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.hawah.shakenstir.content.recipe.Quality;
-import io.github.hawah.shakenstir.foundation.datapack.EffectData;
-import io.github.hawah.shakenstir.foundation.datapack.Registries;
+import io.github.hawah.shakenstir.content.recipe.datapack.EffectData;
+import io.github.hawah.shakenstir.content.recipe.datapack.Registries;
 import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;

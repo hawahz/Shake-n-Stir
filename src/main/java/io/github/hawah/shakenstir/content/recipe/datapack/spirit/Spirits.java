@@ -1,9 +1,9 @@
-package io.github.hawah.shakenstir.foundation.datapack.spirit;
+package io.github.hawah.shakenstir.content.recipe.datapack.spirit;
 
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
-import io.github.hawah.shakenstir.foundation.datapack.EffectData;
-import io.github.hawah.shakenstir.foundation.datapack.Registries;
+import io.github.hawah.shakenstir.content.recipe.datapack.EffectData;
+import io.github.hawah.shakenstir.content.recipe.datapack.Registries;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.effect.MobEffects;

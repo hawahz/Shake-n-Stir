@@ -1,4 +1,4 @@
-package io.github.hawah.shakenstir.foundation.datapack;
+package io.github.hawah.shakenstir.content.recipe.datapack;
 
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
@@ -7,8 +7,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
 import io.github.hawah.shakenstir.content.recipe.Quality;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
-import io.github.hawah.shakenstir.foundation.datapack.cocktaileType.CocktailType;
-import io.github.hawah.shakenstir.foundation.datapack.spirit.SpiritData;
+import io.github.hawah.shakenstir.content.recipe.datapack.cocktaileType.CocktailType;
+import io.github.hawah.shakenstir.content.recipe.datapack.spirit.SpiritData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentGetter;

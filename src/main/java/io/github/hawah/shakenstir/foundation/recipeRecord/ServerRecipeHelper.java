@@ -2,8 +2,8 @@ package io.github.hawah.shakenstir.foundation.recipeRecord;
 
 import com.google.common.collect.EvictingQueue;
 import com.mojang.logging.LogUtils;
-import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
+import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.util.Paths;
@@ -23,6 +23,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import javax.annotation.Nullable;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -41,10 +42,18 @@ public class ServerRecipeHelper {
     public static final int MAX_RECIPES = 10;
 
     public static ConcurrentHashMap<UUID, EvictingQueue<SnsRecipeHolder>> recipes = new ConcurrentHashMap<>();
-    public static void writeRecipe(Player player, List<ItemStack> itemStacks, List<FluidStack> fluidStacks, ItemStack result, SnsRecipeHolder.Type type, int shakeTimes) {
+    public static void writeRecipe(
+            Player player,
+            List<ItemStack> itemStacks,
+            List<FluidStack> fluidStacks,
+            ItemStack result,
+            SnsRecipeHolder.Type type,
+            int shakeTimes,
+            @Nullable ItemStack displayITem
+    ) {
         recipes.compute(player.getUUID(), (_, queue) -> {
             queue = queue == null ? EvictingQueue.create(MAX_RECIPES) : queue;
-            queue.add(new SnsRecipeHolder(type, itemStacks, fluidStacks, shakeTimes, result));
+            queue.add(new SnsRecipeHolder(type, itemStacks, fluidStacks, shakeTimes, result, displayITem));
             return queue;
         });
     }

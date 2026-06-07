@@ -1,4 +1,4 @@
-package io.github.hawah.shakenstir.foundation.datapack;
+package io.github.hawah.shakenstir.content.recipe.datapack;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

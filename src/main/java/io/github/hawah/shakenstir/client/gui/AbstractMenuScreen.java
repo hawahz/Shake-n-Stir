@@ -198,7 +198,7 @@ public abstract class AbstractMenuScreen extends BaseScreen {
             int y = height / 2 - Textures.MENU_BKG.getHeight() / 2 + DISTANCE_TOP + lineHeight * 2 * i;
             int DIST = 5;
             guiGraphics.item(
-                    GlasswareItem.getShortGlass(snsRecipeHolder.holderGlass()),
+                    snsRecipeHolder.displayItem().orElse(GlasswareItem.getShortGlass(snsRecipeHolder.holderGlass())),
                     xLeft + DIST,
                     y - 8
             );

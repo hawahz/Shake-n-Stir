@@ -1,4 +1,4 @@
-package io.github.hawah.shakenstir.content.recipe;
+package io.github.hawah.shakenstir.content.recipe.shake;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeInput;

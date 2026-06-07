@@ -1,13 +1,25 @@
-package io.github.hawah.shakenstir.content.recipe;
+package io.github.hawah.shakenstir.content.recipe.shake;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.dataComponent.IFluidDataHolder;
+import io.github.hawah.shakenstir.content.dataComponent.IItemDataHolder;
 import io.github.hawah.shakenstir.content.dataComponent.ShakeProductDeferredName;
+import io.github.hawah.shakenstir.content.item.GlasswareItem;
+import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.content.recipe.IScoreSortedRecipe;
+import io.github.hawah.shakenstir.content.recipe.Quality;
+import io.github.hawah.shakenstir.content.recipe.RecipeTypeRegistries;
+import io.github.hawah.shakenstir.content.recipe.datapack.DrinkData;
+import io.github.hawah.shakenstir.content.recipe.datapack.cocktaileType.CocktailTypes;
+import io.github.hawah.shakenstir.content.recipe.datapack.spirit.SpiritData;
 import io.github.hawah.shakenstir.content.recipe.ingredient.FluidIngredient;
 import io.github.hawah.shakenstir.foundation.BaseFluidType;
+import io.github.hawah.shakenstir.foundation.recipeRecord.ServerRecipeHelper;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.core.component.DataComponents;
@@ -15,6 +27,8 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.component.DyedItemColor;
@@ -24,17 +38,20 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-/**
- * @param inputFluids private final ShakeRecipeInput.BlockBookInfo bookInfo;
- */
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public record ShakeRecipe(CommonInfo commonInfo, List<FluidIngredient> inputFluids, List<Ingredient> inputItems,
-                          ItemStackTemplate result, int shakeTimes) implements Recipe<ShakeRecipeInput>, IScoreSortedRecipe<ShakeRecipeInput> {
+public record ShakeRecipe(
+        CommonInfo commonInfo,
+        List<FluidIngredient> inputFluids,
+        List<Ingredient> inputItems,
+        ItemStackTemplate result,
+        int shakeTimes
+) implements Recipe<ShakeRecipeInput>, IScoreSortedRecipe<ShakeRecipeInput> {
 
     public static final MapCodec<ShakeRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             CommonInfo.MAP_CODEC.forGetter(ShakeRecipe::commonInfo),
@@ -58,6 +75,160 @@ public record ShakeRecipe(CommonInfo commonInfo, List<FluidIngredient> inputFlui
             ByteBufCodecs.INT, ShakeRecipe::shakeTimes,
             ShakeRecipe::new
     );
+
+    public static void createAndAddShakeResult(
+            float pastProcess,
+            ItemStack shaker,
+            ShakeRecipe recipe,
+            int finalShakeSuccessTimes,
+            ShakeRecipeInput recipeInput,
+            ItemStack mainHandItem,
+            ServerLevel level,
+            int iceCount,
+            Player player
+    ) {
+        int shakeAdditionTimes = finalShakeSuccessTimes - recipe.shakeTimes();
+        int failTimes = shaker.getOrDefault(DataComponentTypeRegistries.SHAKE_FALI_TIMES, 0);
+        ItemStack resultItem = recipe.assemble(recipeInput);
+        Quality quality = Quality.calculate(
+                failTimes,
+                pastProcess,
+                mainHandItem.getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 1),
+                shakeAdditionTimes
+        );
+        resultItem.set(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY, quality);
+        resultItem.set(DataComponentTypeRegistries.DRINK_DATA, new DrinkData(
+                resultItem.get(DataComponentTypeRegistries.COCKTAIL_TYPE),
+                SpiritData.get(
+                        level,
+                        recipeInput.fluidStacks()
+                                .stream()
+                                .max(Comparator.comparing(FluidStack::getAmount))
+                                .orElseThrow()
+                                .typeHolder()
+                ),
+                List.of(),
+                List.of(),
+                quality,
+                iceCount
+        ));
+        applyResult(finalShakeSuccessTimes, recipeInput, mainHandItem, player, resultItem);
+    }
+
+    private static void applyResult(int finalShakeSuccessTimes, ShakeRecipeInput recipeInput, ItemStack mainHandItem, Player player, ItemStack resultItem) {
+
+        ServerRecipeHelper.writeRecipe(
+                player,
+                new ArrayList<>(recipeInput.items()),
+                new ArrayList<>(recipeInput.fluidStacks()),
+                resultItem.copy(),
+                SnsRecipeHolder.Type.SHAKE,
+                finalShakeSuccessTimes,
+                GlasswareItem.getDefaultDisplay(resultItem)
+        );
+        ShakeUtil.clearContent(mainHandItem);
+        ShakeUtil.setItemData(mainHandItem, List.of(resultItem));
+    }
+
+    public static void cook(ItemStack shaker, int shakeSuccessTimes, ServerLevel level, ItemStack mainHandItem, float past, int iceCount, Player player) {
+        ItemStack predicatedImmProduct;
+        List<ItemStack> itemData = new ArrayList<>(ShakeUtil.getItemStacks(shaker));
+        List<FluidStack> fluidData = new ArrayList<>(ShakeUtil.getFluidStacks(shaker));
+        if (!itemData.isEmpty() && (predicatedImmProduct = itemData.getFirst())!=null && predicatedImmProduct.is(ItemRegistries.CONTENT_HOLDER) && predicatedImmProduct.has(DataComponentTypeRegistries.SHAKE_SUCCESS_TIMES)) {
+            IItemDataHolder item = ShakeUtil.getItemData(predicatedImmProduct);
+            itemData.removeFirst();
+            itemData.addAll(item.itemStacks());
+            IFluidDataHolder fluid = ShakeUtil.getFluidData(predicatedImmProduct);
+            fluidData.addAll(fluid.fluidStacks());
+            shakeSuccessTimes += predicatedImmProduct.getOrDefault(DataComponentTypeRegistries.SHAKE_SUCCESS_TIMES, 0);
+        }
+
+        RecipeManager recipeManager = level.recipeAccess();
+        ShakeRecipeInput recipeInput = new ShakeRecipeInput(itemData, fluidData, shakeSuccessTimes);
+        Optional<RecipeHolder<ShakeRecipe>> result = recipeManager.getRecipeFor(
+                RecipeTypeRegistries.SHAKE_RECIPE.get(),
+                recipeInput,
+                level
+        );
+        int failTimes = mainHandItem.getOrDefault(DataComponentTypeRegistries.SHAKE_FALI_TIMES, 0);
+
+        if (result.isEmpty()) {
+            if (failTimes > 1) {
+                ItemStack resultItem = createSuspiciousResult(
+                        past,
+                        shaker,
+                        recipeInput,
+                        level,
+                        iceCount
+                );
+                applyResult(
+                        shakeSuccessTimes,
+                        recipeInput,
+                        mainHandItem,
+                        player,
+                        resultItem
+                );
+                return;
+            }
+            mainHandItem.set(DataComponentTypeRegistries.SHAKING, true);
+            mainHandItem.set(DataComponentTypeRegistries.SHAKE_FALI_TIMES, failTimes + 1);
+            mainHandItem.remove(DataComponentTypeRegistries.SHAKE_ICE_CUBES);
+            return;
+        }
+        final int finalShakeSuccessTimes = shakeSuccessTimes;
+        result.map(RecipeHolder::value).ifPresent(recipe -> {
+            createAndAddShakeResult(
+                    past,
+                    shaker,
+                    recipe,
+                    finalShakeSuccessTimes,
+                    recipeInput,
+                    mainHandItem,
+                    level,
+                    iceCount,
+                    player
+            );
+        });
+    }
+
+    public static ItemStack createSuspiciousResult(
+            float pastProcess,
+            ItemStack shaker,
+            ShakeRecipeInput recipeInput,
+            ServerLevel level,
+            int iceCount
+    ) {
+        int failTimes = shaker.getOrDefault(DataComponentTypeRegistries.SHAKE_FALI_TIMES, 0);
+        ItemStack resultItem = ItemRegistries.CONTENT_HOLDER.toStack();
+        resultItem.set(DataComponentTypeRegistries.COCKTAIL_TYPE, CocktailTypes.SUSPICIOUS_VALUE);
+        Quality quality = Quality.calculate(
+                failTimes,
+                pastProcess,
+                shaker.getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 1),
+                0
+        );
+        int rgb = ShakeUtil.rgbWithWeight(recipeInput.fluidStacks().stream().map((stack) ->
+                Pair.of(stack.getFluidType() instanceof BaseFluidType type ? type.getTintColor() : 0xFFFFFF, stack.getAmount())
+        ).toList());
+        resultItem.set(DataComponents.DYED_COLOR, new DyedItemColor(rgb));
+        resultItem.set(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY, quality);
+        resultItem.set(DataComponentTypeRegistries.DRINK_DATA, new DrinkData(
+                resultItem.get(DataComponentTypeRegistries.COCKTAIL_TYPE),
+                SpiritData.get(
+                        level,
+                        recipeInput.fluidStacks()
+                                .stream()
+                                .max(Comparator.comparing(FluidStack::getAmount))
+                                .orElseThrow()
+                                .typeHolder()
+                ),
+                List.of(),
+                List.of(),
+                quality,
+                iceCount
+        ));
+        return resultItem;
+    }
 
     @Override
     public boolean matches(ShakeRecipeInput input, Level level) {

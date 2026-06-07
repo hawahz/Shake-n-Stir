@@ -1,7 +1,7 @@
 {
   "effects": [
     {
-      "negative": "minecraft:slowness",
+      "negative": "minecraft:poison",
       "negativeLevNDur": [
         {
           "duration": 400,
@@ -20,7 +20,7 @@
           "level": 2
         }
       ],
-      "positive": "minecraft:speed",
+      "positive": "minecraft:poison",
       "positiveLevNDur": [
         {
           "duration": 1800,
@@ -45,6 +45,6 @@
       ]
     }
   ],
-  "id": "shakenstir:sour",
-  "translation_key": "shakenstir:name.sour"
+  "id": "shakenstir:suspicious",
+  "translation_key": "shakenstir:name.suspicious"
 }

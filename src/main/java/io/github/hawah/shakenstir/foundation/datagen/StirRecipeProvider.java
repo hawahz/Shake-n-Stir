@@ -5,7 +5,7 @@ import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.recipe.ingredient.FluidIngredient;
-import io.github.hawah.shakenstir.foundation.datapack.cocktaileType.CocktailTypes;
+import io.github.hawah.shakenstir.content.recipe.datapack.cocktaileType.CocktailTypes;
 import io.github.hawah.shakenstir.foundation.tags.SnsFluidTags;
 import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
 import io.github.hawah.shakenstir.foundation.tags.SnsSharedTags;

@@ -21,9 +21,11 @@ import net.minecraft.world.item.component.TooltipProvider;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -37,7 +39,8 @@ public record SnsRecipeHolder(
         ItemStack result,
         String holderGlass,
         List<GlasswareBlockEntity.Decoration> decorations,
-        String name
+        String name,
+        Optional<ItemStack> displayItem
 ) implements TooltipProvider {
 
     public static final Codec<SnsRecipeHolder> CODEC = RecordCodecBuilder.create(inst -> inst.group(
@@ -48,7 +51,8 @@ public record SnsRecipeHolder(
             ItemStack.CODEC.fieldOf("result_factory").forGetter(SnsRecipeHolder::result),
             Codec.STRING.fieldOf("holder_glass").forGetter(SnsRecipeHolder::holderGlass),
             GlasswareBlockEntity.Decoration.CODEC.listOf().fieldOf("decorations").forGetter(SnsRecipeHolder::decorations),
-            Codec.STRING.fieldOf("name").forGetter(SnsRecipeHolder::name)
+            Codec.STRING.fieldOf("name").forGetter(SnsRecipeHolder::name),
+            ItemStack.CODEC.optionalFieldOf("displayItem").forGetter(SnsRecipeHolder::displayItem)
     ).apply(inst, SnsRecipeHolder::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SnsRecipeHolder> STREAM_CODEC = StreamCodec.composite(
@@ -60,6 +64,7 @@ public record SnsRecipeHolder(
             ByteBufCodecs.stringUtf8(128), SnsRecipeHolder::holderGlass,
             GlasswareBlockEntity.Decoration.STREAM_CODEC.apply(ByteBufCodecs.list()), SnsRecipeHolder::decorations,
             ByteBufCodecs.stringUtf8(128), SnsRecipeHolder::name,
+            ByteBufCodecs.optional(ItemStack.STREAM_CODEC), SnsRecipeHolder::displayItem,
             SnsRecipeHolder::new
     );
 
@@ -68,7 +73,16 @@ public record SnsRecipeHolder(
                            List<FluidStack> requiredFluids,
                            int shakeTimes,
                            ItemStack result) {
-        this(recipe, requiredItems, requiredFluids, shakeTimes, result, "martini_glass", List.of(), "");
+        this(recipe, requiredItems, requiredFluids, shakeTimes, result, "martini_glass", List.of(), "", Optional.empty());
+    }
+
+    public SnsRecipeHolder(Type recipe,
+                           List<ItemStack> requiredItems,
+                           List<FluidStack> requiredFluids,
+                           int shakeTimes,
+                           ItemStack result,
+                           @Nullable ItemStack displayItem) {
+        this(recipe, requiredItems, requiredFluids, shakeTimes, result, "martini_glass", List.of(), "", Optional.ofNullable(displayItem));
     }
 
     public SnsRecipeHolder named(String name) {
@@ -80,7 +94,8 @@ public record SnsRecipeHolder(
                 result.copy(),
                 holderGlass(),
                 decorations(),
-                name);
+                name,
+                displayItem());
     }
 
     public SnsRecipeHolder glass(String glassType) {
@@ -92,7 +107,8 @@ public record SnsRecipeHolder(
                 result.copy(),
                 glassType,
                 decorations,
-                name()
+                name(),
+                displayItem()
         );
     }
 
@@ -105,7 +121,22 @@ public record SnsRecipeHolder(
                 result.copy(),
                 holderGlass(),
                 decorations,
-                name()
+                name(),
+                displayItem()
+        );
+    }
+
+    public SnsRecipeHolder displayItem(ItemStack displayItem) {
+        return new SnsRecipeHolder(
+                recipe,
+                requiredItems.stream().map(ItemStack::copy).toList(),
+                requiredFluids.stream().map(FluidStack::copy).toList(),
+                shakeTimes,
+                result.copy(),
+                holderGlass(),
+                decorations,
+                name(),
+                Optional.of(displayItem.copy())
         );
     }
 
@@ -132,7 +163,8 @@ public record SnsRecipeHolder(
                 result.copy(),
                 holderGlass(),
                 decorations,
-                name
+                name,
+                displayItem()
         );
     }
 

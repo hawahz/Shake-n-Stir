@@ -66,6 +66,10 @@ public enum LangData {
     NAME_FIZZ       ("name.fizz",       "%s %s Fizz"    , 0),
     NAME_HIGHBALL   ("name.highball",   "%s Highball"   , 0),
     NAME_TONIC      ("name.tonic",      "%s %s Tonic"   , 0),
+    NAME_SUSPICIOUS ("name.suspicious",      "Suspicious %s2 %s1"   , 0),
+    NAME_MARGARITA  ("name.margarita",  "Margarita"     , 0),
+    NAME_MOJITO  ("name.mojito",  "Mojito"     , 0),
+    NAME_LONG_ISLAND_ICED_TEA  ("name.long_island_iced_tea",  "Long Island Iced Tea"     , 0),
 
     ITEM_NAME_MARTINI_GLASS("name.martini_glass", "Martini Glass", 0),
     ITEM_NAME_COLLINS_GLASS("name.collins_glass", "Collins Glass", 0),

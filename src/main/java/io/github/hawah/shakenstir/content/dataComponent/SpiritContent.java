@@ -2,7 +2,7 @@ package io.github.hawah.shakenstir.content.dataComponent;
 
 import com.mojang.serialization.Codec;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
-import io.github.hawah.shakenstir.foundation.datapack.spirit.Spirits;
+import io.github.hawah.shakenstir.content.recipe.datapack.spirit.Spirits;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.CommonComponents;

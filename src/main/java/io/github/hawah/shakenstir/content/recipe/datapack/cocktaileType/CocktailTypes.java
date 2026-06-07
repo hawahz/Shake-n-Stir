@@ -1,8 +1,10 @@
-package io.github.hawah.shakenstir.foundation.datapack.cocktaileType;
+package io.github.hawah.shakenstir.content.recipe.datapack.cocktaileType;
 
 import io.github.hawah.shakenstir.ShakenStir;
-import io.github.hawah.shakenstir.foundation.datapack.Registries;
+import io.github.hawah.shakenstir.content.recipe.datapack.EffectData;
+import io.github.hawah.shakenstir.content.recipe.datapack.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.effect.MobEffects;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -10,12 +12,27 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 public class CocktailTypes {
-    public static final CocktailType SOUR_VALUE = new CocktailType(ShakenStir.asResource("sour"), List.of());
-    public static final CocktailType FIZZ_VALUE = new CocktailType(ShakenStir.asResource("fizz"), List.of());
-    public static final CocktailType COCKTAIL_VALUE = new CocktailType(ShakenStir.asResource("cocktail"), List.of());
-    public static final CocktailType HIGHBALL_VALUE = new CocktailType(ShakenStir.asResource("highball"), List.of());
-    public static final CocktailType TONIC_VALUE = new CocktailType(ShakenStir.asResource("tonic"), List.of());
-    public static final CocktailType COLADA_VALUE = new CocktailType(ShakenStir.asResource("colada"), List.of());
+    public static final CocktailType SOUR_VALUE = new CocktailType(ShakenStir.asResource("sour"), List.of(
+            EffectData.cocktail(MobEffects.SPEED, MobEffects.SLOWNESS)
+    ));
+    public static final CocktailType FIZZ_VALUE = new CocktailType(ShakenStir.asResource("fizz"), List.of(
+
+    ));
+    public static final CocktailType COCKTAIL_VALUE = new CocktailType(ShakenStir.asResource("cocktail"), List.of(
+
+    ));
+    public static final CocktailType HIGHBALL_VALUE = new CocktailType(ShakenStir.asResource("highball"), List.of(
+
+    ));
+    public static final CocktailType TONIC_VALUE = new CocktailType(ShakenStir.asResource("tonic"), List.of(
+
+    ));
+    public static final CocktailType COLADA_VALUE = new CocktailType(ShakenStir.asResource("colada"), List.of(
+
+    ));
+    public static final CocktailType SUSPICIOUS_VALUE = new CocktailType(ShakenStir.asResource("suspicious"), List.of(
+            EffectData.cocktail(MobEffects.POISON, MobEffects.POISON)
+    ));
 
     public static final ResourceKey<CocktailType> SOUR = cocktailKey("sour");
     public static final ResourceKey<CocktailType> FIZZ = cocktailKey("fizz");
@@ -23,6 +40,7 @@ public class CocktailTypes {
     public static final ResourceKey<CocktailType> HIGHBALL = cocktailKey("highball");
     public static final ResourceKey<CocktailType> TONIC = cocktailKey("tonic");
     public static final ResourceKey<CocktailType> COLADA = cocktailKey("colada");
+    public static final ResourceKey<CocktailType> SUSPICIOUS = cocktailKey("suspicious");
 
     private static final Map<ResourceKey<CocktailType>, CocktailType> ENTRIES = new LinkedHashMap<>();
 
@@ -33,6 +51,7 @@ public class CocktailTypes {
         ENTRIES.put(HIGHBALL, HIGHBALL_VALUE);
         ENTRIES.put(TONIC, TONIC_VALUE);
         ENTRIES.put(COLADA, COLADA_VALUE);
+        ENTRIES.put(SUSPICIOUS, SUSPICIOUS_VALUE);
     }
 
     public static ResourceKey<CocktailType> cocktailKey(String name) {

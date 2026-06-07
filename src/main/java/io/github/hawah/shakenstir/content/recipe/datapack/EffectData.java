@@ -1,4 +1,4 @@
-package io.github.hawah.shakenstir.foundation.datapack;
+package io.github.hawah.shakenstir.content.recipe.datapack;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -10,6 +10,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,6 +79,22 @@ public record EffectData(
                 positive, negative,
                 List.of(0, 0, 1, 1, 2), List.of(90 * 20, 120 * 20, 120 * 20, 150 * 20, 180 * 20),
                 List.of(0, 0, 1, 2), List.of(20 * 20, 30 * 20, 45 * 20, 60 * 20)
+        );
+    }
+
+    public static EffectData cocktail(Holder<MobEffect> positive, Holder<MobEffect> negative) {
+        return of(
+                positive, negative,
+                List.of(0, 0, 1, 1, 2), List.of(90 * 20, 120 * 20, 120 * 20, 150 * 20, 180 * 20),
+                List.of(0, 0, 1, 2), List.of(20 * 20, 30 * 20, 45 * 20, 60 * 20)
+        );
+    }
+
+    public static EffectData suspicious() {
+        return of(
+                MobEffects.POISON, MobEffects.POISON,
+                List.of(0, 0, 0, 1, 1), List.of(90 * 20, 120 * 20, 120 * 20, 150 * 20, 180 * 20),
+                List.of(0, 0, 1, 1), List.of(20 * 20, 30 * 20, 45 * 20, 60 * 20)
         );
     }
 

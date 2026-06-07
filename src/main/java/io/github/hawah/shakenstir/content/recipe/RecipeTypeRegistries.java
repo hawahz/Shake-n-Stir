@@ -1,6 +1,7 @@
 package io.github.hawah.shakenstir.content.recipe;
 
 import io.github.hawah.shakenstir.ShakenStir;
+import io.github.hawah.shakenstir.content.recipe.shake.ShakeRecipe;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;

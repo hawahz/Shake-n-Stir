@@ -1,6 +1,6 @@
 package io.github.hawah.shakenstir.foundation.datagen;
 
-import io.github.hawah.shakenstir.content.recipe.ShakeRecipe;
+import io.github.hawah.shakenstir.content.recipe.shake.ShakeRecipe;
 import io.github.hawah.shakenstir.content.recipe.ingredient.FluidIngredient;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.data.recipes.RecipeBuilder;

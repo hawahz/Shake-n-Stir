@@ -1,8 +1,8 @@
-package io.github.hawah.shakenstir.foundation.datapack;
+package io.github.hawah.shakenstir.content.recipe.datapack;
 
 import io.github.hawah.shakenstir.ShakenStir;
-import io.github.hawah.shakenstir.foundation.datapack.cocktaileType.CocktailType;
-import io.github.hawah.shakenstir.foundation.datapack.spirit.SpiritData;
+import io.github.hawah.shakenstir.content.recipe.datapack.cocktaileType.CocktailType;
+import io.github.hawah.shakenstir.content.recipe.datapack.spirit.SpiritData;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.neoforged.bus.api.SubscribeEvent;

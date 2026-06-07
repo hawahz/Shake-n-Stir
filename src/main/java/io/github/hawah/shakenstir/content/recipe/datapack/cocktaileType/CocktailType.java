@@ -1,10 +1,10 @@
-package io.github.hawah.shakenstir.foundation.datapack.cocktaileType;
+package io.github.hawah.shakenstir.content.recipe.datapack.cocktaileType;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.recipe.Quality;
-import io.github.hawah.shakenstir.foundation.datapack.EffectData;
+import io.github.hawah.shakenstir.content.recipe.datapack.EffectData;
 import io.github.hawah.shakenstir.foundation.utils.ITranslatable;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
