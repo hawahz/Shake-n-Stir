@@ -121,5 +121,10 @@
   "item.shakenstir.recipe_scroll": "配方卷",
   "itemGroup.shakenstir.tab.bar": "摇匀搅香 - 酒吧",
   "itemGroup.shakenstir.tab.bartending": "摇匀搅香 - 调制",
-  "item.shakenstir.bartender_spawner": "酒保领带"
+  "item.shakenstir.bartender_spawner": "酒保领带",
+  "item.shakenstir.bartender_glove": "酒保手套",
+  "shakenstir.name.long_island_iced_tea": "长岛冰茶",
+  "shakenstir.name.margarita": "玛格丽特",
+  "shakenstir.name.mojito": "莫吉托",
+  "shakenstir.name.suspicious": "可疑的%s2%s1"
 }

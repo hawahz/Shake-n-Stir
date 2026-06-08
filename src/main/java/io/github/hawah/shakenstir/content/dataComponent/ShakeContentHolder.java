@@ -103,7 +103,7 @@ public record ShakeContentHolder(
             return;
         }
 
-        boolean shaking = components.getOrDefault(DataComponentTypeRegistries.SHAKING, false);
+        boolean shaking = components.has(DataComponentTypeRegistries.SHAKING);
         boolean holdingProduct = !itemStacks.isEmpty() && itemStacks.getFirst().is(ItemRegistries.CONTENT_HOLDER);
         boolean validShaking = holdingProduct && shaking;
         List<ItemStack> items;

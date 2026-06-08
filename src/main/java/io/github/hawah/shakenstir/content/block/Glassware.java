@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -74,10 +75,10 @@ public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
             if (!blockEntity.decorationsList.isEmpty()){
                 drop.set(DataComponentTypeRegistries.GLASSWARE_DECORATIONS, blockEntity.decorationsList);
                 if (blockEntity.decorationsList.stream().anyMatch(decoration -> decoration.itemStack().is(ItemRegistries.LEMON_SLICE))) {
-                    drop.set(DataComponentTypeRegistries.GLASSWARE_HAS_LEMON, true);
+                    drop.set(DataComponentTypeRegistries.GLASSWARE_HAS_LEMON, Unit.INSTANCE);
                 }
                 if (blockEntity.decorationsList.stream().anyMatch(decoration -> decoration.itemStack().is(Tags.Items.FLOWERS))) {
-                    drop.set(DataComponentTypeRegistries.GLASSWARE_HAS_FLOWER, true);
+                    drop.set(DataComponentTypeRegistries.GLASSWARE_HAS_FLOWER, Unit.INSTANCE);
                 }
             }
             if (blockEntity.defaultName != null) {

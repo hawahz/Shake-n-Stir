@@ -12,6 +12,7 @@ import io.github.hawah.shakenstir.foundation.item.SpiritBottleItem;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.Unit;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.Item;
@@ -67,6 +68,8 @@ public class ItemRegistries {
     public static final DeferredItem<PriorityBlockItem> BAR_COUNTER = register("bar_counter", BlockRegistries.BAR_COUNTER_BLOCK);
     public static final DeferredItem<RecipeScroll> RECIPE_SCROLL = register("recipe_scroll", RecipeScroll::new);
     public static final DeferredItem<BartenderSpawner> BARTENDER_SPAWNER = register("bartender_spawner", BartenderSpawner::new);
+
+    public static final DeferredItem<Item> BARTENDER_GLOVE = register("bartender_glove", Item::new, new Item.Properties().durability(20).component(DataComponentTypeRegistries.BARTENDER_GLOVE, Unit.INSTANCE));
 
     public static <T extends Item> DeferredItem<T> register(String name, Function<Item.Properties, T> supply) {
         return ITEM.register(name, (registryName) -> supply.apply(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName))));

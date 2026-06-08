@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 
 public class TooltipHandler {
     public static void tryAppendShakingFlagDirect(AddAttributeTooltipsEvent event, ItemStack stack) {
-        if (stack.getOrDefault(DataComponentTypeRegistries.SHAKING, false)) {
+        if (stack.has(DataComponentTypeRegistries.SHAKING)) {
             event.addTooltipLines(LangData.TOOLTIP_SHAKE_SHAKING.get());
         }
     }
@@ -39,7 +39,7 @@ public class TooltipHandler {
         }
         List<ItemStack> itemStacks = ShakeUtil.getItemStacks(shakeStack);
         List<FluidStack> fluidFromShake = ShakeUtil.getFluidStacks(shakeStack);
-        boolean shaking = shakeStack.getOrDefault(DataComponentTypeRegistries.SHAKING, false);
+        boolean shaking = shakeStack.has(DataComponentTypeRegistries.SHAKING);
         boolean holdingProduct = !itemStacks.isEmpty() && itemStacks.getFirst().is(ItemRegistries.CONTENT_HOLDER);
         boolean validShaking = holdingProduct && shaking;
         List<ItemStack> items;

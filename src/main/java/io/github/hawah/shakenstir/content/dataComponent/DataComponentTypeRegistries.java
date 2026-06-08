@@ -17,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Unit;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -49,9 +50,9 @@ public class DataComponentTypeRegistries {
 
     // Shake
 
-    public static final DataComponentType<Boolean> SHAKING = register(
+    public static final DataComponentType<Unit> SHAKING = register(
             "shake_shaking",
-            builder -> builder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
+            builder -> builder.persistent(Unit.CODEC).networkSynchronized(Unit.STREAM_CODEC)
     );
 
     public static final DataComponentType<ShakeContentHolder> SHAKE_CONTENT = register(
@@ -86,14 +87,14 @@ public class DataComponentTypeRegistries {
             builder -> builder.persistent(GlasswareBlockEntity.Decoration.CODEC.listOf()).networkSynchronized(GlasswareBlockEntity.Decoration.STREAM_CODEC.apply(ByteBufCodecs.list()))
     );
 
-    public static final DataComponentType<Boolean> GLASSWARE_HAS_FLOWER = register(
+    public static final DataComponentType<Unit> GLASSWARE_HAS_FLOWER = register(
             "glassware_has_flower",
-            builder -> builder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
+            builder -> builder.persistent(Unit.CODEC).networkSynchronized(Unit.STREAM_CODEC)
     );
 
-    public static final DataComponentType<Boolean> GLASSWARE_HAS_LEMON = register(
+    public static final DataComponentType<Unit> GLASSWARE_HAS_LEMON = register(
             "glassware_has_lemon",
-            builder -> builder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
+            builder -> builder.persistent(Unit.CODEC).networkSynchronized(Unit.STREAM_CODEC)
     );
 
     public static final DataComponentType<Component> GLASSWARE_NAME = register(
@@ -103,9 +104,9 @@ public class DataComponentTypeRegistries {
 
     // Product Above
 
-    public static final DataComponentType<Boolean> SHAKE_BUBBLES = register(
+    public static final DataComponentType<Unit> SHAKE_BUBBLES = register(
             "shake_bubbles",
-            builder -> builder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
+            builder -> builder.persistent(Unit.CODEC).networkSynchronized(Unit.STREAM_CODEC)
     );
 
     public static final DataComponentType<Integer> SHAKE_SUCCESS_TIMES = register(
@@ -114,9 +115,9 @@ public class DataComponentTypeRegistries {
     );
 
     // 产物是否可以倒出来，也就是当结果为true的时候，产物载体可以倒到鸡尾酒杯当中，所有component都会直接继承到鸡尾酒杯上
-    public static final DataComponentType<Boolean> SHAKE_PRODUCT_POURABLE = register(
+    public static final DataComponentType<Unit> SHAKE_PRODUCT_POURABLE = register(
             "shake_product_pourable",
-            builder -> builder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
+            builder -> builder.persistent(Unit.CODEC).networkSynchronized(Unit.STREAM_CODEC)
     );
 
     // 调酒后的产品从方块形式变成物品的时候，会变成什么样的物品。如果有此组件，则覆盖 SHAKE_PRODUCT_POURABLE 字段
@@ -164,6 +165,11 @@ public class DataComponentTypeRegistries {
     public static final DataComponentType<Identifier> MENU_BKG = register(
             "menu_bkg",
             builder -> builder.persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<Unit> BARTENDER_GLOVE = register(
+            "bartender_glove",
+            builder -> builder.persistent(Unit.CODEC).networkSynchronized(Unit.STREAM_CODEC)
     );
 
     public static void register(IEventBus eventBus) {

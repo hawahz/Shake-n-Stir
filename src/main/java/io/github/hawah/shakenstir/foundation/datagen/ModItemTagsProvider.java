@@ -5,6 +5,7 @@ import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.ItemTagsProvider;
@@ -61,6 +62,9 @@ public class ModItemTagsProvider extends ItemTagsProvider {
                 .addTags(SnsItemTags.BLOCK_LIKE_DRINK_DECORATION, SnsItemTags.ITEM_LIKE_DRINK_DECORATION);
         this.tag(SnsItemTags.DISTILLER_PLACE_BANNED)
                 .addTag(Tags.Items.BUCKETS)
+                ;
+        this.tag(ItemTags.DURABILITY_ENCHANTABLE)
+                .add(ItemRegistries.BARTENDER_GLOVE.get())
                 ;
     }
 }

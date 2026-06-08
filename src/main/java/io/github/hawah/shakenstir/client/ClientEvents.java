@@ -124,6 +124,11 @@ public class ClientEvents {
     }
 
     @SubscribeEvent
+    public static void onRenderArm(RenderArmEvent event) {
+        // TODO 取消副手手套渲染
+    }
+
+    @SubscribeEvent
     public static void onTick(ClientTickEvent.Pre event) {
         if (getLevel() == null) {
             return;

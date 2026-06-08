@@ -56,6 +56,7 @@ public class SnsCreativeTab {
                 output.accept(ItemRegistries.RAG.get());
                 output.accept(ItemRegistries.RECIPE_SCROLL.get());
                 output.accept(ItemRegistries.BARTENDER_SPAWNER);
+                output.accept(ItemRegistries.BARTENDER_GLOVE);
             })
             .build()
     );

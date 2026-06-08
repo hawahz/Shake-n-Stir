@@ -19,6 +19,7 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.Unit;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -49,7 +50,7 @@ public class ShakeRecipeProvider extends RecipeProvider {
     protected void buildRecipes() {
         getBuilder()
                 .result(ItemRegistries.CONTENT_HOLDER)
-                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.SHAKE_BUBBLES, true).build())
+                .patch(DataComponentPatch.builder().set(DataComponentTypeRegistries.SHAKE_BUBBLES, Unit.INSTANCE).build())
                 .orWith(SnsSharedTags.BUBBLE)
                 .shake(5)
                 .build()
@@ -61,7 +62,7 @@ public class ShakeRecipeProvider extends RecipeProvider {
                 .patch(DataComponentPatch.builder()
                         .set(DataComponentTypeRegistries.COCKTAIL_TYPE, CocktailTypes.SOUR_VALUE)
                         //.set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName(LangData.NAME_SOUR))
-                        .set(DataComponentTypeRegistries.SHAKE_PRODUCT_POURABLE, true)
+                        .set(DataComponentTypeRegistries.SHAKE_PRODUCT_POURABLE, Unit.INSTANCE)
                         .build())
                 .withFluid(SnsFluidTags.SPIRIT, 500)
                 .orWith(SnsSharedTags.SWEET)
@@ -76,7 +77,7 @@ public class ShakeRecipeProvider extends RecipeProvider {
                 .patch(DataComponentPatch.builder()
                         .set(DataComponentTypeRegistries.COCKTAIL_TYPE, CocktailTypes.COCKTAIL_VALUE)
                         //.set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName(LangData.NAME_COCKTAIL))
-                        .set(DataComponentTypeRegistries.SHAKE_PRODUCT_POURABLE, true)
+                        .set(DataComponentTypeRegistries.SHAKE_PRODUCT_POURABLE, Unit.INSTANCE)
                         .build())
                 .withFluid(SnsFluidTags.SPIRIT, 500)
                 .orWith(SnsSharedTags.BITTER)
@@ -91,7 +92,7 @@ public class ShakeRecipeProvider extends RecipeProvider {
                 .patch(DataComponentPatch.builder()
                         .set(DataComponentTypeRegistries.COCKTAIL_TYPE, CocktailTypes.COLADA_VALUE)
                         //.set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName(LangData.NAME_COLADA))
-                        .set(DataComponentTypeRegistries.SHAKE_PRODUCT_POURABLE, true)
+                        .set(DataComponentTypeRegistries.SHAKE_PRODUCT_POURABLE, Unit.INSTANCE)
                         .build())
                 .withFluid(SnsFluidTags.SPIRIT, 500)
                 .orWith(SnsSharedTags.SWEET)

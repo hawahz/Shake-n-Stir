@@ -58,7 +58,7 @@ public class GlasswareItem extends PriorityBlockItem {
     }
     
     public static @Nullable ItemStack getDefaultDisplay(ItemStack contentHolder) {
-        if (contentHolder.getOrDefault(DataComponentTypeRegistries.SHAKE_PRODUCT_POURABLE, false)) {
+        if (contentHolder.has(DataComponentTypeRegistries.SHAKE_PRODUCT_POURABLE)) {
             ItemStack drop = getMartiniGlass();
             drop.set(DataComponents.ITEM_NAME, contentHolder.get(DataComponents.ITEM_NAME));
             drop.set(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY, contentHolder.get(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY));

@@ -19,6 +19,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.ParticleUtils;
+import net.minecraft.util.Unit;
 import net.minecraft.util.Util;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -209,7 +210,7 @@ public class Shaker extends FallingBlock implements EntityBlock, ITakeUpBlock {
         if (level.getBlockEntity(pos) instanceof ShakeBlockEntity blockEntity) {
             if (blockEntity.holdingProduct()) {
                 ItemStack product = blockEntity.getProduct();
-                if (product.getOrDefault(DataComponentTypeRegistries.SHAKE_BUBBLES, false)) {
+                if (product.has(DataComponentTypeRegistries.SHAKE_BUBBLES)) {
                     level.explode(null, null, null, pos.getCenter(), 1, false, Level.ExplosionInteraction.BLOCK);
                     Player player = level.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 2, false);
                     AdvancementHooks.onShakeBubbleExplode(player);
@@ -279,7 +280,7 @@ public class Shaker extends FallingBlock implements EntityBlock, ITakeUpBlock {
         }
         if (level.getBlockEntity(pos) instanceof ShakeBlockEntity blockEntity && blockEntity.holdingProduct()) {
             ItemStack product = blockEntity.getProduct();
-            if (product.getOrDefault(DataComponentTypeRegistries.SHAKE_BUBBLES, false)) {
+            if (product.has(DataComponentTypeRegistries.SHAKE_BUBBLES)) {
                 level.explode(null, null, null, pos.getCenter(), 1, false, Level.ExplosionInteraction.BLOCK);
                 AdvancementHooks.onShakeBubbleExplode(player);
             }
@@ -394,7 +395,7 @@ public class Shaker extends FallingBlock implements EntityBlock, ITakeUpBlock {
             ShakeUtil.setItemData(stack, blockEntity.getActualItems());
             ShakeUtil.setFluidData(stack, blockEntity.getFluidStack());
             stack.set(DataComponentTypeRegistries.SHAKE_ICE_CUBES, blockEntity.iceCubeCounts);
-            stack.set(DataComponentTypeRegistries.SHAKING, blockEntity.isShaking);
+            stack.set(DataComponentTypeRegistries.SHAKING, Unit.INSTANCE);
             stack.set(DataComponentTypeRegistries.SHAKE_FALI_TIMES, blockEntity.shakeFailedTimes);
         }
         return stack;

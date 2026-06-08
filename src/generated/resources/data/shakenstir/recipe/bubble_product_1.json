@@ -9,7 +9,7 @@
   "inputItems": [],
   "result": {
     "components": {
-      "shakenstir:shake_bubbles": true
+      "shakenstir:shake_bubbles": {}
     },
     "id": "shakenstir:shake_content_holder"
   },

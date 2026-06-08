@@ -49,6 +49,7 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add(ItemRegistries.RAG.get(), "Rag");
         add(ItemRegistries.RECIPE_SCROLL.get(), "Recipe Scroll");
         add(ItemRegistries.BARTENDER_SPAWNER.get(), "Bartender's Tie");
+        add(ItemRegistries.BARTENDER_GLOVE.get(), "Bartender's Glove");
 
 //        add(FluidRegistries.GIN_SOURCE_FLUID_BLOCK.getRegisteredName(), "");
         add(FluidTypeRegistries.GIN_FLUID_TYPE.get().getDescriptionId(), "Gin");

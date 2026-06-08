@@ -1,7 +1,7 @@
 {
   "effects": [
     {
-      "negative": "minecraft:slowness",
+      "negative": "minecraft:weakness",
       "negativeLevNDur": [
         {
           "duration": 400,
@@ -20,7 +20,7 @@
           "level": 2
         }
       ],
-      "positive": "minecraft:speed",
+      "positive": "shakenstir:lemon",
       "positiveLevNDur": [
         {
           "duration": 1800,

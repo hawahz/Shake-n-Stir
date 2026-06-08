@@ -77,7 +77,7 @@ public class ShakerItem extends PriorityBlockItem implements IPickMarkedItem {
             return InteractionResult.PASS;
         }
         ItemStack offhandItem = player.getOffhandItem();
-        if (!offhandItem.isEmpty() && (!offhandItem.is(ItemTags.FREEZE_IMMUNE_WEARABLES) || !offhandItem.is(ItemTags.FOOT_ARMOR))) {
+        if (!offhandItem.isEmpty() && (!offhandItem.has(DataComponentTypeRegistries.BARTENDER_GLOVE) && !offhandItem.is(ItemTags.FREEZE_IMMUNE_WEARABLES) && !offhandItem.is(ItemTags.FOOT_ARMOR))) {
             return super.use(level, player, hand);
         }
         player.startUsingItem(hand);
@@ -97,7 +97,7 @@ public class ShakerItem extends PriorityBlockItem implements IPickMarkedItem {
                 level.getBlockEntity(pos) instanceof GlasswareBlockEntity blockEntity &&
                 (item = ShakeUtil.getItemData(shake)).itemCount() == 1 &&
                         (contentHolder = item.itemStacks().getFirst()).is(ItemRegistries.CONTENT_HOLDER) &&
-                        contentHolder.getOrDefault(DataComponentTypeRegistries.SHAKE_PRODUCT_POURABLE, false)
+                        contentHolder.has(DataComponentTypeRegistries.SHAKE_PRODUCT_POURABLE)
         ) {
             if (blockEntity.pourProduct(contentHolder)) {
                 ShakeUtil.clearItemData(shake);
@@ -214,6 +214,13 @@ public class ShakerItem extends PriorityBlockItem implements IPickMarkedItem {
         livingEntity.setIsInPowderSnow(true);
         int iceCubes = itemStack.getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0);
         livingEntity.setTicksFrozen(Math.min(livingEntity.getTicksRequiredToFreeze(), livingEntity.getTicksFrozen() + iceCubes));
+        if (offhandItem.has(DataComponentTypeRegistries.BARTENDER_GLOVE)) {
+            float v = 1 - offhandItem.getDamageValue() / (float) offhandItem.getMaxDamage();
+            livingEntity.setTicksFrozen((int) (livingEntity.getTicksFrozen() - v * 3));
+            if (ticksRemaining % 60 == 0){
+                offhandItem.hurtAndBreak(iceCubes, livingEntity, InteractionHand.OFF_HAND);
+            }
+        }
         super.onUseTick(level, livingEntity, itemStack, ticksRemaining);
     }
 

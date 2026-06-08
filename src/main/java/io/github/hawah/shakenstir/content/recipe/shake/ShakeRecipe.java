@@ -28,6 +28,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Unit;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
@@ -170,7 +171,7 @@ public record ShakeRecipe(
                 );
                 return;
             }
-            mainHandItem.set(DataComponentTypeRegistries.SHAKING, true);
+            mainHandItem.set(DataComponentTypeRegistries.SHAKING, Unit.INSTANCE);
             mainHandItem.set(DataComponentTypeRegistries.SHAKE_FALI_TIMES, failTimes + 1);
             mainHandItem.remove(DataComponentTypeRegistries.SHAKE_ICE_CUBES);
             return;

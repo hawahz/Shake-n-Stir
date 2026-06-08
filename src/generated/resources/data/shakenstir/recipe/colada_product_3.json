@@ -22,7 +22,7 @@
         "id": "shakenstir:colada",
         "translation_key": "shakenstir:name.colada"
       },
-      "shakenstir:shake_product_pourable": true
+      "shakenstir:shake_product_pourable": {}
     },
     "id": "shakenstir:shake_content_holder"
   },

@@ -14,7 +14,52 @@
   "result": {
     "components": {
       "shakenstir:cocktail_type": {
-        "effects": [],
+        "effects": [
+          {
+            "negative": "minecraft:slowness",
+            "negativeLevNDur": [
+              {
+                "duration": 400,
+                "level": 0
+              },
+              {
+                "duration": 600,
+                "level": 0
+              },
+              {
+                "duration": 900,
+                "level": 1
+              },
+              {
+                "duration": 1200,
+                "level": 2
+              }
+            ],
+            "positive": "minecraft:speed",
+            "positiveLevNDur": [
+              {
+                "duration": 1800,
+                "level": 0
+              },
+              {
+                "duration": 2400,
+                "level": 0
+              },
+              {
+                "duration": 2400,
+                "level": 1
+              },
+              {
+                "duration": 3000,
+                "level": 1
+              },
+              {
+                "duration": 3600,
+                "level": 2
+              }
+            ]
+          }
+        ],
         "id": "shakenstir:fizz",
         "translation_key": "shakenstir:name.fizz"
       }
