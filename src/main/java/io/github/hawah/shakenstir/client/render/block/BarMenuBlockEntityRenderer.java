@@ -73,7 +73,8 @@ public class BarMenuBlockEntityRenderer implements BlockEntityRenderer<BarMenuBl
             );
             itemState.count = ItemClusterRenderState.getRenderedAmount(recipeCost.getCount());;
             itemState.seed = ItemClusterRenderState.getSeedForItemStack(recipeCost);
-            state.displayItems.add(itemState);
+            state.displayItems.addFirst(itemState);
+            state.displayItemCounts.addFirst(recipeCost.getCount());
         }
         state.spin = (float) (AnimationTickHolder.getRenderTime() % (180)) * 2;
     }
@@ -123,15 +124,22 @@ public class BarMenuBlockEntityRenderer implements BlockEntityRenderer<BarMenuBl
 
             poseStack.pushPose();
             //FIXME :向右
-            submitNodeCollector.submitNameTag(
+
+            poseStack.translate(new Vec3(0.5, (0.3+i * 0.25), 0.5));
+            poseStack.mulPose(camera.orientation);
+            poseStack.scale(0.025F, -0.025F, 0.025F);
+
+            String text = String.valueOf(state.displayItemCounts.get(i));
+            submitNodeCollector.submitText(
                     poseStack,
-                    new Vec3(0.5, (0.1+i * 0.25), 0.5),
-                    0,
-                    Component.literal(String.valueOf(renderState.count)),
+                    0.4F/0.025F, 0,
+                    Component.literal(text).getVisualOrderText(),
                     false,
+                    Font.DisplayMode.POLYGON_OFFSET,
                     state.lightCoords,
-                    camera.pos.distanceToSqr(state.blockPos.getCenter()),
-                    camera
+                    -1,
+                    0xF0000000,
+                    0xFF000000 | 0xffa300
             );
             poseStack.popPose();
         }

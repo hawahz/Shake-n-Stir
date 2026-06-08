@@ -234,13 +234,16 @@ public class EditorMenuScreen extends AbstractMenuScreen {
         int idx = getSelectSlot(mouseX, mouseY);
         int startX = width / 2 - 91 + idx * 20 + 2;
         if (idx >= 0 && idx <= 8) {
-            guiGraphics.fill(startX, height - 20, startX + 18, height - 2, 0xA0FFFFFF);
-            guiGraphics.setTooltipForNextFrame(
-                    font,
-                    getPlayer().getInventory().getItem(idx),
-                    mouseX,
-                    mouseY
-            );
+            ItemStack item = getPlayer().getInventory().getItem(idx);
+            if (!item.isEmpty()) {
+                guiGraphics.fill(startX, height - 20, startX + 18, height - 2, 0xA0FFFFFF);
+                guiGraphics.setTooltipForNextFrame(
+                        font,
+                        item,
+                        mouseX,
+                        mouseY
+                );
+            }
         }
 
         if (carriedItem != null) {
@@ -469,8 +472,9 @@ public class EditorMenuScreen extends AbstractMenuScreen {
         double mouseX = event.x();
         double mouseY = event.y();
         int selectSlot = getSelectSlot(mouseX, mouseY);
-        if (selectSlot >= 0 && getPlayer() != null) {
-            carriedItem = getPlayer().getInventory().getItem(selectSlot);
+        ItemStack item;
+        if (selectSlot >= 0 && getPlayer() != null && !(item = getPlayer().getInventory().getItem(selectSlot)).isEmpty()) {
+            carriedItem = item;
             SnsRecipeHolder holder;
             if (event.hasShiftDown() && (holder = carriedItem.get(DataComponentTypeRegistries.RECIPE_HOLDER)) != null) {
                 cachedBlockEntity.addRecipe(holder.copy());

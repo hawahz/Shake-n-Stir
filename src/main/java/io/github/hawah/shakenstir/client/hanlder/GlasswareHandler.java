@@ -4,12 +4,15 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
+import io.github.hawah.shakenstir.client.model.Models;
+import io.github.hawah.shakenstir.client.render.IGlasswareRenderState;
+import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
+import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.lib.client.KeyBinding;
 import io.github.hawah.shakenstir.lib.client.handler.IHandler;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import io.github.hawah.shakenstir.util.IModel;
-import io.github.hawah.shakenstir.client.model.Models;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -21,9 +24,11 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.List;
 import java.util.Optional;
 
 public class GlasswareHandler implements IHandler {
@@ -117,6 +122,13 @@ public class GlasswareHandler implements IHandler {
         if (renderData == null) {
             return;
         }
+        ItemStack stack = MC.getItem();
+        GlasswareRenderProvider renderProvider = new GlasswareRenderProvider(
+                getModel(),
+                stack.has(DataComponentTypeRegistries.DRINK_DATA)? 1: 0,
+                stack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb() | 0xFF000000,
+                stack.getOrDefault(DataComponentTypeRegistries.GLASSWARE_DECORATIONS, List.of())
+        );
         float partialTick = renderData.deltaTracker().getGameTimeDeltaPartialTick(false);
         float pastTime = AnimationTickHolder.getRenderTime() - runningTick;
         float cAlpha = Mth.lerp(    partialTick, oAlpha, alpha);
@@ -138,6 +150,23 @@ public class GlasswareHandler implements IHandler {
         float delta = (float) (Math.abs(((pastTime % RANGE) / RANGE) - 0.5) * 2);
         int renderTime = (int) (Mth.lerpDiscrete(delta, 60, 140) * cAlpha);
         getModel().submit(submitNodeCollector, poseStack, lightCoords, OverlayTexture.NO_OVERLAY, RenderTypes.translucentMovingBlock(), renderTime << 24 | 0xFFFFFF);
+//        GlasswareRenderer.submitGlassware(
+//                renderProvider,
+//                poseStack,
+//                submitNodeCollector,
+//                lightCoords,
+//                0.5F,
+//                0.5F,
+//                0,
+//                false
+//        );
         poseStack.popPose();
     }
+
+    record GlasswareRenderProvider(
+            IModel<?> model,
+            float height,
+            int color,
+            List<GlasswareBlockEntity.Decoration> decorations
+    ) implements IGlasswareRenderState{}
 }

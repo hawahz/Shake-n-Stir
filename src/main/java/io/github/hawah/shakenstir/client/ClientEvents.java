@@ -84,9 +84,12 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void onExtractLevelStage(ExtractLevelRenderStateEvent event) {
+
         event.getRenderState().setRenderData(
                 GlasswareHandlerRenderState.ctxKey,
-                new GlasswareHandlerRenderState(event.getDeltaTracker())
+                new GlasswareHandlerRenderState(
+                        event.getDeltaTracker()
+                )
         );
         ShakenStirClient.DECORATE_PLACE_HANDLER.extract(event);
         Outliner.extract(event);

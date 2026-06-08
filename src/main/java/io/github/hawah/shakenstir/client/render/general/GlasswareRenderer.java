@@ -34,6 +34,9 @@ import java.util.List;
 
 public class GlasswareRenderer {
     public static void submitGlassware(IGlasswareRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, float offsetX, float offsetZ, float rotate, boolean shouldReset) {
+        submitGlassware(state, poseStack, submitNodeCollector, lightCoords, offsetX, offsetZ, rotate, shouldReset, 255);
+    }
+    public static void submitGlassware(IGlasswareRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, float offsetX, float offsetZ, float rotate, boolean shouldReset, int alpha) {
         VerticalGradientVertexConsumer vc = new VerticalGradientVertexConsumer();
         vc.setGradientStyle(Ease::inOutCirc);
 

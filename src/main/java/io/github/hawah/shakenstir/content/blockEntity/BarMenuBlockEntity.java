@@ -130,13 +130,13 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
                 for (ItemStack cachedRecipeCost : cachedRecipeCosts) {
                     ItemStack cost = cachedRecipeCost.copy();
                     if (recipe.right().item.test(itemStack -> ItemStack.isSameItemSameComponents(cost, itemStack))) {
-                        cost.grow(recipe.right().count);
+                        cost.grow(recipe.right().count * recipe.right().price);
                         found = true;
                         break;
                     }
                 }
                 if (!found) {
-                    cachedRecipeCosts.add(recipe.right().item.toStack(recipe.right().count));
+                    cachedRecipeCosts.add(recipe.right().item.toStack(recipe.right().count * recipe.right().price));
                 }
             }
         }

@@ -14,6 +14,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
@@ -101,6 +102,17 @@ public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
             return drop;
         }
         return ItemStack.EMPTY;
+    }
+
+    @Override
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        if (!level.isClientSide()) {
+            ItemStack itemStack = getDrop(state, level, pos);
+            ItemEntity entity = new ItemEntity(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, itemStack);
+            entity.setDefaultPickUpDelay();
+            level.addFreshEntity(entity);
+        }
+        return super.playerWillDestroy(level, pos, state, player);
     }
 
     @Override

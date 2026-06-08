@@ -13,4 +13,5 @@ public class BarMenuBlockEntityRenderState extends BlockEntityRenderState {
     public final List<FormattedText> content = new ArrayList<>();
     public final List<ItemClusterRenderState> displayItems = new ArrayList<>();
     public float spin = 0;
+    public List<Integer> displayItemCounts = new ArrayList<>();
 }
