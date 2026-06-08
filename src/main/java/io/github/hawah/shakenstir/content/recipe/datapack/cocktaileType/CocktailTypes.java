@@ -1,6 +1,7 @@
 package io.github.hawah.shakenstir.content.recipe.datapack.cocktaileType;
 
 import io.github.hawah.shakenstir.ShakenStir;
+import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
 import io.github.hawah.shakenstir.content.recipe.datapack.EffectData;
 import io.github.hawah.shakenstir.content.recipe.datapack.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -13,10 +14,10 @@ import java.util.function.BiConsumer;
 
 public class CocktailTypes {
     public static final CocktailType SOUR_VALUE = new CocktailType(ShakenStir.asResource("sour"), List.of(
-            EffectData.cocktail(MobEffects.SPEED, MobEffects.SLOWNESS)
+            EffectData.cocktail(MobEffectRegistries.LEMON, MobEffects.WEAKNESS)
     ));
     public static final CocktailType FIZZ_VALUE = new CocktailType(ShakenStir.asResource("fizz"), List.of(
-
+            EffectData.cocktail(MobEffects.SPEED, MobEffects.SLOWNESS)
     ));
     public static final CocktailType COCKTAIL_VALUE = new CocktailType(ShakenStir.asResource("cocktail"), List.of(
 

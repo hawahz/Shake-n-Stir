@@ -38,6 +38,7 @@ public class BartenderModel extends HumanoidModel<BartenderRenderState> {
     public KeyframeAnimation readyShakeAnimation;
     public KeyframeAnimation idleFrontAnimation;
     public KeyframeAnimation idleBackAnimation;
+    public KeyframeAnimation pleaseAnimation;
     public List<KeyframeAnimation> stateMachineSlots = new ArrayList<>();
 
     public static final int DEFAULT = 0;
@@ -45,8 +46,9 @@ public class BartenderModel extends HumanoidModel<BartenderRenderState> {
     public static final int SHAKE = 2;
     public static final int IDLE_FRONT = 3;
     public static final int IDLE_BACK = 4;
+    public static final int PLEASE = 5;
 
-    @MagicConstant(flags = {DEFAULT, READY, SHAKE, IDLE_FRONT, IDLE_BACK})
+    @MagicConstant(flags = {DEFAULT, READY, SHAKE, IDLE_FRONT, IDLE_BACK, PLEASE})
     public @interface AnimKeys {}
 
     public BartenderModel(ModelPart root) {
@@ -62,11 +64,13 @@ public class BartenderModel extends HumanoidModel<BartenderRenderState> {
         readyShakeAnimation = BartenderAnimation.READY.bake(root());
         idleFrontAnimation = BartenderAnimation.IDLE_FRONT.bake(root());
         idleBackAnimation = BartenderAnimation.IDLE_BACK.bake(root());
+        pleaseAnimation = BartenderAnimation.PLEASE.bake(root());
         stateMachineSlots.add(null);
         stateMachineSlots.add(readyShakeAnimation);
         stateMachineSlots.add(shakeAnimation);
         stateMachineSlots.add(idleFrontAnimation);
         stateMachineSlots.add(idleBackAnimation);
+        stateMachineSlots.add(pleaseAnimation);
     }
 
     public static MeshDefinition createMesh(CubeDeformation scale, boolean slim) {

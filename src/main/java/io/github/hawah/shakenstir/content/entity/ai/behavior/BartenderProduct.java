@@ -3,6 +3,7 @@ package io.github.hawah.shakenstir.content.entity.ai.behavior;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.authlib.GameProfile;
 import io.github.hawah.shakenstir.ShakenStir;
+import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
@@ -121,34 +122,7 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
     private void doDecorating(ServerLevel level, BartenderEntity body, long timestamp) {
         if (decorations.isEmpty() && body.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()) {
             decorations.addAll(recipeHolder.decorations());
-            if (decorations.isEmpty()) {
-                body.getBrain().getMemory(Memories.MEMORY_GLASSWARE.get()).ifPresent(
-                        pos -> {
-                            if (!level.dimension().equals(pos.dimension())) {
-                                return;
-                            }
-                            if (!(level.getBlockEntity(pos.pos()) instanceof GlasswareBlockEntity be)) {
-                                return;
-                            }
-                            // Compute direction from bartender to glassware, place on far edge
-                            Vec3 blockCenter = Vec3.atCenterOf(pos.pos());
-                            double dx = blockCenter.x() - body.getX();
-                            double dz = blockCenter.z() - body.getZ();
-
-                            float localX, localZ;
-                            if (Math.abs(dx) > Math.abs(dz)) {
-                                localX = dx > 0 ? 1.0F : 0.0F;
-                                localZ = 0.5F;
-                            } else {
-                                localX = 0.5F;
-                                localZ = dz > 0 ? 1.0F : 0.0F;
-                            }
-                            be.moveTo(localX, localZ);
-                        }
-                );
-                setState(State.END);
-                return;
-            }
+            if (tryPushGlassware(level, body)) return;
         }
         if (body.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()) {
             GlasswareBlockEntity.Decoration deco = decorations.getFirst();
@@ -188,34 +162,48 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
         if (body.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()) {
             body.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         }
+        tryPushGlassware(level, body);
+    }
+
+    private boolean tryPushGlassware(ServerLevel level, BartenderEntity body) {
         if (decorations.isEmpty()) {
             body.getBrain().getMemory(Memories.MEMORY_GLASSWARE.get()).ifPresent(
-                    pos -> {
-                        if (!level.dimension().equals(pos.dimension())) {
+                    globalPos -> {
+                        if (!level.dimension().equals(globalPos.dimension())) {
                             return;
                         }
-                        if (!(level.getBlockEntity(pos.pos()) instanceof GlasswareBlockEntity be)) {
+                        BlockPos pos = globalPos.pos();
+                        if (!(level.getBlockEntity(pos) instanceof GlasswareBlockEntity be)) {
                             return;
                         }
-                            // Compute direction from bartender to glassware, place on far edge
-                            Vec3 blockCenter = Vec3.atCenterOf(pos.pos());
-                            double dx = blockCenter.x() - body.getX();
-                            double dz = blockCenter.z() - body.getZ();
+                        // Compute direction from bartender to glassware, place on far edge
+                        BlockPos below = pos.below();
 
-                            float localX, localZ;
-                            if (Math.abs(dx) > Math.abs(dz)) {
-                                localX = dx > 0 ? 1.0F : 0.0F;
-                                localZ = 0.5F;
-                            } else {
-                                localX = 0.5F;
-                                localZ = dz > 0 ? 1.0F : 0.0F;
-                            }
-                            be.moveTo(localX, localZ);
+                        int xWeight = (level.getBlockState(below.relative(Direction.Axis.X, 1)).is(BlockRegistries.BAR_COUNTER_BLOCK))? 1: 0;
+                        xWeight += (level.getBlockState(below.relative(Direction.Axis.X, -1)).is(BlockRegistries.BAR_COUNTER_BLOCK))? 1: 0;
+                        int zWeight = (level.getBlockState(below.relative(Direction.Axis.Z, 1)).is(BlockRegistries.BAR_COUNTER_BLOCK))? 1: 0;
+                        zWeight += (level.getBlockState(below.relative(Direction.Axis.Z, -1)).is(BlockRegistries.BAR_COUNTER_BLOCK))? 1: 0;
+
+                        Vec3 blockCenter = Vec3.atCenterOf(pos);
+                        double dx = blockCenter.x() - body.getX();
+                        double dz = blockCenter.z() - body.getZ();
+
+                        float localX, localZ;
+                        if (zWeight > xWeight) {
+                            localX = dx > 0 ? 1.0F : 0.0F;
+                            localZ = 0.5F;
+                        } else {
+                            localX = 0.5F;
+                            localZ = dz > 0 ? 1.0F : 0.0F;
+                        }
+                        body.setState(BartenderEntity.AnimState.PLEASE);
+                        be.moveTo(localX, localZ);
                     }
             );
             setState(State.END);
-            return;
+            return true;
         }
+        return false;
     }
 
     long pouringCD = -1;
@@ -267,13 +255,13 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
                     List<BlockPos> counters = barData.barCounter();
                     counters.stream()
                             .filter(pos -> level.getBlockState(pos).isEmpty())
-                            .min(Comparator.comparing(bp -> body.distanceToSqr(bp.getCenter())))
+                            .min(Comparator.comparing(bp -> body.getBrain().getMemory(MemoryModuleType.INTERACTION_TARGET).orElse(body).distanceToSqr(bp.getCenter())))
                             .ifPresent(blockPos -> {
                                 placePos = blockPos;
                             });
                 });
             } else {
-                BehaviorUtils.setWalkAndLookTargetMemories(body, placePos, 0.5F, 2);
+                BehaviorUtils.setWalkAndLookTargetMemories(body, placePos.below(), 0.5F, 2);
                 body.getLookControl().setLookAt(placePos.getCenter());
             }
             return;

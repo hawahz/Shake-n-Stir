@@ -23,6 +23,8 @@ import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
@@ -103,6 +105,14 @@ public class GlasswareBlockEntity extends AutoUpdateBlockEntity {
         contentComponents.setAll(itemStack.getComponents());
         heightRate = 1.0F;
         this.markChanged();
+        if (level != null) {
+            level.playSound(
+                    null,
+                    getBlockPos(),
+                    SoundEvents.BOTTLE_FILL,
+                    SoundSource.BLOCKS
+            );
+        }
         if (getLevel() instanceof ServerLevel serverLevel){
             serverLevel.players().forEach(
                     player -> player.connection.send(getUpdatePacket())

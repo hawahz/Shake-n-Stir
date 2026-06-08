@@ -30,6 +30,7 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class BartenderFindItem extends Behavior<BartenderEntity> {
     public BartenderFindItem() {
@@ -127,11 +128,11 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
 
                             if (extracted > 0) {
                                 ItemStack extractedStack = resource.toStack(extracted);
+                                itemStack.shrink(extracted);
 
-                                OptionalInt emptySlot = findEmptyInventorySlot(body);
-                                if (emptySlot.isPresent()) {
-                                    body.getInventory().set(emptySlot.getAsInt(), extractedStack);
+                                if (body.insertItem(extractedStack)) {
                                     itemToFind.remove(j);
+                                    j--;
                                     tx.commit();
                                     body.swing(InteractionHand.MAIN_HAND);
                                 }
@@ -142,7 +143,9 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
                     if (itemToFind.isEmpty()) {
                         return;
                     }
-                    break;
+                    if (itemStack.isEmpty()) {
+                        break;
+                    }
                 }
             }
             }
@@ -242,7 +245,14 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
 
     @Override
     public String debugString() {
-        return super.debugString();
+        String append = String.join(",", itemToFind.stream().map(ingredient ->
+                ingredient.items()
+                        .map(holder -> holder.getKey().toString())
+                        .distinct()
+                        .sorted()
+                        .collect(Collectors.joining(", "))
+        ).toList());
+        return super.debugString() + "[" + append + "]";
     }
 
     public static List<Ingredient> getItemToFind(PathfinderMob mob) {
@@ -308,6 +318,8 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
                 visited -> !visited.contains(new GlobalPos(level.dimension(), target.pos()))
         ).orElse(true);
     }
+
+
 
 
     public record TakeUpItemTarget(BlockPos pos, ResourceHandler<ItemResource> container, BlockEntity blockEntity, BlockState state) {

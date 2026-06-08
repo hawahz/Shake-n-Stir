@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import org.jspecify.annotations.Nullable;
 
 public class BarCounterBlock extends HorizontalDirectionalBlock {
@@ -34,6 +35,11 @@ public class BarCounterBlock extends HorizontalDirectionalBlock {
                 .setValue(WEST, false)
                 .setValue(FACING, Direction.NORTH)
         );
+    }
+
+    @Override
+    protected boolean isPathfindable(BlockState state, PathComputationType type) {
+        return false;
     }
 
     @Override

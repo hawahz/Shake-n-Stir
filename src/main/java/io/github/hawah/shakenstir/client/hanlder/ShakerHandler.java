@@ -104,13 +104,24 @@ public class ShakerHandler implements IHandler, GuiLayer {
             if (shakeCubes != 0 || ShakeUtil.hasItem(getItem())){
                 mc().getSoundManager().play(
                         new SimpleSoundInstance(
-                                SoundEvents.GLASS_HIT,
+                                SoundEvents.ARMOR_EQUIP_IRON.value(),
                                 SoundSource.PLAYERS,
                                 1.2F - volumeWater,
-                                1,
+                                20,
                                 level().getRandom(),
                                 getPlayer().blockPosition()
                         )
+                );
+                mc().getSoundManager().playDelayed(
+                        new SimpleSoundInstance(
+                                SoundEvents.GLASS_BREAK,
+                                SoundSource.PLAYERS,
+                                (1.2F - volumeWater) * 0.2F,
+                                1.5F,
+                                level().getRandom(),
+                                getPlayer().blockPosition()
+                        ),
+                        1
                 );
             }
             if (ShakeUtil.hasFluid(getItem())) {

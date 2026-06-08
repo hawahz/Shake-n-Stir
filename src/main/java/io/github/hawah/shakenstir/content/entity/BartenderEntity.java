@@ -5,6 +5,7 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.Config;
 import io.github.hawah.shakenstir.client.animation.AnimationState;
 import io.github.hawah.shakenstir.client.animation.AnimationStateMachine;
+import io.github.hawah.shakenstir.client.animation.ShakeAnimationState;
 import io.github.hawah.shakenstir.client.render.entity.BartenderModel;
 import io.github.hawah.shakenstir.content.blockEntity.BarMenuBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
@@ -315,9 +316,10 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         animationStateMachine = new AnimationStateMachine();
         AnimationState idle = new AnimationState(BartenderModel.DEFAULT);
         AnimationState ready = new AnimationState(BartenderModel.READY).fadeInMs(200).fadeOutMs(250);
-        AnimationState shake = new AnimationState(BartenderModel.SHAKE).fadeInMs(250).fadeOutMs(500);
+        AnimationState shake = new ShakeAnimationState(BartenderModel.SHAKE, this).fadeInMs(250).fadeOutMs(500);
         AnimationState idleFront = new AnimationState(BartenderModel.IDLE_FRONT).fadeInMs(500).fadeOutMs(250);
         AnimationState idleBack = new AnimationState(BartenderModel.IDLE_BACK).fadeInMs(500).fadeOutMs(250);
+        AnimationState please = new AnimationState(BartenderModel.PLEASE).fadeInMs(500).fadeOutMs(500);
         idle.registerConnection("readyToShake", ready);
         ready.registerConnection("shake", shake);
         shake.registerConnection("idle", idle);
@@ -325,6 +327,8 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         idle.registerConnection("idleBack", idleBack);
         idleFront.registerConnection("idle", idle);
         idleBack.registerConnection("idle", idle);
+        idle.registerConnection("please", please);
+        please.registerConnection("idle", idle);
 
         animationStateMachine.state = "idle";
         animationStateMachine.start(idle);
@@ -336,6 +340,8 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         updateReady();
     }
 
+    float pleaseAmount = 0;
+
     public void updateReady() {
         this.readyShakeAmountO = this.readyShakeAmount;
         if (this.getState().equals(AnimState.READY_TO_SHAKE)) {
@@ -345,6 +351,15 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
             }
         } else {
             this.readyShakeAmount = 0;
+        }
+
+        if (this.getState().equals(AnimState.PLEASE)) {
+            this.pleaseAmount = this.pleaseAmount + 1/20F;
+            if (this.pleaseAmount > 1) {
+                this.setState(AnimState.DEFAULT);
+            }
+        } else {
+            this.pleaseAmount = 0;
         }
     }
 
@@ -385,7 +400,8 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         READY_TO_SHAKE("readyToShake"),
         SHAKING("shake"),
         IDLE_FRONT("idleFront"),
-        IDLE_BACK("idleBack")
+        IDLE_BACK("idleBack"),
+        PLEASE("please")
         ;
 
         private final String name;
