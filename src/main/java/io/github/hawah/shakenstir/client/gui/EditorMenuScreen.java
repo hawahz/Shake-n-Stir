@@ -1,6 +1,8 @@
 package io.github.hawah.shakenstir.client.gui;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import io.github.hawah.shakenstir.ShakenStir;
+import io.github.hawah.shakenstir.client.gui.utils.EditTool;
 import io.github.hawah.shakenstir.content.blockEntity.BarMenuBlockEntity;
 import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
@@ -8,14 +10,19 @@ import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundMenuBEChanged;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundMenuBERecipeChanged;
 import io.github.hawah.shakenstir.lib.client.KeyBinding;
+import io.github.hawah.shakenstir.lib.client.gui.BaseScreen;
+import io.github.hawah.shakenstir.lib.client.gui.element.ButtonGroup;
+import io.github.hawah.shakenstir.lib.client.gui.element.TextureButton;
 import io.github.hawah.shakenstir.lib.networking.Networking;
 import io.github.hawah.shakenstir.util.Textures;
 import net.minecraft.client.AttackIndicatorStatus;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
@@ -35,6 +42,87 @@ public class EditorMenuScreen extends AbstractMenuScreen {
     private ItemStack carriedItem = null;
     private boolean dirty = false;
     private int brushSize = 3;
+    private EditTool editTool = EditTool.ARROW;
+
+    @Override
+    protected void init() {
+        super.init();
+        int x = guiLeft;
+        int y = guiTop + 12;
+        Runnable EMPTY = () -> {
+        };
+        TextureButton arrow = TextureButton.builder(
+                x - 50,
+                y,
+                Textures.EDITOR_BUTTON.getWidth(),
+                Textures.EDITOR_BUTTON.getHeight(),
+                Component.empty(),
+                () -> editTool = EditTool.ARROW
+        ).texture(Textures.EDITOR_BUTTON.getResource())
+                .normalUV(Textures.EDITOR_BUTTON.getStartX(), Textures.EDITOR_BUTTON.getStartY())
+                .toggled(true)
+                .enableToggleUp(false)
+                .disabledTexture(Textures.EDITOR_BUTTON.getResource())
+                .inactiveSize(Textures.EDITOR_BUTTON.getWidth(), Textures.EDITOR_BUTTON.getHeight())
+                .inactiveUV(Textures.EDITOR_BUTTON.builder().variant(1).getStartX(), Textures.EDITOR_BUTTON.builder().variant(1).getStartY())
+                .pressedUV(Textures.EDITOR_BUTTON.builder().variant(1).getStartX(), Textures.EDITOR_BUTTON.builder().variant(1).getStartY())
+                .pressedSize(Textures.EDITOR_BUTTON.getWidth(), Textures.EDITOR_BUTTON.getHeight())
+                .hoverUV(Textures.EDITOR_BUTTON.builder().variant(1).getStartX(), Textures.EDITOR_BUTTON.builder().variant(1).getStartY())
+                .hoverSize(Textures.EDITOR_BUTTON.getWidth(), Textures.EDITOR_BUTTON.getHeight())
+                .build();
+
+        this.addRenderableWidget(arrow);
+        arrow.setPressed(true);
+
+        TextureButton pencil = TextureButton.builder(
+                        x - 50,
+                        y + 16,
+                        Textures.EDITOR_BUTTON.getWidth(),
+                        Textures.EDITOR_BUTTON.getHeight(),
+                        Component.empty(),
+                        () -> editTool = EditTool.PEN
+                ).texture(Textures.EDITOR_BUTTON.getResource())
+                .normalUV(Textures.EDITOR_BUTTON.getStartX(), Textures.EDITOR_BUTTON.getStartY())
+                .toggled(true)
+                .enableToggleUp(false)
+                .disabledTexture(Textures.EDITOR_BUTTON.getResource())
+                .inactiveSize(Textures.EDITOR_BUTTON.getWidth(), Textures.EDITOR_BUTTON.getHeight())
+                .inactiveUV(Textures.EDITOR_BUTTON.builder().variant(1).getStartX(), Textures.EDITOR_BUTTON.builder().variant(1).getStartY())
+                .pressedUV(Textures.EDITOR_BUTTON.builder().variant(1).getStartX(), Textures.EDITOR_BUTTON.builder().variant(1).getStartY())
+                .pressedSize(Textures.EDITOR_BUTTON.getWidth(), Textures.EDITOR_BUTTON.getHeight())
+                .hoverUV(Textures.EDITOR_BUTTON.builder().variant(1).getStartX(), Textures.EDITOR_BUTTON.builder().variant(1).getStartY())
+                .hoverSize(Textures.EDITOR_BUTTON.getWidth(), Textures.EDITOR_BUTTON.getHeight())
+                .build();
+
+        this.addRenderableWidget(pencil);
+
+        TextureButton eraser = TextureButton.builder(
+                        x - 50,
+                        y + 16*2,
+                        Textures.EDITOR_BUTTON.getWidth(),
+                        Textures.EDITOR_BUTTON.getHeight(),
+                        Component.empty(),
+                        () -> editTool = EditTool.ERASER
+                ).texture(Textures.EDITOR_BUTTON.getResource())
+                .normalUV(Textures.EDITOR_BUTTON.getStartX(), Textures.EDITOR_BUTTON.getStartY())
+                .toggled(true)
+                .enableToggleUp(false)
+                .disabledTexture(Textures.EDITOR_BUTTON.getResource())
+                .inactiveSize(Textures.EDITOR_BUTTON.getWidth(), Textures.EDITOR_BUTTON.getHeight())
+                .inactiveUV(Textures.EDITOR_BUTTON.builder().variant(1).getStartX(), Textures.EDITOR_BUTTON.builder().variant(1).getStartY())
+                .pressedUV(Textures.EDITOR_BUTTON.builder().variant(1).getStartX(), Textures.EDITOR_BUTTON.builder().variant(1).getStartY())
+                .pressedSize(Textures.EDITOR_BUTTON.getWidth(), Textures.EDITOR_BUTTON.getHeight())
+                .hoverUV(Textures.EDITOR_BUTTON.builder().variant(1).getStartX(), Textures.EDITOR_BUTTON.builder().variant(1).getStartY())
+                .hoverSize(Textures.EDITOR_BUTTON.getWidth(), Textures.EDITOR_BUTTON.getHeight())
+                .build();
+
+        ButtonGroup buttonGroup = new ButtonGroup();
+        buttonGroup.addButton(arrow);
+        buttonGroup.addButton(pencil);
+        buttonGroup.addButton(eraser);
+
+        this.addRenderableWidget(eraser);
+    }
 
     @Override
     public void onClose() {
@@ -69,8 +157,50 @@ public class EditorMenuScreen extends AbstractMenuScreen {
     }
 
     @Override
+    protected void renderWindowPre(GuiGraphicsExtractor guiGraphics, int originMouseX, int originMouseY, float partialTick) {
+        super.renderWindowPre(guiGraphics, originMouseX, originMouseY, partialTick);
+        super.renderWindowPost(guiGraphics, originMouseX, originMouseY, partialTick);
+    }
+
+    @Override
     protected void renderWindowPost(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.renderWindowPost(guiGraphics, mouseX, mouseY, partialTick);
+        {
+            int x = guiLeft - 50;
+            int y = guiTop + 12;
+            BaseScreen.blit(
+                    guiGraphics,
+                    Textures.EDITOR_TOOL_ARROW.getResource(),
+                    x,
+                    y,
+                    Textures.EDITOR_TOOL_ARROW.getStartX(),
+                    Textures.EDITOR_TOOL_ARROW.getStartY(),
+                    Textures.EDITOR_TOOL_ARROW.getWidth(),
+                    Textures.EDITOR_TOOL_ARROW.getHeight(),
+                    -1
+            );
+            BaseScreen.blit(
+                    guiGraphics,
+                    Textures.EDITOR_TOOL_PENCIL.getResource(),
+                    x,
+                    y + 16,
+                    Textures.EDITOR_TOOL_PENCIL.getStartX(),
+                    Textures.EDITOR_TOOL_PENCIL.getStartY(),
+                    Textures.EDITOR_TOOL_PENCIL.getWidth(),
+                    Textures.EDITOR_TOOL_PENCIL.getHeight(),
+                    -1
+            );
+            BaseScreen.blit(
+                    guiGraphics,
+                    Textures.EDITOR_TOOL_ERASER.getResource(),
+                    x,
+                    y + 32,
+                    Textures.EDITOR_TOOL_ERASER.getStartX(),
+                    Textures.EDITOR_TOOL_ERASER.getStartY(),
+                    Textures.EDITOR_TOOL_ERASER.getWidth(),
+                    Textures.EDITOR_TOOL_ERASER.getHeight(),
+                    -1
+            );
+        }
         extractItemHotbar(guiGraphics, this.minecraft.getDeltaTracker());
         int idx = getSelectSlot(mouseX, mouseY);
         int startX = width / 2 - 91 + idx * 20 + 2;
@@ -91,7 +221,7 @@ public class EditorMenuScreen extends AbstractMenuScreen {
             );
         }
 
-        if (KeyBinding.hasShiftDown() || KeyBinding.hasAltDown() || KeyBinding.hasControlDown()) {
+        if (!editTool.equals(EditTool.ARROW)) {
             int radius = brushSize / 2;
             int previewColor = 0x60FFFFFF;
             int cx = mouseX;
@@ -116,8 +246,8 @@ public class EditorMenuScreen extends AbstractMenuScreen {
                     p += 2 * (y - x) + 1;
                 }
             }
-        }
 
+        }
     }
 
     private void extractItemHotbar(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
@@ -232,7 +362,7 @@ public class EditorMenuScreen extends AbstractMenuScreen {
         int currentSelect = getCurrentSelect((int) x, (int) y);
         boolean changed = prevSelect != currentSelect;
         prevSelect = currentSelect;
-        if (KeyBinding.hasControlDown()) {
+        if (KeyBinding.hasControlDown() && !editTool.equals(EditTool.ARROW)) {
             brushSize += (int) Math.round(scrollY);
             brushSize = Mth.clamp(brushSize, 1, 24);
             return true;
@@ -249,6 +379,18 @@ public class EditorMenuScreen extends AbstractMenuScreen {
         return super.mouseScrolled(x, y, scrollX, scrollY);
     }
 
+    @Override
+    public boolean keyPressed(KeyEvent event) {
+        if (event.key() == InputConstants.KEY_Q) {
+            rot -= Math.toRadians( event.hasShiftDown()? 3: 10);
+            return true;
+        }
+        if (event.key() == InputConstants.KEY_E) {
+            rot += Math.toRadians( event.hasShiftDown()? 3: 10);
+            return true;
+        }
+        return super.keyPressed(event);
+    }
 
     double mouseXo = 0;
 
@@ -263,7 +405,7 @@ public class EditorMenuScreen extends AbstractMenuScreen {
         mouseY = y;
         MousePos localMousePosO = getLocalMousePos(mouseXo, mouseYo);
         MousePos localMousePos = getLocalMousePos(mouseX, mouseY);
-        if (mouseDown && carriedItem == null && (KeyBinding.hasAltDown() || KeyBinding.hasShiftDown())) {
+        if (!editTool.equals(EditTool.ARROW) && mouseDown) {
             int x0 = localMousePosO.x() - guiLeft;
             int y0 = localMousePosO.y() - guiTop;
             int x1 = localMousePos.x() - guiLeft;
@@ -273,7 +415,7 @@ public class EditorMenuScreen extends AbstractMenuScreen {
             int dy = Math.abs(y1 - y0);
             int steps = Math.max(dx, dy);
 
-            int color = KeyBinding.hasShiftDown() ? -1 : 0;
+            int color = editTool.equals(EditTool.PEN) ? -1 : 0;
             if (steps > 0) {
                 for (int i = 0; i <= steps; i++) {
                     int px = x0 + (x1 - x0) * i / steps;

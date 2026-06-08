@@ -21,7 +21,12 @@ public enum Textures {
     LEFT_ARROW("textures/gui/buttons.png", 16, 0, 16, 16, 3, 16, 16, 16, 32),
     CHECK("textures/gui/buttons.png", 32, 0, 16, 16, 1, 32, 16, 32, 32),
     SCROLL_BKG("textures/gui/scroll_screen.png", 14, 4, 228, 132, 0),
-    MENU_BKG("textures/gui/menu.png", 48, 13, 160, 230, 0)
+    MENU_BKG("textures/gui/menu.png", 48, 13, 160, 230, 0),
+    EDITOR_BUTTON("textures/gui/menu.png", 0 ,32, 16, 16, 1, 0, 48),
+    EDITOR_TOOL_PENCIL("textures/gui/menu.png", 0 ,0, 16, 16, 0),
+    EDITOR_TOOL_ERASER("textures/gui/menu.png", 16 ,0, 16, 16, 0),
+    EDITOR_TOOL_ARROW("textures/gui/menu.png", 32 ,0, 16, 16, 0),
+
 
 
     ;

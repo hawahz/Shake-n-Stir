@@ -28,7 +28,7 @@ public abstract class AbstractMenuScreen extends BaseScreen {
     public static final int PAINTER_WIDTH = 256;
     public static final int PAINTER_HEIGHT = 256;
     protected final BarMenuBlockEntity cachedBlockEntity;
-    protected final double rot;
+    protected double rot;
     protected final DynamicTexture nativeImage = new DynamicTexture("editor", PAINTER_WIDTH, PAINTER_HEIGHT, true);
     protected int maxSlots = 0;
     protected float visualSelect = -1;
@@ -144,8 +144,6 @@ public abstract class AbstractMenuScreen extends BaseScreen {
     protected void init() {
         setTextureSize(Textures.MENU_BKG.getWidth(), Textures.MENU_BKG.getHeight());
         super.init();
-        int x = guiLeft;
-        int y = guiTop + 2;
     }
 
     @Override
