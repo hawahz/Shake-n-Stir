@@ -34,7 +34,6 @@ public class SetLookAndInteractNew {
                                             return false;
                                         }
                                     }
-                                    assert !closest.isEmpty() || !closestFallback.isEmpty();
                                     LivingEntity closestEntity = closest.orElse(closestFallback.orElse(null));
                                     interactionTarget.set(closestEntity);
                                     lookTarget.set(new EntityTracker(closestEntity, true));

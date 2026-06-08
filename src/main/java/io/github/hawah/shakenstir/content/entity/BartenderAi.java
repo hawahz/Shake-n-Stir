@@ -207,7 +207,8 @@ public class BartenderAi {
                                             Pair.of(new DoNothing(30, 60), 1)
                                     )
                             )
-                    )
+                    ),
+                    Pair.of(0, CheckRecipeTodo.create())
             );
         }
 

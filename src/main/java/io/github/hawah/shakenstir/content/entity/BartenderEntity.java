@@ -8,6 +8,7 @@ import io.github.hawah.shakenstir.client.animation.AnimationStateMachine;
 import io.github.hawah.shakenstir.client.animation.ShakeAnimationState;
 import io.github.hawah.shakenstir.client.render.entity.BartenderModel;
 import io.github.hawah.shakenstir.content.blockEntity.BarMenuBlockEntity;
+import io.github.hawah.shakenstir.content.data.SnsRecipeStack;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.entity.ai.activity.Activities;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
@@ -46,6 +47,8 @@ import net.minecraft.world.scores.PlayerTeam;
 import org.jspecify.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 
@@ -150,6 +153,9 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         if (getBrain().getActiveNonCoreActivity().map(activity -> Activities.PRODUCT.get().equals(activity)).orElse(false)) {
             return;
         }
+        if (getBrain().checkMemory(Memories.RECIPES_TODO.get(), MemoryStatus.VALUE_PRESENT)) {
+            return;
+        }
         getBrain().setMemory(MemoryModuleType.INTERACTION_TARGET, customer);
         this.getBrain().getMemory(Memories.MENU.get()).ifPresent(
                 menu -> {
@@ -163,17 +169,26 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
                     if (this.getBrain().checkMemory(Memories.RECIPE.get(), MemoryStatus.VALUE_PRESENT)) {
                         return;
                     }
-                    blockEntity.recipes
+                    List<SnsRecipeStack> recipes = new ArrayList<>(blockEntity.recipes
                             .stream()
-                            .filter(item ->
-                                    item.right().count > 0)
-                            .findFirst()
-                            .ifPresent(item -> {
-                                getBrain().setMemory(Memories.RECIPE.get(), item.left().copy());
-                                item.right().count--;
-                                blockEntity.markChanged();
-                            }
-                    );
+                            .filter(item -> item.right().count > 0)
+                            .map(
+                                    recipe -> new SnsRecipeStack(recipe.left(), recipe.right().count)
+                            )
+                            .toList());
+                    if (!recipes.isEmpty()){
+                        getBrain().setMemory(Memories.RECIPE.get(), recipes.getFirst().holder());
+                        recipes.getFirst().shrink();
+                        if (recipes.getFirst().isEmpty()) {
+                            recipes.removeFirst();
+                        }
+                        if (!recipes.isEmpty()) {
+                            getBrain().setMemory(Memories.RECIPES_TODO.get(), recipes);
+                        }
+                    }
+                    for (int i = 0; i < blockEntity.recipes.size(); i++) {
+                        blockEntity.setRecipeCount(i, 0);
+                    }
                 }
         );
     }
@@ -276,7 +291,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
                     .append(getItemInHand(InteractionHand.MAIN_HAND));
             player.sendSystemMessage(Component.literal(sb.toString()));
         }else {
-            alertCustomerOrdered(player);
+//            alertCustomerOrdered(player);
         }
         return super.mobInteract(player, hand);
     }

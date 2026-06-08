@@ -17,7 +17,7 @@ public class MemoryEntitiesHolder<T extends LivingEntity> {
     private final List<T> ignoredEntities;
     private final Predicate<T> lineOfSightTest;
 
-    private MemoryEntitiesHolder() {
+    public MemoryEntitiesHolder() {
         this.ignoredEntities = List.of();
         this.lineOfSightTest = ignored -> false;
     }

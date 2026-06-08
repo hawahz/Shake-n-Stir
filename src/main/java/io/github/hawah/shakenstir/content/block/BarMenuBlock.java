@@ -17,6 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -129,9 +130,54 @@ public class BarMenuBlock extends HorizontalDirectionalBlock implements EntityBl
             if (entity instanceof Player playerPlacer) {
                 playerPlacer.sendOverlayMessage(Component.literal("alert"));
             } else if (entity instanceof BartenderEntity bartender) {
-                bartender.alertCustomerOrdered(player);
+                var itemStacks = new ArrayList<>(blockEntity.getRecipeCosts().stream().map(ItemStack::copy).toList());
+                
+                if (!level.isClientSide()) {
+                    if (player.isCreative()) {
+                        bartender.alertCustomerOrdered(player);
+                        return InteractionResult.SUCCESS;
+                    }
+                    // 检查玩家背包是否包含所有所需物品
+                    boolean hasAll = true;
+                    for (ItemStack cost : itemStacks) {
+                        int needed = cost.getCount();
+                        int found = 0;
+                        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+                            ItemStack slot = player.getInventory().getItem(i);
+                            if (ItemStack.isSameItemSameComponents(cost, slot)) {
+                                found += slot.getCount();
+                            }
+                        }
+                        if (found < needed) {
+                            hasAll = false;
+                            break;
+                        }
+                    }
+                
+                    if (hasAll) {
+                        // 消耗物品
+                        for (ItemStack cost : itemStacks) {
+                            int remaining = cost.getCount();
+                            for (int i = 0; i < player.getInventory().getContainerSize() && remaining > 0; i++) {
+                                ItemStack slot = player.getInventory().getItem(i);
+                                if (ItemStack.isSameItemSameComponents(cost, slot)) {
+                                    int toRemove = Math.min(remaining, slot.getCount());
+                                    slot.shrink(toRemove);
+                                    remaining -= toRemove;
+                                }
+                            }
+                        }
+                        bartender.alertCustomerOrdered(player);
+                        return InteractionResult.SUCCESS;
+                    }
+                }
             }
         }
         return super.useWithoutItem(state, level, pos, player, hitResult);
+    }
+
+    @Override
+    protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+        return level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP);
     }
 }

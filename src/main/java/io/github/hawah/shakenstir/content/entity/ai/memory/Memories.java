@@ -4,6 +4,7 @@ package io.github.hawah.shakenstir.content.entity.ai.memory;
 import com.mojang.serialization.Codec;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
+import io.github.hawah.shakenstir.content.data.SnsRecipeStack;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.util.Unit;
@@ -26,6 +27,7 @@ public class Memories {
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> IDLING = register("idling", Unit.CODEC);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> RECIPE_READY = register("recipe_ready", Unit.CODEC);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<SnsRecipeHolder>> RECIPE = register("recipe", SnsRecipeHolder.CODEC);
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<List<SnsRecipeStack>>> RECIPES_TODO = register("recipes_todo", SnsRecipeStack.CODEC.listOf());
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<MemoryEntitiesHolder<Player>>> UNSERVED_CUSTOMER = register("unserved_customer");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<BarData>> BAR_MEMORY = register("bar_memory", BarData.CODEC);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<List<Ingredient>>> ITEM_TO_FIND = register("item_to_find", Ingredient.CODEC.listOf());
