@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.client.gui;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import io.github.hawah.shakenstir.ShakenStir;
+import io.github.hawah.shakenstir.client.gui.utils.ColorPicker;
 import io.github.hawah.shakenstir.client.gui.utils.EditTool;
 import io.github.hawah.shakenstir.content.blockEntity.BarMenuBlockEntity;
 import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
@@ -43,6 +44,7 @@ public class EditorMenuScreen extends AbstractMenuScreen {
     private boolean dirty = false;
     private int brushSize = 3;
     private EditTool editTool = EditTool.ARROW;
+    private ColorPicker colorPicker;
 
     @Override
     protected void init() {
@@ -122,6 +124,15 @@ public class EditorMenuScreen extends AbstractMenuScreen {
         buttonGroup.addButton(eraser);
 
         this.addRenderableWidget(eraser);
+
+        colorPicker = new ColorPicker(
+                x - 50,
+                y + 16 * 3,
+                64,
+                64,
+                Component.empty()
+        );
+        this.addRenderableWidget(colorPicker);
     }
 
     @Override
@@ -187,6 +198,24 @@ public class EditorMenuScreen extends AbstractMenuScreen {
                     Textures.EDITOR_TOOL_PENCIL.getStartY(),
                     Textures.EDITOR_TOOL_PENCIL.getWidth(),
                     Textures.EDITOR_TOOL_PENCIL.getHeight(),
+                    -1
+            );
+            guiGraphics.fill(
+                    x + 16 + 1,
+                    y + 16 + 5,
+                    x + 16 + 6,
+                    y + 16 + 12,
+                    colorPicker.getColor()
+            );
+            BaseScreen.blit(
+                    guiGraphics,
+                    Textures.EDITOR_BUTTON.getResource(),
+                    x+16,
+                    y + 16,
+                    Textures.EDITOR_BUTTON.getStartX() + 16,
+                    Textures.EDITOR_BUTTON.getStartY(),
+                    Textures.EDITOR_BUTTON.getWidth(),
+                    Textures.EDITOR_BUTTON.getHeight(),
                     -1
             );
             BaseScreen.blit(
@@ -364,7 +393,7 @@ public class EditorMenuScreen extends AbstractMenuScreen {
         prevSelect = currentSelect;
         if (KeyBinding.hasControlDown() && !editTool.equals(EditTool.ARROW)) {
             brushSize += (int) Math.round(scrollY);
-            brushSize = Mth.clamp(brushSize, 1, 24);
+            brushSize = Mth.clamp(brushSize, 1, 128);
             return true;
         }
         if (currentSelect >= 0 && currentSelect < cachedBlockEntity.recipes.size()) {
@@ -415,7 +444,7 @@ public class EditorMenuScreen extends AbstractMenuScreen {
             int dy = Math.abs(y1 - y0);
             int steps = Math.max(dx, dy);
 
-            int color = editTool.equals(EditTool.PEN) ? -1 : 0;
+            int color = editTool.equals(EditTool.PEN) ? colorPicker.getColor() : 0;
             if (steps > 0) {
                 for (int i = 0; i <= steps; i++) {
                     int px = x0 + (x1 - x0) * i / steps;
