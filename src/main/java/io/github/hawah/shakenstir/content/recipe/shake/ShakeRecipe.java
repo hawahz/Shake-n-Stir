@@ -228,6 +228,7 @@ public record ShakeRecipe(
                 quality,
                 iceCount
         ));
+        resultItem.set(DataComponents.ITEM_NAME, CocktailTypes.SUSPICIOUS_VALUE.translate(recipeInput.fluidStacks(), recipeInput.items()));
         return resultItem;
     }
 

@@ -32,7 +32,7 @@ public class CocktailTypes {
 
     ));
     public static final CocktailType SUSPICIOUS_VALUE = new CocktailType(ShakenStir.asResource("suspicious"), List.of(
-            EffectData.cocktail(MobEffects.POISON, MobEffects.POISON)
+            EffectData.suspicious()
     ));
 
     public static final ResourceKey<CocktailType> SOUR = cocktailKey("sour");

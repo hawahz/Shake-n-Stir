@@ -172,6 +172,11 @@ public class DataComponentTypeRegistries {
             builder -> builder.persistent(Unit.CODEC).networkSynchronized(Unit.STREAM_CODEC)
     );
 
+    public static final DataComponentType<Unit> UNPLACEABLE = register(
+            "unplaceable",
+            builder -> builder.persistent(Unit.CODEC).networkSynchronized(Unit.STREAM_CODEC)
+    );
+
     public static void register(IEventBus eventBus) {
         DATA_COMPONENT.register(eventBus);
     }

@@ -32,6 +32,7 @@ public class SnsCreativeTab {
                 output.accept(ItemRegistries.RUM.get());
                 output.accept(ItemRegistries.TEQUILA.get());
                 output.accept(ItemRegistries.BRANDY.get());
+                output.accept(ItemRegistries.BUBBLE.get());
                 output.accept(createLongDrink("collins_glass"));
                 output.accept(createShortDrink("martini_glass"));
                 output.accept(createShortDrink("margarita_glass"));

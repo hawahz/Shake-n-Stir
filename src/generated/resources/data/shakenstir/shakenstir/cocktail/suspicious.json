@@ -4,43 +4,47 @@
       "negative": "minecraft:poison",
       "negativeLevNDur": [
         {
-          "duration": 400,
-          "level": 0
+          "duration": 60,
+          "level": 1
         },
         {
-          "duration": 600,
-          "level": 0
-        },
-        {
-          "duration": 900,
+          "duration": 20,
           "level": 1
         },
         {
           "duration": 1200,
-          "level": 2
+          "level": 1
+        },
+        {
+          "duration": 1200,
+          "level": 1
+        },
+        {
+          "duration": 2400,
+          "level": 1
         }
       ],
       "positive": "minecraft:poison",
       "positiveLevNDur": [
         {
-          "duration": 1800,
-          "level": 0
-        },
-        {
-          "duration": 2400,
-          "level": 0
-        },
-        {
-          "duration": 2400,
+          "duration": 800,
           "level": 1
         },
         {
-          "duration": 3000,
+          "duration": 600,
           "level": 1
         },
         {
-          "duration": 3600,
-          "level": 2
+          "duration": 400,
+          "level": 0
+        },
+        {
+          "duration": 60,
+          "level": 0
+        },
+        {
+          "duration": 0,
+          "level": 0
         }
       ]
     }

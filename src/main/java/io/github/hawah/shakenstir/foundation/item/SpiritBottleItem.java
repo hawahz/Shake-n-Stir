@@ -9,6 +9,7 @@ import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.BaseFluidType;
 import io.github.hawah.shakenstir.foundation.block.DistillerPart;
+import io.github.hawah.shakenstir.foundation.tags.SnsFluidTags;
 import io.github.hawah.shakenstir.lib.util.Scheduler;
 import io.github.hawah.shakenstir.util.ShakeClientHooks;
 import net.minecraft.client.Minecraft;
@@ -56,6 +57,9 @@ public class SpiritBottleItem extends BlockItem {
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
+        if (context.getItemInHand().has(DataComponentTypeRegistries.UNPLACEABLE)) {
+            return InteractionResult.FAIL;
+        }
         BlockState blockState = context.getLevel().getBlockState(context.getClickedPos());
         if (blockState.hasProperty(Distiller.PART) && blockState.getValue(Distiller.PART).equals(DistillerPart.PIPE)) {
             return InteractionResult.FAIL;
@@ -154,10 +158,12 @@ public class SpiritBottleItem extends BlockItem {
         }
         FluidStack fluidStack = itemStack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY).fluidStack();
         itemStack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(fluidStack.copyWithAmount(fluidStack.getAmount() - 250)));
-        entity.addEffect(new MobEffectInstance(
-                MobEffectRegistries.DRUNK,
-                600
-        ));
+        if (fluidStack.is(SnsFluidTags.SPIRIT)){
+            entity.addEffect(new MobEffectInstance(
+                    MobEffectRegistries.DRUNK,
+                    600
+            ));
+        }
         return super.finishUsingItem(itemStack, level, entity);
     }
 

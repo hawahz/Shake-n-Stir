@@ -93,8 +93,8 @@ public record EffectData(
     public static EffectData suspicious() {
         return of(
                 MobEffects.POISON, MobEffects.POISON,
-                List.of(0, 0, 0, 1, 1), List.of(90 * 20, 120 * 20, 120 * 20, 150 * 20, 180 * 20),
-                List.of(0, 0, 1, 1), List.of(20 * 20, 30 * 20, 45 * 20, 60 * 20)
+                List.of(1, 1, 0, 0, 0), List.of(40 * 20, 30 * 20, 20 * 20, 3 * 20, 0),
+                List.of(1, 1, 1, 1), List.of(60, 20, 60 * 20, 60 * 20, 120 * 20)
         );
     }
 

@@ -402,8 +402,6 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
         body.getBrain().eraseMemory(Memories.RECIPE_READY.get());
         body.getBrain().getMemory(Memories.RECIPE.get()).ifPresent(
                 recipe -> {
-                    System.out.println("Shaken stir: " + recipe.name());
-
                     NonNullList<ItemStack> inventory = body.getInventory();
 
                     for (ItemStack requiredItem : recipe.requiredItems()) {
