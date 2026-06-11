@@ -44,13 +44,13 @@ public class BlockRegistries {
 
     public static final DeferredBlock<Cabinet> CABINET = register("cabinet", Cabinet::new);
 
-    public static final DeferredBlock<LiquidBlock> GIN_LIQUID = registerLiquid("gin_liquid", FluidRegistries.GIN_SOURCE_FLUID_BLOCK);
-    public static final DeferredBlock<LiquidBlock> VODKA_LIQUID = registerLiquid("vodka_liquid", FluidRegistries.VODKA_FLOWING_FLUID_BLOCK);
-    public static final DeferredBlock<LiquidBlock> WHISKY_LIQUID = registerLiquid("whisky_liquid", FluidRegistries.WHISKY_FLOWING_FLUID_BLOCK);
-    public static final DeferredBlock<LiquidBlock> RUM_LIQUID = registerLiquid("rum_liquid", FluidRegistries.RUM_FLOWING_FLUID_BLOCK);
-    public static final DeferredBlock<LiquidBlock> TEQUILA_LIQUID = registerLiquid("tequila_liquid", FluidRegistries.TEQUILA_FLOWING_FLUID_BLOCK);
-    public static final DeferredBlock<LiquidBlock> BRANDY_LIQUID = registerLiquid("brandy_liquid", FluidRegistries.BRANDY_FLOWING_FLUID_BLOCK);
-    public static final DeferredBlock<LiquidBlock> BUBBLE_LIQUID = registerLiquid("bubble_liquid", FluidRegistries.BRANDY_FLOWING_FLUID_BLOCK);
+    public static final DeferredBlock<LiquidBlock> GIN_LIQUID = registerLiquid("gin_liquid", FluidRegistries.GIN_SOURCE);
+    public static final DeferredBlock<LiquidBlock> VODKA_LIQUID = registerLiquid("vodka_liquid", FluidRegistries.VODKA_FLOWING);
+    public static final DeferredBlock<LiquidBlock> WHISKY_LIQUID = registerLiquid("whisky_liquid", FluidRegistries.WHISKY_FLOWING);
+    public static final DeferredBlock<LiquidBlock> RUM_LIQUID = registerLiquid("rum_liquid", FluidRegistries.RUM_FLOWING);
+    public static final DeferredBlock<LiquidBlock> TEQUILA_LIQUID = registerLiquid("tequila_liquid", FluidRegistries.TEQUILA_FLOWING);
+    public static final DeferredBlock<LiquidBlock> BRANDY_LIQUID = registerLiquid("brandy_liquid", FluidRegistries.BRANDY_FLOWING);
+    public static final DeferredBlock<LiquidBlock> BUBBLE_LIQUID = registerLiquid("bubble_liquid", FluidRegistries.BRANDY_FLOWING);
 
     public static final DeferredBlock<BarMenuBlock> BAR_MENU_BLOCK = register("bar_menu", BarMenuBlock::new);
     public static final DeferredBlock<BarCounterBlock> BAR_COUNTER_BLOCK = register("bar_counter", BarCounterBlock::new);

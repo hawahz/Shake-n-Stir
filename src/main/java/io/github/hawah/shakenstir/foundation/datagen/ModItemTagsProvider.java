@@ -24,10 +24,12 @@ public class ModItemTagsProvider extends ItemTagsProvider {
                 .add(
                         ItemRegistries.GIN.get(),
                         ItemRegistries.WHISKY.get()
-                );
+                )
+        ;
         this.tag(SnsItemTags.SOUR)
                 .add(Items.ROTTEN_FLESH)
-                .addTag(Tags.Items.FOODS_FRUIT);
+                .addTag(Tags.Items.FOODS_FRUIT)
+        ;
 
         this.tag(SnsItemTags.SWEET)
                 .addTag(Tags.Items.DRINKS_HONEY)
@@ -35,36 +37,40 @@ public class ModItemTagsProvider extends ItemTagsProvider {
                 //.addTag(Tags.Items.FOODS_CANDY)
                 .add(Items.HONEYCOMB)
                 .add(Items.HONEY_BOTTLE)
-                .add(Items.SUGAR);
+                .add(Items.SUGAR)
+        ;
 
         this.tag(SnsItemTags.BITTER)
                 .add(Items.SPIDER_EYE)
                 .addTag(Tags.Items.DRINKS_OMINOUS)
-                ;
+        ;
         this.tag(SnsItemTags.SHAKE_PLACABLE)
                 .addTags(SnsItemTags.SOUR, SnsItemTags.SWEET, SnsItemTags.BITTER)
                 .add(ItemRegistries.ICE_CUBE.get())
-                ;
-        this.tag(SnsItemTags.BUBBLE_LIKE);
+        ;
+        this.tag(SnsItemTags.BUBBLE_LIKE)
+                //.add(ItemRegistries.TONIC.get())
+        ;
         this.tag(SnsItemTags.GLASSWARE);
         this.tag(SnsItemTags.BLOCK_LIKE_DRINK_DECORATION)
                 .addTag(Tags.Items.FLOWERS_SMALL)
-
-                ;
+        ;
         this.tag(SnsItemTags.ITEM_LIKE_DRINK_DECORATION)
                 .add(Items.MELON_SLICE)
                 .add(Items.SWEET_BERRIES)
                 .add(Items.GLOW_BERRIES)
                 .add(Items.BAMBOO)
                 .add(ItemRegistries.LEMON_SLICE.get())
-                .add();
+                .add()
+        ;
         this.tag(SnsItemTags.DRINK_DECORATION)
-                .addTags(SnsItemTags.BLOCK_LIKE_DRINK_DECORATION, SnsItemTags.ITEM_LIKE_DRINK_DECORATION);
+                .addTags(SnsItemTags.BLOCK_LIKE_DRINK_DECORATION, SnsItemTags.ITEM_LIKE_DRINK_DECORATION)
+        ;
         this.tag(SnsItemTags.DISTILLER_PLACE_BANNED)
                 .addTag(Tags.Items.BUCKETS)
-                ;
+        ;
         this.tag(ItemTags.DURABILITY_ENCHANTABLE)
                 .add(ItemRegistries.BARTENDER_GLOVE.get())
-                ;
+        ;
     }
 }

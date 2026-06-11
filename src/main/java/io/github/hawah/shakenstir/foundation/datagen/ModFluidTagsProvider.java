@@ -21,22 +21,22 @@ public class ModFluidTagsProvider extends FluidTagsProvider {
     @Override
     protected void addTags(HolderLookup.Provider registries) {
         this.tag(SnsFluidTags.GIN)
-                .add(FluidRegistries.GIN_SOURCE_FLUID_BLOCK.get());
+                .add(FluidRegistries.GIN_SOURCE.get());
 
         this.tag(SnsFluidTags.VODKA)
-                .add(FluidRegistries.VODKA_SOURCE_FLUID_BLOCK.get());
+                .add(FluidRegistries.VODKA_SOURCE.get());
 
         this.tag(SnsFluidTags.WHISKY)
-                .add(FluidRegistries.WHISKY_SOURCE_FLUID_BLOCK.get());
+                .add(FluidRegistries.WHISKY_SOURCE.get());
 
         this.tag(SnsFluidTags.BRANDY)
-                .add(FluidRegistries.BRANDY_SOURCE_FLUID_BLOCK.get());
+                .add(FluidRegistries.BRANDY_SOURCE.get());
 
         this.tag(SnsFluidTags.RUM)
-                .add(FluidRegistries.RUM_SOURCE_FLUID_BLOCK.get());
+                .add(FluidRegistries.RUM_SOURCE.get());
 
         this.tag(SnsFluidTags.TEQUILA)
-                .add(FluidRegistries.TEQUILA_SOURCE_FLUID_BLOCK.get());
+                .add(FluidRegistries.TEQUILA_SOURCE.get());
 
         this.tag(SnsFluidTags.SPIRIT)
                 .addTags(SnsFluidTags.GIN, SnsFluidTags.VODKA, SnsFluidTags.WHISKY, SnsFluidTags.BRANDY, SnsFluidTags.RUM, SnsFluidTags.TEQUILA);
@@ -44,14 +44,18 @@ public class ModFluidTagsProvider extends FluidTagsProvider {
         this.tag(Tags.Fluids.HIDDEN_FROM_RECIPE_VIEWERS).addTag(SnsFluidTags.SPIRIT);
 
         this.tag(SnsFluidTags.BUBBLE_LIKE)
-                .add(FluidRegistries.BUBBLE_SOURCE_FLUID_BLOCK.get());
+                .add(FluidRegistries.BUBBLE_SOURCE.get())
+                .add(FluidRegistries.TONIC_SOURCE.get())
+        ;
 
         this.tag(SnsFluidTags.SWEET)
                 .addTag(Tags.Fluids.HONEY);
 
         this.tag(SnsFluidTags.SOUR)
                 ;
-        this.tag(SnsFluidTags.BITTER);
+        this.tag(SnsFluidTags.BITTER)
+                .add(FluidRegistries.BITTERS_SOURCE.get())
+        ;
         this.tag(SnsFluidTags.JUICE)
                 ;
     }

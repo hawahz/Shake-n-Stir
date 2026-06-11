@@ -189,27 +189,27 @@ public class ScrollScreen extends BaseScreen {
         for (int i = 0; i < snsRecipeHolder.requiredFluids().size(); i++) {
             FluidStack fluidStack = snsRecipeHolder.requiredFluids().get(i);
             ItemStack stack;
-            if (fluidStack.is(FluidRegistries.GIN_SOURCE_FLUID_BLOCK)) {
+            if (fluidStack.is(FluidRegistries.GIN_SOURCE)) {
                 stack = ItemRegistries.GIN.toStack();
                 stack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(fluidStack));
             }
-            else if (fluidStack.is(FluidRegistries.BRANDY_SOURCE_FLUID_BLOCK)) {
+            else if (fluidStack.is(FluidRegistries.BRANDY_SOURCE)) {
                 stack = ItemRegistries.BRANDY.toStack();
                 stack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(fluidStack));
             }
-            else if (fluidStack.is(FluidRegistries.VODKA_SOURCE_FLUID_BLOCK)) {
+            else if (fluidStack.is(FluidRegistries.VODKA_SOURCE)) {
                 stack = ItemRegistries.VODKA.toStack();
                 stack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(fluidStack));
             }
-            else if (fluidStack.is(FluidRegistries.WHISKY_SOURCE_FLUID_BLOCK)) {
+            else if (fluidStack.is(FluidRegistries.WHISKY_SOURCE)) {
                 stack = ItemRegistries.WHISKY.toStack();
                 stack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(fluidStack));
             }
-            else if (fluidStack.is(FluidRegistries.TEQUILA_SOURCE_FLUID_BLOCK)) {
+            else if (fluidStack.is(FluidRegistries.TEQUILA_SOURCE)) {
                 stack = ItemRegistries.TEQUILA.toStack();
                 stack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(fluidStack));
             }
-            else if (fluidStack.is(FluidRegistries.RUM_SOURCE_FLUID_BLOCK)) {
+            else if (fluidStack.is(FluidRegistries.RUM_SOURCE)) {
                 stack = ItemRegistries.RUM.toStack();
                 stack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(fluidStack));
             }

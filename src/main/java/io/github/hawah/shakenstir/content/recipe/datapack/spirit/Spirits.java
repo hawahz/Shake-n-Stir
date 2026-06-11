@@ -44,12 +44,12 @@ public class Spirits {
     private static final Map<ResourceKey<SpiritData>, SpiritData> ENTRIES = new LinkedHashMap<>();
 
     static {
-        ENTRIES.put(BRANDY, new SpiritData(FluidRegistries.BRANDY_SOURCE_FLUID_BLOCK, BRANDY_EFFECT));
-        ENTRIES.put(GIN, new SpiritData(FluidRegistries.GIN_SOURCE_FLUID_BLOCK, GIN_EFFECT));
-        ENTRIES.put(RUM, new SpiritData(FluidRegistries.RUM_SOURCE_FLUID_BLOCK, RUM_EFFECT));
-        ENTRIES.put(VODKA, new SpiritData(FluidRegistries.VODKA_SOURCE_FLUID_BLOCK, VODKA_EFFECT));
-        ENTRIES.put(WHISKEY, new SpiritData(FluidRegistries.WHISKY_SOURCE_FLUID_BLOCK, WHISKEY_EFFECT));
-        ENTRIES.put(TEQUILA, new SpiritData(FluidRegistries.TEQUILA_SOURCE_FLUID_BLOCK, TEQUILA_EFFECT));
+        ENTRIES.put(BRANDY, new SpiritData(FluidRegistries.BRANDY_SOURCE, BRANDY_EFFECT));
+        ENTRIES.put(GIN, new SpiritData(FluidRegistries.GIN_SOURCE, GIN_EFFECT));
+        ENTRIES.put(RUM, new SpiritData(FluidRegistries.RUM_SOURCE, RUM_EFFECT));
+        ENTRIES.put(VODKA, new SpiritData(FluidRegistries.VODKA_SOURCE, VODKA_EFFECT));
+        ENTRIES.put(WHISKEY, new SpiritData(FluidRegistries.WHISKY_SOURCE, WHISKEY_EFFECT));
+        ENTRIES.put(TEQUILA, new SpiritData(FluidRegistries.TEQUILA_SOURCE, TEQUILA_EFFECT));
     }
 
     public static ResourceKey<SpiritData> spiritKey(String name) {

@@ -15,6 +15,7 @@ public class BaseFluidType extends FluidType {
     private final int tintColor;
     // 从流体中看外面的雾的颜色
     private final Vector3f fogColor;
+    private final int alcoholContent;
     /**
      * Default constructor.
      *
@@ -22,12 +23,18 @@ public class BaseFluidType extends FluidType {
      */
     public BaseFluidType(final Identifier stillTexture, final Identifier flowingTexture, final Identifier overlayTexture,
                          final int tintColor, final Vector3f fogColor, final Properties properties) {
+        this(stillTexture, flowingTexture, overlayTexture, tintColor, fogColor, properties, 45);
+    }
+
+    public BaseFluidType(final Identifier stillTexture, final Identifier flowingTexture, final Identifier overlayTexture,
+                         final int tintColor, final Vector3f fogColor, final Properties properties, final int alcoholContent) {
         super(properties);
         this.stillTexture = stillTexture;
         this.flowingTexture = flowingTexture;
         this.overlayTexture = overlayTexture;
         this.tintColor = tintColor;
         this.fogColor = fogColor;
+        this.alcoholContent = alcoholContent;
     }
 
     // 对应的get函数
@@ -54,6 +61,10 @@ public class BaseFluidType extends FluidType {
     @Override
     public Component getDescription(FluidStack stack) {
         return Component.empty().append(super.getDescription(stack)).withColor(getTintColor());
+    }
+
+    public int getAlcoholContent() {
+        return alcoholContent;
     }
 
     // 对于我们的几个纹理，如果如果想生效的话，就需要重写这个方法，在对于的方法将我们的RL的资源定位的图片返回。

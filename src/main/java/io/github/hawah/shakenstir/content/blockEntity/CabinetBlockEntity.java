@@ -1,6 +1,7 @@
 package io.github.hawah.shakenstir.content.blockEntity;
 
 import io.github.hawah.shakenstir.content.block.Cabinet;
+import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.foundation.item.SpiritBottleItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
@@ -49,7 +50,7 @@ public class CabinetBlockEntity extends AutoUpdateBlockEntity implements ItemOwn
     }
 
     public boolean putSpirit(int slot, ItemStack stack) {
-        if (!this.contents.get(slot).isEmpty()) {
+        if (!this.contents.get(slot).isEmpty() || stack.has(DataComponentTypeRegistries.UNPLACEABLE)) {
             return false;
         }
         if (!(stack.getItem() instanceof SpiritBottleItem)) {
