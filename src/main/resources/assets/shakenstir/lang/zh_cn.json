@@ -15,7 +15,6 @@
   "fluid_type.shakenstir.whisky_fluid_type": "威士忌",
   "item.shakenstir.bottle": "酒瓶",
   "item.shakenstir.brandy": "白兰地",
-  "item.shakenstir.bubble": "气泡",
   "item.shakenstir.cabinet": "酒柜",
   "item.shakenstir.distiller": "蒸馏器",
   "item.shakenstir.gin": "金酒",
@@ -126,5 +125,10 @@
   "shakenstir.name.long_island_iced_tea": "长岛冰茶",
   "shakenstir.name.margarita": "玛格丽特",
   "shakenstir.name.mojito": "莫吉托",
-  "shakenstir.name.suspicious": "可疑的%s2%s1"
+  "shakenstir.name.suspicious": "可疑的%s2%s1",
+  "fluid_type.shakenstir.bitters_fluid_type": "苦精",
+  "fluid_type.shakenstir.tonic_fluid_type": "汤力",
+  "item.shakenstir.bitters": "苦精",
+  "item.shakenstir.bubbles": "气泡水",
+  "item.shakenstir.tonic": "汤力水"
 }

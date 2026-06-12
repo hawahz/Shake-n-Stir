@@ -8,6 +8,7 @@ import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistr
 import io.github.hawah.shakenstir.content.item.ShakerItem;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundShakeFinishPacket;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundShakePramTransmitPacket;
+import io.github.hawah.shakenstir.foundation.tags.SnsFluidTags;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.lib.client.handler.IHandler;
 import io.github.hawah.shakenstir.lib.client.render.EaseHelper;
@@ -244,7 +245,7 @@ public class ShakerHandler implements IHandler, GuiLayer {
     }
 
     public void finish() {
-        if (shakeSuccessTimes == 0) {
+        if (shakeSuccessTimes == 0 && ShakeUtil.getFluidStacks(getItem()).stream().noneMatch(fluidStack -> fluidStack.is(SnsFluidTags.BUBBLE_LIKE))){
             return;
         }
         assert getPlayer() != null;

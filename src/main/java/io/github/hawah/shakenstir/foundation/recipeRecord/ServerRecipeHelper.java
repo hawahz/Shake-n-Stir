@@ -51,6 +51,9 @@ public class ServerRecipeHelper {
             int shakeTimes,
             @Nullable ItemStack displayITem
     ) {
+        if (result.has(DataComponentTypeRegistries.SHAKE_BUBBLES)) {
+            return;
+        }
         recipes.compute(player.getUUID(), (_, queue) -> {
             queue = queue == null ? EvictingQueue.create(MAX_RECIPES) : queue;
             queue.add(new SnsRecipeHolder(type, itemStacks, fluidStacks, shakeTimes, result, displayITem));

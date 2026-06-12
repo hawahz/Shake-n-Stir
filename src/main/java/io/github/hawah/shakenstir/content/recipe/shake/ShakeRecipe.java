@@ -98,21 +98,23 @@ public record ShakeRecipe(
                 shakeAdditionTimes
         );
         resultItem.set(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY, quality);
-        resultItem.set(DataComponentTypeRegistries.DRINK_DATA, new DrinkData(
-                resultItem.get(DataComponentTypeRegistries.COCKTAIL_TYPE),
-                SpiritData.get(
-                        level,
-                        recipeInput.fluidStacks()
-                                .stream()
-                                .max(Comparator.comparing(FluidStack::getAmount))
-                                .orElseThrow()
-                                .typeHolder()
-                ),
-                List.of(),
-                List.of(),
-                quality,
-                iceCount
-        ));
+        if (!resultItem.has(DataComponentTypeRegistries.SHAKE_BUBBLES)){
+            resultItem.set(DataComponentTypeRegistries.DRINK_DATA, new DrinkData(
+                    resultItem.get(DataComponentTypeRegistries.COCKTAIL_TYPE),
+                    SpiritData.get(
+                            level,
+                            recipeInput.fluidStacks()
+                                    .stream()
+                                    .max(Comparator.comparing(FluidStack::getAmount))
+                                    .orElseThrow()
+                                    .typeHolder()
+                    ),
+                    List.of(),
+                    List.of(),
+                    quality,
+                    iceCount
+            ));
+        }
         applyResult(finalShakeSuccessTimes, recipeInput, mainHandItem, player, resultItem);
     }
 
@@ -391,5 +393,10 @@ public record ShakeRecipe(
         }
 
         return Math.max(0, score);
+    }
+
+    @Override
+    public String toString() {
+        return result.toString();
     }
 }

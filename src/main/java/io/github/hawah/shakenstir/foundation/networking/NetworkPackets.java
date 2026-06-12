@@ -25,6 +25,7 @@ public enum NetworkPackets implements BasePacketPayload.PacketTypeProvider {
     MENU_BE_BKG_CHANGED(ServerboundUploadBarMenuBkgPacket.class, ServerboundUploadBarMenuBkgPacket.STREAM_CODEC),
     REQUEST_BACKGROUND(ServerboundRequestBackgroundPacket.class, ServerboundRequestBackgroundPacket.STREAM_CODEC),
     MENU_UPDATE_BKG(ServerboundMenuBlockUpdateBackgroundPacket.class, ServerboundMenuBlockUpdateBackgroundPacket.STREAM_CODEC),
+    SHAKER_BUBBLED_EXPLODE(ServerboundShakerBubbledExplodePacket.class, ServerboundShakerBubbledExplodePacket.STREAM_CODEC),
     //S2C
     SHAKE_PARAM_SYNC(ClientboundShakeParamSyncPacket.class, ClientboundShakeParamSyncPacket.STREAM_CODEC),
     PLAYER_FALL_DOWN_OR_RECOVER(ClientboundPlayerFallDownOrRecoverPacket.class, ClientboundPlayerFallDownOrRecoverPacket.STREAM_CODEC),

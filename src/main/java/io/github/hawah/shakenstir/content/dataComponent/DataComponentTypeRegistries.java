@@ -177,6 +177,11 @@ public class DataComponentTypeRegistries {
             builder -> builder.persistent(Unit.CODEC).networkSynchronized(Unit.STREAM_CODEC)
     );
 
+    public static final DataComponentType<Identifier> DECORATE_MODEL = register(
+            "decorate_model",
+            builder -> builder.persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC)
+    );
+
     public static void register(IEventBus eventBus) {
         DATA_COMPONENT.register(eventBus);
     }

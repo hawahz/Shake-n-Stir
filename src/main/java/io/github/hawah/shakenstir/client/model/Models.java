@@ -35,7 +35,7 @@ public enum Models implements IModel<QuadCollection> {
     public static final Map<Identifier, Mutable> resourcePackModels = new HashMap<>();
 
     public static void registerModel(Identifier path) {
-        resourcePackModels.put(path, new Mutable(ShakenStir.asResource("glassware/" + path.getPath())));
+        resourcePackModels.put(path, new Mutable(ShakenStir.asResource("snsad/" + path.getPath())));
     }
 
     public static void registerGlassware(Identifier path) {
@@ -46,18 +46,29 @@ public enum Models implements IModel<QuadCollection> {
         for (Models model : Models.values()) {
             model.voxelShape.value = null;
         }
-        glasswareModels.clear();
         ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
-        FileToIdConverter MODEL_LISTER = FileToIdConverter.json("models/glassware");
-        Map<Identifier, Resource> resources = MODEL_LISTER.listMatchingResources(resourceManager);
+        FileToIdConverter GLASSWARE_MODEL_LISTER = FileToIdConverter.json("models/glassware");
+        Map<Identifier, Resource> resources = GLASSWARE_MODEL_LISTER.listMatchingResources(resourceManager);
         Models.glasswareModels.clear();
+        Models.resourcePackModels.clear();
+        resources.forEach(
+                (id, _) -> {
+                    if (!id.getNamespace().equals(ShakenStir.MODID)) {
+                        return;
+                    }
+                    String key = id.getPath().substring(GLASSWARE_MODEL_LISTER.prefix().length() + 1, id.getPath().length() - GLASSWARE_MODEL_LISTER.extension().length());
+                    Models.registerGlassware(ShakenStir.asResource(key));
+                }
+        );
+        FileToIdConverter MODEL_LISTER = FileToIdConverter.json("models/snsad");
+        resources = MODEL_LISTER.listMatchingResources(resourceManager);
         resources.forEach(
                 (id, _) -> {
                     if (!id.getNamespace().equals(ShakenStir.MODID)) {
                         return;
                     }
                     String key = id.getPath().substring(MODEL_LISTER.prefix().length() + 1, id.getPath().length() - MODEL_LISTER.extension().length());
-                    Models.registerGlassware(ShakenStir.asResource(key));
+                    Models.registerModel(ShakenStir.asResource(key));
                 }
         );
     }

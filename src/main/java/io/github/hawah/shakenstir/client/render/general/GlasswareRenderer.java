@@ -2,12 +2,15 @@ package io.github.hawah.shakenstir.client.render.general;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import io.github.hawah.shakenstir.client.model.Models;
 import io.github.hawah.shakenstir.client.model.glassware.GlasswareQuadCollection;
 import io.github.hawah.shakenstir.client.render.IGlasswareRenderState;
 import io.github.hawah.shakenstir.client.render.LiquidRenderer;
 import io.github.hawah.shakenstir.client.render.glassware.vertexConsumer.VerticalGradientVertexConsumer;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
+import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
+import io.github.hawah.shakenstir.util.IModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
@@ -26,11 +29,14 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Quaternionf;
 import org.joml.Vector3dc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class GlasswareRenderer {
     public static void submitGlassware(IGlasswareRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, float offsetX, float offsetZ, float rotate, boolean shouldReset) {
@@ -74,7 +80,21 @@ public class GlasswareRenderer {
             poseStack.pushPose();
             poseStack.translate(decoration.position().x, decoration.position().y, decoration.position().z);
             poseStack.mulPose(new Quaternionf(decoration.quaternionf()));
-            if (itemStack.is(SnsItemTags.BLOCK_LIKE_DRINK_DECORATION) && itemStack.getItem() instanceof BlockItem modelProvider) {
+            Identifier decorateModel;
+            VoxelShape shape = Shapes.empty();
+            ModelSelector selector = new ModelSelector();
+            if (itemStack.has(DataComponentTypeRegistries.DECORATE_MODEL) && (decorateModel = itemStack.get(DataComponentTypeRegistries.DECORATE_MODEL)) != null) {
+                Optional<IModel<?>> model = Models.getModel(decorateModel);
+                AtomicReference<VoxelShape> vs = new AtomicReference<>(shape);
+                model.ifPresent(deco -> {
+                    selector.select(deco);
+                    vs.set(deco.getShape());
+                });
+                shape = vs.get();
+                double size = shape.isEmpty()? 0.1 : shape.bounds().getSize();
+                float scale = (float) (0.225F / size);
+                selector.submit(poseStack, scale, submitNodeCollector, () -> lightCoords);
+            } else if (itemStack.is(SnsItemTags.BLOCK_LIKE_DRINK_DECORATION) && itemStack.getItem() instanceof BlockItem modelProvider) {
                 BlockState decorationState = modelProvider.getBlock().defaultBlockState();
                 BlockModelRenderState blockModelRenderState = new BlockModelRenderState();
                 Minecraft.getInstance().getBlockModelResolver().update(
@@ -141,4 +161,60 @@ public class GlasswareRenderer {
         }
     }
 
+    public static class ModelSelector {
+        private IModel<?> decoration;
+        private boolean isDecoration;
+        private BlockModelRenderState blockModelRenderState;
+        private boolean isBlock;
+        private ItemStackRenderState itemStackRenderState;
+        private boolean isItem;
+
+        public void select(IModel<?> decoration) {
+            this.decoration = decoration;
+            isDecoration = true;
+        }
+        public void select(BlockModelRenderState blockModelRenderState) {
+            this.blockModelRenderState = blockModelRenderState;
+            isBlock = true;
+        }
+        public void select(ItemStackRenderState itemStackRenderState) {
+            this.itemStackRenderState = itemStackRenderState;
+            isItem = true;
+        }
+
+        public void submit(PoseStack poseStack, float scale, SubmitNodeCollector submitNodeCollector, LightCoordsGetter state) {
+            if (isDecoration) {
+                decoration.submit(
+                        submitNodeCollector,
+                        poseStack,
+                        state.lightCord(),
+                        OverlayTexture.NO_OVERLAY
+                );
+            } else if (isBlock) {
+                poseStack.translate(-0.5 * scale, 0 * scale, -0.5 * scale);
+                poseStack.scale(scale, scale, scale);
+
+                blockModelRenderState.submit(
+                        poseStack,
+                        submitNodeCollector,
+                        state.lightCord(),
+                        OverlayTexture.NO_OVERLAY,
+                        0
+                );
+            } else if (isItem) {
+                poseStack.scale(scale, scale, scale * 2);
+                itemStackRenderState.submit(
+                        poseStack,
+                        submitNodeCollector,
+                        state.lightCord(),
+                        OverlayTexture.NO_OVERLAY,
+                        0
+                );
+            }
+        }
+    }
+
+    public interface LightCoordsGetter {
+        int lightCord();
+    }
 }

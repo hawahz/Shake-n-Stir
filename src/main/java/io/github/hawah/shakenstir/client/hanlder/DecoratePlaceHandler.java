@@ -5,13 +5,17 @@ import com.mojang.math.Axis;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.client.ClickInteractions;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
+import io.github.hawah.shakenstir.client.model.Models;
+import io.github.hawah.shakenstir.client.render.general.GlasswareRenderer;
 import io.github.hawah.shakenstir.content.block.Glassware;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
+import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundHandItemAmountChangedPacket;
 import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
 import io.github.hawah.shakenstir.lib.client.KeyBinding;
 import io.github.hawah.shakenstir.lib.client.handler.IHandler;
 import io.github.hawah.shakenstir.lib.networking.Networking;
+import io.github.hawah.shakenstir.util.IModel;
 import io.github.hawah.shakenstir.util.Result;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
@@ -19,16 +23,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.model.BlockDisplayContext;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.context.ContextKey;
@@ -48,6 +49,8 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static io.github.hawah.shakenstir.client.hanlder.MC.*;
 
@@ -102,7 +105,6 @@ public class DecoratePlaceHandler implements IHandler {
         LevelRenderState renderState = event.getRenderState();
         LevelRenderer levelRenderer = event.getLevelRenderer();
         ItemStack item = getItem();
-        List<BlockStateModelPart> list = new ArrayList<>();
         List<ItemModel> itemModels = new ArrayList<>();
         ClientLevel level = event.getLevel();
         VoxelShape shape = Shapes.empty();
@@ -110,24 +112,42 @@ public class DecoratePlaceHandler implements IHandler {
         if (pos == null) {
             return;
         }
-        if (item.is(SnsItemTags.BLOCK_LIKE_DRINK_DECORATION)) {
+        GlasswareRenderer.ModelSelector selector = new GlasswareRenderer.ModelSelector();
+        Identifier decorateModel;
+        if (item.has(DataComponentTypeRegistries.DECORATE_MODEL) && (decorateModel = item.get(DataComponentTypeRegistries.DECORATE_MODEL)) != null) {
+            Optional<IModel<?>> model = Models.getModel(decorateModel);
+            AtomicReference<VoxelShape> vs = new AtomicReference<>(shape);
+            model.ifPresent(decoration -> {
+                selector.select(decoration);
+                vs.set(decoration.getShape());
+            });
+            shape = vs.get();
+        } else if (item.is(SnsItemTags.BLOCK_LIKE_DRINK_DECORATION)) {
             BlockState state = ( (BlockItem) item.getItem()).getBlock().defaultBlockState();
             shape = state.getShape(level, pos);
-            BlockStateModel blockModel = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(state);
-            blockModel.collectParts(level.getRandom(), list);
+            BlockModelRenderState blockModelRenderState = new BlockModelRenderState();
+            Minecraft.getInstance().getBlockModelResolver().update(
+                    blockModelRenderState,
+                    state,
+                    BlockDisplayContext.create()
+            );
+            selector.select(blockModelRenderState);
         } else if (item.is(SnsItemTags.ITEM_LIKE_DRINK_DECORATION)) {
-            Identifier modelId = item.get(DataComponents.ITEM_MODEL);
-            if (modelId != null) {
-                ItemModel itemModel = Minecraft.getInstance().getModelManager().getItemModel(modelId);
-                itemModels.add(itemModel);
-                shape = Shapes.box(0, 0, 0, .5, .5, .5);
-            }
+            ItemStackRenderState itemStackRenderState = new ItemStackRenderState();
+            Minecraft.getInstance().getItemModelResolver().updateForTopItem(
+                    itemStackRenderState,
+                    item,
+                    ItemDisplayContext.GROUND,
+                    level,
+                    null,
+                    0
+            );
+            selector.select(itemStackRenderState);
         }
         renderState.setRenderData(RenderState.ctxKey, new RenderState(
                 event.getCamera(),
                 event.getDeltaTracker(),
-                list,
-                itemModels,
+                selector,
                 LevelRenderer.getLightCoords(level, pos),
                 shape
         ));
@@ -149,7 +169,7 @@ public class DecoratePlaceHandler implements IHandler {
         assert location != null;
 
         poseStack.pushPose();
-        double size = state.shape.bounds().getSize();
+        double size = state.shape.isEmpty()? 0.1 : state.shape.bounds().getSize();
         float scale = (float) (0.225F / size);
         poseStack.translate(-camPos.x(), -camPos.y(), -camPos.z());
 
@@ -168,42 +188,12 @@ public class DecoratePlaceHandler implements IHandler {
 
         poseStack.translate(localPos.x(), localPos.y() + y, localPos.z());
         poseStack.mulPose(quaternionf);
-        if (!state.model().isEmpty()){
-            poseStack.translate(-0.5 * scale, 0 * scale, -0.5 * scale);
-            poseStack.scale(scale, scale, scale);
-
-            submitNodeCollector.submitBlockModel(
-                    poseStack,
-                    RenderTypes.translucentMovingBlock(),
-                    state.model(),
-                    new int[]{0},
-                    state.lightCord,
-                    OverlayTexture.NO_OVERLAY,
-                    0
-            );
-        } else if (!state.itemModels().isEmpty()) {
-            for (ItemModel itemModel : state.itemModels()) {
-                poseStack.scale(scale, scale, scale * 2);
-                ItemStackRenderState itemStackRenderState = new ItemStackRenderState();
-                itemModel.update(
-                        itemStackRenderState,
-                        getItem(),
-                        Minecraft.getInstance().getItemModelResolver(),
-                        ItemDisplayContext.NONE,
-                        null,
-                        null,
-                        0
-                );
-                itemStackRenderState.submit(
-                        poseStack,
-                        submitNodeCollector,
-                        state.lightCord,
-                        OverlayTexture.NO_OVERLAY,
-                        0
-                );
-            }
-        }
-
+        state.model.submit(
+                poseStack,
+                scale,
+                submitNodeCollector,
+                state::lightCord
+        );
         poseStack.popPose();
     }
 
@@ -254,8 +244,7 @@ public class DecoratePlaceHandler implements IHandler {
     record RenderState(
             Camera camera,
             DeltaTracker deltaTracker,
-            List<BlockStateModelPart> model,
-            List<ItemModel> itemModels,
+            GlasswareRenderer.ModelSelector model,
             int lightCord,
             VoxelShape shape
     ) {

@@ -20,4 +20,10 @@ public record ShakeRecipeInput(List<ItemStack> items, List<FluidStack> fluidStac
     public int size() {
         return items.size();
     }
+
+    @Override
+    public boolean isEmpty() {
+        boolean ret = RecipeInput.super.isEmpty() && (fluidStacks.isEmpty() || fluidStacks.stream().anyMatch(FluidStack::isEmpty));
+        return ret;
+    }
 }

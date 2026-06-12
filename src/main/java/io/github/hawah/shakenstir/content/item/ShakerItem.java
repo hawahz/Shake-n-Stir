@@ -6,14 +6,17 @@ import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
-import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
 import io.github.hawah.shakenstir.content.dataComponent.IItemDataHolder;
+import io.github.hawah.shakenstir.content.dataComponent.ShakeContentHolder;
+import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
+import io.github.hawah.shakenstir.foundation.item.IFluidContainer;
 import io.github.hawah.shakenstir.foundation.item.IPickMarkedItem;
 import io.github.hawah.shakenstir.foundation.item.PriorityBlockItem;
-import io.github.hawah.shakenstir.foundation.item.SpiritBottleItem;
+import io.github.hawah.shakenstir.foundation.networking.ServerboundShakerBubbledExplodePacket;
 import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
+import io.github.hawah.shakenstir.lib.networking.Networking;
 import io.github.hawah.shakenstir.util.ShakeClientHooks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
@@ -122,6 +125,10 @@ public class ShakerItem extends PriorityBlockItem implements IPickMarkedItem {
                 player.playSound(
                         SoundEvents.ARMOR_EQUIP_IRON.value()
                 );
+                if (self.getOrDefault(DataComponentTypeRegistries.SHAKE_CONTENT, ShakeContentHolder.EMPTY).itemStacks().stream().anyMatch(itemStack -> itemStack.has(DataComponentTypeRegistries.SHAKE_BUBBLES))) {
+                    Networking.sendToServer(new ServerboundShakerBubbledExplodePacket(player.getUUID()));
+                    ShakeUtil.clearContent(self);
+                }
                 return true;
             }
             return false;
@@ -163,7 +170,7 @@ public class ShakerItem extends PriorityBlockItem implements IPickMarkedItem {
         }
         SpiritContent spiritContent;
         if (
-                other.getItem() instanceof SpiritBottleItem &&
+                other.getItem() instanceof IFluidContainer &&
                         !(spiritContent = other.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY)).isEmpty()) {
             ArrayList<FluidStack> fluidStacks = new ArrayList<>(ShakeUtil.getFluidStacks(self));
             int sum = fluidStacks.stream().mapToInt(FluidStack::getAmount).sum();

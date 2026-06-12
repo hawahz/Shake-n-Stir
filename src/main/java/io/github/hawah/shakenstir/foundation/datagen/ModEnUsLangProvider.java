@@ -50,6 +50,8 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add(ItemRegistries.RECIPE_SCROLL.get(), "Recipe Scroll");
         add(ItemRegistries.BARTENDER_SPAWNER.get(), "Bartender's Tie");
         add(ItemRegistries.BARTENDER_GLOVE.get(), "Bartender's Glove");
+        add(ItemRegistries.TONIC.get(), "Tonic");
+        add(ItemRegistries.BITTERS.get(), "Bitters");
 
 //        add(FluidRegistries.GIN_SOURCE_FLUID_BLOCK.getRegisteredName(), "");
         add(FluidTypeRegistries.GIN_FLUID_TYPE.get().getDescriptionId(), "Gin");
@@ -59,6 +61,8 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add(FluidTypeRegistries.RUM_FLUID_TYPE.get().getDescriptionId(), "Rum");
         add(FluidTypeRegistries.BRANDY_FLUID_TYPE.get().getDescriptionId(), "Brandy");
         add(FluidTypeRegistries.BUBBLE_FLUID_TYPE.get().getDescriptionId(), "Bubble");
+        add(FluidTypeRegistries.TONIC_FLUID_TYPE.get().getDescriptionId(), "Tonic");
+        add(FluidTypeRegistries.BITTERS_FLUID_TYPE.get().getDescriptionId(), "Bitters");
 
         add(String.valueOf(CocktailTypes.SOUR_VALUE.translationKey()    )   , "%s %s Sour"    );
         add(String.valueOf(CocktailTypes.COCKTAIL_VALUE.translationKey())   , "%s %s Cocktail");

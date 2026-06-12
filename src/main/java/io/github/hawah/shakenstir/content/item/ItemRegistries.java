@@ -45,7 +45,7 @@ public class ItemRegistries {
     public static final DeferredItem<Item> CONTENT_HOLDER = register("shake_content_holder", Item::new);
 
     public static final DeferredItem<Item> LEMON = register("lemon", Item::new, new Item.Properties().food(Foods.APPLE).component(DataComponents.POTION_CONTENTS, new PotionContents(Optional.empty(), Optional.empty(), List.of(new MobEffectInstance(MobEffectRegistries.LEMON)), Optional.empty())));
-    public static final DeferredItem<DecorateItem> LEMON_SLICE = register("lemon_slice", DecorateItem::new);
+    public static final DeferredItem<DecorateItem> LEMON_SLICE = register("lemon_slice", DecorateItem::new, new Item.Properties().component(DataComponentTypeRegistries.DECORATE_MODEL, ShakenStir.asResource("lemon_slice")));
 
     public static final DeferredItem<Rag> RAG = register("rag", Rag::new);
     public static final DeferredItem<MenuItem> MENU = register("menu", MenuItem::new);
@@ -90,8 +90,10 @@ public class ItemRegistries {
     }
 
     public static DeferredItem<FluidHolderItem> registerFluidHolder(String name, DeferredHolder<Fluid, FlowingFluid> fluid, int amount) {
-        return ITEM.register(name, (registryName) -> new FluidHolderItem(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName))
-                .component(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(new FluidStack(fluid, amount)))));
+        Item.Properties component = new Item.Properties()
+                .component(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(new FluidStack(fluid, amount)));
+        return ITEM.register(name, (registryName) ->
+                new FluidHolderItem(component.setId(ResourceKey.create(Registries.ITEM, registryName))));
     }
 
     public static DeferredItem<FluidHolderItem> registerFluidHolder(String name, DeferredHolder<Fluid, FlowingFluid> fluid) {
