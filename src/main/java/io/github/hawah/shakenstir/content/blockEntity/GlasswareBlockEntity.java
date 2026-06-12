@@ -180,9 +180,9 @@ public class GlasswareBlockEntity extends AutoUpdateBlockEntity {
         if (defaultName != null) {
             output.store("DefaultName", ComponentSerialization.CODEC, defaultName);
         }
-        if (oPosition.equals(position)) {
-            SerializeHelper.saveVector2fNamed(output, position, "position");
-        }
+//        if (oPosition.equals(position)) {
+//            SerializeHelper.saveVector2fNamed(output, position, "position");
+//        }
         ValueOutput.ValueOutputList decorations = output.childrenList("Decorations");
         for (Decoration decoration : decorationsList) {
             decorations.addChild().store("Decoration", Decoration.CODEC, decoration);

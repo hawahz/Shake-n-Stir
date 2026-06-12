@@ -12,12 +12,12 @@ import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistr
 import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
 import io.github.hawah.shakenstir.util.IModel;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.model.BlockDisplayContext;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -63,7 +63,7 @@ public class GlasswareRenderer {
         vc.setSourceAlpha((int) (120 * state.height()));
         vc.setTargetAlpha((int) (255 * state.height()));
         vc.setModulate(state.color());
-        state.model().submit(submitNodeCollector, poseStack, List.of(vc), lightCoords, OverlayTexture.NO_OVERLAY, RenderTypes.cutoutMovingBlock());
+        state.model().submit(submitNodeCollector, poseStack, List.of(vc), lightCoords, OverlayTexture.NO_OVERLAY, Sheets.translucentBlockSheet());
         submitLiquid(state, poseStack, submitNodeCollector, lightCoords);
         if (shouldReset) {
             poseStack.popPose();
@@ -188,7 +188,8 @@ public class GlasswareRenderer {
                         submitNodeCollector,
                         poseStack,
                         state.lightCord(),
-                        OverlayTexture.NO_OVERLAY
+                        OverlayTexture.NO_OVERLAY,
+                        Sheets.translucentBlockSheet()
                 );
             } else if (isBlock) {
                 poseStack.translate(-0.5 * scale, 0 * scale, -0.5 * scale);
