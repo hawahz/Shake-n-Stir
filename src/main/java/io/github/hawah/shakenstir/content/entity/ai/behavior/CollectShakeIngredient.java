@@ -170,13 +170,18 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
     InteractionState interactionState = null;
     public static final int SEARCH_TIME = 20;
 
+    boolean hasNeededItem = false;
+
     private void onReachedTarget(TakeUpItemTarget target, ServerLevel level, BartenderEntity body) {
         if (!this.isWithinTargetDistance(1.0, target, level, body, body.getEyePosition())) {
             this.onStartTravelling(body);
         } else {
+            if (this.ticksSinceReachingTarget == 0) {
+                hasNeededItem = extractRequiredItemFromTarget(target, body);
+            }
             this.ticksSinceReachingTarget++;
-            if (this.ticksSinceReachingTarget >= SEARCH_TIME) {
-                extractRequiredItemFromTarget(target, body);
+            if (this.ticksSinceReachingTarget >= (hasNeededItem? SEARCH_TIME: 2)) {
+
                 this.ticksSinceReachingTarget = 0;
                 setVisitedBlockPos(body, body.level(), target.pos);
                 interactionState = InteractionState.SEARCH;
@@ -188,9 +193,10 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
         }
     }
 
-    private void extractRequiredItemFromTarget(TakeUpItemTarget target, BartenderEntity body) {
+    private boolean extractRequiredItemFromTarget(TakeUpItemTarget target, BartenderEntity body) {
         ResourceHandler<ItemResource> container = target.container;
         int size = container.size();
+        boolean success = false;
 
         for (int i = 0; i < size; i++) {
             ItemResource resource = container.getResource(i);
@@ -213,32 +219,27 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
                         int toExtract = Math.min(availableInSlot, requiredAmount);
 
                         if (toExtract > 0) {
+                            success = true;
                             try (Transaction tx = Transaction.openRoot()) {
                                 int extracted = container.extract(i, resource, toExtract, tx);
 
                                 if (extracted > 0 && SHOULD_ADD_TO_INVENTORY) {
                                     ItemStack extractedStack = resource.toStack(extracted);
-
-                                    OptionalInt emptySlot = findEmptyInventorySlot(body);
-                                    if (emptySlot.isPresent()) {
-                                        body.getInventory().set(emptySlot.getAsInt(), extractedStack);
-                                        required.shrink(spiritFluid.getAmount());
-                                        if (required.isEmpty()) {
-                                            wanderingFluids.remove(j);
-                                            j--;
-                                        }
-                                        tx.commit();
-                                        body.swing(InteractionHand.MAIN_HAND);
-                                    } else {
+                                    body.insertItem(extractedStack);
+                                    required.shrink(spiritFluid.getAmount());
+                                    if (required.isEmpty()) {
+                                        wanderingFluids.remove(j);
+                                        j--;
                                     }
+                                    tx.commit();
+                                    body.swing(InteractionHand.MAIN_HAND);
                                 }
                             }
                         }
 
                         if (wanderingFluids.isEmpty()) {
-                            return;
+                            return success;
                         }
-                        break;
                     }
                 }
             } else {
@@ -251,36 +252,33 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
                         int toExtract = Math.min(availableCount, requiredCount);
 
                         if (toExtract > 0) {
+                            success = true;
                             try (Transaction tx = Transaction.openRoot()) {
                                 int extracted = container.extract(i, resource, toExtract, tx);
 
                                 if (extracted > 0 && SHOULD_ADD_TO_INVENTORY) {
                                     ItemStack extractedStack = resource.toStack(extracted);
 
-                                    OptionalInt emptySlot = findEmptyInventorySlot(body);
-                                    if (emptySlot.isPresent()) {
-                                        body.getInventory().set(emptySlot.getAsInt(), extractedStack);
-                                        required.shrink(extracted);
-                                        if (required.isEmpty()) {
-                                            wanderingItems.remove(j);
-                                            j--;
-                                        }
-                                        tx.commit();
-                                        body.swing(InteractionHand.MAIN_HAND);
-                                    } else {
+                                    body.insertItem(extractedStack);
+                                    required.shrink(extracted);
+                                    if (required.isEmpty()) {
+                                        wanderingItems.remove(j);
+                                        j--;
                                     }
+                                    tx.commit();
+                                    body.swing(InteractionHand.MAIN_HAND);
                                 }
                             }
                         }
 
                         if (wanderingItems.isEmpty()) {
-                            return;
+                            return success;
                         }
-                        break;
                     }
                 }
             }
         }
+        return success;
     }
 
     private OptionalInt findEmptyInventorySlot(BartenderEntity body) {

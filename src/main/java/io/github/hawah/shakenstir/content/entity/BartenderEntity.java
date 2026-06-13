@@ -86,7 +86,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
             BartenderAi::getActivities
     );
 
-    private final NonNullList<ItemStack> inventory = NonNullList.withSize(9, ItemStack.EMPTY);
+    private final NonNullList<ItemStack> inventory = NonNullList.withSize(24, ItemStack.EMPTY);
     public float readyShakeAmount = 0;
     public float readyShakeAmountO = 0;
 

@@ -474,7 +474,7 @@ public class EditorMenuScreen extends AbstractMenuScreen {
         int selectSlot = getSelectSlot(mouseX, mouseY);
         ItemStack item;
         if (selectSlot >= 0 && getPlayer() != null && !(item = getPlayer().getInventory().getItem(selectSlot)).isEmpty()) {
-            carriedItem = item;
+            carriedItem = item.copy();
             SnsRecipeHolder holder;
             if (event.hasShiftDown() && (holder = carriedItem.get(DataComponentTypeRegistries.RECIPE_HOLDER)) != null) {
                 cachedBlockEntity.addRecipe(holder.copy());
@@ -489,9 +489,17 @@ public class EditorMenuScreen extends AbstractMenuScreen {
                             .glass(carriedItem.getOrDefault(DataComponents.ITEM_MODEL, ShakenStir.asResource("martini_glass")).getPath())
                             .decorations(carriedItem.getOrDefault(DataComponentTypeRegistries.GLASSWARE_DECORATIONS, List.of()))
                             ;
+                    if (newHolder.displayItem().isPresent()) {
+                        ItemStack itemStack = newHolder.displayItem().get();
+                        carriedItem.set(
+                                DataComponents.DYED_COLOR,
+                                itemStack.get(DataComponents.DYED_COLOR)
+                        );
+                    }
+                    SnsRecipeHolder left = carriedItem.has(DataComponents.DYED_COLOR) ? newHolder.displayItem(carriedItem.copy()) : newHolder;
                     cachedBlockEntity.recipes.get(currentIndex)
-                            .setLeft(carriedItem.has(DataComponents.DYED_COLOR)?newHolder.displayItem(carriedItem.copy()): newHolder);
-                    Networking.sendToServer(new ServerboundMenuBERecipeChanged(newHolder, currentIndex, cachedBlockEntity.getBlockPos()));
+                            .setLeft(left);
+                    Networking.sendToServer(new ServerboundMenuBERecipeChanged(left, currentIndex, cachedBlockEntity.getBlockPos()));
                 } else {
                     cachedBlockEntity.setRecipeItem(currentSelect, carriedItem.copyWithCount(1));
                     Networking.sendToServer(new ServerboundMenuBEChanged(cachedBlockEntity.recipes.get(currentSelect).right(), currentSelect, cachedBlockEntity.getBlockPos()));

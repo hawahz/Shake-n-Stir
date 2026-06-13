@@ -54,6 +54,7 @@ public class GlasswareBlockEntity extends AutoUpdateBlockEntity {
     public List<Decoration> decorationsList = new ArrayList<>();
 
     public float heightRate = 0;
+    public boolean justCreate = true;
     // End Save
 
     // Client Animation
@@ -161,6 +162,7 @@ public class GlasswareBlockEntity extends AutoUpdateBlockEntity {
                 valueInput.read("Decoration", Decoration.CODEC).ifPresent(decorationsList::add);
             }
         }
+        justCreate = false;
     }
 
     @Override
@@ -180,6 +182,11 @@ public class GlasswareBlockEntity extends AutoUpdateBlockEntity {
         if (defaultName != null) {
             output.store("DefaultName", ComponentSerialization.CODEC, defaultName);
         }
+        if (justCreate) {
+            SerializeHelper.saveVector2fNamed(output, position, "position");
+            justCreate = false;
+        }
+        output.putBoolean("justCreate", false);
 //        if (oPosition.equals(position)) {
 //            SerializeHelper.saveVector2fNamed(output, position, "position");
 //        }

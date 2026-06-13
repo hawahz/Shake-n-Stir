@@ -33,7 +33,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, BartenderRenderState, BartenderModel> {
 
-    static final PlayerSkin SKIN = create("entity/bartender_jill", PlayerModelType.SLIM);
+    static final PlayerSkin SKIN = create("entity/bartender", PlayerModelType.SLIM);
 
     public BartenderRenderer(EntityRendererProvider.Context context) {
         super(context, new BartenderModel(context.bakeLayer(ModelLayers.PLAYER_SLIM)), 0.5F);

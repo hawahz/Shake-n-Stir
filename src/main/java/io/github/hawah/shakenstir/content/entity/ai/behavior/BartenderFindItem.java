@@ -86,26 +86,32 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
 //        itemToFind.removeIf(ItemStack::isEmpty);
     }
 
+    boolean targetHasNeededItem = false;
+
     private void onReachedTarget(TakeUpItemTarget target, ServerLevel level, BartenderEntity body) {
         if (!this.isWithinTargetDistance(1.0, target, level, body, body.getEyePosition())) {
             this.onStartTravelling(body);
         } else {
+            if (this.ticksSinceReachingTarget == 0) {
+                targetHasNeededItem = extractRequiredItemFromTarget(target, body);
+            }
             this.ticksSinceReachingTarget++;
             body.getLookControl().setLookAt(target.pos.getCenter());
-            if (this.ticksSinceReachingTarget >= SEARCH_TIME) {
-                extractRequiredItemFromTarget(target, body);
+            if (this.ticksSinceReachingTarget >= (targetHasNeededItem? SEARCH_TIME: 2)) {
                 this.ticksSinceReachingTarget = 0;
                 setVisitedBlockPos(body, body.level(), target.pos);
                 interactionState = InteractionState.SEARCH;
                 setTransportingState(TransportItemState.TRAVELLING);
                 this.target = null;
+                targetHasNeededItem = false;
             }
         }
     }
 
-    private void extractRequiredItemFromTarget(TakeUpItemTarget target, BartenderEntity body) {
+    private boolean extractRequiredItemFromTarget(TakeUpItemTarget target, BartenderEntity body) {
         ResourceHandler<ItemResource> container = target.container;
         int size = container.size();
+        boolean success = false;
 
         for (int i = 0; i < size; i++) {
             ItemResource resource = container.getResource(i);
@@ -118,6 +124,7 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
                 Ingredient required = itemToFind.get(j);
 
                 if (required.test(itemStack)) {
+                    success = true;
                     int requiredCount = 1;
                     int availableCount = container.getAmountAsInt(i);
                     int toExtract = Math.min(availableCount, requiredCount);
@@ -141,7 +148,7 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
                     }
 
                     if (itemToFind.isEmpty()) {
-                        return;
+                        return success;
                     }
                     if (itemStack.isEmpty()) {
                         break;
@@ -150,6 +157,7 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
             }
             }
         }
+        return success;
     }
 
     private OptionalInt findEmptyInventorySlot(BartenderEntity body) {
