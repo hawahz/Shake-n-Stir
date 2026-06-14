@@ -212,7 +212,7 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
     private void doPouring(ServerLevel level, BartenderEntity body, long timestamp) {
         ItemStack itemInHand = body.getItemInHand(InteractionHand.MAIN_HAND);
         if (itemInHand.getItem() instanceof GlasswareItem glasswareItem) {
-            if (pouringCD < timestamp) {
+            if (pouringCD < timestamp && placePos != null) {
                 // Place on the top face, near the edge closest to the bartender
                 Vec3 bodyPos = body.position();
                 Vec3 center = placePos.getCenter();

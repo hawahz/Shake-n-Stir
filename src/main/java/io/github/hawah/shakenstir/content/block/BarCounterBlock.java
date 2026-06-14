@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
@@ -16,6 +17,8 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
 public class BarCounterBlock extends HorizontalDirectionalBlock {
@@ -27,7 +30,11 @@ public class BarCounterBlock extends HorizontalDirectionalBlock {
 
 
     public BarCounterBlock(Properties properties) {
-        super(properties.sound(SoundType.WOOD).strength(2.0F, 3.0F));
+        super(properties.sound(SoundType.WOOD)
+                .strength(2.0F, 3.0F)
+                .isValidSpawn((state, level, pos, entityType) -> false)
+                .isSuffocating((state, level, pos) -> true)
+        );
         this.registerDefaultState(this.defaultBlockState()
                 .setValue(NORTH, false)
                 .setValue(EAST, false)
@@ -36,6 +43,8 @@ public class BarCounterBlock extends HorizontalDirectionalBlock {
                 .setValue(FACING, Direction.NORTH)
         );
     }
+
+
 
     @Override
     protected boolean isPathfindable(BlockState state, PathComputationType type) {
@@ -74,6 +83,11 @@ public class BarCounterBlock extends HorizontalDirectionalBlock {
                 .setValue(SOUTH, south)
                 .setValue(WEST, west)
                 ;
+    }
+
+    @Override
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return box(0, 0, 0, 16, 20, 16);
     }
 
     @Override

@@ -155,7 +155,7 @@ public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
     @Override
     protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
         BlockState blockState = level.getBlockState(pos.below());
-        return blockState.isFaceSturdy(level, pos.below(), Direction.UP);
+        return blockState.isFaceSturdy(level, pos.below(), Direction.UP) || blockState.is(BlockRegistries.BAR_COUNTER_BLOCK);
     }
 
     @Override

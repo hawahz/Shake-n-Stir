@@ -2,6 +2,7 @@
   "values": [
     "#minecraft:air",
     "#minecraft:signs",
-    "shakenstir:bar_menu"
+    "shakenstir:bar_menu",
+    "#minecraft:candles"
   ]
 }

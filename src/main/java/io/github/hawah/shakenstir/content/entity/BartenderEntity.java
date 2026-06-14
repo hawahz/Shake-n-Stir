@@ -34,6 +34,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.parrot.Parrot;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -221,6 +222,10 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         this.entityData.set(ANIM_ACCESSOR, state.ordinal());
     }
 
+    @Override
+    protected PathNavigation createNavigation(Level level) {
+        return super.createNavigation(level);
+    }
 
     private static Optional<Parrot.Variant> convertParrotVariant(OptionalInt variant) {
         return variant.isPresent() ? Optional.of(Parrot.Variant.byId(variant.getAsInt())) : Optional.empty();
