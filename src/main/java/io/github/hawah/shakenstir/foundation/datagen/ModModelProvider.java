@@ -67,6 +67,7 @@ public class ModModelProvider extends ModelProvider {
         itemModels.generateFlatItem(ItemRegistries.BUBBLE.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ItemRegistries.TONIC.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ItemRegistries.BITTERS.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ItemRegistries.DIALOGUE_EDITOR.get(), ModelTemplates.FLAT_ITEM);
         generateScroll(itemModels);
         // Basic single variant model
         registerCustomBlockModel(blockModels, "block/shaker_lid", BlockRegistries.SHAKE_LID_BLOCK.get());

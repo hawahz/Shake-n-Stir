@@ -3,10 +3,10 @@
   "parent": "shakenstir:block/martini_glass",
   "fluidShape": {
     "posX":  0.34376,
-    "posY":  0.37501,
+    "posY":  0.34376,
     "posZ":  0.34376,
     "sizeX": 0.31248,
-    "sizeY": 0.103125,
+    "sizeY": 0.20873,
     "sizeZ": 0.31248
   }
 }

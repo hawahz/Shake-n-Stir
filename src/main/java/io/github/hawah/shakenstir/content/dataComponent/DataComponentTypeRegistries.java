@@ -48,6 +48,11 @@ public class DataComponentTypeRegistries {
             builder -> builder.persistent(DeferredFluidStackHolder.CODEC).networkSynchronized(DeferredFluidStackHolder.STREAM_CODEC)
     );
 
+    public static final DataComponentType<Unit> DIALOGUE = register(
+            "dialogue",
+            builder -> builder.persistent(Unit.CODEC).networkSynchronized(Unit.STREAM_CODEC)
+    );
+
     // Shake
 
     public static final DataComponentType<Unit> SHAKING = register(

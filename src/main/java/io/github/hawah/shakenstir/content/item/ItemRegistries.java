@@ -49,6 +49,7 @@ public class ItemRegistries {
 
     public static final DeferredItem<Rag> RAG = register("rag", Rag::new);
     public static final DeferredItem<MenuItem> MENU = register("menu", MenuItem::new);
+    public static final DeferredItem<Item> DIALOGUE_EDITOR = register("dialogue_editor", Item::new, new Item.Properties().component(DataComponentTypeRegistries.DIALOGUE, Unit.INSTANCE));
 
     // Spirit
     public static final DeferredItem<SpiritBottleItem> GIN = registerSpirit("gin", BlockRegistries.GIN, new Item.Properties().component(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(new FluidStack(FluidRegistries.GIN_SOURCE, 1000))));

@@ -60,6 +60,7 @@ public class SnsCreativeTab {
                 output.accept(ItemRegistries.RECIPE_SCROLL.get());
                 output.accept(ItemRegistries.BARTENDER_SPAWNER);
                 output.accept(ItemRegistries.BARTENDER_GLOVE);
+                output.accept(ItemRegistries.DIALOGUE_EDITOR);
             })
             .build()
     );
