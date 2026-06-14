@@ -32,16 +32,14 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @ParametersAreNonnullByDefault
@@ -98,6 +96,11 @@ public record ShakeRecipe(
                 shakeAdditionTimes
         );
         resultItem.set(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY, quality);
+        List<Consumable> consumables = recipeInput.items().stream()
+                .filter(itemStack -> itemStack.has(DataComponents.CONSUMABLE))
+                .map(itemStack -> itemStack.get(DataComponents.CONSUMABLE))
+                .filter(Objects::nonNull)
+                .toList();
         if (!resultItem.has(DataComponentTypeRegistries.SHAKE_BUBBLES)){
             resultItem.set(DataComponentTypeRegistries.DRINK_DATA, new DrinkData(
                     resultItem.get(DataComponentTypeRegistries.COCKTAIL_TYPE),
@@ -112,6 +115,7 @@ public record ShakeRecipe(
                     List.of(),
                     List.of(),
                     quality,
+                    consumables,
                     iceCount
             ));
         }
@@ -210,6 +214,11 @@ public record ShakeRecipe(
                 shaker.getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 1),
                 0
         );
+        List<Consumable> consumables = recipeInput.items().stream()
+                .filter(itemStack -> itemStack.has(DataComponents.CONSUMABLE))
+                .map(itemStack -> itemStack.get(DataComponents.CONSUMABLE))
+                .filter(Objects::nonNull)
+                .toList();
         int rgb = ShakeUtil.rgbWithWeight(recipeInput.fluidStacks().stream().map((stack) ->
                 Pair.of(stack.getFluidType() instanceof BaseFluidType type ? type.getTintColor() : 0xFFFFFF, stack.getAmount())
         ).toList());
@@ -228,6 +237,7 @@ public record ShakeRecipe(
                 List.of(),
                 List.of(),
                 quality,
+                consumables,
                 iceCount
         ));
         resultItem.set(DataComponents.ITEM_NAME, CocktailTypes.SUSPICIOUS_VALUE.translate(recipeInput.fluidStacks(), recipeInput.items()));

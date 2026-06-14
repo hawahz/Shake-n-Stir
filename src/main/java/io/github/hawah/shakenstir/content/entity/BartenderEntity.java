@@ -6,6 +6,7 @@ import io.github.hawah.shakenstir.Config;
 import io.github.hawah.shakenstir.client.animation.AnimationState;
 import io.github.hawah.shakenstir.client.animation.AnimationStateMachine;
 import io.github.hawah.shakenstir.client.animation.ShakeAnimationState;
+import io.github.hawah.shakenstir.client.gui.DialogueEditorScreen;
 import io.github.hawah.shakenstir.client.render.entity.BartenderModel;
 import io.github.hawah.shakenstir.content.blockEntity.BarMenuBlockEntity;
 import io.github.hawah.shakenstir.content.data.SnsRecipeStack;
@@ -14,6 +15,7 @@ import io.github.hawah.shakenstir.content.entity.ai.activity.Activities;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.item.MenuItem;
+import io.github.hawah.shakenstir.lib.client.gui.ScreenOpener;
 import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
@@ -272,6 +274,16 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
                 this.insertItem(itemInHand);
                 if (player.isCreative()) {
                     itemInHand.setCount(count);
+                }
+                return InteractionResult.SUCCESS;
+            } else if (itemInHand.has(DataComponentTypeRegistries.DIALOGUE)) {
+                if (level().isClientSide()) {
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            ScreenOpener.open(new DialogueEditorScreen(BartenderEntity.this));
+                        }
+                    }.run();
                 }
                 return InteractionResult.SUCCESS;
             }

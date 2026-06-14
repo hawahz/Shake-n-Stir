@@ -5,10 +5,11 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
+import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.recipe.Quality;
-import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import io.github.hawah.shakenstir.content.recipe.datapack.cocktaileType.CocktailType;
 import io.github.hawah.shakenstir.content.recipe.datapack.spirit.SpiritData;
+import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentGetter;
@@ -28,6 +29,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.TooltipProvider;
 import net.neoforged.neoforge.fluids.FluidStack;
 
@@ -41,6 +43,7 @@ public record DrinkData(
         List<SpiritData> extraSpirit,
         List<IngredientData> extraIngredients,
         Quality quality,
+        List<Consumable> consumables,
         int coldLevel
 ) implements TooltipProvider {
     public static final Codec<DrinkData> CODEC = RecordCodecBuilder.create(inst -> inst.group(
@@ -49,6 +52,7 @@ public record DrinkData(
             SpiritData.CODEC.listOf().fieldOf("extra_spirits").forGetter(DrinkData::extraSpirit),
             IngredientData.CODEC.listOf().fieldOf("extra_ingredients").forGetter(DrinkData::extraIngredients),
             Quality.CODEC.fieldOf("quality").forGetter(DrinkData::quality),
+            Consumable.CODEC.listOf().fieldOf("consumables").forGetter(DrinkData::consumables),
             Codec.INT.fieldOf("cold_level").forGetter(DrinkData::coldLevel)
     ).apply(inst, DrinkData::new));
 
@@ -58,9 +62,14 @@ public record DrinkData(
             SpiritData.STREAM_CODEC.apply(ByteBufCodecs.list()), DrinkData::extraSpirit,
             IngredientData.STREAM_CODEC.apply(ByteBufCodecs.list()), DrinkData::extraIngredients,
             Quality.STREAM_CODEC, DrinkData::quality,
+            Consumable.STREAM_CODEC.apply(ByteBufCodecs.list()), DrinkData::consumables,
             ByteBufCodecs.INT, DrinkData::coldLevel,
             DrinkData::new
     );
+
+    public DrinkData(CocktailType type, SpiritData base, List<SpiritData> extraSpirit, List<IngredientData> extraIngredients, Quality quality, int coldLevel) {
+        this(type, base, extraSpirit, extraIngredients, quality, List.of(), coldLevel);
+    }
 
     public static final int[] COLD_LEVELS = new int[]{2 * 10, 8 * 10, 18 * 10};
 
@@ -83,6 +92,13 @@ public record DrinkData(
         int drunkAmplifier = extraSpirit().size();
         MobEffectInstance instance = new MobEffectInstance(MobEffectRegistries.DRUNK, 20 * 60 * 5, drunkAmplifier);
         livingEntity.addEffect(instance);
+        if (!livingEntity.level().isClientSide()){
+            consumables.forEach(
+                    consumable -> {
+                        consumable.onConsumeEffects().forEach(effect -> effect.apply(livingEntity.level(), ItemRegistries.CONTENT_HOLDER.toStack(), livingEntity));
+                    }
+            );
+        }
     }
 
     public List<MobEffectInstance> cocktailEffects() {
