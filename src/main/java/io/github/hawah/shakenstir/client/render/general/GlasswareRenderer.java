@@ -83,7 +83,8 @@ public class GlasswareRenderer {
             Identifier decorateModel;
             VoxelShape shape = Shapes.empty();
             ModelSelector selector = new ModelSelector();
-            if (itemStack.has(DataComponentTypeRegistries.DECORATE_MODEL) && (decorateModel = itemStack.get(DataComponentTypeRegistries.DECORATE_MODEL)) != null) {
+            if ((itemStack.has(DataComponentTypeRegistries.DECORATE_MODEL) && (decorateModel = itemStack.get(DataComponentTypeRegistries.DECORATE_MODEL)) != null) ||
+                    (GlasswareDecorations.maps.containsKey(itemStack.getItem()) && (decorateModel = GlasswareDecorations.maps.get(itemStack.getItem())) != null)) {
                 Optional<IModel<?>> model = Models.getModel(decorateModel);
                 AtomicReference<VoxelShape> vs = new AtomicReference<>(shape);
                 model.ifPresent(deco -> {

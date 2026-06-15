@@ -1,0 +1,36 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"0": "shakenstir:block/addition/orange_peel_texture",
+		"particle": "shakenstir:block/addition/orange_peel_texture"
+	},
+	"elements": [
+		{
+			"from": [-3.07237, -0.15717, -1.27413],
+			"to": [-0.07237, -0.15717, 1.72587],
+			"rotation": {"x": 0, "y": -3, "z": 45, "origin": [-0.57237, -0.15717, 0.22587]},
+			"faces": {
+				"north": {"uv": [2, 0, 5, 0], "texture": "#0"},
+				"east": {"uv": [0, 0, 3, 0], "texture": "#0"},
+				"south": {"uv": [0, 0, 3, 0], "texture": "#0"},
+				"west": {"uv": [0, 0, 3, 0], "texture": "#0"},
+				"up": {"uv": [5, 3, 2, 0], "texture": "#0"},
+				"down": {"uv": [5, 3, 2, 6], "texture": "#0"}
+			}
+		},
+		{
+			"from": [-0.75736, 1.24264, -1.25],
+			"to": [2.24264, 1.24264, 1.75],
+			"rotation": {"x": -0.21865, "y": 0, "z": 47.50954, "origin": [0.74264, 1.24264, 0.25]},
+			"faces": {
+				"north": {"uv": [0, 0, 3, 0], "texture": "#0"},
+				"east": {"uv": [0, 0, 3, 0], "texture": "#0"},
+				"south": {"uv": [2, 0, 5, 0], "texture": "#0"},
+				"west": {"uv": [0, 0, 3, 0], "texture": "#0"},
+				"up": {"uv": [3, 3, 0, 0], "texture": "#0"},
+				"down": {"uv": [3, 3, 0, 6], "texture": "#0"}
+			}
+		}
+	]
+}

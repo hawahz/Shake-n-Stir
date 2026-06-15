@@ -52,7 +52,7 @@ public record DrinkData(
             SpiritData.CODEC.listOf().fieldOf("extra_spirits").forGetter(DrinkData::extraSpirit),
             IngredientData.CODEC.listOf().fieldOf("extra_ingredients").forGetter(DrinkData::extraIngredients),
             Quality.CODEC.fieldOf("quality").forGetter(DrinkData::quality),
-            Consumable.CODEC.listOf().fieldOf("consumables").forGetter(DrinkData::consumables),
+            Consumable.CODEC.listOf().optionalFieldOf("consumables", List.of()).forGetter(DrinkData::consumables),
             Codec.INT.fieldOf("cold_level").forGetter(DrinkData::coldLevel)
     ).apply(inst, DrinkData::new));
 
