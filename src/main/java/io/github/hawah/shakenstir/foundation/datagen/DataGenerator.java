@@ -34,9 +34,13 @@ public class DataGenerator {
                 Set.of(),
                 // A list of sub provider entries. See below for what values to use here.
                 List.of(new LootTableProvider.SubProviderEntry(
-                        ModLootTableProvider::new,
+                        ModBlockLoot::new,
                         LootContextParamSets.BLOCK // it makes sense to use BLOCK here
-                )),
+                ),
+                        new LootTableProvider.SubProviderEntry(
+                                ModBlockInteractLoot::new,
+                                LootContextParamSets.BLOCK_INTERACT
+                        )),
                  // The registry access
                 lookupProvider
         ));

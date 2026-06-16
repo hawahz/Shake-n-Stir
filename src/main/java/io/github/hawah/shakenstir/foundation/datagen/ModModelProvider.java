@@ -4,13 +4,13 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.math.Quadrant;
 import io.github.hawah.shakenstir.ShakenStir;
-import io.github.hawah.shakenstir.client.render.item.GlasswareSpecialRenderer;
-import io.github.hawah.shakenstir.client.render.item.ShakeItemSpecialRenderer;
-import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer;
 import io.github.hawah.shakenstir.client.itemConditionals.HasCup;
 import io.github.hawah.shakenstir.client.itemConditionals.MintSize;
 import io.github.hawah.shakenstir.client.itemConditionals.Warped;
 import io.github.hawah.shakenstir.client.itemConditionals.WarpedMintDisplay;
+import io.github.hawah.shakenstir.client.render.item.GlasswareSpecialRenderer;
+import io.github.hawah.shakenstir.client.render.item.ShakeItemSpecialRenderer;
+import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer;
 import io.github.hawah.shakenstir.content.block.*;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
@@ -35,6 +35,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
 import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -73,6 +74,7 @@ public class ModModelProvider extends ModelProvider {
         itemModels.generateFlatItem(ItemRegistries.TONIC.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ItemRegistries.BITTERS.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ItemRegistries.DIALOGUE_EDITOR.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ItemRegistries.MINT_SEED.get(), ModelTemplates.FLAT_ITEM);
         generateMint(itemModels);
         generateWarpedMint(itemModels);
         generateScroll(itemModels);
@@ -108,7 +110,23 @@ public class ModModelProvider extends ModelProvider {
         generateCabinet(blockModels, itemModels);
         generateDistiller(blockModels, itemModels);
         generateMenu(blockModels, itemModels);
+        generateMintCrop(blockModels);
 //        generateLongDrinkGlassware(itemModels);
+    }
+
+    public void generateMintCrop(BlockModelGenerators blockModelGenerators) {
+        blockModelGenerators.blockStateOutput
+                .accept(
+                        MultiVariantGenerator.dispatch(BlockRegistries.MINT_PLANT.get())
+                                .with(
+                                        PropertyDispatch.initial(BlockStateProperties.AGE_7)
+                                                .generate(
+                                                        age -> BlockModelGenerators.plainVariant(
+                                                                ModelLocationUtils.getModelLocation(BlockRegistries.MINT_PLANT.get(), "_stage" + (Mth.floor((age - 1F) / 3) + 1))
+                                                        )
+                                                )
+                                )
+                );
     }
 
     private static void generateWarpedMint(ItemModelGenerators itemModels) {

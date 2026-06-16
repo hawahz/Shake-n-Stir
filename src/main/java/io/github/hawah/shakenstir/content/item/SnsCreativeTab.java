@@ -78,7 +78,7 @@ public class SnsCreativeTab {
             .displayItems((params, output) -> {
                 output.accept(Items.POPPY);
                 output.accept(ItemRegistries.LEMON_SLICE.get());
-                output.accept(ItemRegistries.STACKED_MINT.get());
+                output.accept(ItemRegistries.MINT_SEED.get());
                 output.accept(createMint(0));
                 output.accept(createMint(1));
                 output.accept(createMint(2));

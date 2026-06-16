@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.client.event;
 
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.WarpedMint;
+import io.github.hawah.shakenstir.content.item.StackedMintItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -25,7 +26,7 @@ public class ClientGuiViewEvents {
         GuiGraphicsExtractor graphics = event.getGuiGraphics();
         if (hoveredSlot != null && hoveredSlot.getItem().has(DataComponentTypeRegistries.WARPED_MINT)) {
             ItemStack item = hoveredSlot.getItem();
-            WarpedMint warpedMint = item.get(DataComponentTypeRegistries.WARPED_MINT);
+            WarpedMint warpedMint = item.getOrDefault(DataComponentTypeRegistries.WARPED_MINT, new WarpedMint());
             int index = item.getOrDefault(DataComponentTypeRegistries.SELECT_MINT, 0);
             int slotSize = 22;
             int offset = index * slotSize;
@@ -66,16 +67,7 @@ public class ClientGuiViewEvents {
                 );
                 int len = content.getCount();
                 String ctx;
-                if (len >= 1000_000_000) {
-                    // ctx = len/1000 + "B";
-                    ctx = "inf";
-                } else if (len >= 1000_000) {
-                    ctx = len/1000 + "M";
-                } else if (len >= 1000) {
-                    ctx = len/1000 + "K";
-                } else {
-                    ctx = String.valueOf(len);
-                }
+                ctx = StackedMintItem.parseCount(len);
                 graphics.itemDecorations(
                         font,
                         content,
@@ -86,4 +78,5 @@ public class ClientGuiViewEvents {
             }
         }
     }
+
 }

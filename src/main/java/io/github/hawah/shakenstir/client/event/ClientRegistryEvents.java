@@ -22,6 +22,7 @@ import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistr
 import io.github.hawah.shakenstir.content.dataComponent.WarpedMint;
 import io.github.hawah.shakenstir.content.entity.EntityTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.content.item.StackedMintItem;
 import io.github.hawah.shakenstir.content.tooltip.ShakeTooltipComponent;
 import io.github.hawah.shakenstir.content.tooltip.WarpedMintTooltip;
 import io.github.hawah.shakenstir.foundation.utils.ContextKeys;
@@ -247,6 +248,10 @@ public class ClientRegistryEvents {
             public boolean render(GuiGraphicsExtractor guiGraphics, Font font, ItemStack stack, int xOffset, int yOffset) {
                 WarpedMint warpedMint = stack.getOrDefault(DataComponentTypeRegistries.WARPED_MINT, new WarpedMint());
                 int variety = warpedMint.variety();
+                int size = warpedMint.size();
+                String total = StackedMintItem.parseCount(size);
+
+                itemCount(guiGraphics, font, xOffset, yOffset, total);
                 itemTextDeco(guiGraphics, font, xOffset, yOffset - 18 + font.lineHeight, String.valueOf(variety));
                 return true;
             }
@@ -259,6 +264,17 @@ public class ClientRegistryEvents {
                         x + 19 - 2 - font.width(countText),
                         y + 6 + 3,
                         ARGB.color(255, count == 0 ? 0xFFFF00 : -1),
+                        true
+                );
+            }
+
+            private void itemCount(GuiGraphicsExtractor graphics, Font font, int x, int y, String countText) {
+                graphics.text(
+                        font,
+                        countText,
+                        x + 19 - 2 - font.width(countText),
+                        y + 6 + 3,
+                        -1,
                         true
                 );
             }

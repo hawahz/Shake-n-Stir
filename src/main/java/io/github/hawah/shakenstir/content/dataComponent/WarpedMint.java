@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class WarpedMint {
     public static final Codec<WarpedMint> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.INT.listOf().fieldOf("counts").forGetter(w -> List.of(w.counts[0], w.counts[1], w.counts[2]))
@@ -44,6 +45,10 @@ public class WarpedMint {
 
     private final int[] counts = new int[3];
 
+    public int size() {
+        return counts[0] + counts[1] + counts[2];
+    }
+
     public void merge(ItemStack itemStack) {
         int size = itemStack.getOrDefault(DataComponentTypeRegistries.MINT_SIZE, MintSizeComponent.of(-1)).size();
         if (size < 0 || size >= 3 || !(itemStack.getItem() instanceof MintItem)) {
@@ -58,7 +63,6 @@ public class WarpedMint {
         }
         for (int i = 0; i < other.counts.length; i++) {
             counts[i] += other.counts[i];
-            other.counts[i] = 0;
         }
         return true;
     }
@@ -77,6 +81,22 @@ public class WarpedMint {
             }
         }
         return list;
+    }
+
+    public ItemStack extract(int slot) {
+        for (int size = 0, i = 0; size < 3; size++, i++) {
+            if (counts[size] <= 0) {
+                i--;
+            } else {
+                if (i == slot) {
+                    ItemStack stack = ItemRegistries.MINT.toStack(Math.min(64, counts[size]));
+                    counts[size] -= stack.count();
+                    stack.set(DataComponentTypeRegistries.MINT_SIZE, MintSizeComponent.of(size));
+                    return stack;
+                }
+            }
+        }
+        return ItemStack.EMPTY;
     }
 
     public boolean isEmpty() {

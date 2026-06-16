@@ -77,13 +77,21 @@ public class MintItem extends Item {
             itemEntity.discard();
 
             SlotAccess slotAccess = player.getSlot(slot);
-            if (slotAccess != null && slotAccess.get().isEmpty()) {
-                ItemStack warpedMintStack = ItemRegistries.STACKED_MINT.toStack();
-                WarpedMint value = new WarpedMint();
-                value.merge(itemStack);
-                warpedMintStack.set(DataComponentTypeRegistries.WARPED_MINT, value);
+            if (slotAccess != null) {
+                if (slotAccess.get().isEmpty()) {
+                    ItemStack warpedMintStack = ItemRegistries.STACKED_MINT.toStack();
+                    WarpedMint value = new WarpedMint();
+                    value.merge(itemStack);
+                    warpedMintStack.set(DataComponentTypeRegistries.WARPED_MINT, value);
 
-                slotAccess.set(warpedMintStack);
+                    slotAccess.set(warpedMintStack);
+                }
+                else {
+                    ItemStack warpedMint = slotAccess.get();
+                    WarpedMint warped = warpedMint.getOrDefault(DataComponentTypeRegistries.WARPED_MINT, new WarpedMint()).copy();
+                    warped.merge(itemStack);
+                    warpedMint.set(DataComponentTypeRegistries.WARPED_MINT, warped);
+                }
             }
 
         }

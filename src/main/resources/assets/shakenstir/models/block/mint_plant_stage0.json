@@ -1,0 +1,45 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"1": "shakenstir:block/mint_texture",
+		"particle": "shakenstir:block/addition/mint_deco_0"
+	},
+	"elements": [
+		{
+			"from": [8, -2, 4.5],
+			"to": [8, 5, 11.5],
+			"rotation": {"x": 0, "y": 45, "z": 0, "origin": [8, 1.5, 8]},
+			"faces": {
+				"north": {"uv": [2, 0, 2, 7], "texture": "#1"},
+				"east": {"uv": [0, 0, 7, 7], "texture": "#1"},
+				"south": {"uv": [0, 0, 0, 7], "texture": "#1"},
+				"west": {"uv": [0, 0, 7, 7], "texture": "#1"},
+				"up": {"uv": [0, 0, 0, 7], "texture": "#1"},
+				"down": {"uv": [0, 0, 0, 7], "texture": "#1"}
+			}
+		},
+		{
+			"from": [8, -2, 4.5],
+			"to": [8, 5, 11.5],
+			"rotation": {"x": 0, "y": -45, "z": 0, "origin": [8, 1.5, 8]},
+			"faces": {
+				"north": {"uv": [2, 0, 2, 7], "texture": "#1"},
+				"east": {"uv": [0, 0, 7, 7], "texture": "#1"},
+				"south": {"uv": [0, 0, 0, 7], "texture": "#1"},
+				"west": {"uv": [0, 0, 7, 7], "texture": "#1"},
+				"up": {"uv": [0, 0, 0, 7], "texture": "#1"},
+				"down": {"uv": [0, 0, 0, 7], "texture": "#1"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "0",
+			"origin": [8, 8, 8],
+			"scope": 0,
+			"color": 0,
+			"children": [0, 1]
+		}
+	]
+}

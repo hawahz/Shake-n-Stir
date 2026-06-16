@@ -76,6 +76,7 @@ public class ItemRegistries {
     public static final DeferredItem<Item> BARTENDER_GLOVE = register("bartender_glove", Item::new, new Item.Properties().durability(20).component(DataComponentTypeRegistries.BARTENDER_GLOVE, Unit.INSTANCE));
     public static final DeferredItem<MintItem> MINT = registerMint("mint", 0);
     public static final DeferredItem<StackedMintItem> STACKED_MINT = register("stacked_mint", StackedMintItem::new);
+    public static final DeferredItem<PriorityBlockItem> MINT_SEED = register("mint_seed", BlockRegistries.MINT_PLANT);
 
     public static <T extends Item> DeferredItem<T> register(String name, Function<Item.Properties, T> supply) {
         return ITEM.register(name, (registryName) -> supply.apply(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName))));
