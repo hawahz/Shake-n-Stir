@@ -14,6 +14,8 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+
+@SuppressWarnings("unused")
 public class SnsCreativeTab {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(BuiltInRegistries.CREATIVE_MODE_TAB, ShakenStir.MODID);
     //CREATIVE_MODE_TABS is a DeferredRegister<CreativeModeTab>
@@ -76,7 +78,7 @@ public class SnsCreativeTab {
             .displayItems((params, output) -> {
                 output.accept(Items.POPPY);
                 output.accept(ItemRegistries.LEMON_SLICE.get());
-                output.accept(ItemRegistries.WARPED_MINT.get());
+                output.accept(ItemRegistries.STACKED_MINT.get());
                 output.accept(createMint(0));
                 output.accept(createMint(1));
                 output.accept(createMint(2));

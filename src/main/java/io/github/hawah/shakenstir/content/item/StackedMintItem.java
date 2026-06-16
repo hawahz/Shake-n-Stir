@@ -13,20 +13,13 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.Optional;
 
-public class WarpedMintItem extends Item {
-    public WarpedMintItem(Properties properties) {
+public class StackedMintItem extends Item {
+    public StackedMintItem(Properties properties) {
         super(properties.stacksTo(1));
     }
 
     @Override
     public boolean overrideStackedOnOther(ItemStack self, Slot slot, ClickAction clickAction, Player player) {
-//        if (ClickAction.PRIMARY.equals(clickAction) && slot.getItem().getItem() instanceof MintItem) {
-//            WarpedMint warpedMint = self.getOrDefault(DataComponentTypeRegistries.WARPED_MINT, new WarpedMint());
-//            warpedMint.merge(slot.getItem());
-//            self.set(DataComponentTypeRegistries.WARPED_MINT, warpedMint);
-//            slot.set(self);
-//            return true;
-//        }
         return super.overrideStackedOnOther(self, slot, clickAction, player);
     }
 
@@ -39,7 +32,7 @@ public class WarpedMintItem extends Item {
                 other.shrink(other.getCount());
                 self.set(DataComponentTypeRegistries.WARPED_MINT, warpedMint);
                 return true;
-            } else if (other.getItem() instanceof WarpedMintItem) {
+            } else if (other.getItem() instanceof StackedMintItem) {
                 WarpedMint warpedMint = other.getOrDefault(DataComponentTypeRegistries.WARPED_MINT, new WarpedMint());
                 WarpedMint base = self.getOrDefault(DataComponentTypeRegistries.WARPED_MINT, new WarpedMint());
                 base.merge(warpedMint);

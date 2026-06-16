@@ -51,7 +51,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-@SuppressWarnings({"DuplicatedCode", "ExtractMethodRecommender"})
+@SuppressWarnings({"DuplicatedCode", "ExtractMethodRecommender", "unused", "SameParameterValue"})
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class ModModelProvider extends ModelProvider {
@@ -115,14 +115,14 @@ public class ModModelProvider extends ModelProvider {
         ItemModel.Unbaked small = ItemModelUtils.plainModel(flatItemModel(itemModels, ItemRegistries.MINT.get(), "_0"));
         ItemModel.Unbaked medium = ItemModelUtils.plainModel(flatItemModel(itemModels, ItemRegistries.MINT.get(), "_1"));
         ItemModel.Unbaked large = ItemModelUtils.plainModel(flatItemModel(itemModels, ItemRegistries.MINT.get(), "_2"));
-        ItemModel.Unbaked def = ItemModelUtils.plainModel(itemModels.createFlatItemModel(ItemRegistries.WARPED_MINT.get(), ModelTemplates.FLAT_ITEM));
+        ItemModel.Unbaked def = ItemModelUtils.plainModel(itemModels.createFlatItemModel(ItemRegistries.STACKED_MINT.get(), ModelTemplates.FLAT_ITEM));
 
         ItemModel.Unbaked model = ItemModelUtils.conditional(new WarpedMintDisplay(0), small,
                 ItemModelUtils.conditional(new WarpedMintDisplay(1), medium,
                         ItemModelUtils.conditional(new WarpedMintDisplay(-1), def, large)));
 
         itemModels.itemModelOutput.accept(
-                ItemRegistries.WARPED_MINT.get(),
+                ItemRegistries.STACKED_MINT.get(),
                 model
         );
     }
@@ -657,7 +657,9 @@ public class ModModelProvider extends ModelProvider {
         }
         if (count == 2) {
             if (north && east) return new OverlayInfo(nearOverlay, 90);
+            //noinspection ConstantValue
             if (east && south) return new OverlayInfo(nearOverlay, 180);
+            //noinspection ConstantValue
             if (south && west) return new OverlayInfo(nearOverlay, 270);
             return new OverlayInfo(nearOverlay, 0);
         }

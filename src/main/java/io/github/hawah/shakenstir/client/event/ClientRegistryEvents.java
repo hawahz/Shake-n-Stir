@@ -240,7 +240,7 @@ public class ClientRegistryEvents {
 
     @SubscribeEvent
     public static void registerItemDecorations(RegisterItemDecorationsEvent event) {
-        event.register(ItemRegistries.WARPED_MINT, new IItemDecorator() {
+        event.register(ItemRegistries.STACKED_MINT, new IItemDecorator() {
             @Override
             public boolean render(GuiGraphicsExtractor guiGraphics, Font font, ItemStack stack, int xOffset, int yOffset) {
                 WarpedMint warpedMint = stack.getOrDefault(DataComponentTypeRegistries.WARPED_MINT, new WarpedMint());

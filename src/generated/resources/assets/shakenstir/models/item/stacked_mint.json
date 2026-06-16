@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "shakenstir:item/warped_mint"
+    "layer0": "shakenstir:item/stacked_mint"
   }
 }

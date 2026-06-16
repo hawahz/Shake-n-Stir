@@ -1,6 +1,6 @@
 package io.github.hawah.shakenstir.foundation.mixin;
 
-import io.github.hawah.shakenstir.content.item.WarpedMintItem;
+import io.github.hawah.shakenstir.content.item.StackedMintItem;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -18,7 +18,7 @@ public class ItemEntityMixin {
     private static EntityDataAccessor<ItemStack> DATA_ITEM;
     @Inject(method = "setItem", at = @At("HEAD"), cancellable = true)
     public void shakeNStir$setItem(ItemStack itemStack, CallbackInfo ci) {
-        if (itemStack.getItem() instanceof WarpedMintItem) {
+        if (itemStack.getItem() instanceof StackedMintItem) {
             ci.cancel();
             // TODO
             ((ItemEntity) (Object) this).getEntityData().set(DATA_ITEM, itemStack);

@@ -26,7 +26,7 @@ public class MintItem extends Item {
     @Override
     public boolean overrideOtherStackedOnMe(ItemStack self, ItemStack other, Slot slot, ClickAction clickAction, Player player, SlotAccess carriedItem) {
         if (other.is(this) && other.get(DataComponentTypeRegistries.MINT_SIZE) != self.get(DataComponentTypeRegistries.MINT_SIZE)) {
-            ItemStack stack = ItemRegistries.WARPED_MINT.toStack();
+            ItemStack stack = ItemRegistries.STACKED_MINT.toStack();
             WarpedMint value = new WarpedMint();
             value.merge(self);
             value.merge(other);
@@ -46,11 +46,12 @@ public class MintItem extends Item {
         if (itemStack.getItem() instanceof MintItem && !itemEntity.hasPickUpDelay() && (itemEntity.getTarget() == null || itemEntity.getTarget().equals(player.getUUID()))) {
 
             int slot = -1;
-            if (!player.getInventory().hasAnyMatching(item -> item.is(ItemRegistries.WARPED_MINT))) {
+            if (!player.getInventory().hasAnyMatching(item -> item.is(ItemRegistries.STACKED_MINT))) {
                 slot = player.getInventory().getFreeSlot();
             } else {
                 for (int i = 0; i < player.getInventory().getNonEquipmentItems().size(); i++) {
-                    if (player.getInventory().getSlot(i).get().is(ItemRegistries.WARPED_MINT)) {
+                    SlotAccess slotAccess = player.getInventory().getSlot(i);
+                    if (slotAccess != null && slotAccess.get().is(ItemRegistries.STACKED_MINT)) {
                         slot = i;
                         break;
                     }
@@ -62,6 +63,7 @@ public class MintItem extends Item {
             }
 
             event.setCanPickup(TriState.FALSE);
+            //noinspection resource
             if (player.level() instanceof ServerLevel serverLevel) {
                 serverLevel
                         .getChunkSource()
@@ -70,17 +72,13 @@ public class MintItem extends Item {
             itemEntity.discard();
 
             SlotAccess slotAccess = player.getSlot(slot);
-            if (slotAccess.get().isEmpty()) {
-                ItemStack warpedMintStack = ItemRegistries.WARPED_MINT.toStack();
+            if (slotAccess != null && slotAccess.get().isEmpty()) {
+                ItemStack warpedMintStack = ItemRegistries.STACKED_MINT.toStack();
                 WarpedMint value = new WarpedMint();
                 value.merge(itemStack);
                 warpedMintStack.set(DataComponentTypeRegistries.WARPED_MINT, value);
 
                 slotAccess.set(warpedMintStack);
-            } else {
-                WarpedMint value = slotAccess.get().getOrDefault(DataComponentTypeRegistries.WARPED_MINT, new WarpedMint()).copy();
-                value.merge(itemStack);
-                slotAccess.get().set(DataComponentTypeRegistries.WARPED_MINT, value);
             }
 
         }

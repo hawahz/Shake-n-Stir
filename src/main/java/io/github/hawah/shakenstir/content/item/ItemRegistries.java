@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-//@EventBusSubscriber
+@SuppressWarnings("unused")
 public class ItemRegistries {
     public static final DeferredRegister.Items ITEM = DeferredRegister.createItems(ShakenStir.MODID);
     public static final DeferredItem<PriorityBlockItem> SHAKER = register("shaker", ShakerItem::new);
@@ -75,7 +75,7 @@ public class ItemRegistries {
 
     public static final DeferredItem<Item> BARTENDER_GLOVE = register("bartender_glove", Item::new, new Item.Properties().durability(20).component(DataComponentTypeRegistries.BARTENDER_GLOVE, Unit.INSTANCE));
     public static final DeferredItem<MintItem> MINT = registerMint("mint", 0);
-    public static final DeferredItem<WarpedMintItem> WARPED_MINT = register("warped_mint", WarpedMintItem::new);
+    public static final DeferredItem<StackedMintItem> STACKED_MINT = register("stacked_mint", StackedMintItem::new);
 
     public static <T extends Item> DeferredItem<T> register(String name, Function<Item.Properties, T> supply) {
         return ITEM.register(name, (registryName) -> supply.apply(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName))));

@@ -130,5 +130,12 @@
   "fluid_type.shakenstir.tonic_fluid_type": "汤力",
   "item.shakenstir.bitters": "苦精",
   "item.shakenstir.bubbles": "气泡水",
-  "item.shakenstir.tonic": "汤力水"
+  "item.shakenstir.tonic": "汤力水",
+  "item.shakenstir.dialogue_editor": "对话编辑器",
+  "item.shakenstir.mint": "薄荷",
+  "item.shakenstir.stacked_mint": "一叠薄荷",
+  "itemGroup.shakenstir.tab.decoration": "摇匀搅香 - 装饰",
+  "shakenstir.tooltip_mint_size_large": "大",
+  "shakenstir.tooltip_mint_size_medium": "中",
+  "shakenstir.tooltip_mint_size_small": "小"
 }

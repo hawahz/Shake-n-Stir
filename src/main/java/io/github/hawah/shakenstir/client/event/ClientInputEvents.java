@@ -10,7 +10,7 @@ import io.github.hawah.shakenstir.content.blockEntity.CabinetBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.WarpedMint;
 import io.github.hawah.shakenstir.content.item.GlasswareItem;
-import io.github.hawah.shakenstir.content.item.WarpedMintItem;
+import io.github.hawah.shakenstir.content.item.StackedMintItem;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundHandItemDataChangedPacket;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundTryPickItemPacket;
 import io.github.hawah.shakenstir.lib.networking.Networking;
@@ -24,6 +24,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -78,7 +79,7 @@ public class ClientInputEvents {
         boolean down = event.getAction() == InputConstants.PRESS;
         if (ShakenStirClient.DECORATE_PLACE_HANDLER.onMousePressed(button, down)) {
             event.setCanceled(true);
-        };
+        }
     }
 
     @SubscribeEvent
@@ -99,10 +100,14 @@ public class ClientInputEvents {
     public static void onScreenScroll(ScreenEvent.MouseScrolled.Pre event) {
         Screen screen = event.getScreen();
         if (screen instanceof AbstractContainerScreen<?> abstractContainerScreen) {
-            ItemStack item = abstractContainerScreen.getHoveredSlot().getItem();
-            if (item.getItem() instanceof WarpedMintItem) {
+            Slot hoveredSlot = abstractContainerScreen.getHoveredSlot();
+            if (hoveredSlot == null) {
+                return;
+            }
+            ItemStack item = hoveredSlot.getItem();
+            if (item.getItem() instanceof StackedMintItem) {
                 int select = item.getOrDefault(DataComponentTypeRegistries.SELECT_MINT, 0);
-                select += -(int) event.getScrollDeltaY();
+                select -= (int) event.getScrollDeltaY();
                 int variety = item.getOrDefault(DataComponentTypeRegistries.WARPED_MINT, new WarpedMint()).variety();
                 select = Mth.clamp(select, 0, variety-1);
                 item.set(DataComponentTypeRegistries.SELECT_MINT, select);
