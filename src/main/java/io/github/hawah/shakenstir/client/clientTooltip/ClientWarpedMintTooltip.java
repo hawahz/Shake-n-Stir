@@ -32,6 +32,9 @@ public record ClientWarpedMintTooltip(WarpedMint warpedMint, int index) implemen
 
     @Override
     public void extractImage(Font font, int x, int y, int w, int h, GuiGraphicsExtractor graphics) {
+        if (true) {
+            return;
+        }
         ClientTooltipComponent.super.extractImage(font, x, y, w, h, graphics);
         if (warpedMint == null) {
             return;
@@ -51,14 +54,16 @@ public record ClientWarpedMintTooltip(WarpedMint warpedMint, int index) implemen
             );
         }
 
-        graphics.blitSprite(
-                RenderPipelines.GUI_TEXTURED,
-                HOTBAR_SELECTION_SPRITE,
-                x - 4+ 18 * index,
-                y - 4,
-                24,
-                23
-        );
+        if (index >= 0){
+            graphics.blitSprite(
+                    RenderPipelines.GUI_TEXTURED,
+                    HOTBAR_SELECTION_SPRITE,
+                    x - 4 + 18 * index,
+                    y - 4,
+                    24,
+                    23
+            );
+        }
         List<ItemStack> contents = warpedMint.contents();
         for (int i = 0, contentsSize = contents.size(); i < contentsSize; i++) {
             ItemStack content = contents.get(i);
@@ -67,11 +72,19 @@ public record ClientWarpedMintTooltip(WarpedMint warpedMint, int index) implemen
                     x + 18 * i,
                     y
             );
+            int len = content.getCount();
+            String ctx;
+            if (len >= 1000) {
+                ctx = len/1000 + "K";
+            } else {
+                ctx = String.valueOf(len);
+            }
             graphics.itemDecorations(
                     font,
                     content,
-                    x,
-                    y
+                    x + 18 * i,
+                    y,
+                    ctx
             );
         }
     }

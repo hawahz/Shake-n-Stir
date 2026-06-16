@@ -8,97 +8,99 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 public class WarpedMint {
     public static final Codec<WarpedMint> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            Codec.dispatchedMap(Codec.INT, _ -> Codec.INT)
-                    .fieldOf("idx2Count").forGetter(warpedMint -> warpedMint.idx2Count)
-    ).apply(inst, WarpedMint::new));
+            Codec.INT.listOf().fieldOf("counts").forGetter(w -> List.of(w.counts[0], w.counts[1], w.counts[2]))
+    ).apply(inst, list -> {
+        int[] arr = new int[3];
+        for (int i = 0; i < 3 && i < list.size(); i++) arr[i] = list.get(i);
+        return new WarpedMint(arr);
+    }));
 
-    public static final StreamCodec<ByteBuf, WarpedMint> STREAM_CODEC = new StreamCodec<ByteBuf, WarpedMint>() {
+    public static final StreamCodec<ByteBuf, WarpedMint> STREAM_CODEC = new StreamCodec<>() {
         @Override
         public WarpedMint decode(ByteBuf input) {
-            int size = input.readInt();
-            Map<Integer, Integer> map = new HashMap<>();
-            for (int i = 0; i < size; i++) {
-                int idx = input.readInt();
-                int count = input.readInt();
-                map.put(idx, count);
-            }
-            return new WarpedMint(map);
+            int[] counts = new int[3];
+            for (int i = 0; i < 3; i++) counts[i] = input.readInt();
+            return new WarpedMint(counts);
         }
 
         @Override
         public void encode(ByteBuf output, WarpedMint value) {
-            int size = value.idx2Count.size();
-            output.writeInt(size);
-            for (Map.Entry<Integer, Integer> entry : value.idx2Count.entrySet()) {
-                output.writeInt(entry.getKey());
-                output.writeInt(entry.getValue());
-            }
+            for (int i = 0; i < 3; i++) output.writeInt(value.counts[i]);
         }
     };
 
     public WarpedMint() {
     }
-    public WarpedMint(Map<Integer, Integer> map) {
-        idx2Count.putAll(map);
+
+    public WarpedMint(int[] counts) {
+        System.arraycopy(counts, 0, this.counts, 0, 3);
     }
 
-    private final Map<Integer, Integer> idx2Count = new HashMap<>();
+    private final int[] counts = new int[3];
+
     public void merge(ItemStack itemStack) {
         int size = itemStack.getOrDefault(DataComponentTypeRegistries.MINT_SIZE, MintSizeComponent.of(-1)).size();
-        if (size < 0 || !(itemStack.getItem() instanceof MintItem)) {
+        if (size < 0 || size >= 3 || !(itemStack.getItem() instanceof MintItem)) {
             return;
         }
-
-        int count = itemStack.getCount();
-        idx2Count.merge(size, count, (_, oldVal) -> oldVal + count);
+        counts[size] += itemStack.getCount();
     }
-    public List<ItemStack> contents() {
-        return idx2Count.entrySet()
-                .stream()
-                .map(e -> {
-                    int size = e.getKey();
-                    int count = e.getValue();
-                    ItemStack stack = ItemRegistries.MINT.toStack(count);
-                    stack.set(DataComponentTypeRegistries.MINT_SIZE, MintSizeComponent.of(size));
-                    return stack;
-                }).toList();
 
-    }
-    public boolean isEmpty() {
-        flush();
-        if (idx2Count.isEmpty()) {
+    public boolean merge(WarpedMint other) {
+        if (other.isEmpty()) {
             return true;
         }
-        return idx2Count.values().stream().allMatch(num -> num == 0);
+        for (int i = 0; i < other.counts.length; i++) {
+            counts[i] += other.counts[i];
+            other.counts[i] = 0;
+        }
+        return true;
+    }
+
+    public int[] getCounts() {
+        return Arrays.copyOf(counts, counts.length);
+    }
+
+    public List<ItemStack> contents() {
+        List<ItemStack> list = new ArrayList<>();
+        for (int size = 0; size < 3; size++) {
+            if (counts[size] > 0) {
+                ItemStack stack = ItemRegistries.MINT.toStack(counts[size]);
+                stack.set(DataComponentTypeRegistries.MINT_SIZE, MintSizeComponent.of(size));
+                list.add(stack);
+            }
+        }
+        return list;
+    }
+
+    public boolean isEmpty() {
+        return counts[0] == 0 && counts[1] == 0 && counts[2] == 0;
     }
 
     public int variety() {
-        flush();
-        return idx2Count.size();
+        int v = 0;
+        for (int i = 0; i < 3; i++) if (counts[i] > 0) v++;
+        return v;
     }
 
-    public void flush() {
-        idx2Count.values()
-                .stream()
-                .filter(itg -> idx2Count.get(itg)==0)
-                .map(idx2Count::remove);
+    public WarpedMint copy(){
+        return new WarpedMint(Arrays.stream(counts).toArray());
     }
 
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof WarpedMint that)) return false;
-        return Objects.equals(idx2Count, that.idx2Count);
+        return Arrays.equals(counts, that.counts);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(idx2Count);
+        return Arrays.hashCode(counts);
     }
 }

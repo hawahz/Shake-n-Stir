@@ -30,6 +30,7 @@ import io.github.hawah.shakenstir.content.dataComponent.WarpedMint;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
 import io.github.hawah.shakenstir.content.entity.EntityTypeRegistries;
 import io.github.hawah.shakenstir.content.item.GlasswareItem;
+import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.item.WarpedMintItem;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundHandItemDataChangedPacket;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundTryPickItemPacket;
@@ -43,10 +44,13 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockTintSource;
 import net.minecraft.client.entity.ClientAvatarEntity;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
@@ -54,15 +58,18 @@ import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Avatar;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.IItemDecorator;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.model.standalone.SimpleUnbakedStandaloneModel;
 import net.neoforged.neoforge.client.renderstate.AvatarRenderStateModifier;
@@ -269,6 +276,7 @@ public class ClientEvents {
                 int variety = item.getOrDefault(DataComponentTypeRegistries.WARPED_MINT, new WarpedMint()).variety();
                 select = Mth.clamp(select, 0, variety-1);
                 item.set(DataComponentTypeRegistries.SELECT_MINT, select);
+                event.setCanceled(true);
             }
         }
     }
@@ -277,6 +285,77 @@ public class ClientEvents {
     public static void onRenderOutline(ExtractBlockOutlineRenderStateEvent event) {
         if (event.getLevel().getBlockEntity(event.getBlockPos()) instanceof GlasswareBlockEntity blockEntity) {
             event.addCustomRenderer(new GlasswareOutlineRenderer(blockEntity));
+        }
+    }
+
+    public static final Identifier HOTBAR_SELECTION_SPRITE = Identifier.withDefaultNamespace("hud/hotbar_selection");
+
+    @SubscribeEvent
+    public static void onRenderContainer(ContainerScreenEvent.Render.Foreground event) {
+        var containerScreen = event.getContainerScreen();
+        Slot hoveredSlot = containerScreen.getHoveredSlot();
+        GuiGraphicsExtractor graphics = event.getGuiGraphics();
+        if (hoveredSlot != null && hoveredSlot.getItem().has(DataComponentTypeRegistries.WARPED_MINT)) {
+            ItemStack item = hoveredSlot.getItem();
+            WarpedMint warpedMint = item.get(DataComponentTypeRegistries.WARPED_MINT);
+            int index = item.getOrDefault(DataComponentTypeRegistries.SELECT_MINT, 0);
+            int slotSize = 22;
+            int offset = index * slotSize;
+            int x = hoveredSlot.x;
+            int y = hoveredSlot.y - offset;
+            Font font = Minecraft.getInstance().font;
+            for (int i = 0; i < warpedMint.variety(); i++) {
+                graphics.blit(
+                        RenderPipelines.GUI_TEXTURED,
+                        Identifier.withDefaultNamespace("textures/gui/sprites/hud/hotbar_offhand_left.png"),
+                        x - 1 - 2,
+                        y - 1 - 3 + slotSize * i,
+                        0,
+                        1,
+                        slotSize,
+                        slotSize,
+                        29,
+                        24
+                );
+            }
+            if (index >= 0){
+                graphics.blitSprite(
+                        RenderPipelines.GUI_TEXTURED,
+                        HOTBAR_SELECTION_SPRITE,
+                        x - 4,
+                        y - 4 + slotSize * index,
+                        24,
+                        23
+                );
+            }
+            List<ItemStack> contents = warpedMint.contents();
+            for (int i = 0, contentsSize = contents.size(); i < contentsSize; i++) {
+                ItemStack content = contents.get(i);
+                graphics.item(
+                        content,
+                        x,
+                        y + slotSize * i
+                );
+                int len = content.getCount();
+                String ctx;
+                if (len >= 1000_000_000) {
+                    // ctx = len/1000 + "B";
+                    ctx = "inf";
+                } else if (len >= 1000_000) {
+                    ctx = len/1000 + "M";
+                } else if (len >= 1000) {
+                    ctx = len/1000 + "K";
+                } else {
+                    ctx = String.valueOf(len);
+                }
+                graphics.itemDecorations(
+                        font,
+                        content,
+                        x,
+                        y + slotSize * i,
+                        ctx
+                );
+            }
         }
     }
 
@@ -365,6 +444,10 @@ public class ClientEvents {
                     Identifier.fromNamespaceAndPath(ShakenStir.MODID, "mint_size"),
                     // The map codec
                     MintSize.MAP_CODEC
+            );
+            event.register(
+                    ShakenStir.asResource("wawrped_mint_display"),
+                    WarpedMintDisplay.MAP_CODEC
             );
         }
 
@@ -465,6 +548,31 @@ public class ClientEvents {
 
         @SubscribeEvent
         public static void registerRenderer(RegisterPictureInPictureRenderersEvent event) {
+        }
+
+        @SubscribeEvent
+        public static void registerItemDecorations(RegisterItemDecorationsEvent event) {
+            event.register(ItemRegistries.WARPED_MINT, new IItemDecorator() {
+                @Override
+                public boolean render(GuiGraphicsExtractor guiGraphics, Font font, ItemStack stack, int xOffset, int yOffset) {
+                    WarpedMint warpedMint = stack.getOrDefault(DataComponentTypeRegistries.WARPED_MINT, new WarpedMint());
+                    int variety = warpedMint.variety();
+                    itemTextDeco(guiGraphics, font, xOffset, yOffset - 18 + font.lineHeight, String.valueOf(variety));
+                    return true;
+                }
+
+                private void itemTextDeco(GuiGraphicsExtractor graphics, Font font, int x, int y, String countText) {
+                    int count = Integer.parseInt(countText);
+                    graphics.text(
+                            font,
+                            countText,
+                            x + 19 - 2 - font.width(countText),
+                            y + 6 + 3,
+                            ARGB.color(255, count == 0? 0xFFFF00: -1),
+                            true
+                    );
+                }
+            });
         }
 
     }

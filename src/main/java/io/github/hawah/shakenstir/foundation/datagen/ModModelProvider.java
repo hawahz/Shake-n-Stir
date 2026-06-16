@@ -1,5 +1,6 @@
 package io.github.hawah.shakenstir.foundation.datagen;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.math.Quadrant;
 import io.github.hawah.shakenstir.ShakenStir;
@@ -9,6 +10,7 @@ import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer
 import io.github.hawah.shakenstir.content.HasCup;
 import io.github.hawah.shakenstir.content.MintSize;
 import io.github.hawah.shakenstir.content.Warped;
+import io.github.hawah.shakenstir.content.WarpedMintDisplay;
 import io.github.hawah.shakenstir.content.block.*;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
@@ -43,7 +45,9 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.registries.DeferredItem;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -69,8 +73,8 @@ public class ModModelProvider extends ModelProvider {
         itemModels.generateFlatItem(ItemRegistries.TONIC.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ItemRegistries.BITTERS.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ItemRegistries.DIALOGUE_EDITOR.get(), ModelTemplates.FLAT_ITEM);
-        itemModels.generateFlatItem(ItemRegistries.WARPED_MINT.get(), ModelTemplates.FLAT_ITEM);
         generateMint(itemModels);
+        generateWarpedMint(itemModels);
         generateScroll(itemModels);
         // Basic single variant model
         registerCustomBlockModel(blockModels, "block/shaker_lid", BlockRegistries.SHAKE_LID_BLOCK.get());
@@ -107,10 +111,26 @@ public class ModModelProvider extends ModelProvider {
 //        generateLongDrinkGlassware(itemModels);
     }
 
+    private static void generateWarpedMint(ItemModelGenerators itemModels) {
+        ItemModel.Unbaked small = ItemModelUtils.plainModel(flatItemModel(itemModels, ItemRegistries.MINT.get(), "_0"));
+        ItemModel.Unbaked medium = ItemModelUtils.plainModel(flatItemModel(itemModels, ItemRegistries.MINT.get(), "_1"));
+        ItemModel.Unbaked large = ItemModelUtils.plainModel(flatItemModel(itemModels, ItemRegistries.MINT.get(), "_2"));
+        ItemModel.Unbaked def = ItemModelUtils.plainModel(itemModels.createFlatItemModel(ItemRegistries.WARPED_MINT.get(), ModelTemplates.FLAT_ITEM));
+
+        ItemModel.Unbaked model = ItemModelUtils.conditional(new WarpedMintDisplay(0), small,
+                ItemModelUtils.conditional(new WarpedMintDisplay(1), medium,
+                        ItemModelUtils.conditional(new WarpedMintDisplay(-1), def, large)));
+
+        itemModels.itemModelOutput.accept(
+                ItemRegistries.WARPED_MINT.get(),
+                model
+        );
+    }
+
     private static void generateMint(ItemModelGenerators itemModels) {
-        ItemModel.Unbaked small = ItemModelUtils.plainModel(itemModels.createFlatItemModel(ItemRegistries.MINT.get(), "_0", ModelTemplates.FLAT_ITEM));
-        ItemModel.Unbaked medium = ItemModelUtils.plainModel(itemModels.createFlatItemModel(ItemRegistries.MINT.get(), "_1", ModelTemplates.FLAT_ITEM));
-        ItemModel.Unbaked large = ItemModelUtils.plainModel(itemModels.createFlatItemModel(ItemRegistries.MINT.get(), "_2", ModelTemplates.FLAT_ITEM));
+        ItemModel.Unbaked small = ItemModelUtils.plainModel(flatItemModel(itemModels, ItemRegistries.MINT.get(), "_0"));
+        ItemModel.Unbaked medium = ItemModelUtils.plainModel(flatItemModel(itemModels, ItemRegistries.MINT.get(), "_1"));
+        ItemModel.Unbaked large = ItemModelUtils.plainModel(flatItemModel(itemModels, ItemRegistries.MINT.get(), "_2"));
         ItemModel.Unbaked model = ItemModelUtils.conditional(new MintSize(0), small,
                 ItemModelUtils.conditional(new MintSize(1), medium, large));
 
@@ -118,6 +138,14 @@ public class ModModelProvider extends ModelProvider {
                 ItemRegistries.MINT.get(),
                 model
         );
+    }
+
+    public static final  Map<Pair<Item, String>, Identifier> cached = new HashMap<>();
+    private static Identifier flatItemModel(ItemModelGenerators itemModels, Item item, String suffix, ModelTemplate template) {
+        return cached.computeIfAbsent(Pair.of(item, suffix), _ -> itemModels.createFlatItemModel(item, suffix, template));
+    }
+    private static Identifier flatItemModel(ItemModelGenerators itemModels, Item item, String suffix) {
+        return flatItemModel(itemModels, item, suffix, ModelTemplates.FLAT_ITEM);
     }
 
     private static void generateMenu(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
