@@ -61,6 +61,7 @@ public class ModItemTagsProvider extends ItemTagsProvider {
                 .add(Items.GLOW_BERRIES)
                 .add(Items.BAMBOO)
                 .add(ItemRegistries.LEMON_SLICE.get())
+                .add(ItemRegistries.MINT.get())
                 .add()
         ;
         this.tag(SnsItemTags.DRINK_DECORATION)

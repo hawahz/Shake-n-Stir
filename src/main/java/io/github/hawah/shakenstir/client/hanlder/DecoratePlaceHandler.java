@@ -50,6 +50,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -116,7 +117,7 @@ public class DecoratePlaceHandler implements IHandler {
         GlasswareRenderer.ModelSelector selector = new GlasswareRenderer.ModelSelector();
         Identifier decorateModel;
         if ((item.has(DataComponentTypeRegistries.DECORATE_MODEL) && (decorateModel = item.get(DataComponentTypeRegistries.DECORATE_MODEL)) != null) ||
-                (GlasswareDecorations.maps.containsKey(item.getItem()) && (decorateModel = GlasswareDecorations.maps.get(item.getItem())) != null)) {
+                ((decorateModel = GlasswareDecorations.maps.entrySet().stream().filter(entry -> entry.getKey().test(item)).map(Map.Entry::getValue).findAny().orElse(null)) != null)) {
             Optional<IModel<?>> model = Models.getModel(decorateModel);
             AtomicReference<VoxelShape> vs = new AtomicReference<>(shape);
             model.ifPresent(decoration -> {

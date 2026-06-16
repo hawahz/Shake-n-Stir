@@ -3,13 +3,15 @@ package io.github.hawah.shakenstir.content.block;
 import com.mojang.serialization.MapCodec;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.LiquidBlock;
-import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.MapColor;
@@ -24,6 +26,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+@SuppressWarnings("SameParameterValue")
 public class BlockRegistries {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(ShakenStir.MODID);
     public static final DeferredBlock<Shaker> SHAKE_BLOCK = register("shaker", Shaker::new);
@@ -44,6 +47,21 @@ public class BlockRegistries {
     public static final DeferredBlock<Distiller> DISTILLER = register("distiller", Distiller::new);
 
     public static final DeferredBlock<Cabinet> CABINET = register("cabinet", Cabinet::new);
+    public static final DeferredBlock<LemonSideLeavesBlock> LEMON_SIDE_LEAVES = register("lemon_side_leaves", LemonSideLeavesBlock::new);
+    public static final DeferredBlock<LemonTreeBlock> LEMON_LOG = register("lemon_log", LemonTreeBlock::new, logProperties(MapColor.WOOD, SoundType.WOOD));
+    public static final DeferredBlock<Block> LEMON_LEAVES = register("lemon_center_leaves", p -> new TintedParticleLeavesBlock(0.01F, p), leavesProperties(SoundType.GRASS));
+
+    public static final DeferredBlock<Block> LEMON_TOP_LEAVES = register("lemon_top_leaves",p -> new TintedParticleLeavesBlock(0.01F, p), leavesProperties(SoundType.GRASS));
+    public static final DeferredBlock<LemonTreeSaplingBlock> LEMON_SAPLING = register("lemon_sapling", LemonTreeSaplingBlock::new,
+            BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.PLANT)
+                    .noCollision()
+                    .randomTicks()
+                    .instabreak()
+                    .sound(SoundType.GRASS)
+                    .pushReaction(PushReaction.DESTROY)
+    );
+    public static final DeferredBlock<FlowerPotBlock> POTTED_LEMON = register("potted_lemon", properties -> new FlowerPotBlock(()-> (FlowerPotBlock) Blocks.FLOWER_POT, BlockRegistries.LEMON_SAPLING, properties), flowerPotProperties());
 
     public static final DeferredBlock<LiquidBlock> GIN_LIQUID = registerLiquid("gin_liquid", FluidRegistries.GIN_SOURCE);
     public static final DeferredBlock<LiquidBlock> VODKA_LIQUID = registerLiquid("vodka_liquid", FluidRegistries.VODKA_FLOWING);
@@ -93,6 +111,14 @@ public class BlockRegistries {
                 )
         );
     }
+
+    public static <T extends Block> DeferredBlock<T> register(String name, Function<BlockBehaviour.Properties, T> blockSupplier, BlockBehaviour.Properties properties) {
+        return BLOCKS.register(name, registryName ->
+                blockSupplier.apply(
+                        properties.setId(ResourceKey.create(Registries.BLOCK, registryName))
+                )
+        );
+    }
     public static <T extends Block> DeferredBlock<T> register(String name, BiFunction<BlockBehaviour.Properties, Supplier<FluidType>, T> blockSupplier, Supplier<FluidType> content) {
         return BLOCKS.register(name, registryName ->
                 blockSupplier.apply(
@@ -112,6 +138,38 @@ public class BlockRegistries {
                         .noLootTable()
                         .liquid()
                         .sound(SoundType.EMPTY)));
+    }
+
+    private static BlockBehaviour.Properties logProperties(MapColor topColor, SoundType soundType) {
+        return BlockBehaviour.Properties.of()
+                .mapColor(topColor)
+                .instrument(NoteBlockInstrument.BASS)
+                .strength(2.0F)
+                .sound(soundType)
+                .ignitedByLava();
+    }
+
+    public static boolean never(BlockState state, BlockGetter blockGetter, BlockPos blockPos) {
+        return false;
+    }
+
+    private static BlockBehaviour.Properties leavesProperties(SoundType soundType) {
+        return BlockBehaviour.Properties.of()
+                .mapColor(MapColor.PLANT)
+                .strength(0.2F)
+                .randomTicks()
+                .sound(soundType)
+                .noOcclusion()
+                .isValidSpawn(Blocks::ocelotOrParrot)
+                .isSuffocating(BlockRegistries::never)
+                .isViewBlocking(BlockRegistries::never)
+                .ignitedByLava()
+                .pushReaction(PushReaction.DESTROY)
+                .isRedstoneConductor(BlockRegistries::never);
+    }
+
+    public static BlockBehaviour.Properties flowerPotProperties() {
+        return BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY);
     }
 
 }

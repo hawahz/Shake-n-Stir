@@ -44,5 +44,13 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
                 .add(BlockRegistries.BAR_COUNTER_BLOCK.get())
                 .add(BlockRegistries.CABINET.get())
         ;
+
+        this.tag(BlockTags.LOGS)
+                .add(BlockRegistries.LEMON_LOG.get())
+        ;
+
+        this.tag(BlockTags.LEAVES)
+                .add(BlockRegistries.LEMON_SIDE_LEAVES.get())
+        ;
     }
 }

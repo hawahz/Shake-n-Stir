@@ -137,5 +137,10 @@
   "itemGroup.shakenstir.tab.decoration": "摇匀搅香 - 装饰",
   "shakenstir.tooltip_mint_size_large": "大",
   "shakenstir.tooltip_mint_size_medium": "中",
-  "shakenstir.tooltip_mint_size_small": "小"
+  "shakenstir.tooltip_mint_size_small": "小",
+  "item.shakenstir.lemon_leaves_center": "柠檬树叶",
+  "item.shakenstir.lemon_leaves_top": "柠檬树顶层叶",
+  "item.shakenstir.lemon_log": "柠檬树干",
+  "item.shakenstir.lemon_side_leaves": "柠檬树侧边叶",
+  "item.shakenstir.lemon_sapling": "柠檬树苗"
 }

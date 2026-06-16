@@ -16,6 +16,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Unit;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.food.Foods;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.level.block.Block;
@@ -76,7 +77,13 @@ public class ItemRegistries {
     public static final DeferredItem<Item> BARTENDER_GLOVE = register("bartender_glove", Item::new, new Item.Properties().durability(20).component(DataComponentTypeRegistries.BARTENDER_GLOVE, Unit.INSTANCE));
     public static final DeferredItem<MintItem> MINT = registerMint("mint", 0);
     public static final DeferredItem<StackedMintItem> STACKED_MINT = register("stacked_mint", StackedMintItem::new);
-    public static final DeferredItem<PriorityBlockItem> MINT_SEED = register("mint_seed", BlockRegistries.MINT_PLANT);
+    public static final DeferredItem<BlockItem> MINT_SEED = registerBlock("mint_seed", BlockRegistries.MINT_PLANT);
+    public static final DeferredItem<BlockItem> LEMON_SIDE_LEAVES = registerBlock("lemon_side_leaves", BlockRegistries.LEMON_SIDE_LEAVES);
+    public static final DeferredItem<BlockItem> LEMON_LOG = registerBlock("lemon_log", BlockRegistries.LEMON_LOG);
+    public static final DeferredItem<BlockItem> LEMON_TOP_LEAVES = registerBlock("lemon_leaves_top", BlockRegistries.LEMON_TOP_LEAVES);
+    public static final DeferredItem<BlockItem> LEMON_LEAVES = registerBlock("lemon_leaves_center", BlockRegistries.LEMON_LEAVES);
+    public static final DeferredItem<BlockItem> LEMON_SAPLING = registerBlock("lemon_sapling", BlockRegistries.LEMON_SAPLING);
+
 
     public static <T extends Item> DeferredItem<T> register(String name, Function<Item.Properties, T> supply) {
         return ITEM.register(name, (registryName) -> supply.apply(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName))));
@@ -91,6 +98,10 @@ public class ItemRegistries {
     }
     public static <T extends Block> DeferredItem<PriorityBlockItem> register(String name, DeferredBlock<T> block) {
         return ITEM.register(name, (registryName) -> new PriorityBlockItem(block.get(), new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName))));
+    }
+
+    public static <T extends Block> DeferredItem<BlockItem> registerBlock(String name, DeferredBlock<T> block) {
+        return ITEM.register(name, (registryName) -> new BlockItem(block.get(), new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName))));
     }
 
     public static <T extends Block> DeferredItem<SpiritBottleItem> registerSpirit(String name, DeferredBlock<T> block, Item.Properties properties) {

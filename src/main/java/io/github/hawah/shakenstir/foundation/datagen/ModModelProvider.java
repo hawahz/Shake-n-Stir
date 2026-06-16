@@ -96,6 +96,7 @@ public class ModModelProvider extends ModelProvider {
         generateGlassware(ShakenStir.asResource("martini_glass"), itemModels);
         generateGlassware(ShakenStir.asResource("collins_glass"), itemModels);
         generateGlassware(ShakenStir.asResource("margarita_glass"), itemModels);
+        generateLemonLeaves(blockModels, itemModels);
 
         registerCustomBlockModel(blockModels, "block/whisky_liquid", BlockRegistries.WHISKY_LIQUID.get());
         registerCustomBlockModel(blockModels, "block/vodka_liquid", BlockRegistries.VODKA_LIQUID.get());
@@ -127,6 +128,40 @@ public class ModModelProvider extends ModelProvider {
                                                 )
                                 )
                 );
+    }
+
+    public void generateLemonLeaves(BlockModelGenerators blockModel, ItemModelGenerators itemModel) {
+        blockModel.blockStateOutput
+                .accept(
+                        MultiVariantGenerator.dispatch(BlockRegistries.LEMON_SIDE_LEAVES.get())
+                                .with(
+                                        PropertyDispatch.initial(BlockStateProperties.AGE_2)
+                                                .select(0, BlockModelGenerators.plainVariant(ModelLocationUtils.getModelLocation(BlockRegistries.LEMON_SIDE_LEAVES.get())))
+                                                .select(1, BlockModelGenerators.plainVariant(ModelLocationUtils.getModelLocation(BlockRegistries.LEMON_SIDE_LEAVES.get(), "_stage1")))
+                                                .select(2, BlockModelGenerators.plainVariant(ModelLocationUtils.getModelLocation(BlockRegistries.LEMON_SIDE_LEAVES.get(), "_stage2")))
+                                )
+                                .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING_ALT)
+                );
+
+        registerCustomBlockModel(blockModel, "block/lemon_tree_leaves", BlockRegistries.LEMON_LEAVES.get());
+        itemModel.itemModelOutput.accept(
+                ItemRegistries.LEMON_LEAVES.get(),
+                ItemModelUtils.plainModel(ShakenStir.asResource("block/lemon_tree_leaves"))
+        );
+
+        registerCustomBlockModel(blockModel, "block/lemon_tree_leaves_top", BlockRegistries.LEMON_TOP_LEAVES.get());
+        itemModel.itemModelOutput.accept(
+                ItemRegistries.LEMON_TOP_LEAVES.get(),
+                ItemModelUtils.plainModel(ShakenStir.asResource("block/lemon_tree_leaves_top"))
+        );
+
+        registerCustomBlockModel(blockModel, "block/lemon_tree_log", BlockRegistries.LEMON_LOG.get());
+        itemModel.itemModelOutput.accept(
+                ItemRegistries.LEMON_LOG.get(),
+                ItemModelUtils.plainModel(ShakenStir.asResource("block/lemon_tree_log"))
+        );
+
+        blockModel.createPlantWithDefaultItem(BlockRegistries.LEMON_SAPLING.get(), BlockRegistries.POTTED_LEMON.get(), BlockModelGenerators.PlantType.NOT_TINTED);
     }
 
     private static void generateWarpedMint(ItemModelGenerators itemModels) {

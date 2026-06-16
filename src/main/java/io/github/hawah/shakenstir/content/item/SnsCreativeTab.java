@@ -82,6 +82,12 @@ public class SnsCreativeTab {
                 output.accept(createMint(0));
                 output.accept(createMint(1));
                 output.accept(createMint(2));
+
+                output.accept(ItemRegistries.LEMON_SAPLING);
+                output.accept(ItemRegistries.LEMON_LOG);
+                output.accept(ItemRegistries.LEMON_SIDE_LEAVES);
+                output.accept(ItemRegistries.LEMON_TOP_LEAVES);
+                output.accept(ItemRegistries.LEMON_LEAVES);
             })
             .build()
     );

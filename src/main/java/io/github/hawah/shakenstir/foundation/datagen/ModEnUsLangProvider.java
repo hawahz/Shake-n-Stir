@@ -56,6 +56,11 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add(ItemRegistries.BARTENDER_GLOVE.get(), "Bartender's Glove");
         add(ItemRegistries.TONIC.get(), "Tonic");
         add(ItemRegistries.BITTERS.get(), "Bitters");
+        add(ItemRegistries.LEMON_TOP_LEAVES.get(), "Lemon Top Leaves");
+        add(ItemRegistries.LEMON_LEAVES.get(), "Lemon Leaves");
+        add(ItemRegistries.LEMON_LOG.get(), "Lemon Log");
+        add(ItemRegistries.LEMON_SIDE_LEAVES.get(), "Lemon Side Leaves");
+        add(ItemRegistries.LEMON_SAPLING.get(), "Lemon Sapling");
 
 //        add(FluidRegistries.GIN_SOURCE_FLUID_BLOCK.getRegisteredName(), "");
         add(FluidTypeRegistries.GIN_FLUID_TYPE.get().getDescriptionId(), "Gin");

@@ -35,9 +35,11 @@ import org.joml.Vector3dc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
+@SuppressWarnings("unused")
 public class GlasswareRenderer {
     public static void submitGlassware(IGlasswareRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, float offsetX, float offsetZ, float rotate, boolean shouldReset) {
         submitGlassware(state, poseStack, submitNodeCollector, lightCoords, offsetX, offsetZ, rotate, shouldReset, 255);
@@ -84,7 +86,7 @@ public class GlasswareRenderer {
             VoxelShape shape = Shapes.empty();
             ModelSelector selector = new ModelSelector();
             if ((itemStack.has(DataComponentTypeRegistries.DECORATE_MODEL) && (decorateModel = itemStack.get(DataComponentTypeRegistries.DECORATE_MODEL)) != null) ||
-                    (GlasswareDecorations.maps.containsKey(itemStack.getItem()) && (decorateModel = GlasswareDecorations.maps.get(itemStack.getItem())) != null)) {
+                    ((decorateModel = GlasswareDecorations.maps.entrySet().stream().filter(entry -> entry.getKey().test(itemStack)).map(Map.Entry::getValue).findAny().orElse(null)) != null)) {
                 Optional<IModel<?>> model = Models.getModel(decorateModel);
                 AtomicReference<VoxelShape> vs = new AtomicReference<>(shape);
                 model.ifPresent(deco -> {
@@ -104,7 +106,10 @@ public class GlasswareRenderer {
                         BlockDisplayContext.create()
                 );
 
-                double size = decorationState.getShape(Minecraft.getInstance().level, BlockPos.ZERO).bounds().getSize();
+                double size = 0;
+                if (Minecraft.getInstance().level != null) {
+                    size = decorationState.getShape(Minecraft.getInstance().level, BlockPos.ZERO).bounds().getSize();
+                }
                 float scale = (float) (0.225F / size);
 
                 poseStack.translate(-0.5 * scale, 0 * scale, -0.5 * scale);
