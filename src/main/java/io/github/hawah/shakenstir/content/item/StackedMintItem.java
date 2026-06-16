@@ -1,6 +1,6 @@
 package io.github.hawah.shakenstir.content.item;
 
-import io.github.hawah.shakenstir.content.WarpedMintTooltip;
+import io.github.hawah.shakenstir.content.tooltip.WarpedMintTooltip;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.WarpedMint;
 import net.minecraft.world.entity.SlotAccess;

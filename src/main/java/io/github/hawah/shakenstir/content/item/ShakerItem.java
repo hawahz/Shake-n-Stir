@@ -1,7 +1,7 @@
 package io.github.hawah.shakenstir.content.item;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
-import io.github.hawah.shakenstir.content.ShakeTooltipComponent;
+import io.github.hawah.shakenstir.content.tooltip.ShakeTooltipComponent;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
@@ -31,6 +31,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -46,6 +47,7 @@ public class ShakerItem extends PriorityBlockItem implements IPickMarkedItem {
     public ShakerItem(Properties properties) {
         super(BlockRegistries.SHAKE_BLOCK.get(),
                 properties
+                        .rarity(Rarity.UNCOMMON)
                         .useCooldown(1.0F)
                         .stacksTo(1)
                         .component(DataComponentTypeRegistries.HAS_CUP, true)

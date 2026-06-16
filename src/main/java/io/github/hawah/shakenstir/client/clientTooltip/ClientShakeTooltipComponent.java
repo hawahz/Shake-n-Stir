@@ -2,7 +2,7 @@ package io.github.hawah.shakenstir.client.clientTooltip;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStirClient;
-import io.github.hawah.shakenstir.content.ShakeTooltipComponent;
+import io.github.hawah.shakenstir.content.tooltip.ShakeTooltipComponent;
 import io.github.hawah.shakenstir.content.dataComponent.ShakeContentHolder;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.BaseFluidType;

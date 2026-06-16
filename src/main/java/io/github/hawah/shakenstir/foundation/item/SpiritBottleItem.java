@@ -10,6 +10,7 @@ import io.github.hawah.shakenstir.foundation.block.DistillerPart;
 import io.github.hawah.shakenstir.lib.util.Scheduler;
 import io.github.hawah.shakenstir.util.ShakeClientHooks;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -19,6 +20,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -36,7 +38,9 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class SpiritBottleItem extends BlockItem implements IFluidContainer {
     public SpiritBottleItem(Block block, Properties properties) {
-        super(block, properties.stacksTo(1));
+        super(block, properties
+                .rarity(Rarity.UNCOMMON)
+                .stacksTo(1));
     }
 
     @Override
@@ -85,6 +89,9 @@ public class SpiritBottleItem extends BlockItem implements IFluidContainer {
         @SubscribeEvent
         public static void shakeBottle (InputEvent.InteractionKeyMappingTriggered event) {
             LocalPlayer player = Minecraft.getInstance().player;
+            if (player == null) {
+                return;
+            }
             ItemStack itemStack = player.getMainHandItem();
             boolean onCooldown = player.getCooldowns().isOnCooldown(itemStack);
             if (!onCooldown && event.isAttack() && itemStack.getItem() instanceof SpiritBottleItem && ClientDataHolder.Picker.type().equals(HitResult.Type.MISS)) {
@@ -92,17 +99,23 @@ public class SpiritBottleItem extends BlockItem implements IFluidContainer {
                 player.getCooldowns().addCooldown(itemStack, 20);
                 event.setCanceled(true);
                 event.setSwingHand(false);
-                Scheduler.schedule(6, () -> Minecraft.getInstance().level.playLocalSound(
-                        player,
-                        itemStack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY).isEmpty()?
-                                SoundEvents.PLAYER_ATTACK_SWEEP:
-                                SoundEvents.BOTTLE_FILL,
-                        player.getSoundSource(),
-                        1.0f,
-                        itemStack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY).isEmpty()?
-                                0.01f:
-                                1.0F
-                ));
+                Scheduler.schedule(6, () -> {
+                    ClientLevel level = Minecraft.getInstance().level;
+                    if (level == null) {
+                        return;
+                    }
+                    level.playLocalSound(
+                            player,
+                            itemStack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY).isEmpty()?
+                                    SoundEvents.PLAYER_ATTACK_SWEEP:
+                                    SoundEvents.BOTTLE_FILL,
+                            player.getSoundSource(),
+                            1.0f,
+                            itemStack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY).isEmpty()?
+                                    0.01f:
+                                    1.0F
+                    );
+                });
             }
             if (onCooldown && itemStack.getItem() instanceof SpiritBottleItem) {
                 event.setSwingHand(false);

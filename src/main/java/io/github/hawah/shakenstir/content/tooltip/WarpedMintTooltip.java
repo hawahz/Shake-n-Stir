@@ -1,4 +1,4 @@
-package io.github.hawah.shakenstir.content;
+package io.github.hawah.shakenstir.content.tooltip;
 
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.WarpedMint;

@@ -6,12 +6,14 @@ import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.Level;
 
 public class SoberingTea extends Item {
     public SoberingTea(Properties properties) {
         super(properties.stacksTo(1)
                 .food(Foods.SUSPICIOUS_STEW)
+                .rarity(Rarity.EPIC)
                 .usingConvertsTo(Items.BOWL));
     }
 

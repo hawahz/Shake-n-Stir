@@ -1,6 +1,6 @@
 package io.github.hawah.shakenstir.client.clientTooltip;
 
-import io.github.hawah.shakenstir.content.WarpedMintTooltip;
+import io.github.hawah.shakenstir.content.tooltip.WarpedMintTooltip;
 import io.github.hawah.shakenstir.content.dataComponent.WarpedMint;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -13,8 +13,8 @@ import java.util.List;
 
 public record ClientWarpedMintTooltip(WarpedMint warpedMint, int index) implements ClientTooltipComponent {
 
-    public static final Identifier SLOT = Identifier.withDefaultNamespace("textures/gui/sprites/container/slot.png");
     public static final Identifier HOTBAR_SELECTION_SPRITE = Identifier.withDefaultNamespace("hud/hotbar_selection");
+    public static final Identifier SLOT = Identifier.withDefaultNamespace("textures/gui/sprites/container/slot.png");
 
     public ClientWarpedMintTooltip(WarpedMintTooltip tooltip) {
         this(tooltip.warpedMint(), tooltip.index());
@@ -30,8 +30,10 @@ public record ClientWarpedMintTooltip(WarpedMint warpedMint, int index) implemen
         return 0;
     }
 
+    @Deprecated
     @Override
     public void extractImage(Font font, int x, int y, int w, int h, GuiGraphicsExtractor graphics) {
+        //noinspection ConstantValue
         if (true) {
             return;
         }
@@ -42,7 +44,7 @@ public record ClientWarpedMintTooltip(WarpedMint warpedMint, int index) implemen
         for (int i = 0; i < warpedMint.variety(); i++) {
             graphics.blit(
                     RenderPipelines.GUI_TEXTURED,
-                    Identifier.withDefaultNamespace("textures/gui/sprites/container/slot.png"),
+                    SLOT,
                     x - 1 + 18 * i,
                     y - 1,
                     0,
