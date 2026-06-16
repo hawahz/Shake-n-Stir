@@ -1,7 +1,7 @@
 package io.github.hawah.shakenstir.foundation.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import io.github.hawah.shakenstir.client.ClientEvents;
+import io.github.hawah.shakenstir.client.event.ClientInputEvents;
 import io.github.hawah.shakenstir.util.Result;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
@@ -20,7 +20,7 @@ public class MouseHandlerMixin {
         if (Minecraft.getInstance().player != null && !Minecraft.getInstance().player.isSpectator()) {
             int invertY = Minecraft.getInstance().options.invertMouseX().get()? -1 : 1;
             final double finalDeltaY = deltaYRaw * invertY;
-            final Result status = ClientEvents.onMouseMove(deltaX, finalDeltaY);
+            final Result status = ClientInputEvents.onMouseMove(deltaX, finalDeltaY);
             if (status.cancelled()) {
                 ci.cancel();
             }
