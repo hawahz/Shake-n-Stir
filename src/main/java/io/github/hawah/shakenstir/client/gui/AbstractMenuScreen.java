@@ -3,7 +3,7 @@ package io.github.hawah.shakenstir.client.gui;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.content.blockEntity.BarMenuBlockEntity;
-import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
+import io.github.hawah.shakenstir.foundation.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.lib.client.gui.BaseScreen;
@@ -22,6 +22,7 @@ import org.joml.Matrix3x2fStack;
 
 import static io.github.hawah.shakenstir.client.gui.MC.getPlayer;
 
+@SuppressWarnings({"SameParameterValue", "unused"})
 public abstract class AbstractMenuScreen extends BaseScreen {
     public static final Textures BACKGROUND = Textures.MENU_BKG;
     public static final int DISTANCE_TOP = 70;
@@ -39,11 +40,13 @@ public abstract class AbstractMenuScreen extends BaseScreen {
     protected AbstractMenuScreen(BarMenuBlockEntity cachedBlockEntity) {
         super(Component.empty());
         this.cachedBlockEntity = cachedBlockEntity;
-        this.rot = Math.toRadians(-this.minecraft.player.getYRot() + cachedBlockEntity.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING).toYRot());
+        if (getPlayer() == null) {
+            this.rot = Math.toRadians(-getPlayer().getYRot() + cachedBlockEntity.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING).toYRot());
+        }
         maxSlots = cachedBlockEntity.recipes.size();
         UniqueName = ShakenStir.asResource("bkg_" + System.currentTimeMillis());
         nativeImage.getPixels().fillRect(0, 0, PAINTER_WIDTH, PAINTER_HEIGHT, 0);
-        if (cachedBlockEntity.bkg != null) {
+        if (cachedBlockEntity.bkg != null && getPlayer() != null) {
             MenuBackgroundUtils.requestBackground(
                     cachedBlockEntity.bkg.getPath(),
                     data -> {

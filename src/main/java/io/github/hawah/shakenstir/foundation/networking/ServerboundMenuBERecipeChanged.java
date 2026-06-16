@@ -1,7 +1,7 @@
 package io.github.hawah.shakenstir.foundation.networking;
 
 import io.github.hawah.shakenstir.content.blockEntity.BarMenuBlockEntity;
-import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
+import io.github.hawah.shakenstir.foundation.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.lib.networking.ClientToServerPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;

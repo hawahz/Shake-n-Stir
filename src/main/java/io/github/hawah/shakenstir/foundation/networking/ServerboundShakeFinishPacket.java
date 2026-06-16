@@ -1,7 +1,7 @@
 package io.github.hawah.shakenstir.foundation.networking;
 
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
-import io.github.hawah.shakenstir.content.recipe.shake.ShakeRecipe;
+import io.github.hawah.shakenstir.foundation.recipe.shake.ShakeRecipe;
 import io.github.hawah.shakenstir.lib.networking.ClientToServerPacket;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;

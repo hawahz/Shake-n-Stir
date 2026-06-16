@@ -2,12 +2,12 @@ package io.github.hawah.shakenstir.foundation.datagen;
 
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.damageType.SnsDamageType;
-import io.github.hawah.shakenstir.content.recipe.datapack.EffectData;
-import io.github.hawah.shakenstir.content.recipe.datapack.IngredientData;
-import io.github.hawah.shakenstir.content.recipe.datapack.Registries;
-import io.github.hawah.shakenstir.content.recipe.datapack.cocktaileType.CocktailType;
-import io.github.hawah.shakenstir.content.recipe.datapack.cocktaileType.CocktailTypes;
-import io.github.hawah.shakenstir.content.recipe.datapack.spirit.Spirits;
+import io.github.hawah.shakenstir.foundation.recipe.datapack.EffectData;
+import io.github.hawah.shakenstir.foundation.recipe.datapack.IngredientData;
+import io.github.hawah.shakenstir.foundation.recipe.datapack.Registries;
+import io.github.hawah.shakenstir.foundation.recipe.datapack.cocktaileType.CocktailType;
+import io.github.hawah.shakenstir.foundation.recipe.datapack.cocktaileType.CocktailTypes;
+import io.github.hawah.shakenstir.foundation.recipe.datapack.spirit.Spirits;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.resources.ResourceKey;

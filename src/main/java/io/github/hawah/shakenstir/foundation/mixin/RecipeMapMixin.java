@@ -1,7 +1,7 @@
 package io.github.hawah.shakenstir.foundation.mixin;
 
-import io.github.hawah.shakenstir.content.recipe.IScoreSortedRecipe;
-import io.github.hawah.shakenstir.content.recipe.RecipeTypeRegistries;
+import io.github.hawah.shakenstir.foundation.recipe.IScoreSortedRecipe;
+import io.github.hawah.shakenstir.foundation.recipe.RecipeTypeRegistries;
 import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Collection;
 import java.util.stream.Stream;
 
+@SuppressWarnings("unchecked")
 @Mixin(RecipeMap.class)
 public abstract class RecipeMapMixin {
 

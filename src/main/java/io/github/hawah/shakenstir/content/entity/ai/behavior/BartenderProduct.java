@@ -5,7 +5,7 @@ import com.mojang.authlib.GameProfile;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
-import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
+import io.github.hawah.shakenstir.foundation.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
 import io.github.hawah.shakenstir.content.entity.BartenderEntity;

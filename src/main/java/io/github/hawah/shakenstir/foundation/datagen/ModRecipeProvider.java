@@ -3,7 +3,7 @@ package io.github.hawah.shakenstir.foundation.datagen;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
-import io.github.hawah.shakenstir.content.recipe.SpiritBottleSpecialRecipe;
+import io.github.hawah.shakenstir.foundation.recipe.SpiritBottleSpecialRecipe;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;

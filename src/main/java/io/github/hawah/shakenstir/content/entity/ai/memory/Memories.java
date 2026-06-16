@@ -3,8 +3,8 @@ package io.github.hawah.shakenstir.content.entity.ai.memory;
 
 import com.mojang.serialization.Codec;
 import io.github.hawah.shakenstir.ShakenStir;
-import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
-import io.github.hawah.shakenstir.content.data.SnsRecipeStack;
+import io.github.hawah.shakenstir.foundation.data.SnsRecipeHolder;
+import io.github.hawah.shakenstir.foundation.data.SnsRecipeStack;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.util.Unit;

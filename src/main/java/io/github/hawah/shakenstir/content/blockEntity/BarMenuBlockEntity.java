@@ -3,7 +3,7 @@ package io.github.hawah.shakenstir.content.blockEntity;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.hawah.shakenstir.ShakenStir;
-import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
+import io.github.hawah.shakenstir.foundation.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundMenuBlockUpdateBackgroundPacket;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundUploadBarMenuBkgPacket;

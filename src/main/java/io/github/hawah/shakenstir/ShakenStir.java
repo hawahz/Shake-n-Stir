@@ -14,7 +14,7 @@ import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import io.github.hawah.shakenstir.content.fluid.FluidTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.item.SnsCreativeTab;
-import io.github.hawah.shakenstir.content.recipe.RecipeTypeRegistries;
+import io.github.hawah.shakenstir.foundation.recipe.RecipeTypeRegistries;
 import io.github.hawah.shakenstir.content.trigger.TriggerRegistries;
 import io.github.hawah.shakenstir.foundation.networking.NetworkPackets;
 import net.minecraft.resources.Identifier;

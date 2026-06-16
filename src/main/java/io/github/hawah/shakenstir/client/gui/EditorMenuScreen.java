@@ -5,7 +5,7 @@ import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.client.gui.utils.ColorPicker;
 import io.github.hawah.shakenstir.client.gui.utils.EditTool;
 import io.github.hawah.shakenstir.content.blockEntity.BarMenuBlockEntity;
-import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
+import io.github.hawah.shakenstir.foundation.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundMenuBEChanged;

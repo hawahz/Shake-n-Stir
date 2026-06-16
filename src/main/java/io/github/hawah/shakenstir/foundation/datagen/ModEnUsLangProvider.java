@@ -5,7 +5,7 @@ import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
 import io.github.hawah.shakenstir.content.fluid.FluidTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
-import io.github.hawah.shakenstir.content.recipe.datapack.cocktaileType.CocktailTypes;
+import io.github.hawah.shakenstir.foundation.recipe.datapack.cocktaileType.CocktailTypes;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.damagesource.DamageType;

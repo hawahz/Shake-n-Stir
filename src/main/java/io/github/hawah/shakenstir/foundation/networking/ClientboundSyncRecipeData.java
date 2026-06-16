@@ -1,7 +1,7 @@
 package io.github.hawah.shakenstir.foundation.networking;
 
 import io.github.hawah.shakenstir.client.RecipeSyncData;
-import io.github.hawah.shakenstir.content.data.SnsRecipeHolder;
+import io.github.hawah.shakenstir.foundation.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.lib.networking.ServerToClientPacket;
 import io.github.hawah.shakenstir.lib.signal.InstantSignal;
 import net.minecraft.client.Minecraft;

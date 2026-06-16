@@ -4,7 +4,7 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
-import io.github.hawah.shakenstir.content.recipe.datapack.DrinkData;
+import io.github.hawah.shakenstir.foundation.recipe.datapack.DrinkData;
 import io.github.hawah.shakenstir.foundation.item.PriorityBlockItem;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;

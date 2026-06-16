@@ -6,7 +6,7 @@ import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistr
 import io.github.hawah.shakenstir.content.dataComponent.DeferredFluidStackHolder;
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
-import io.github.hawah.shakenstir.content.recipe.ingredient.FluidIngredient;
+import io.github.hawah.shakenstir.foundation.recipe.ingredient.FluidIngredient;
 import io.github.hawah.shakenstir.foundation.tags.SnsSharedTags;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.core.HolderLookup;

@@ -1,6 +1,6 @@
 package io.github.hawah.shakenstir.content.entity.ai.behavior;
 
-import io.github.hawah.shakenstir.content.data.SnsRecipeStack;
+import io.github.hawah.shakenstir.foundation.data.SnsRecipeStack;
 import io.github.hawah.shakenstir.content.entity.BartenderEntity;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
 import io.github.hawah.shakenstir.content.entity.ai.memory.MemoryEntitiesHolder;
