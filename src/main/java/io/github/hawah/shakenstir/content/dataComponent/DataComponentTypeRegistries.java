@@ -187,6 +187,23 @@ public class DataComponentTypeRegistries {
             builder -> builder.persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC)
     );
 
+    // Mint
+
+    public static final DataComponentType<MintSizeComponent> MINT_SIZE = register(
+            "mint_size",
+            builder -> builder.persistent(MintSizeComponent.CODEC).networkSynchronized(MintSizeComponent.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<WarpedMint> WARPED_MINT = register(
+            "warped_mint",
+            builder -> builder.persistent(WarpedMint.CODEC).networkSynchronized(WarpedMint.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<Integer> SELECT_MINT = register(
+            "select_mint",
+            builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
+    );
+
     public static void register(IEventBus eventBus) {
         DATA_COMPONENT.register(eventBus);
     }

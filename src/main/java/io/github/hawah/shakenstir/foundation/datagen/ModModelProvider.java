@@ -7,6 +7,7 @@ import io.github.hawah.shakenstir.client.render.item.GlasswareSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.ShakeItemSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer;
 import io.github.hawah.shakenstir.content.HasCup;
+import io.github.hawah.shakenstir.content.MintSize;
 import io.github.hawah.shakenstir.content.Warped;
 import io.github.hawah.shakenstir.content.block.*;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
@@ -68,6 +69,8 @@ public class ModModelProvider extends ModelProvider {
         itemModels.generateFlatItem(ItemRegistries.TONIC.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ItemRegistries.BITTERS.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ItemRegistries.DIALOGUE_EDITOR.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ItemRegistries.WARPED_MINT.get(), ModelTemplates.FLAT_ITEM);
+        generateMint(itemModels);
         generateScroll(itemModels);
         // Basic single variant model
         registerCustomBlockModel(blockModels, "block/shaker_lid", BlockRegistries.SHAKE_LID_BLOCK.get());
@@ -102,6 +105,19 @@ public class ModModelProvider extends ModelProvider {
         generateDistiller(blockModels, itemModels);
         generateMenu(blockModels, itemModels);
 //        generateLongDrinkGlassware(itemModels);
+    }
+
+    private static void generateMint(ItemModelGenerators itemModels) {
+        ItemModel.Unbaked small = ItemModelUtils.plainModel(itemModels.createFlatItemModel(ItemRegistries.MINT.get(), "_0", ModelTemplates.FLAT_ITEM));
+        ItemModel.Unbaked medium = ItemModelUtils.plainModel(itemModels.createFlatItemModel(ItemRegistries.MINT.get(), "_1", ModelTemplates.FLAT_ITEM));
+        ItemModel.Unbaked large = ItemModelUtils.plainModel(itemModels.createFlatItemModel(ItemRegistries.MINT.get(), "_2", ModelTemplates.FLAT_ITEM));
+        ItemModel.Unbaked model = ItemModelUtils.conditional(new MintSize(0), small,
+                ItemModelUtils.conditional(new MintSize(1), medium, large));
+
+        itemModels.itemModelOutput.accept(
+                ItemRegistries.MINT.get(),
+                model
+        );
     }
 
     private static void generateMenu(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {

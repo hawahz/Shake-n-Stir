@@ -6,6 +6,7 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.clientTooltip.ClientShakeTooltipComponent;
+import io.github.hawah.shakenstir.client.clientTooltip.ClientWarpedMintTooltip;
 import io.github.hawah.shakenstir.client.hanlder.GlasswareHandlerRenderState;
 import io.github.hawah.shakenstir.client.hanlder.MenuHUD;
 import io.github.hawah.shakenstir.client.model.Models;
@@ -17,9 +18,7 @@ import io.github.hawah.shakenstir.client.render.entity.BartenderRenderer;
 import io.github.hawah.shakenstir.client.render.item.GlasswareSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.ShakeItemSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer;
-import io.github.hawah.shakenstir.content.HasCup;
-import io.github.hawah.shakenstir.content.ShakeTooltipComponent;
-import io.github.hawah.shakenstir.content.Warped;
+import io.github.hawah.shakenstir.content.*;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.block.Cabinet;
 import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
@@ -27,9 +26,11 @@ import io.github.hawah.shakenstir.content.blockEntity.CabinetBlockEntity;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.content.dataAttachment.DataAttachmentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.dataComponent.WarpedMint;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
 import io.github.hawah.shakenstir.content.entity.EntityTypeRegistries;
 import io.github.hawah.shakenstir.content.item.GlasswareItem;
+import io.github.hawah.shakenstir.content.item.WarpedMintItem;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundHandItemDataChangedPacket;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundTryPickItemPacket;
 import io.github.hawah.shakenstir.foundation.utils.ContextKeys;
@@ -42,6 +43,8 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockTintSource;
 import net.minecraft.client.entity.ClientAvatarEntity;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -256,6 +259,21 @@ public class ClientEvents {
     }
 
     @SubscribeEvent
+    public static void onScreenScroll(ScreenEvent.MouseScrolled.Pre event) {
+        Screen screen = event.getScreen();
+        if (screen instanceof AbstractContainerScreen<?> abstractContainerScreen) {
+            ItemStack item = abstractContainerScreen.getHoveredSlot().getItem();
+            if (item.getItem() instanceof WarpedMintItem) {
+                int select = item.getOrDefault(DataComponentTypeRegistries.SELECT_MINT, 0);
+                select += -(int) event.getScrollDeltaY();
+                int variety = item.getOrDefault(DataComponentTypeRegistries.WARPED_MINT, new WarpedMint()).variety();
+                select = Mth.clamp(select, 0, variety-1);
+                item.set(DataComponentTypeRegistries.SELECT_MINT, select);
+            }
+        }
+    }
+
+    @SubscribeEvent
     public static void onRenderOutline(ExtractBlockOutlineRenderStateEvent event) {
         if (event.getLevel().getBlockEntity(event.getBlockPos()) instanceof GlasswareBlockEntity blockEntity) {
             event.addCustomRenderer(new GlasswareOutlineRenderer(blockEntity));
@@ -342,6 +360,12 @@ public class ClientEvents {
                     // The map codec
                     Warped.MAP_CODEC
             );
+            event.register(
+                    // The name to reference as the type
+                    Identifier.fromNamespaceAndPath(ShakenStir.MODID, "mint_size"),
+                    // The map codec
+                    MintSize.MAP_CODEC
+            );
         }
 
         @SubscribeEvent
@@ -419,6 +443,7 @@ public class ClientEvents {
         @SubscribeEvent
         public static void registerTooltip(RegisterClientTooltipComponentFactoriesEvent event) {
             event.register(ShakeTooltipComponent.class, ClientShakeTooltipComponent::new);
+            event.register(WarpedMintTooltip.class, ClientWarpedMintTooltip::new);
         }
 
         @SubscribeEvent

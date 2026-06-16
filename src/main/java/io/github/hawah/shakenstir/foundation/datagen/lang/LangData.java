@@ -44,6 +44,10 @@ public enum LangData {
     TOOLTIP_SCROLL_RECIPE_RESULT("tooltip_scroll_recipe_result", "Product: %s", 1),
     TOOLTIP_SCROLL_RECIPE_SHAKE_TIMES("tooltip_scroll_recipe_shake_times", "Shake %s times", 1),
 
+    TOOLTIP_MINT_SIZE_SMALL("tooltip_mint_size_small", "Small", 0, ChatFormatting.DARK_GREEN),
+    TOOLTIP_MINT_SIZE_MEDIUM("tooltip_mint_size_medium", "Medium", 0, ChatFormatting.DARK_GREEN),
+    TOOLTIP_MINT_SIZE_LARGE("tooltip_mint_size_large", "Large", 0, ChatFormatting.DARK_GREEN),
+
 
     HUD_TIP_BLACKBOARD_SELECT_FIRST_POINT("hud.blackboard_select_first_point", "Select the first point", 0),
     HUD_TIP_BLACKBOARD_SELECT_SECOND_POINT("hud.blackboard_select_second_point","Select the second point", 0),

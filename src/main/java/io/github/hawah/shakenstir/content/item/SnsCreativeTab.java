@@ -2,12 +2,14 @@ package io.github.hawah.shakenstir.content.item;
 
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.dataComponent.MintSizeComponent;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -65,6 +67,23 @@ public class SnsCreativeTab {
             .build()
     );
 
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> SHAKENSTIR_TAB_DECORATION = CREATIVE_MODE_TABS.register("shakenstir_tab_decoration", () -> CreativeModeTab.builder()
+            //Set the title of the tab. Don't forget to add a translation!
+            .title(Component.translatable("itemGroup." + ShakenStir.MODID + ".tab.decoration"))
+            //Set the icon of the tab.
+            .icon(() -> new ItemStack(Items.SUNFLOWER))
+            //Add your items to the tab.
+            .displayItems((params, output) -> {
+                output.accept(Items.POPPY);
+                output.accept(ItemRegistries.LEMON_SLICE.get());
+                output.accept(ItemRegistries.WARPED_MINT.get());
+                output.accept(createMint(0));
+                output.accept(createMint(1));
+                output.accept(createMint(2));
+            })
+            .build()
+    );
+
     public static ItemStack createLongDrink(String path) {
         ItemStack stack = ItemRegistries.LONG_DRINK_GLASSWARE.toStack();
         stack.set(DataComponents.ITEM_MODEL, ShakenStir.asResource(path));
@@ -78,6 +97,12 @@ public class SnsCreativeTab {
         stack.set(DataComponents.ITEM_MODEL, ShakenStir.asResource(path));
         stack.set(DataComponents.ITEM_NAME, LangData.getFromItem(path));
         stack.set(DataComponentTypeRegistries.GLASSWARE_NAME, LangData.getFromItem(path));
+        return stack;
+    }
+
+    public static ItemStack createMint(int size) {
+        ItemStack stack = ItemRegistries.MINT.toStack();
+        stack.set(DataComponentTypeRegistries.MINT_SIZE, MintSizeComponent.of(size));
         return stack;
     }
 

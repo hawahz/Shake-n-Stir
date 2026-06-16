@@ -6,6 +6,7 @@
     "BucketItemMixin",
     "EntityMixin",
     "FlowingFluidMixin",
+    "ItemEntityMixin",
     "LivingEntityAccessor",
     "LivingEntityMixin",
     "MobEffectInstanceMixin",

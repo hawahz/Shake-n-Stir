@@ -1,0 +1,23 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:condition",
+      "on_false": {
+        "type": "minecraft:model",
+        "model": "shakenstir:item/mint_2"
+      },
+      "on_true": {
+        "type": "minecraft:model",
+        "model": "shakenstir:item/mint_1"
+      },
+      "property": "shakenstir:mint_size",
+      "size": 1
+    },
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "shakenstir:item/mint_0"
+    },
+    "property": "shakenstir:mint_size"
+  }
+}
