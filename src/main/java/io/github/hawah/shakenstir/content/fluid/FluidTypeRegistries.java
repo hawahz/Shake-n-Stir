@@ -12,6 +12,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.joml.Vector3f;
 
+@SuppressWarnings({"unused", "SameParameterValue"})
 public class FluidTypeRegistries {
     // 图片的位置，这里的source和flow，直接使用的原版的，所以没有第一个参数传入modid。
     public static final Identifier WATER_STILL_RL = Identifier.withDefaultNamespace("block/water_still");
@@ -38,6 +39,10 @@ public class FluidTypeRegistries {
     public static final DeferredHolder<FluidType, FluidType> BUBBLE_FLUID_TYPE = register("bubble_fluid_type", 0xFFFFFF, 0  , FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
     public static final DeferredHolder<FluidType, FluidType> TONIC_FLUID_TYPE = register("tonic_fluid_type", 0xffedc7, 0    , FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
     public static final DeferredHolder<FluidType, FluidType> BITTERS_FLUID_TYPE = register("bitters_fluid_type", 0x04270e, 0, FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
+    public static final DeferredHolder<FluidType, FluidType> SUCROSE_SYRUP_FLUID_TYPE = register("sugarsyrup_fluid_type", 0x9bdbff, 0, FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
+    public static final DeferredHolder<FluidType, FluidType> HONEY_FLUID_TYPE = register("honey_fluid_type", 0xFFB300, 0, FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
+    public static final DeferredHolder<FluidType, FluidType> JUICE_FLUID_TYPE = register("juice_fluid_type", 0xFF8C00, 0, FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
+    public static final DeferredHolder<FluidType, FluidType> LEMONADE_FLUID_TYPE = register("lemonade_fluid_type", 0xFFFF66, 0, FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
 
 
     // 这个是我们自己写的注册的方法

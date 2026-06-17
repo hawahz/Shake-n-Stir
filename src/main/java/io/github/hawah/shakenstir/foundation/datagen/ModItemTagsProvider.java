@@ -32,11 +32,8 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         ;
 
         this.tag(SnsItemTags.SWEET)
-                .addTag(Tags.Items.DRINKS_HONEY)
                 .addTag(Tags.Items.FOODS_BERRY)
-                //.addTag(Tags.Items.FOODS_CANDY)
                 .add(Items.HONEYCOMB)
-                .add(Items.HONEY_BOTTLE)
                 .add(Items.SUGAR)
         ;
 
@@ -60,6 +57,7 @@ public class ModItemTagsProvider extends ItemTagsProvider {
                 .add(Items.SWEET_BERRIES)
                 .add(Items.GLOW_BERRIES)
                 .add(Items.BAMBOO)
+                .add(Items.SWEET_BERRIES)
                 .add(ItemRegistries.LEMON_SLICE.get())
                 .add(ItemRegistries.MINT.get())
                 .add()

@@ -26,7 +26,6 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
                 .add(BlockRegistries.RUM.get())
                 .add(BlockRegistries.TEQUILA.get())
                 .add(BlockRegistries.BRANDY.get())
-                .add(BlockRegistries.BUBBLE.get())
                 .add(BlockRegistries.SHAKE_BLOCK.get())
                 .add(BlockRegistries.SHAKE_LID_BLOCK.get())
                 .add(BlockRegistries.CABINET.get())

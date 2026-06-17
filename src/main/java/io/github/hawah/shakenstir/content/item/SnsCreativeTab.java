@@ -79,6 +79,7 @@ public class SnsCreativeTab {
             //Add your items to the tab.
             .displayItems((params, output) -> {
                 output.accept(Items.POPPY);
+                output.accept(Items.SWEET_BERRIES);
                 output.accept(ItemRegistries.LEMON_SLICE.get());
                 output.accept(createMint(0));
                 output.accept(createMint(1));

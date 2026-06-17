@@ -48,15 +48,28 @@ public class ModFluidTagsProvider extends FluidTagsProvider {
                 .add(FluidRegistries.TONIC_SOURCE.get())
         ;
 
+        this.tag(Tags.Fluids.HONEY)
+                .add(FluidRegistries.HONEY_SOURCE.get())
+        ;
+
         this.tag(SnsFluidTags.SWEET)
-                .addTag(Tags.Fluids.HONEY);
+                .addTag(Tags.Fluids.HONEY)
+                .add(FluidRegistries.SUCROSE_SYRUP_SOURCE.get())
+        ;
+
+        this.tag(SnsFluidTags.LEMONADE)
+                .add(FluidRegistries.LEMONADE_SOURCE.get())
+        ;
 
         this.tag(SnsFluidTags.SOUR)
-                ;
+                .addTag(SnsFluidTags.LEMONADE)
+        ;
         this.tag(SnsFluidTags.BITTER)
                 .add(FluidRegistries.BITTERS_SOURCE.get())
         ;
         this.tag(SnsFluidTags.JUICE)
-                ;
+                .add(FluidRegistries.JUICE_SOURCE.get())
+                .addTag(SnsFluidTags.LEMONADE)
+        ;
     }
 }

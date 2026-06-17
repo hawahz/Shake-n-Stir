@@ -8,6 +8,7 @@ import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistr
 import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
+import io.github.hawah.shakenstir.foundation.item.SpiritBottleItem;
 import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.lib.VoxelShapeMaker;
@@ -47,7 +48,12 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -70,10 +76,11 @@ public class Shaker extends FallingBlock implements EntityBlock, ITakeUpBlock {
     public static final EnumProperty<Direction> FACING = DirectionalBlock.FACING;
 
     public Shaker(Properties properties) {
-        super(properties.sound(SoundType.METAL).pushReaction(PushReaction.PUSH_ONLY).noOcclusion().isViewBlocking((state, level, pos)->false));
+        super(properties.sound(SoundType.METAL).pushReaction(PushReaction.PUSH_ONLY).noOcclusion().isViewBlocking((_, _, _)->false));
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.UP));
     }
 
+    @SuppressWarnings("unchecked")
     private static <E extends BlockEntity, A extends BlockEntity> @Nullable BlockEntityTicker<A> createTickerHelper(
             BlockEntityType<A> type, BlockEntityType<E> checkedType, BlockEntityTicker<? super E> ticker
     ) {
@@ -298,8 +305,14 @@ public class Shaker extends FallingBlock implements EntityBlock, ITakeUpBlock {
             return tryPlaceCup(itemStack, state, level, pos, player);
         }
         SpiritContent fluidHolder;
-        if (state.getValue(FACING).equals(Direction.DOWN) &&!player.getCooldowns().isOnCooldown(itemStack) && !(fluidHolder = itemStack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY)).isEmpty()) {
-            return tryPourLiquid(state, level, pos, player, fluidHolder, itemStack, hitResult);
+        if (state.getValue(FACING).equals(Direction.DOWN) &&!player.getCooldowns().isOnCooldown(itemStack)) {
+            if (!(fluidHolder = itemStack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY)).isEmpty()) {
+                return tryPourLiquid(state, level, pos, player, fluidHolder, itemStack);
+            }
+            var cap = ItemAccess.forPlayerInteraction(player, hand).getCapability(Capabilities.Fluid.ITEM);
+            if (cap != null) {
+                return tryPourLiquid(state, level, pos, player, cap);
+            }
         }
         if (state.getValue(FACING).equals(Direction.DOWN) && !itemStack.isEmpty() && canInsert(itemStack)) {
             if (level.getBlockEntity(pos) instanceof ShakeBlockEntity blockEntity) {
@@ -310,12 +323,12 @@ public class Shaker extends FallingBlock implements EntityBlock, ITakeUpBlock {
         return InteractionResult.TryEmptyHandInteraction.TRY_WITH_EMPTY_HAND;
     }
 
-    private static InteractionResult tryPourLiquid(BlockState state, Level level, BlockPos pos, Player player, SpiritContent fluidHolder, ItemStack itemStack, BlockHitResult hitResult) {
+    private static InteractionResult tryPourLiquid(BlockState state, Level level, BlockPos pos, Player player, SpiritContent fluidHolder, ItemStack itemStack) {
         if (state.getValue(FACING).equals(Direction.UP) || player.isShiftKeyDown())
             return InteractionResult.TryEmptyHandInteraction.TRY_WITH_EMPTY_HAND;
         FluidStack fluidStack = fluidHolder.fluidStack().copy();
         boolean success = false;
-        if (level.getBlockEntity(pos, BlockEntityRegistries.SHAKE_BLOCK_ENTITY.get()).get() instanceof ShakeBlockEntity shakeBlockEntity) {
+        if (level.getBlockEntity(pos, BlockEntityRegistries.SHAKE_BLOCK_ENTITY.get()).orElse(null) instanceof ShakeBlockEntity shakeBlockEntity) {
             success = shakeBlockEntity.pourLiquid(fluidStack, player.isCreative());
 
         }
@@ -324,19 +337,21 @@ public class Shaker extends FallingBlock implements EntityBlock, ITakeUpBlock {
             return InteractionResult.TryEmptyHandInteraction.TRY_WITH_EMPTY_HAND;
         }
 
-        if (itemStack.getCount() == 1) {
-            itemStack.remove(DataComponentTypeRegistries.SPIRIT_CONTENT);
-            if (!fluidStack.isEmpty()) {
-                itemStack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(fluidStack));
+        if (itemStack.getItem() instanceof SpiritBottleItem){
+            if (itemStack.getCount() == 1) {
+                itemStack.remove(DataComponentTypeRegistries.SPIRIT_CONTENT);
+                if (!fluidStack.isEmpty()) {
+                    itemStack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(fluidStack));
+                }
             }
-        }
-        if ((!player.isCreative() || true) && itemStack.getCount() > 1) {
-            itemStack = itemStack.consumeAndReturn(1, player);
-            itemStack.remove(DataComponentTypeRegistries.SPIRIT_CONTENT);
-            if (!fluidStack.isEmpty()){
-                itemStack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(fluidStack));
+            if (itemStack.getCount() > 1) {
+                itemStack = itemStack.consumeAndReturn(1, player);
+                itemStack.remove(DataComponentTypeRegistries.SPIRIT_CONTENT);
+                if (!fluidStack.isEmpty()) {
+                    itemStack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(fluidStack));
+                }
+                ITakeUpBlock.holdOrAddItem(player, itemStack, level, pos);
             }
-            ITakeUpBlock.holdOrAddItem(player, itemStack, level, pos);
         }
 
         level.playSound(
@@ -348,6 +363,47 @@ public class Shaker extends FallingBlock implements EntityBlock, ITakeUpBlock {
                 1
         );
         player.getCooldowns().addCooldown(itemStack, 10);
+
+        return InteractionResult.SUCCESS;
+    }
+
+    private static InteractionResult tryPourLiquid(BlockState state, Level level, BlockPos pos, Player player, ResourceHandler<FluidResource> cap) {
+        if (state.getValue(FACING).equals(Direction.UP) || player.isShiftKeyDown())
+            return InteractionResult.TryEmptyHandInteraction.TRY_WITH_EMPTY_HAND;
+        FluidResource resource;
+        if ((resource = cap.getResource(0)).isEmpty()) {
+            return InteractionResult.TryEmptyHandInteraction.TRY_WITH_EMPTY_HAND;
+        }
+        int amountAsInt = cap.getAmountAsInt(0);
+        FluidStack fluidStack;
+        int amount = cap.getAmountAsInt(0);
+        fluidStack = resource.toStack(amount);
+
+        boolean success = false;
+        if (level.getBlockEntity(pos, BlockEntityRegistries.SHAKE_BLOCK_ENTITY.get()).orElse(null) instanceof ShakeBlockEntity shakeBlockEntity) {
+            success = shakeBlockEntity.pourLiquid(fluidStack, player.isCreative());
+
+        }
+
+        if (!success) {
+            return InteractionResult.TryEmptyHandInteraction.TRY_WITH_EMPTY_HAND;
+        }
+        try (Transaction trx = Transaction.openRoot()) {
+            int extract = cap.extract(resource, amountAsInt, trx);
+            if (extract == 0) {
+                return InteractionResult.TryEmptyHandInteraction.TRY_WITH_EMPTY_HAND;
+            }
+            trx.commit();
+        }
+
+        level.playSound(
+                null,
+                pos,
+                SoundEvents.BOTTLE_EMPTY,
+                SoundSource.BLOCKS,
+                1,
+                1
+        );
 
         return InteractionResult.SUCCESS;
     }

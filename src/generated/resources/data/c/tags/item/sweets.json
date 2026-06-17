@@ -1,9 +1,7 @@
 {
   "values": [
-    "#c:drinks/honey",
     "#c:foods/berry",
     "minecraft:honeycomb",
-    "minecraft:honey_bottle",
     "minecraft:sugar"
   ]
 }

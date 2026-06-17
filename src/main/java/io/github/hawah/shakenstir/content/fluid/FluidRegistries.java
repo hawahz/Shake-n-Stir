@@ -13,24 +13,32 @@ public class FluidRegistries {
     public static final DeferredRegister<Fluid> FLUIDS = DeferredRegister.create(Registries.FLUID, ShakenStir.MODID);
     // 注册对应流体的source和flow，使用NeoForge提供的BaseFlowingFluid来注册
     // 其中source和flow都需要填入一个参数，这个参数是流体的属性,在下面定义
-    public static final DeferredHolder<Fluid, FlowingFluid> GIN_SOURCE      =  FLUIDS.register("gin_fluid", () ->                   new BaseFlowingFluid.Source(FluidRegistries.    GIN_PROPERTIES));
-    public static final DeferredHolder<Fluid, FlowingFluid> GIN_FLOWING     =  FLUIDS.register("gin_fluid_flow", () ->              new BaseFlowingFluid.Flowing(FluidRegistries.   GIN_PROPERTIES));
-    public static final DeferredHolder<Fluid, FlowingFluid> VODKA_SOURCE    =  FLUIDS.register("vodka_fluid", () ->                 new BaseFlowingFluid.Source(FluidRegistries.    VODKA_PROPERTIES));
-    public static final DeferredHolder<Fluid, FlowingFluid> VODKA_FLOWING   =  FLUIDS.register("vodka_fluid_flow", () ->            new BaseFlowingFluid.Flowing(FluidRegistries.   VODKA_PROPERTIES));
-    public static final DeferredHolder<Fluid, FlowingFluid> WHISKY_SOURCE   =  FLUIDS.register("whiskey_fluid", () ->               new BaseFlowingFluid.Source(FluidRegistries.    WHISKY_PROPERTIES));
-    public static final DeferredHolder<Fluid, FlowingFluid> WHISKY_FLOWING  =  FLUIDS.register("whiskey_fluid_flow", () ->          new BaseFlowingFluid.Flowing(FluidRegistries.   WHISKY_PROPERTIES));
-    public static final DeferredHolder<Fluid, FlowingFluid> BRANDY_SOURCE   =  FLUIDS.register("branky_fluid", () ->                new BaseFlowingFluid.Source(FluidRegistries.    BRANDY_PROPERTIES));
-    public static final DeferredHolder<Fluid, FlowingFluid> BRANDY_FLOWING  =  FLUIDS.register("branky_fluid_flow", () ->           new BaseFlowingFluid.Flowing(FluidRegistries.   BRANDY_PROPERTIES));
-    public static final DeferredHolder<Fluid, FlowingFluid> RUM_SOURCE      =  FLUIDS.register("rum_fluid", () ->                   new BaseFlowingFluid.Source(FluidRegistries.    RUM_PROPERTIES));
-    public static final DeferredHolder<Fluid, FlowingFluid> RUM_FLOWING     =  FLUIDS.register("rum_fluid_flow", () ->              new BaseFlowingFluid.Flowing(FluidRegistries.   RUM_PROPERTIES));
-    public static final DeferredHolder<Fluid, FlowingFluid> TEQUILA_SOURCE  =  FLUIDS.register("tequila_fluid", () ->               new BaseFlowingFluid.Source(FluidRegistries.    TEQUILA_PROPERTIES));
-    public static final DeferredHolder<Fluid, FlowingFluid> TEQUILA_FLOWING =  FLUIDS.register("tequila_fluid_flow", () ->          new BaseFlowingFluid.Flowing(FluidRegistries.   TEQUILA_PROPERTIES));
-    public static final DeferredHolder<Fluid, FlowingFluid> BUBBLE_SOURCE   =  FLUIDS.register("bubble_fluid", () ->                new BaseFlowingFluid.Source(FluidRegistries.    BUBBLE_PROPERTIES));
-    public static final DeferredHolder<Fluid, FlowingFluid> BUBBLE_FLOWING  =  FLUIDS.register("bubble_fluid_flow", () ->           new BaseFlowingFluid.Flowing(FluidRegistries.   BUBBLE_PROPERTIES));
-    public static final DeferredHolder<Fluid, FlowingFluid> TONIC_SOURCE    =  FLUIDS.register("tonic_fluid", () ->                 new BaseFlowingFluid.Source(FluidRegistries.    TONIC_PROPERTIES));
-    public static final DeferredHolder<Fluid, FlowingFluid> TONIC_FLOWING   =  FLUIDS.register("tonic_fluid_flow", () ->            new BaseFlowingFluid.Flowing(FluidRegistries.   TONIC_PROPERTIES));
-    public static final DeferredHolder<Fluid, FlowingFluid> BITTERS_SOURCE  =  FLUIDS.register("bitters_fluid", () ->               new BaseFlowingFluid.Flowing(FluidRegistries.   BITTERS_PROPERTIES));
-    public static final DeferredHolder<Fluid, FlowingFluid> BITTERS_FLOWING =  FLUIDS.register("bitters_fluid_flow", () ->          new BaseFlowingFluid.Flowing(FluidRegistries.   BITTERS_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> GIN_SOURCE              =   FLUIDS.register("gin_fluid", () ->                  new BaseFlowingFluid.Source(FluidRegistries.    GIN_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> GIN_FLOWING             =   FLUIDS.register("gin_fluid_flow", () ->             new BaseFlowingFluid.Flowing(FluidRegistries.   GIN_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> VODKA_SOURCE            =   FLUIDS.register("vodka_fluid", () ->                new BaseFlowingFluid.Source(FluidRegistries.    VODKA_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> VODKA_FLOWING           =   FLUIDS.register("vodka_fluid_flow", () ->           new BaseFlowingFluid.Flowing(FluidRegistries.   VODKA_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> WHISKY_SOURCE           =   FLUIDS.register("whiskey_fluid", () ->              new BaseFlowingFluid.Source(FluidRegistries.    WHISKY_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> WHISKY_FLOWING          =   FLUIDS.register("whiskey_fluid_flow", () ->         new BaseFlowingFluid.Flowing(FluidRegistries.   WHISKY_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> BRANDY_SOURCE           =   FLUIDS.register("branky_fluid", () ->               new BaseFlowingFluid.Source(FluidRegistries.    BRANDY_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> BRANDY_FLOWING          =   FLUIDS.register("branky_fluid_flow", () ->          new BaseFlowingFluid.Flowing(FluidRegistries.   BRANDY_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> RUM_SOURCE              =   FLUIDS.register("rum_fluid", () ->                  new BaseFlowingFluid.Source(FluidRegistries.    RUM_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> RUM_FLOWING             =   FLUIDS.register("rum_fluid_flow", () ->             new BaseFlowingFluid.Flowing(FluidRegistries.   RUM_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> TEQUILA_SOURCE          =   FLUIDS.register("tequila_fluid", () ->              new BaseFlowingFluid.Source(FluidRegistries.    TEQUILA_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> TEQUILA_FLOWING         =   FLUIDS.register("tequila_fluid_flow", () ->         new BaseFlowingFluid.Flowing(FluidRegistries.   TEQUILA_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> BUBBLE_SOURCE           =   FLUIDS.register("bubble_fluid", () ->               new BaseFlowingFluid.Source(FluidRegistries.    BUBBLE_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> BUBBLE_FLOWING          =   FLUIDS.register("bubble_fluid_flow", () ->          new BaseFlowingFluid.Flowing(FluidRegistries.   BUBBLE_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> TONIC_SOURCE            =   FLUIDS.register("tonic_fluid", () ->                new BaseFlowingFluid.Source(FluidRegistries.    TONIC_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> TONIC_FLOWING           =   FLUIDS.register("tonic_fluid_flow", () ->           new BaseFlowingFluid.Flowing(FluidRegistries.   TONIC_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> BITTERS_SOURCE          =   FLUIDS.register("bitters_fluid", () ->              new BaseFlowingFluid.Source(FluidRegistries.    BITTERS_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> BITTERS_FLOWING         =   FLUIDS.register("bitters_fluid_flow", () ->         new BaseFlowingFluid.Flowing(FluidRegistries.   BITTERS_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> SUCROSE_SYRUP_SOURCE    =   FLUIDS.register("sucrose_syrup", () ->              new BaseFlowingFluid.Source(FluidRegistries.    SUCROSE_SYRUP_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> SUCROSE_SYRUP_FLOWING   =   FLUIDS.register("sucrose_syrup_flow", () ->         new BaseFlowingFluid.Flowing(FluidRegistries.   SUCROSE_SYRUP_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> HONEY_SOURCE            =   FLUIDS.register("honey_fluid", () ->               new BaseFlowingFluid.Source(FluidRegistries.    HONEY_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> HONEY_FLOWING           =   FLUIDS.register("honey_fluid_flow", () ->          new BaseFlowingFluid.Flowing(FluidRegistries.   HONEY_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> JUICE_SOURCE            =   FLUIDS.register("juice_fluid", () ->               new BaseFlowingFluid.Source(FluidRegistries.    JUICE_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> JUICE_FLOWING           =   FLUIDS.register("juice_fluid_flow", () ->          new BaseFlowingFluid.Flowing(FluidRegistries.   JUICE_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> LEMONADE_SOURCE         =   FLUIDS.register("lemonade_fluid", () ->            new BaseFlowingFluid.Source(FluidRegistries.    LEMONADE_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> LEMONADE_FLOWING        =   FLUIDS.register("lemonade_fluid_flow", () ->       new BaseFlowingFluid.Flowing(FluidRegistries.   LEMONADE_PROPERTIES));
 
     // 定义流体的属性
     // 这个流体的属性要传入的内容比较多，我们挨个介绍，我们使用了BaseFlowingFluid的Properties内部类创建对应的Properties，其中第一个参数是对应的流体的类体类型FluidType，然后第二个参数是对应的source流体，第三个参数是flow流体，都是我们刚刚写过的，看起来比较绕，大家自己理清下关系。
@@ -109,6 +117,38 @@ public class FluidRegistries {
             FluidTypeRegistries.BITTERS_FLUID_TYPE,
             FluidRegistries.BITTERS_SOURCE,
             FluidRegistries.BITTERS_FLOWING
+    );//.bucket(ModItems.MY_FLUID_BUCKET)
+    //            .slopeFindDistance(2)
+    //            .levelDecreasePerBlock(2)
+    //            .block(BlockRegistries.GIN_LIQUID);
+    private static final BaseFlowingFluid.Properties SUCROSE_SYRUP_PROPERTIES = new BaseFlowingFluid.Properties(
+            FluidTypeRegistries.SUCROSE_SYRUP_FLUID_TYPE,
+            FluidRegistries.SUCROSE_SYRUP_SOURCE,
+            FluidRegistries.SUCROSE_SYRUP_FLOWING
+    );//.bucket(ModItems.MY_FLUID_BUCKET)
+    //            .slopeFindDistance(2)
+    //            .levelDecreasePerBlock(2)
+    //            .block(BlockRegistries.GIN_LIQUID);
+    private static final BaseFlowingFluid.Properties HONEY_PROPERTIES = new BaseFlowingFluid.Properties(
+            FluidTypeRegistries.HONEY_FLUID_TYPE,
+            FluidRegistries.HONEY_SOURCE,
+            FluidRegistries.HONEY_FLOWING
+    );//.bucket(ModItems.MY_FLUID_BUCKET)
+    //            .slopeFindDistance(2)
+    //            .levelDecreasePerBlock(2)
+    //            .block(BlockRegistries.GIN_LIQUID);
+    private static final BaseFlowingFluid.Properties JUICE_PROPERTIES = new BaseFlowingFluid.Properties(
+            FluidTypeRegistries.JUICE_FLUID_TYPE,
+            FluidRegistries.JUICE_SOURCE,
+            FluidRegistries.JUICE_FLOWING
+    );//.bucket(ModItems.MY_FLUID_BUCKET)
+    //            .slopeFindDistance(2)
+    //            .levelDecreasePerBlock(2)
+    //            .block(BlockRegistries.GIN_LIQUID);
+    private static final BaseFlowingFluid.Properties LEMONADE_PROPERTIES = new BaseFlowingFluid.Properties(
+            FluidTypeRegistries.LEMONADE_FLUID_TYPE,
+            FluidRegistries.LEMONADE_SOURCE,
+            FluidRegistries.LEMONADE_FLOWING
     );//.bucket(ModItems.MY_FLUID_BUCKET)
     //            .slopeFindDistance(2)
     //            .levelDecreasePerBlock(2)

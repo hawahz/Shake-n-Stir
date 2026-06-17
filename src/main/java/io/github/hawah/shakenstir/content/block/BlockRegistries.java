@@ -3,7 +3,6 @@ package io.github.hawah.shakenstir.content.block;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.MapCodec;
 import io.github.hawah.shakenstir.ShakenStir;
-import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -32,14 +31,14 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-@SuppressWarnings("SameParameterValue")
+@SuppressWarnings({"SameParameterValue", "unused"})
 @EventBusSubscriber
 public class BlockRegistries {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(ShakenStir.MODID);
     public static final DeferredBlock<Shaker> SHAKE_BLOCK = register("shaker", Shaker::new);
     public static final DeferredBlock<ShakerLid> SHAKE_LID_BLOCK = register("shaker_lid", ShakerLid::new);
 
-    public static final DeferredBlock<SpiritBlock> BUBBLE = register("bubble", SpiritBlock::new);
+//    public static final DeferredBlock<SpiritBlock> BUBBLE = register("bubble", SpiritBlock::new);
     public static final DeferredBlock<SpiritBlock> GIN = register("gin", SpiritBlock::new);
     public static final DeferredBlock<SpiritBlock> VODKA = register("vodka", SpiritBlock::new);
     public static final DeferredBlock<SpiritBlock> WHISKY = register("whisky", SpiritBlock::new);
@@ -76,13 +75,13 @@ public class BlockRegistries {
     );
     public static final DeferredBlock<FlowerPotBlock> POTTED_LEMON = register("potted_lemon", properties -> new FlowerPotBlock(()-> (FlowerPotBlock) Blocks.FLOWER_POT, BlockRegistries.LEMON_SAPLING, properties), flowerPotProperties());
 
-    public static final DeferredBlock<LiquidBlock> GIN_LIQUID = registerLiquid("gin_liquid", FluidRegistries.GIN_SOURCE);
-    public static final DeferredBlock<LiquidBlock> VODKA_LIQUID = registerLiquid("vodka_liquid", FluidRegistries.VODKA_FLOWING);
-    public static final DeferredBlock<LiquidBlock> WHISKY_LIQUID = registerLiquid("whisky_liquid", FluidRegistries.WHISKY_FLOWING);
-    public static final DeferredBlock<LiquidBlock> RUM_LIQUID = registerLiquid("rum_liquid", FluidRegistries.RUM_FLOWING);
-    public static final DeferredBlock<LiquidBlock> TEQUILA_LIQUID = registerLiquid("tequila_liquid", FluidRegistries.TEQUILA_FLOWING);
-    public static final DeferredBlock<LiquidBlock> BRANDY_LIQUID = registerLiquid("brandy_liquid", FluidRegistries.BRANDY_FLOWING);
-    public static final DeferredBlock<LiquidBlock> BUBBLE_LIQUID = registerLiquid("bubble_liquid", FluidRegistries.BRANDY_FLOWING);
+//    public static final DeferredBlock<LiquidBlock> GIN_LIQUID = registerLiquid("gin_liquid", FluidRegistries.GIN_SOURCE);
+//    public static final DeferredBlock<LiquidBlock> VODKA_LIQUID = registerLiquid("vodka_liquid", FluidRegistries.VODKA_FLOWING);
+//    public static final DeferredBlock<LiquidBlock> WHISKY_LIQUID = registerLiquid("whisky_liquid", FluidRegistries.WHISKY_FLOWING);
+//    public static final DeferredBlock<LiquidBlock> RUM_LIQUID = registerLiquid("rum_liquid", FluidRegistries.RUM_FLOWING);
+//    public static final DeferredBlock<LiquidBlock> TEQUILA_LIQUID = registerLiquid("tequila_liquid", FluidRegistries.TEQUILA_FLOWING);
+//    public static final DeferredBlock<LiquidBlock> BRANDY_LIQUID = registerLiquid("brandy_liquid", FluidRegistries.BRANDY_FLOWING);
+//    public static final DeferredBlock<LiquidBlock> BUBBLE_LIQUID = registerLiquid("bubble_liquid", FluidRegistries.BUBBLE_SOURCE);
 
     public static final DeferredBlock<BarMenuBlock> BAR_MENU_BLOCK = register("bar_menu", BarMenuBlock::new);
     public static final DeferredBlock<BarCounterBlock> BAR_COUNTER_BLOCK = register("bar_counter", BarCounterBlock::new);

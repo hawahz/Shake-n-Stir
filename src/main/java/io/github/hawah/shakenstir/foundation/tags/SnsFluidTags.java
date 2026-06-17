@@ -22,6 +22,7 @@ public class SnsFluidTags {
     public static final TagKey<Fluid> SWEET = common("sweets");
 
     public static final TagKey<Fluid> SOUR = common("sours");
+    public static final TagKey<Fluid> LEMONADE = common("lemonade");
 
     public static final TagKey<Fluid> BITTER = common("bitters");
 

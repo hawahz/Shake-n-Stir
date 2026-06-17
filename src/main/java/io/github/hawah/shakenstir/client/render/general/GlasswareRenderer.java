@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("unused")
 public class GlasswareRenderer {
@@ -88,14 +87,7 @@ public class GlasswareRenderer {
             if ((itemStack.has(DataComponentTypeRegistries.DECORATE_MODEL) && (decorateModel = itemStack.get(DataComponentTypeRegistries.DECORATE_MODEL)) != null) ||
                     ((decorateModel = GlasswareDecorations.maps.entrySet().stream().filter(entry -> entry.getKey().test(itemStack)).map(Map.Entry::getValue).findAny().orElse(null)) != null)) {
                 Optional<IModel<?>> model = Models.getModel(decorateModel);
-                AtomicReference<VoxelShape> vs = new AtomicReference<>(shape);
-                model.ifPresent(deco -> {
-                    selector.select(deco);
-                    vs.set(deco.getShape());
-                });
-                shape = vs.get();
-                double size = shape.isEmpty()? 0.1 : shape.bounds().getSize();
-                float scale = (float) (0.225F / size);
+                float scale = 1;
                 selector.submit(poseStack, scale, submitNodeCollector, () -> lightCoords);
             } else if (itemStack.is(SnsItemTags.BLOCK_LIKE_DRINK_DECORATION) && itemStack.getItem() instanceof BlockItem modelProvider) {
                 BlockState decorationState = modelProvider.getBlock().defaultBlockState();
