@@ -1,7 +1,6 @@
 package io.github.hawah.shakenstir.content.item;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
-import io.github.hawah.shakenstir.content.tooltip.ShakeTooltipComponent;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
@@ -9,6 +8,7 @@ import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistr
 import io.github.hawah.shakenstir.content.dataComponent.IItemDataHolder;
 import io.github.hawah.shakenstir.content.dataComponent.ShakeContentHolder;
 import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
+import io.github.hawah.shakenstir.content.tooltip.ShakeTooltipComponent;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import io.github.hawah.shakenstir.foundation.item.IFluidContainer;
 import io.github.hawah.shakenstir.foundation.item.IPickMarkedItem;
@@ -17,7 +17,6 @@ import io.github.hawah.shakenstir.foundation.networking.ServerboundShakerBubbled
 import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.lib.networking.Networking;
-import io.github.hawah.shakenstir.util.ShakeClientHooks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
@@ -120,8 +119,7 @@ public class ShakerItem extends PriorityBlockItem implements IPickMarkedItem {
 
     @Override
     public boolean overrideOtherStackedOnMe(ItemStack self, ItemStack other, Slot slot, ClickAction clickAction, Player player, SlotAccess carriedItem) {
-        //noinspection resource
-        if (player.level().isClientSide() && ShakeClientHooks.hasControlDown() && other.isEmpty() && clickAction.equals(ClickAction.SECONDARY)) {
+        if (other.isEmpty() && clickAction.equals(ClickAction.SECONDARY) && !self.getOrDefault(DataComponentTypeRegistries.HAS_CUP, true)) {
             ShakeUtil.clearContent(self);
             return true;
         }
@@ -209,47 +207,49 @@ public class ShakerItem extends PriorityBlockItem implements IPickMarkedItem {
             );
             return true;
         }
-        var cap = other.getCapability(Capabilities.Fluid.ITEM, ItemAccess.forStack(other));
-        if (cap != null) {
-            ArrayList<FluidStack> fluidStacks = new ArrayList<>(ShakeUtil.getFluidStacks(self));
-            int sum = fluidStacks.stream().mapToInt(FluidStack::getAmount).sum();
-            int amountAsInt = cap.getAmountAsInt(0);
-            FluidResource resource = cap.getResource(0);
-            if (resource.isEmpty()) {
-                return false;
-            }
-            FluidStack fluidStack = resource.toStack(amountAsInt);
-            int find = -1;
-            for (int i = 0; i < fluidStacks.size(); i++) {
-                if (fluidStacks.get(i).is(fluidStack.getFluid())) {
-                    find = i;
-                    break;
+        if (!other.isEmpty()) {
+            var cap = other.getCapability(Capabilities.Fluid.ITEM, ItemAccess.forStack(other));
+            if (cap != null) {
+                ArrayList<FluidStack> fluidStacks = new ArrayList<>(ShakeUtil.getFluidStacks(self));
+                int sum = fluidStacks.stream().mapToInt(FluidStack::getAmount).sum();
+                int amountAsInt = cap.getAmountAsInt(0);
+                FluidResource resource = cap.getResource(0);
+                if (resource.isEmpty()) {
+                    return false;
                 }
-            }
-
-            if (sum >= ShakeBlockEntity.MAX_FLUID_CAPACITY) {
-                return false;
-            }
-
-            if (find == -1) {
-                fluidStacks.add(fluidStack.split(250));
-            } else {
-                fluidStacks.get(find).grow(250);
-                fluidStack.shrink(250);
-            }
-
-            try (Transaction trx = Transaction.openRoot()) {
-                int extract = cap.extract(resource, amountAsInt - fluidStack.amount(), trx);
-                if (extract > 0) {
-                    trx.commit();
+                FluidStack fluidStack = resource.toStack(amountAsInt);
+                int find = -1;
+                for (int i = 0; i < fluidStacks.size(); i++) {
+                    if (fluidStacks.get(i).is(fluidStack.getFluid())) {
+                        find = i;
+                        break;
+                    }
                 }
-            }
 
-            ShakeUtil.setFluidData(self, fluidStacks);
-            player.playSound(
-                    SoundEvents.BOTTLE_FILL
-            );
-            return true;
+                if (sum >= ShakeBlockEntity.MAX_FLUID_CAPACITY) {
+                    return false;
+                }
+
+                if (find == -1) {
+                    fluidStacks.add(fluidStack.split(250));
+                } else {
+                    fluidStacks.get(find).grow(250);
+                    fluidStack.shrink(250);
+                }
+
+                try (Transaction trx = Transaction.openRoot()) {
+                    int extract = cap.extract(resource, amountAsInt - fluidStack.amount(), trx);
+                    if (extract > 0) {
+                        trx.commit();
+                    }
+                }
+
+                ShakeUtil.setFluidData(self, fluidStacks);
+                player.playSound(
+                        SoundEvents.BOTTLE_FILL
+                );
+                return true;
+            }
         }
         return super.overrideOtherStackedOnMe(self, other, slot, clickAction, player, carriedItem);
     }

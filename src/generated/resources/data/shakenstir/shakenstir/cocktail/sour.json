@@ -1,4 +1,5 @@
 {
+  "alcohol": 25,
   "effects": [
     {
       "negative": "minecraft:weakness",

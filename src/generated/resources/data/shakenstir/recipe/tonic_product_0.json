@@ -13,6 +13,7 @@
   "result": {
     "components": {
       "shakenstir:cocktail_type": {
+        "alcohol": 16,
         "effects": [],
         "id": "shakenstir:tonic",
         "translation_key": "shakenstir:name.tonic"

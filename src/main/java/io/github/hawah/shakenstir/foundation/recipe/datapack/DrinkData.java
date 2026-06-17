@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.foundation.recipe.datapack;
 
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
@@ -10,6 +11,7 @@ import io.github.hawah.shakenstir.foundation.recipe.Quality;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.cocktaileType.CocktailType;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.spirit.SpiritData;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
+import io.github.hawah.shakenstir.foundation.tags.SnsFluidTags;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentGetter;
@@ -33,10 +35,14 @@ import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.TooltipProvider;
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
+@SuppressWarnings("unused")
 public record DrinkData(
         CocktailType type,
         SpiritData base,
@@ -67,6 +73,7 @@ public record DrinkData(
             DrinkData::new
     );
 
+    @SuppressWarnings("unused")
     public DrinkData(CocktailType type, SpiritData base, List<SpiritData> extraSpirit, List<IngredientData> extraIngredients, Quality quality, int coldLevel) {
         this(type, base, extraSpirit, extraIngredients, quality, List.of(), coldLevel);
     }
@@ -92,11 +99,11 @@ public record DrinkData(
         int drunkAmplifier = extraSpirit().size();
         MobEffectInstance instance = new MobEffectInstance(MobEffectRegistries.DRUNK, 20 * 60 * 5, drunkAmplifier);
         livingEntity.addEffect(instance);
+        //noinspection resource
         if (!livingEntity.level().isClientSide()){
             consumables.forEach(
-                    consumable -> {
-                        consumable.onConsumeEffects().forEach(effect -> effect.apply(livingEntity.level(), ItemRegistries.CONTENT_HOLDER.toStack(), livingEntity));
-                    }
+                    consumable ->
+                            consumable.onConsumeEffects().forEach(effect -> effect.apply(livingEntity.level(), ItemRegistries.CONTENT_HOLDER.toStack(), livingEntity))
             );
         }
     }
@@ -125,11 +132,20 @@ public record DrinkData(
     }
 
     public List<MobEffectInstance> drunkEffects() {
-        return List.of(new MobEffectInstance(MobEffectRegistries.DRUNK, 20 * 60 * 5));
+        return List.of(new MobEffectInstance(MobEffectRegistries.DRUNK, 20 * 60 * 5, drunkLevel()/15));
     }
 
     public int drunkLevel() {
-        return (int) ((extraSpirit().size() + 1)/4F * 45);
+        int alcohol = type.alcohol();
+        if (extraSpirit.isEmpty()) {
+            return alcohol;
+        }
+        int spiritAmount = Math.toIntExact(extraSpirit.stream()
+                .filter(spiritData -> spiritData.fluidType().is(SnsFluidTags.SPIRIT))
+                .count());
+        float addition = spiritAmount / (float) (extraSpirit.size()) * 40;
+
+        return (int) (alcohol * 4 + addition * extraSpirit.size())/ (4 + extraSpirit.size());
     }
 
     @Override
@@ -202,10 +218,7 @@ public record DrinkData(
     }
     public void addPotionTooltip(Iterable<MobEffectInstance> effects, Consumer<Component> lines, float durationScale, float tickrate) {
 
-        boolean noEffects = true;
-
         for (MobEffectInstance effect : effects) {
-            noEffects = false;
             Holder<MobEffect> mobEffect = effect.getEffect();
             int amplifier = effect.getAmplifier();
             mobEffect.value().createModifiers(amplifier, (attribute, modifierx) -> modifiers.add(new Pair<>(attribute, modifierx)));

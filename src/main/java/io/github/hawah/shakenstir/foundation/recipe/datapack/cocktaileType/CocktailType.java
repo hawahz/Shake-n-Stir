@@ -25,25 +25,27 @@ import java.util.List;
  * @param translationKey cocktail type 的翻译key
  * @param effects 该类型鸡尾酒的基础效果s
  */
-public record CocktailType(Identifier id, Identifier translationKey, List<EffectData> effects) implements ITranslatable {
+public record CocktailType(Identifier id, Identifier translationKey, List<EffectData> effects, int alcohol) implements ITranslatable {
 
-    public static final CocktailType EMPTY = new CocktailType(ShakenStir.asResource("empty"), List.of());
+    public static final CocktailType EMPTY = new CocktailType(ShakenStir.asResource("empty"), List.of(), 0);
 
     public static final Codec<CocktailType> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Identifier.CODEC.fieldOf("id").forGetter(CocktailType::id),
             Identifier.CODEC.fieldOf("translation_key").forGetter(CocktailType::translationKey),
-            EffectData.CODEC.listOf().fieldOf("effects").forGetter(CocktailType::effects)
+            EffectData.CODEC.listOf().fieldOf("effects").forGetter(CocktailType::effects),
+            Codec.INT.fieldOf("alcohol").forGetter(CocktailType::alcohol)
     ).apply(inst, CocktailType::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, CocktailType> STREAM_CODEC = StreamCodec.composite(
             Identifier.STREAM_CODEC, CocktailType::id,
             Identifier.STREAM_CODEC, CocktailType::translationKey,
             EffectData.STREAM_CODEC.apply(ByteBufCodecs.list()), CocktailType::effects,
+            ByteBufCodecs.INT, CocktailType::alcohol,
             CocktailType::new
     );
 
-    public CocktailType(Identifier id, List<EffectData> effects) {
-        this(id, id.withPrefix("name."), effects);
+    public CocktailType(Identifier id, List<EffectData> effects, int alcohol) {
+        this(id, id.withPrefix("name."), effects, alcohol);
     }
 
     public List<MobEffectInstance> get(Quality quality) {

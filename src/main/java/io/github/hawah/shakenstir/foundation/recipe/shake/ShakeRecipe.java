@@ -15,13 +15,17 @@ import io.github.hawah.shakenstir.foundation.recipe.IScoreSortedRecipe;
 import io.github.hawah.shakenstir.foundation.recipe.Quality;
 import io.github.hawah.shakenstir.foundation.recipe.RecipeTypeRegistries;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.DrinkData;
+import io.github.hawah.shakenstir.foundation.recipe.datapack.EffectData;
+import io.github.hawah.shakenstir.foundation.recipe.datapack.cocktaileType.CocktailType;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.cocktaileType.CocktailTypes;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.spirit.SpiritData;
 import io.github.hawah.shakenstir.foundation.recipe.ingredient.FluidIngredient;
 import io.github.hawah.shakenstir.foundation.BaseFluidType;
 import io.github.hawah.shakenstir.foundation.recipeRecord.ServerRecipeHelper;
+import io.github.hawah.shakenstir.foundation.tags.SnsFluidTags;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import it.unimi.dsi.fastutil.Pair;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.MutableComponent;
@@ -36,6 +40,7 @@ import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -96,23 +101,36 @@ public record ShakeRecipe(
                 shakeAdditionTimes
         );
         resultItem.set(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY, quality);
-        List<Consumable> consumables = recipeInput.items().stream()
+        List<ItemStack> items = recipeInput.items();
+        List<FluidStack> fluidStacks = new ArrayList<>(recipeInput.fluidStacks());
+        List<Consumable> consumables = items.stream()
                 .filter(itemStack -> itemStack.has(DataComponents.CONSUMABLE))
                 .map(itemStack -> itemStack.get(DataComponents.CONSUMABLE))
                 .filter(Objects::nonNull)
                 .toList();
+
         if (!resultItem.has(DataComponentTypeRegistries.SHAKE_BUBBLES)){
+
+            Holder<Fluid> base = fluidStacks
+                    .stream()
+                    .filter(fluidStack -> fluidStack.is(SnsFluidTags.SPIRIT))
+                    .max(Comparator.comparingInt(FluidStack::getAmount))
+                    .orElseThrow()
+                    .typeHolder();
+
+            fluidStacks.sort(Comparator.comparingInt(FluidStack::amount).reversed());
+            extractFluidByRecipe(recipe, fluidStacks);
+
             resultItem.set(DataComponentTypeRegistries.DRINK_DATA, new DrinkData(
-                    resultItem.get(DataComponentTypeRegistries.COCKTAIL_TYPE),
+                    resultItem.getOrDefault(DataComponentTypeRegistries.COCKTAIL_TYPE, CocktailType.EMPTY),
                     SpiritData.get(
                             level,
-                            recipeInput.fluidStacks()
-                                    .stream()
-                                    .max(Comparator.comparing(FluidStack::getAmount))
-                                    .orElseThrow()
-                                    .typeHolder()
+                            base
                     ),
-                    List.of(),
+                    fluidStacks.stream()
+                            .map(fluidStack ->  SpiritData.getOr(level, fluidStack.typeHolder(), () ->
+                                    new SpiritData(fluidStack.typeHolder(), EffectData.EMPTY)
+                            )).toList(),
                     List.of(),
                     quality,
                     consumables,
@@ -120,6 +138,34 @@ public record ShakeRecipe(
             ));
         }
         applyResult(finalShakeSuccessTimes, recipeInput, mainHandItem, player, resultItem);
+    }
+
+    private static boolean extractFluidByRecipe(ShakeRecipe recipe, List<FluidStack> fluidStacks) {
+        for (FluidIngredient required : recipe.inputFluids()) {
+            int matched = fluidStacks.stream()
+                    .mapToInt(required::match)
+                    .sum();
+            if (matched >= required.amount()) {
+                int consumed = 0;
+                for (int i = 0; i < fluidStacks.size() && consumed < required.amount(); i++) {
+                    FluidStack stack = fluidStacks.get(i);
+                    if (required.fluidId().test(stack)) {
+                        int available = stack.getAmount();
+                        int needed = required.amount() - consumed;
+                        int toConsume = Math.min(available, needed);
+                        stack.shrink(toConsume);
+                        consumed += toConsume;
+                        if (stack.isEmpty()) {
+                            fluidStacks.remove(i);
+                            i--;
+                        }
+                    }
+                }
+            } else {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static void applyResult(int finalShakeSuccessTimes, ShakeRecipeInput recipeInput, ItemStack mainHandItem, Player player, ItemStack resultItem) {
@@ -151,7 +197,7 @@ public record ShakeRecipe(
         }
 
         RecipeManager recipeManager = level.recipeAccess();
-        ShakeRecipeInput recipeInput = new ShakeRecipeInput(itemData, fluidData, shakeSuccessTimes);
+        ShakeRecipeInput recipeInput = new ShakeRecipeInput(itemData.stream().map(ItemStack::copy).toList(), fluidData.stream().map(FluidStack::copy).toList(), shakeSuccessTimes);
         Optional<RecipeHolder<ShakeRecipe>> result = recipeManager.getRecipeFor(
                 RecipeTypeRegistries.SHAKE_RECIPE.get(),
                 recipeInput,
@@ -183,8 +229,8 @@ public record ShakeRecipe(
             return;
         }
         final int finalShakeSuccessTimes = shakeSuccessTimes;
-        result.map(RecipeHolder::value).ifPresent(recipe -> {
-            createAndAddShakeResult(
+        result.map(RecipeHolder::value).ifPresent(recipe ->
+                createAndAddShakeResult(
                     past,
                     shaker,
                     recipe,
@@ -194,8 +240,7 @@ public record ShakeRecipe(
                     level,
                     iceCount,
                     player
-            );
-        });
+                ));
     }
 
     public static ItemStack createSuspiciousResult(
@@ -225,7 +270,7 @@ public record ShakeRecipe(
         resultItem.set(DataComponents.DYED_COLOR, new DyedItemColor(rgb));
         resultItem.set(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY, quality);
         resultItem.set(DataComponentTypeRegistries.DRINK_DATA, new DrinkData(
-                resultItem.get(DataComponentTypeRegistries.COCKTAIL_TYPE),
+                resultItem.getOrDefault(DataComponentTypeRegistries.COCKTAIL_TYPE, CocktailType.EMPTY),
                 SpiritData.get(
                         level,
                         recipeInput.fluidStacks()
@@ -262,29 +307,8 @@ public record ShakeRecipe(
 
         // 2. 流体无序匹配：同样逻辑，只看流体类型和组件，忽略数量
         List<FluidStack> remainingFluids = new ArrayList<>(input.fluidStacks().stream().map(FluidStack::copy).toList());
-        for (FluidIngredient required : inputFluids) {
-            int matched = remainingFluids.stream()
-                    .mapToInt(required::match)
-                    .sum();
-            if (matched >= required.amount()) {
-                int consumed = 0;
-                for (int i = 0; i < remainingFluids.size() && consumed < required.amount(); i++) {
-                    FluidStack stack = remainingFluids.get(i);
-                    if (required.fluidId().test(stack)) {
-                        int available = stack.getAmount();
-                        int needed = required.amount() - consumed;
-                        int toConsume = Math.min(available, needed);
-                        stack.shrink(toConsume);
-                        consumed += toConsume;
-                        if (stack.isEmpty()) {
-                            remainingFluids.remove(i);
-                            i--;
-                        }
-                    }
-                }
-            } else {
-                return false;
-            }
+        if (!extractFluidByRecipe(this, remainingFluids)) {
+            return false;
         }
 
         return shakeTimes() <= input.shakeTime();
@@ -363,7 +387,7 @@ public record ShakeRecipe(
 
         // 2. 流体匹配评分
         List<FluidStack> remainingFluids = new ArrayList<>(recipeInput.fluidStacks().stream().map(FluidStack::copy).toList());
-        int totalRequiredFluid = 0;
+        @SuppressWarnings("unused") int totalRequiredFluid = 0;
         int totalMatchedFluid = 0;
         for (FluidIngredient required : inputFluids) {
             totalRequiredFluid += required.amount();

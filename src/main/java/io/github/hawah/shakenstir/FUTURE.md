@@ -9,3 +9,4 @@
 - [ ] 设计并增加小刀
 - [ ] 增加DrinkData中Consumable的提示
 - [ ] 修改酒精度计算法
+- [ ] 将SpiritData变成普适的FluidData，使得不仅仅烈酒可以使用。需要修改ShakeRecipe的内容

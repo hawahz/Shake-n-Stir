@@ -1,4 +1,5 @@
 {
+  "alcohol": 15,
   "effects": [
     {
       "negative": "minecraft:slowness",

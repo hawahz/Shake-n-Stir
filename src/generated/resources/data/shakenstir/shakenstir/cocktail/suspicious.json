@@ -1,4 +1,5 @@
 {
+  "alcohol": 0,
   "effects": [
     {
       "negative": "minecraft:poison",

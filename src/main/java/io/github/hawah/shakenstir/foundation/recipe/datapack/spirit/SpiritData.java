@@ -13,6 +13,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import java.util.function.Supplier;
+
 /**
  *
  * @param fluidType: 基酒对应的流体
@@ -40,6 +42,18 @@ public record SpiritData(Holder<Fluid> fluidType, EffectData effectData) {
                 )
                 .or(() -> Spirits.getBuiltIn(fluidType))
                 .orElseThrow();
+    }
+
+    public static SpiritData getOr(Level level, Holder<Fluid> fluidType, Supplier<SpiritData> or) {
+        return level.registryAccess()
+                .lookup(Registries.SPIRIT_REGISTRY_KEY)
+                .flatMap(registry ->
+                        registry.stream()
+                                .filter(spiritData -> spiritData.fluidType().equals(fluidType))
+                                .findFirst()
+                )
+                .or(() -> Spirits.getBuiltIn(fluidType))
+                .orElseGet(or);
     }
 
     public MobEffectInstance get(Quality phase) {

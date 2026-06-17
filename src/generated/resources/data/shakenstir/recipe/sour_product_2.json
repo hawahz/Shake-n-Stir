@@ -16,6 +16,7 @@
   "result": {
     "components": {
       "shakenstir:cocktail_type": {
+        "alcohol": 25,
         "effects": [
           {
             "negative": "minecraft:weakness",

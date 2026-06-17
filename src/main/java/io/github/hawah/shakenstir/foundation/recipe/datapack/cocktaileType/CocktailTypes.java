@@ -12,28 +12,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
+@SuppressWarnings("unused")
 public class CocktailTypes {
     public static final CocktailType SOUR_VALUE = new CocktailType(ShakenStir.asResource("sour"), List.of(
             EffectData.cocktail(MobEffectRegistries.LEMON, MobEffects.WEAKNESS)
-    ));
+    ), 25);
     public static final CocktailType FIZZ_VALUE = new CocktailType(ShakenStir.asResource("fizz"), List.of(
             EffectData.cocktail(MobEffects.SPEED, MobEffects.SLOWNESS)
-    ));
+    ), 15);
     public static final CocktailType COCKTAIL_VALUE = new CocktailType(ShakenStir.asResource("cocktail"), List.of(
 
-    ));
+    ), 40);
     public static final CocktailType HIGHBALL_VALUE = new CocktailType(ShakenStir.asResource("highball"), List.of(
 
-    ));
+    ), 15);
     public static final CocktailType TONIC_VALUE = new CocktailType(ShakenStir.asResource("tonic"), List.of(
 
-    ));
+    ), 16);
     public static final CocktailType COLADA_VALUE = new CocktailType(ShakenStir.asResource("colada"), List.of(
 
-    ));
+    ), 20);
     public static final CocktailType SUSPICIOUS_VALUE = new CocktailType(ShakenStir.asResource("suspicious"), List.of(
             EffectData.suspicious()
-    ));
+    ), 0);
 
     public static final ResourceKey<CocktailType> SOUR = cocktailKey("sour");
     public static final ResourceKey<CocktailType> FIZZ = cocktailKey("fizz");

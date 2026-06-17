@@ -30,6 +30,8 @@ public record EffectData(
         List<LevelMapDuration> positiveLevNDur,
         List<LevelMapDuration> negativeLevNDur
 ) {
+    public static final EffectData EMPTY = new EffectData(MobEffects.SPEED, MobEffects.SPEED, List.of(), List.of());
+
     public static final Codec<EffectData> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             MobEffect.CODEC.fieldOf("positive").forGetter(EffectData::positive),
             MobEffect.CODEC.fieldOf("negative").forGetter(EffectData::negative),

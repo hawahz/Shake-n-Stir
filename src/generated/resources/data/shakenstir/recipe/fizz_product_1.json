@@ -14,6 +14,7 @@
   "result": {
     "components": {
       "shakenstir:cocktail_type": {
+        "alcohol": 15,
         "effects": [
           {
             "negative": "minecraft:slowness",
