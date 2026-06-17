@@ -75,7 +75,7 @@ public class ItemRegistries {
     public static final DeferredItem<BartenderSpawner> BARTENDER_SPAWNER = register("bartender_spawner", BartenderSpawner::new);
 
     public static final DeferredItem<Item> BARTENDER_GLOVE = register("bartender_glove", Item::new, new Item.Properties().durability(20).component(DataComponentTypeRegistries.BARTENDER_GLOVE, Unit.INSTANCE));
-    public static final DeferredItem<MintItem> MINT = registerMint("mint", 0);
+    public static final DeferredItem<MintItem> MINT = register("mint", MintItem::new);
     public static final DeferredItem<StackedMintItem> STACKED_MINT = register("stacked_mint", StackedMintItem::new);
     public static final DeferredItem<BlockItem> MINT_SEED = registerBlock("mint_seed", BlockRegistries.MINT_PLANT);
     public static final DeferredItem<BlockItem> LEMON_SIDE_LEAVES = registerBlock("lemon_side_leaves", BlockRegistries.LEMON_SIDE_LEAVES);
@@ -87,10 +87,6 @@ public class ItemRegistries {
 
     public static <T extends Item> DeferredItem<T> register(String name, Function<Item.Properties, T> supply) {
         return ITEM.register(name, (registryName) -> supply.apply(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName))));
-    }
-
-    public static DeferredItem<MintItem> registerMint(String name, int idx) {
-        return ITEM.register(name, (registryName) -> new MintItem(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName)), idx));
     }
 
     public static <T extends Item> DeferredItem<T> register(String name, Function<Item.Properties, T> supply, Item.Properties properties) {

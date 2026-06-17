@@ -1,5 +1,6 @@
 package io.github.hawah.shakenstir.content.block;
 
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.MapCodec;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
@@ -17,6 +18,9 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -27,6 +31,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 @SuppressWarnings("SameParameterValue")
+@EventBusSubscriber
 public class BlockRegistries {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(ShakenStir.MODID);
     public static final DeferredBlock<Shaker> SHAKE_BLOCK = register("shaker", Shaker::new);
@@ -170,6 +175,18 @@ public class BlockRegistries {
 
     public static BlockBehaviour.Properties flowerPotProperties() {
         return BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY);
+    }
+
+    @SubscribeEvent
+    public static void commonSetup(FMLCommonSetupEvent event) {
+        // Some common setup code
+        LogUtils.getLogger().info("HELLO FROM COMMON SETUP");
+
+        // 将柠檬树苗映射到对应的花盆方块，使原版花盆能识别
+        ((FlowerPotBlock) Blocks.FLOWER_POT).addPlant(
+                BuiltInRegistries.BLOCK.getKey(BlockRegistries.LEMON_SAPLING.get()),
+                BlockRegistries.POTTED_LEMON
+        );
     }
 
 }

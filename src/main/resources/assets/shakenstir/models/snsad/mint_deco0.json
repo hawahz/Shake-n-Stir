@@ -1,0 +1,23 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"0": "shakenstir:block/addition/mint_deco_0",
+		"particle": "shakenstir:block/addition/mint_deco_0"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [7, 0, 7],
+			"rotation": {"x": -1.55898, "y": 40.78947, "z": 30.36119, "origin": [0, 0, 0]},
+			"faces": {
+				"north": {"uv": [0, 0, 7, 0], "texture": "#0"},
+				"east": {"uv": [0, 0, 7, 0], "texture": "#0"},
+				"south": {"uv": [0, 0, 7, 0], "texture": "#0"},
+				"west": {"uv": [0, 0, 7, 0], "texture": "#0"},
+				"up": {"uv": [16, 7, 9, 0], "texture": "#0"},
+				"down": {"uv": [16, 0, 9, 7], "texture": "#0"}
+			}
+		}
+	]
+}

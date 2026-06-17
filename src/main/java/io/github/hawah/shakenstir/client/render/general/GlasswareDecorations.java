@@ -19,7 +19,9 @@ public class GlasswareDecorations {
 
     static {
         maps.put(is(Items.POPPY), ShakenStir.asResource("poppy_deco"));
+        maps.put(component(DataComponentTypeRegistries.MINT_SIZE, new MintSizeComponent(0)), ShakenStir.asResource("mint_deco0"));
         maps.put(component(DataComponentTypeRegistries.MINT_SIZE, new MintSizeComponent(1)), ShakenStir.asResource("mint_deco1"));
+        maps.put(component(DataComponentTypeRegistries.MINT_SIZE, new MintSizeComponent(2)), ShakenStir.asResource("mint_deco2"));
     }
 
     public static Predicate<ItemStack> is(ItemLike item) {

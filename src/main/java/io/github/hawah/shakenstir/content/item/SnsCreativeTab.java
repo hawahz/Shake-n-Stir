@@ -8,9 +8,11 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -78,16 +80,9 @@ public class SnsCreativeTab {
             .displayItems((params, output) -> {
                 output.accept(Items.POPPY);
                 output.accept(ItemRegistries.LEMON_SLICE.get());
-                output.accept(ItemRegistries.MINT_SEED.get());
                 output.accept(createMint(0));
                 output.accept(createMint(1));
                 output.accept(createMint(2));
-
-                output.accept(ItemRegistries.LEMON_SAPLING);
-                output.accept(ItemRegistries.LEMON_LOG);
-                output.accept(ItemRegistries.LEMON_SIDE_LEAVES);
-                output.accept(ItemRegistries.LEMON_TOP_LEAVES);
-                output.accept(ItemRegistries.LEMON_LEAVES);
             })
             .build()
     );
@@ -116,5 +111,16 @@ public class SnsCreativeTab {
 
     public static void register(IEventBus event) {
         CREATIVE_MODE_TABS.register(event);
+    }
+
+    public static void addCreative(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey().equals(CreativeModeTabs.NATURAL_BLOCKS)) {
+            event.insertAfter(Items.BEETROOT_SEEDS.getDefaultInstance(), ItemRegistries.MINT_SEED.get().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(Items.FLOWERING_AZALEA_LEAVES.getDefaultInstance(), ItemRegistries.LEMON_TOP_LEAVES.get().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(Items.FLOWERING_AZALEA_LEAVES.getDefaultInstance(), ItemRegistries.LEMON_SIDE_LEAVES.get().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(Items.FLOWERING_AZALEA_LEAVES.getDefaultInstance(), ItemRegistries.LEMON_LEAVES.get().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(Items.FLOWERING_AZALEA.getDefaultInstance(), ItemRegistries.LEMON_LOG.get().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(Items.PALE_OAK_SAPLING.getDefaultInstance(), ItemRegistries.LEMON_SAPLING.get().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        }
     }
 }

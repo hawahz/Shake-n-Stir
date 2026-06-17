@@ -126,7 +126,7 @@ public class LemonSideLeavesBlock extends HorizontalDirectionalBlock implements 
 
     @Override
     public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
-        return state.getValue(AGE) <= MAX_AGE;
+        return state.getValue(AGE) <= MAX_AGE && level.getBlockState(pos.relative(state.getValue(FACING)).below()).is(BlockRegistries.LEMON_LOG);
     }
 
     @Override

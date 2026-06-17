@@ -1,6 +1,5 @@
 package io.github.hawah.shakenstir.content.item;
 
-import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.SnsConsumables;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.WarpedMint;
@@ -21,10 +20,9 @@ import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 
 @EventBusSubscriber
 public class MintItem extends Item {
-    public MintItem(Properties properties, int idx) {
+    public MintItem(Properties properties) {
         super(properties
                 .component(DataComponents.CONSUMABLE, SnsConsumables.MINT)
-                .component(DataComponentTypeRegistries.DECORATE_MODEL, ShakenStir.asResource("mint_deco_" + idx))
         );
     }
 
