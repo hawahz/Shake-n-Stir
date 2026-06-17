@@ -23,6 +23,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -61,7 +62,7 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
     public void setPackedBkg(int[] packedBkg) {
         int[] pkg = new int[packedBkg.length];
         System.arraycopy(packedBkg, 0, pkg, 0, packedBkg.length);
-        if (getLevel().isClientSide()) {
+        if (getLevel() != null && getLevel().isClientSide()) {
             String UniqueName = "bkg_" + System.currentTimeMillis();
             bkg = ShakenStir.asResource(UniqueName);
             Networking.sendToServer(new ServerboundUploadBarMenuBkgPacket(pkg, pkg.length, UniqueName));
@@ -127,8 +128,7 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
         for (MutablePair<SnsRecipeHolder, PriceAndCount> recipe : recipes) {
             if (recipe.right().count > 0) {
                 boolean found = false;
-                for (ItemStack cachedRecipeCost : cachedRecipeCosts) {
-                    ItemStack cost = cachedRecipeCost.copy();
+                for (ItemStack cost : cachedRecipeCosts) {
                     if (recipe.right().item.test(itemStack -> ItemStack.isSameItemSameComponents(cost, itemStack))) {
                         cost.grow(recipe.right().count * recipe.right().price);
                         found = true;
@@ -177,8 +177,8 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
     }
 
     public static class PriceAndCount {
-        public int price = 0;
-        public int count = 0;
+        public int price;
+        public int count;
         public ItemResource item;
         public static final Codec<PriceAndCount> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.INT.fieldOf("price").forGetter(PriceAndCount::getPrice),
@@ -193,7 +193,7 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
                 PriceAndCount::new
         );
 
-        public PriceAndCount(int price, int count, ItemResource item) {
+        public PriceAndCount(int price, int count, @Nullable ItemResource item) {
             this.price = price;
             this.count = count;
             this.item = item != null ? item : ItemResource.EMPTY;

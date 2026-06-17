@@ -8,6 +8,8 @@ import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.FallingBlockEntity;
@@ -84,8 +86,6 @@ public class SpiritBlock extends FallingBlock implements EntityBlock, ITakeUpBlo
         BlockState state = context.getLevel().getBlockState(pos);
         Level level = context.getLevel();
         ItemStack itemStack = context.getItemInHand();
-        Player player = context.getPlayer();
-        InteractionHand hand = context.getHand();
         int original = state.getValueOrElse(COUNTS, 0);
         if (state.is(this) && original < 4) {
             if (level.getBlockEntity(pos) instanceof SpiritBlockEntity blockEntity) {
@@ -162,10 +162,18 @@ public class SpiritBlock extends FallingBlock implements EntityBlock, ITakeUpBlo
             if (level.getBlockEntity(pos) instanceof SpiritBlockEntity blockEntity) {
                 blockEntity.pushAnother(original, itemStack, player.isCreative());
             }
+            SoundType soundType = state.getSoundType(level, pos, player);
+            level.playSound(
+                    player, pos, getPlaceSound(state, level, pos, player), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F
+            );
             player.swing(hand);
             return InteractionResult.CONSUME;
         }
         return super.useItemOn(itemStack, state, level, pos, player, hand, hitResult);
+    }
+
+    protected SoundEvent getPlaceSound(BlockState state, Level world, BlockPos pos, Player entity) {
+        return state.getSoundType(world, pos, entity).getPlaceSound();
     }
 
     @Override
