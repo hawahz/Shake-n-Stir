@@ -20,6 +20,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -52,7 +53,7 @@ public class LemonSideLeavesBlock extends HorizontalDirectionalBlock implements 
     }
 
     public LemonSideLeavesBlock(BlockBehaviour.Properties properties) {
-        super(properties);
+        super(properties.sound(SoundType.GRASS));
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(AGE, 0));
     }
 

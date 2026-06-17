@@ -55,15 +55,17 @@ public class LemonTreeBlock extends Block implements BonemealableBlock {
         int changeCount = random.nextInt(2);
         if (level.getBlockState(pos.above()).isEmpty()) {
             list.add(Pair.of(pos.above(), BlockRegistries.LEMON_LEAVES.get().defaultBlockState()));
-        } else if (level.getBlockState(pos.above(2)).isEmpty()) {
-            list.add(Pair.of(pos.above(2), BlockRegistries.LEMON_TOP_LEAVES.get().defaultBlockState()));
-        }
-        for (Direction direction : HorizontalDirectionalBlock.FACING.getPossibleValues()) {
-            if (!level.getBlockState(pos.above().relative(direction)).isEmpty()) {
-                continue;
+        } else {
+            if (level.getBlockState(pos.above(2)).isEmpty()) {
+                list.add(Pair.of(pos.above(2), BlockRegistries.LEMON_TOP_LEAVES.get().defaultBlockState()));
             }
-            BlockState leaves = BlockRegistries.LEMON_SIDE_LEAVES.get().defaultBlockState();
-            list.add(Pair.of(pos.above().relative(direction), leaves.setValue(LemonSideLeavesBlock.FACING, direction.getOpposite())));
+            for (Direction direction : HorizontalDirectionalBlock.FACING.getPossibleValues()) {
+                if (!level.getBlockState(pos.above().relative(direction)).isEmpty()) {
+                    continue;
+                }
+                BlockState leaves = BlockRegistries.LEMON_SIDE_LEAVES.get().defaultBlockState();
+                list.add(Pair.of(pos.above().relative(direction), leaves.setValue(LemonSideLeavesBlock.FACING, direction.getOpposite())));
+            }
         }
         if (list.isEmpty()) {
             for (Direction direction : HorizontalDirectionalBlock.FACING.getPossibleValues()) {

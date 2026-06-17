@@ -17,6 +17,8 @@ import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -56,7 +58,13 @@ public class BlockRegistries {
     public static final DeferredBlock<LemonTreeBlock> LEMON_LOG = register("lemon_log", LemonTreeBlock::new, logProperties(MapColor.WOOD, SoundType.WOOD));
     public static final DeferredBlock<Block> LEMON_LEAVES = register("lemon_center_leaves", p -> new TintedParticleLeavesBlock(0.01F, p), leavesProperties(SoundType.GRASS));
 
-    public static final DeferredBlock<Block> LEMON_TOP_LEAVES = register("lemon_top_leaves",p -> new TintedParticleLeavesBlock(0.01F, p), leavesProperties(SoundType.GRASS));
+    public static final DeferredBlock<Block> LEMON_TOP_LEAVES = register("lemon_top_leaves",p -> new TintedParticleLeavesBlock(0.01F, p) {
+        public static final VoxelShape SHAPE = box(0, 0, 0, 16, 8, 16);
+        @Override
+        protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+            return SHAPE;
+        }
+    }, leavesProperties(SoundType.GRASS));
     public static final DeferredBlock<LemonTreeSaplingBlock> LEMON_SAPLING = register("lemon_sapling", LemonTreeSaplingBlock::new,
             BlockBehaviour.Properties.of()
                     .mapColor(MapColor.PLANT)
