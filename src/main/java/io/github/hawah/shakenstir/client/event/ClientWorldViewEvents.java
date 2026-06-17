@@ -3,7 +3,6 @@ package io.github.hawah.shakenstir.client.event;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
-import io.github.hawah.shakenstir.client.hanlder.GlasswareHandlerRenderState;
 import io.github.hawah.shakenstir.client.render.GlasswareOutlineRenderer;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
@@ -38,12 +37,7 @@ public class ClientWorldViewEvents {
     @SubscribeEvent
     public static void onExtractLevelStage(ExtractLevelRenderStateEvent event) {
 
-        event.getRenderState().setRenderData(
-                GlasswareHandlerRenderState.ctxKey,
-                new GlasswareHandlerRenderState(
-                        event.getDeltaTracker()
-                )
-        );
+        ShakenStirClient.GLASSWARE_HANDLER.extract(event);
         ShakenStirClient.DECORATE_PLACE_HANDLER.extract(event);
         Outliner.extract(event);
     }

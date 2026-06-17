@@ -13,6 +13,8 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
+
 public record WarpedMintDisplay(int cap) implements ConditionalItemModelProperty {
     public static final MapCodec<WarpedMintDisplay> MAP_CODEC = RecordCodecBuilder.mapCodec(
             i -> i.group(Codec.INT.optionalFieldOf("cap", 0).forGetter(WarpedMintDisplay::cap)
@@ -32,7 +34,8 @@ public record WarpedMintDisplay(int cap) implements ConditionalItemModelProperty
             return cap == -1;
         }
         int idx = itemStack.getOrDefault(DataComponentTypeRegistries.SELECT_MINT, 0);
-        int size = warpedMint.contents().get(idx).getOrDefault(DataComponentTypeRegistries.MINT_SIZE, new MintSizeComponent(-1)).size();
+        List<ItemStack> contents = warpedMint.contents();
+        int size = contents.get(idx<contents.size()? idx: contents.size()-1).getOrDefault(DataComponentTypeRegistries.MINT_SIZE, new MintSizeComponent(-1)).size();
 
         return size == cap;
     }

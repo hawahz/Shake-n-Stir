@@ -7,7 +7,6 @@ import io.github.hawah.shakenstir.client.ClientDataHolder;
 import io.github.hawah.shakenstir.client.model.Models;
 import io.github.hawah.shakenstir.client.render.IGlasswareRenderState;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
-import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.lib.client.KeyBinding;
 import io.github.hawah.shakenstir.lib.client.handler.IHandler;
@@ -24,9 +23,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.event.ExtractLevelRenderStateEvent;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +38,15 @@ public class GlasswareHandler implements IHandler {
     private boolean active = false;
     private int runningTick = -1;
     private double x, y, z, oX, oY, oZ;
+
+    public void extract(ExtractLevelRenderStateEvent event) {
+        event.getRenderState().setRenderData(
+                GlasswareHandlerRenderState.ctxKey,
+                new GlasswareHandlerRenderState(
+                        event.getDeltaTracker()
+                )
+        );
+    }
 
     @Override
     public void tick() {
@@ -105,11 +114,11 @@ public class GlasswareHandler implements IHandler {
     public static Optional<IModel<?>> parseItemStack(ItemStack itemStack) {
         return itemStack.has(DataComponents.ITEM_MODEL)?
                 Models.getModel(itemStack.get(DataComponents.ITEM_MODEL)) :
-                Optional.of(Models.COLLINS_GLASS);
+                Optional.empty();
     }
 
-    public IModel<?> getModel() {
-        return parseItemStack(MC.getItem()).orElse(Models.MARGARITA_GLASS);
+    public @Nullable IModel<?> getModel() {
+        return parseItemStack(MC.getItem()).orElse(null);
     }
 
     public void submit(SubmitNodeCollector submitNodeCollector, PoseStack poseStack, LevelRenderState levelRenderState) {
@@ -122,13 +131,13 @@ public class GlasswareHandler implements IHandler {
         if (renderData == null) {
             return;
         }
-        ItemStack stack = MC.getItem();
-        GlasswareRenderProvider renderProvider = new GlasswareRenderProvider(
-                getModel(),
-                stack.has(DataComponentTypeRegistries.DRINK_DATA)? 1: 0,
-                stack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb() | 0xFF000000,
-                stack.getOrDefault(DataComponentTypeRegistries.GLASSWARE_DECORATIONS, List.of())
-        );
+//        ItemStack stack = MC.getItem();
+//        GlasswareRenderProvider renderProvider = new GlasswareRenderProvider(
+//                getModel(),
+//                stack.has(DataComponentTypeRegistries.DRINK_DATA)? 1: 0,
+//                stack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb() | 0xFF000000,
+//                stack.getOrDefault(DataComponentTypeRegistries.GLASSWARE_DECORATIONS, List.of())
+//        );
         float partialTick = renderData.deltaTracker().getGameTimeDeltaPartialTick(false);
         float pastTime = AnimationTickHolder.getRenderTime() - runningTick;
         float cAlpha = Mth.lerp(    partialTick, oAlpha, alpha);
@@ -149,7 +158,18 @@ public class GlasswareHandler implements IHandler {
         final int RANGE = 50;
         float delta = (float) (Math.abs(((pastTime % RANGE) / RANGE) - 0.5) * 2);
         int renderTime = (int) (Mth.lerpDiscrete(delta, 60, 140) * cAlpha);
-        getModel().submit(submitNodeCollector, poseStack, lightCoords, OverlayTexture.NO_OVERLAY, RenderTypes.translucentMovingBlock(), renderTime << 24 | 0xFFFFFF);
+        IModel<?> model = getModel();
+        if (model != null){
+            model.submit(
+                    submitNodeCollector,
+                    poseStack,
+                    lightCoords,
+                    OverlayTexture.NO_OVERLAY,
+                    RenderTypes.translucentMovingBlock(),
+                    renderTime << 24 | 0xFFFFFF
+            );
+        }
+        // TODO 用GlasswareRenderer
 //        GlasswareRenderer.submitGlassware(
 //                renderProvider,
 //                poseStack,
