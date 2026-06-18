@@ -164,7 +164,7 @@ public class SqueezerItem extends Item {
                         fruit.is(SnsItemTags.SWEET_FRUIT)?
                             FluidRegistries.SWEET_JUICE_SOURCE:
                             FluidRegistries.JUICE_SOURCE,
-                250);
+                100); 
         juice.set(DataComponentTypeRegistries.FRUIT_DATA, new SingleItemComponent(fruit));
         HitResult pick = entity.pick(entity.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE), 0.0F, false);
         if (pick instanceof BlockHitResult blockHitResult) {

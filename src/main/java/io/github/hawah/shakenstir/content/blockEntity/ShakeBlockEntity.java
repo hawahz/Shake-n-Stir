@@ -7,29 +7,21 @@ import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistr
 import io.github.hawah.shakenstir.content.dataComponent.IFluidDataHolder;
 import io.github.hawah.shakenstir.content.dataComponent.IItemDataHolder;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.foundation.block.AutoUpdateBlockEntity;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.util.FluidStackWithSlot;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponentGetter;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
@@ -39,9 +31,8 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
-import org.jspecify.annotations.Nullable;
 
-public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
+public class ShakeBlockEntity extends AutoUpdateBlockEntity implements ItemOwner {
     public static final int MAX_HOLD_FLUIDS = 6;
     public static final int MAX_FLUID_CAPACITY = 1000;
     public static final int MAX_HOLD_ITEMS = 4;
@@ -71,7 +62,7 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
         markChanged();
     }
 
-    public static void onAnimationTick(Level level, BlockPos pos, BlockState state, ShakeBlockEntity blockEntity) {
+    public static void onAnimationTick(Level level, BlockPos ignoredPos, BlockState state, ShakeBlockEntity blockEntity) {
         if (level.isClientSide()) {
             if (blockEntity.holdingProduct()) {
                 blockEntity.oAnimationHeight = 1;
@@ -113,6 +104,7 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
         return NonNullList.copyOf(itemHandler.itemHolder);
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public boolean putItem(ItemStack itemStack, Player player) {
         if (itemStack.isEmpty() || holdingProduct()) {
             return false;
@@ -192,6 +184,7 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
             if (!isCreative) {
                 fluid.shrink(inserted);
             }
+            transaction.commit();
             return inserted != 0;
         }
     }
@@ -228,23 +221,6 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
     }
 
     @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag var4;
-        try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(this.problemPath(), LogUtils.getLogger())) {
-            TagValueOutput output = TagValueOutput.createWithContext(reporter, registries);
-            saveAdditional(output);
-            var4 = output.buildResult();
-        }
-
-        return var4;
-    }
-
-    @Override
-    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         saveAllFluids(output, fluidHandler.fluidHolder, true);
@@ -275,7 +251,10 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
 
     @Override
     public Level level() {
-        return getLevel();
+        if (getLevel() != null) {
+            return getLevel();
+        }
+        throw new RuntimeException();
     }
 
     @Override
@@ -357,13 +336,13 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
 
         @Override
         public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
-            if (fluidHolder.size() >= MAX_HOLD_FLUIDS && !fluidHolder.contains(resource) && !fluidHolder.contains(FluidStack.EMPTY)) {
+            if (fluidHolder.size() >= MAX_HOLD_FLUIDS && fluidHolder.stream().noneMatch(resource::matches) && !fluidHolder.contains(FluidStack.EMPTY)) {
                 return 0;
             }
             int validSlot = -1;
             int sum = 0;
             for (int i = 0; i < MAX_HOLD_FLUIDS; i++) {
-                if ((fluidHolder.get(i).isEmpty() && validSlot < 0) || resource.is(fluidHolder.get(i).getFluid())) {
+                if ((fluidHolder.get(i).isEmpty() && validSlot < 0) || resource.matches(fluidHolder.get(i))) {
                     validSlot = i;
                 }
                 sum += fluidHolder.get(i).getAmount();
@@ -473,18 +452,6 @@ public class ShakeBlockEntity extends BlockEntity implements ItemOwner {
             }
             markChanged();
             return 1;
-        }
-    }
-
-    protected void markChanged() {
-        setChanged();
-        if (getLevel() instanceof ServerLevel serverLevel){
-            serverLevel.players().forEach(
-                    player -> player.connection.send(getUpdatePacket())
-            );
-            // FIXME
-            //noinspection UnstableApiUsage
-            net.neoforged.neoforge.attachment.AttachmentSync.syncBlockEntityUpdates(this, serverLevel.players());
         }
     }
 }

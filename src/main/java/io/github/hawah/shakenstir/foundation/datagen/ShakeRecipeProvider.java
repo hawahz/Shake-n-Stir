@@ -174,7 +174,7 @@ public class ShakeRecipeProvider extends RecipeProvider {
         }
 
         public Builder withFluid(TagKey<Fluid> tag) {
-            return withFluid(tag, 250);
+            return withFluid(tag, 100);
         }
 
         public Builder withFluid(TagKey<Fluid> tag, int amount) {

@@ -6,11 +6,11 @@
       "fluidId": "#c:spirits"
     },
     {
-      "amount": 250,
+      "amount": 100,
       "fluidId": "#c:bitters"
     },
     {
-      "amount": 250,
+      "amount": 100,
       "fluidId": "#c:water"
     }
   ],
