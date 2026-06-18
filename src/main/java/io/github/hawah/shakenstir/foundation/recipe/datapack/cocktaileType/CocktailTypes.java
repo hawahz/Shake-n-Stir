@@ -3,7 +3,7 @@ package io.github.hawah.shakenstir.foundation.recipe.datapack.cocktaileType;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.EffectData;
-import io.github.hawah.shakenstir.foundation.recipe.datapack.Registries;
+import io.github.hawah.shakenstir.foundation.datapack.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.effect.MobEffects;
 

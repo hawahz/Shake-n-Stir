@@ -153,7 +153,7 @@ public class SqueezerItem extends Item {
             BlockEntity blockEntity = level.getBlockEntity(blockHitResult.getBlockPos());
             if (blockEntity instanceof ShakeBlockEntity be) {
                 be.pourLiquid(juice, false);
-            } else if (blockEntity instanceof SpiritBlockEntity be && be.getBlockState().getValue(SpiritBlock.COUNTS) == 1 && be.isEmpty()) {
+            } else if (blockEntity instanceof SpiritBlockEntity be && be.getBlockState().getValue(SpiritBlock.COUNTS) == 1) {
                 try (Transaction trx = Transaction.openRoot()){
                     int insert = be.getFluidHandler().insert(
                             0,

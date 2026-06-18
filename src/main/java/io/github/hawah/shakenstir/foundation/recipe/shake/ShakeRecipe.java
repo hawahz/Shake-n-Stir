@@ -4,13 +4,11 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
-import io.github.hawah.shakenstir.content.dataComponent.IFluidDataHolder;
-import io.github.hawah.shakenstir.content.dataComponent.IItemDataHolder;
-import io.github.hawah.shakenstir.content.dataComponent.ShakeProductDeferredName;
+import io.github.hawah.shakenstir.content.dataComponent.*;
 import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.data.SnsRecipeHolder;
+import io.github.hawah.shakenstir.foundation.fluid.JuiceFluidType;
 import io.github.hawah.shakenstir.foundation.fluid.TintColorGetter;
 import io.github.hawah.shakenstir.foundation.recipe.IScoreSortedRecipe;
 import io.github.hawah.shakenstir.foundation.recipe.Quality;
@@ -103,11 +101,20 @@ public record ShakeRecipe(
         resultItem.set(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY, quality);
         List<ItemStack> items = recipeInput.items();
         List<FluidStack> fluidStacks = new ArrayList<>(recipeInput.fluidStacks());
-        List<Consumable> consumables = items.stream()
+        List<Consumable> consumables = new ArrayList<>(items.stream()
                 .filter(itemStack -> itemStack.has(DataComponents.CONSUMABLE))
                 .map(itemStack -> itemStack.get(DataComponents.CONSUMABLE))
                 .filter(Objects::nonNull)
-                .toList();
+                .toList());
+        consumables.addAll(
+                fluidStacks.stream()
+                        .filter(stack -> stack.typeHolder() instanceof JuiceFluidType)
+                        .map(stack -> stack.getOrDefault(DataComponentTypeRegistries.FRUIT_DATA, SingleItemComponent.EMPTY).itemStack())
+                        .map(itemStack -> Optional.ofNullable(itemStack.get(DataComponents.CONSUMABLE)))
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .toList()
+        );
 
         if (!resultItem.has(DataComponentTypeRegistries.SHAKE_BUBBLES)){
 

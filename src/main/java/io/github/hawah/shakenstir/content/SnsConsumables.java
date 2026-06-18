@@ -6,6 +6,7 @@ import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 
+import java.awt.*;
 import java.util.List;
 
 public class SnsConsumables {
@@ -15,4 +16,8 @@ public class SnsConsumables {
                     new MobEffectInstance(MobEffectRegistries.PARALYSIS, 10)
             )))
             .build();
+
+    public static List<Component> getDescription(Consumable consumable) {
+        return List.of();
+    }
 }

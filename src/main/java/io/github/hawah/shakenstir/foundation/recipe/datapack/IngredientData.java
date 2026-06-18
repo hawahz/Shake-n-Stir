@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.foundation.recipe.datapack;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.hawah.shakenstir.foundation.datapack.Registries;
 import io.github.hawah.shakenstir.foundation.recipe.Quality;
 import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;

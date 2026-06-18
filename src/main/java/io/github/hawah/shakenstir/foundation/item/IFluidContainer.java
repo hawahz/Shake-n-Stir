@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.foundation.item;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.dataComponent.SingleItemComponent;
 import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
 import io.github.hawah.shakenstir.foundation.fluid.TintColorGetter;
@@ -84,7 +85,7 @@ public interface IFluidContainer {
         return InteractionResult.CONSUME;
     }
 
-    static ItemStack finishDrinking(ItemStack itemStack, Level ignoredLevel, LivingEntity entity) {
+    static ItemStack finishDrinking(ItemStack itemStack, Level level, LivingEntity entity) {
         if (itemStack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY).isEmpty()) {
             return itemStack;
         }
@@ -95,6 +96,12 @@ public interface IFluidContainer {
                     MobEffectRegistries.DRUNK,
                     600
             ));
+        } else if (fluidStack.has(DataComponentTypeRegistries.FRUIT_DATA)) {
+            ItemStack fruit = fluidStack.getOrDefault(DataComponentTypeRegistries.FRUIT_DATA, SingleItemComponent.EMPTY).itemStack();
+            Consumable consumable = fruit.get(DataComponents.CONSUMABLE);
+            if (consumable != null) {
+                consumable.onConsume(level, entity, fruit);
+            }
         }
         return itemStack;
     }

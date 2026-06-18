@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.hawah.shakenstir.foundation.recipe.Quality;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.EffectData;
-import io.github.hawah.shakenstir.foundation.recipe.datapack.Registries;
+import io.github.hawah.shakenstir.foundation.datapack.Registries;
 import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;

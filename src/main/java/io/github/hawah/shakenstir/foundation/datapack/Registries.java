@@ -1,6 +1,8 @@
-package io.github.hawah.shakenstir.foundation.recipe.datapack;
+package io.github.hawah.shakenstir.foundation.datapack;
 
 import io.github.hawah.shakenstir.ShakenStir;
+import io.github.hawah.shakenstir.foundation.recipe.datapack.DrinkData;
+import io.github.hawah.shakenstir.foundation.recipe.datapack.IngredientData;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.cocktaileType.CocktailType;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.spirit.SpiritData;
 import net.minecraft.core.Registry;
@@ -16,6 +18,7 @@ public class Registries {
     public static final ResourceKey<Registry<IngredientData>> INGREDIENT_REGISTRY_KEY = ResourceKey.createRegistryKey(ShakenStir.asResource("ingredient"));
     public static final ResourceKey<Registry<CocktailType>> COCKTAIL_REGISTRY_KEY = ResourceKey.createRegistryKey(ShakenStir.asResource("cocktail"));
     public static final ResourceKey<Registry<DrinkData>> DRINK_REGISTRY_KEY = ResourceKey.createRegistryKey(ShakenStir.asResource("drink"));
+    public static final ResourceKey<Registry<ConsumableDesc>> CONSUMABLE_DESC = ResourceKey.createRegistryKey(ShakenStir.asResource("consumable_desc"));
 
 //    public static final Registry<SpiritData> SPIRIT_REGISTRY = new RegistryBuilder<>(SPIRIT_REGISTRY_KEY).sync(true).defaultKey(ShakenStir.asResource("empty")).create();
 //    public static final Registry<IngredientData> INGREDIENT_REGISTRY = new RegistryBuilder<>(INGREDIENT_REGISTRY_KEY).sync(true).defaultKey(ShakenStir.asResource("empty")).create();
@@ -44,6 +47,11 @@ public class Registries {
                 DrinkData.CODEC,
                 DrinkData.CODEC
         );
+//        event.dataPackRegistry(
+//                CONSUMABLE_DESC,
+//                ConsumableDesc.CODEC,
+//                ConsumableDesc.CODEC
+//        );
     }
 //
 //    @SubscribeEvent

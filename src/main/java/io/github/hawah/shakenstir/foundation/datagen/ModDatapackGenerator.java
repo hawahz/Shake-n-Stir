@@ -4,7 +4,7 @@ import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.damageType.SnsDamageType;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.EffectData;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.IngredientData;
-import io.github.hawah.shakenstir.foundation.recipe.datapack.Registries;
+import io.github.hawah.shakenstir.foundation.datapack.Registries;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.cocktaileType.CocktailType;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.cocktaileType.CocktailTypes;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.spirit.Spirits;

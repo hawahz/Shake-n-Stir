@@ -22,7 +22,8 @@ public record SingleItemComponent(ItemStack itemStack) {
 
     @Override
     public boolean equals(Object arg0) {
-        return arg0 instanceof ItemStack otherItem && ItemStack.isSameItemSameComponents(otherItem, itemStack);
+        return (arg0 instanceof ItemStack otherItem && ItemStack.isSameItemSameComponents(otherItem, itemStack)) ||
+                arg0 instanceof SingleItemComponent(ItemStack stack) && ItemStack.isSameItemSameComponents(stack, itemStack);
     }
 
     @Override
