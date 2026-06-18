@@ -6,7 +6,7 @@ import io.github.hawah.shakenstir.client.render.LiquidRenderer;
 import io.github.hawah.shakenstir.client.render.block.renderstate.DistillerBlockEntityRenderState;
 import io.github.hawah.shakenstir.content.block.Distiller;
 import io.github.hawah.shakenstir.content.blockEntity.DistillerBlockEntity;
-import io.github.hawah.shakenstir.foundation.BaseFluidType;
+import io.github.hawah.shakenstir.foundation.fluid.TintColorGetter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -78,7 +78,10 @@ public class DistillerBlockEntityRenderer implements BlockEntityRenderer<Distill
                 poseStack.translate(0, i * 0.05F, 0);
                 poseStack.scale(SCALE, SCALE, SCALE);
                 poseStack.mulPose(new Quaternionf().rotateLocalX((float) Math.toRadians(90F)).rotateLocalY(i * 31415));
-                state.items[i].submit(poseStack, submitNodeCollector, LightCoordsUtil.FULL_BRIGHT, 0, 0);
+                if (state.items[i] != null) {
+                    //noinspection DataFlowIssue
+                    state.items[i].submit(poseStack, submitNodeCollector, LightCoordsUtil.FULL_BRIGHT, 0, 0);
+                }
                 poseStack.popPose();
             }
         }
@@ -87,7 +90,10 @@ public class DistillerBlockEntityRenderer implements BlockEntityRenderer<Distill
         poseStack.pushPose();
 
         poseStack.translate(0, 1, 0);
-        int biomeWaterColor = BiomeColors.getAverageWaterColor(Minecraft.getInstance().level, state.blockPos);
+        int biomeWaterColor = 0;
+        if (Minecraft.getInstance().level != null) {
+            biomeWaterColor = BiomeColors.getAverageWaterColor(Minecraft.getInstance().level, state.blockPos);
+        }
 
         LiquidRenderer.setTexture(Identifier.withDefaultNamespace("textures/block/water_still.png"));
         LiquidRenderer.setAnimateData(new LiquidRenderer.AnimateData(1, 32));
@@ -110,7 +116,7 @@ public class DistillerBlockEntityRenderer implements BlockEntityRenderer<Distill
 
         poseStack.pushPose();
         int color;
-        if (state.product.getFluidType() instanceof BaseFluidType type) {
+        if (state.product.getFluidType() instanceof TintColorGetter type) {
             color = type.getTintColor();
         } else {
             color = biomeWaterColor;

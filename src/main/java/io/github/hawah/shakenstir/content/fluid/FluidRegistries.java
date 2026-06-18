@@ -37,10 +37,12 @@ public class FluidRegistries {
     public static final DeferredHolder<Fluid, FlowingFluid> HONEY_FLOWING           =   FLUIDS.register("honey_fluid_flow", () ->          new BaseFlowingFluid.Flowing(FluidRegistries.   HONEY_PROPERTIES));
     public static final DeferredHolder<Fluid, FlowingFluid> JUICE_SOURCE            =   FLUIDS.register("juice_fluid", () ->               new BaseFlowingFluid.Source(FluidRegistries.    JUICE_PROPERTIES));
     public static final DeferredHolder<Fluid, FlowingFluid> JUICE_FLOWING           =   FLUIDS.register("juice_fluid_flow", () ->          new BaseFlowingFluid.Flowing(FluidRegistries.   JUICE_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> SWEET_JUICE_SOURCE      =   FLUIDS.register("sweet_juice_fluid", () ->               new BaseFlowingFluid.Source(FluidRegistries.    SWEET_JUICE_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> SWEET_JUICE_FLOWING     =   FLUIDS.register("sweet_juice_fluid_flow", () ->          new BaseFlowingFluid.Flowing(FluidRegistries.   SWEET_JUICE_PROPERTIES));
     public static final DeferredHolder<Fluid, FlowingFluid> LEMONADE_SOURCE         =   FLUIDS.register("lemonade_fluid", () ->            new BaseFlowingFluid.Source(FluidRegistries.    LEMONADE_PROPERTIES));
     public static final DeferredHolder<Fluid, FlowingFluid> LEMONADE_FLOWING        =   FLUIDS.register("lemonade_fluid_flow", () ->       new BaseFlowingFluid.Flowing(FluidRegistries.   LEMONADE_PROPERTIES));
 
-    // 定义流体的属性
+    // 定义流体的属性s
     // 这个流体的属性要传入的内容比较多，我们挨个介绍，我们使用了BaseFlowingFluid的Properties内部类创建对应的Properties，其中第一个参数是对应的流体的类体类型FluidType，然后第二个参数是对应的source流体，第三个参数是flow流体，都是我们刚刚写过的，看起来比较绕，大家自己理清下关系。
     // 通过bucket这个设置流体和对应的流体桶的绑定，等会我们注册这个bucketitem
     // 通过block绑定对应的流体和方块的绑定，这个方块等会我们注册。
@@ -141,6 +143,14 @@ public class FluidRegistries {
             FluidTypeRegistries.JUICE_FLUID_TYPE,
             FluidRegistries.JUICE_SOURCE,
             FluidRegistries.JUICE_FLOWING
+    );//.bucket(ModItems.MY_FLUID_BUCKET)
+    //            .slopeFindDistance(2)
+    //            .levelDecreasePerBlock(2)
+    //            .block(BlockRegistries.GIN_LIQUID);
+    private static final BaseFlowingFluid.Properties SWEET_JUICE_PROPERTIES = new BaseFlowingFluid.Properties(
+            FluidTypeRegistries.SWEET_JUICE_FLUID_TYPE,
+            FluidRegistries.SWEET_JUICE_SOURCE,
+            FluidRegistries.SWEET_JUICE_FLOWING
     );//.bucket(ModItems.MY_FLUID_BUCKET)
     //            .slopeFindDistance(2)
     //            .levelDecreasePerBlock(2)

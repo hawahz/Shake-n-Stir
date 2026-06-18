@@ -146,12 +146,14 @@ public class ShakerItem extends PriorityBlockItem implements IPickMarkedItem {
             other.shrink(1);
             return true;
         }
-        if (other.is(ItemRegistries.ICE_CUBE) && self.getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0) < 3) {
-            self.set(DataComponentTypeRegistries.SHAKE_ICE_CUBES, self.getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0) + 1);
-            other.shrink(1);
-            player.playSound(
-                    SoundEvents.GLASS_HIT
-            );
+        if (other.is(ItemRegistries.ICE_CUBE)) {
+            if (self.getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0) < 3) {
+                self.set(DataComponentTypeRegistries.SHAKE_ICE_CUBES, self.getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0) + 1);
+                other.shrink(1);
+                player.playSound(
+                        SoundEvents.AMETHYST_BLOCK_PLACE
+                );
+            }
             return true;
         }
         if (other.is(SnsItemTags.SHAKE_PLACABLE) && ShakeUtil.getItemData(self).itemCount() < ShakeBlockEntity.MAX_HOLD_ITEMS) {

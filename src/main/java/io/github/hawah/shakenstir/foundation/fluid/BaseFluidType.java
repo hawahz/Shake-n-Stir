@@ -1,12 +1,14 @@
-package io.github.hawah.shakenstir.foundation;
+package io.github.hawah.shakenstir.foundation.fluid;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import org.joml.Vector3f;
+import org.jspecify.annotations.NonNull;
 
-public class BaseFluidType extends FluidType {
+@SuppressWarnings("unused")
+public class BaseFluidType extends FluidType implements TintColorGetter{
     // 定义了源source的纹理图片，流动的纹理图片，以及流体覆盖层的图片（指的是颜色，例如水的蓝色纹理，岩浆的红色纹理，你可以到原版对应的位置看看是什么图片就知道了）
     private final Identifier stillTexture;
     private final Identifier flowingTexture;
@@ -46,6 +48,7 @@ public class BaseFluidType extends FluidType {
         return flowingTexture;
     }
 
+    @Override
     public int getTintColor() {
         return tintColor;
     }
@@ -59,7 +62,7 @@ public class BaseFluidType extends FluidType {
     }
 
     @Override
-    public Component getDescription(FluidStack stack) {
+    public @NonNull Component getDescription(@NonNull FluidStack stack) {
         return Component.empty().append(super.getDescription(stack)).withColor(getTintColor());
     }
 

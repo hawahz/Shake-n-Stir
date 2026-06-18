@@ -28,11 +28,13 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         ;
         this.tag(SnsItemTags.SOUR)
                 .add(Items.ROTTEN_FLESH)
-                .addTag(Tags.Items.FOODS_FRUIT)
+        ;
+
+        this.tag(SnsItemTags.SWEET_FRUIT)
+                .addTag(Tags.Items.FOODS_BERRY)
         ;
 
         this.tag(SnsItemTags.SWEET)
-                .addTag(Tags.Items.FOODS_BERRY)
                 .add(Items.HONEYCOMB)
                 .add(Items.SUGAR)
         ;
@@ -52,6 +54,12 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         this.tag(SnsItemTags.BLOCK_LIKE_DRINK_DECORATION)
                 .addTag(Tags.Items.FLOWERS_SMALL)
         ;
+        this.tag(SnsItemTags.LEMON)
+                .add(ItemRegistries.LEMON.get())
+                ;
+        this.tag(Tags.Items.FOODS_FRUIT)
+                .addTag(SnsItemTags.LEMON)
+        ;
         this.tag(SnsItemTags.ITEM_LIKE_DRINK_DECORATION)
                 .add(Items.MELON_SLICE)
                 .add(Items.SWEET_BERRIES)
@@ -62,6 +70,9 @@ public class ModItemTagsProvider extends ItemTagsProvider {
                 .add(ItemRegistries.MINT.get())
                 .add()
         ;
+        this.tag(SnsItemTags.SQUEEZABLE)
+                .addTag(Tags.Items.FOODS_FRUIT)
+                ;
         this.tag(SnsItemTags.DRINK_DECORATION)
                 .addTags(SnsItemTags.BLOCK_LIKE_DRINK_DECORATION, SnsItemTags.ITEM_LIKE_DRINK_DECORATION)
         ;

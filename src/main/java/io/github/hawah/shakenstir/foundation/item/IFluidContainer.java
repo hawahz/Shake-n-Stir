@@ -4,7 +4,7 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
-import io.github.hawah.shakenstir.foundation.BaseFluidType;
+import io.github.hawah.shakenstir.foundation.fluid.TintColorGetter;
 import io.github.hawah.shakenstir.foundation.tags.SnsFluidTags;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundEvent;
@@ -40,6 +40,7 @@ import java.util.Optional;
  * 由于 {@code SpiritBottleItem} 继承 {@code BlockItem}、{@code FluidHolderItem} 继承 {@code Item}，
  * 两者无法通过继承共享代码，因此将共同逻辑抽取为静态方法。
  */
+@SuppressWarnings("unused")
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 @EventBusSubscriber
@@ -66,16 +67,16 @@ public interface IFluidContainer {
         if (stackFluid.getFluid() instanceof LavaFluid) {
             return 0xF5A01A;
         }
-        if (stackFluid.getFluid().is(Tags.Fluids.MILK)) {
+        if (stackFluid.is(Tags.Fluids.MILK)) {
             return 0xF3F3FF;
         }
-        if (stackFluid.getFluidType() instanceof BaseFluidType fluidType) {
+        if (stackFluid.getFluidType() instanceof TintColorGetter fluidType) {
             return fluidType.getTintColor();
         }
         return 0x3F76E4;
     }
 
-    static InteractionResult tryStartDrinking(Level level, Player player, InteractionHand hand) {
+    static InteractionResult tryStartDrinking(Level ignoredLevel, Player player, InteractionHand hand) {
         if (player.getItemInHand(hand).getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY).isEmpty()) {
             return InteractionResult.FAIL;
         }
@@ -83,7 +84,7 @@ public interface IFluidContainer {
         return InteractionResult.CONSUME;
     }
 
-    static ItemStack finishDrinking(ItemStack itemStack, Level level, LivingEntity entity) {
+    static ItemStack finishDrinking(ItemStack itemStack, Level ignoredLevel, LivingEntity entity) {
         if (itemStack.getOrDefault(DataComponentTypeRegistries.SPIRIT_CONTENT, SpiritContent.EMPTY).isEmpty()) {
             return itemStack;
         }
@@ -98,14 +99,13 @@ public interface IFluidContainer {
         return itemStack;
     }
 
-    static void onDrinkTick(Level level, LivingEntity livingEntity, ItemStack itemStack, int ticksRemaining) {
+    static void onDrinkTick(Level ignoredLevel, LivingEntity livingEntity, ItemStack itemStack, int ticksRemaining) {
         if (shouldEmitParticlesAndSounds(livingEntity, itemStack, ticksRemaining)) {
-            emitParticlesAndSounds(livingEntity.getRandom(), livingEntity, itemStack, 5);
+            emitParticlesAndSounds(livingEntity.getRandom(), livingEntity, itemStack);
         }
     }
 
-    static void emitParticlesAndSounds(RandomSource random, LivingEntity user, ItemStack itemStack, int particleCount) {
-        float drinkVolume = 0.5F;
+    static void emitParticlesAndSounds(RandomSource random, LivingEntity user, ItemStack itemStack) {
         float drinkPitch = Mth.randomBetween(random, 0.9F, 1.0F);
         float consumableVolume = 0.5F;
 
@@ -151,7 +151,7 @@ public interface IFluidContainer {
                     .map(DyedItemColor::rgb)
                     .orElse(0x3F76E4);
         }
-        return (getFluidStack(itemStack).getFluidType() instanceof BaseFluidType type)?
+        return (getFluidStack(itemStack).getFluidType() instanceof TintColorGetter type)?
                 type.getTintColor(): 0x3F76E4;
     }
 }

@@ -5,7 +5,9 @@ import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
 import io.github.hawah.shakenstir.client.render.GlasswareOutlineRenderer;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
+import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
+import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.lib.client.render.outliner.Outliner;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import net.minecraft.client.DeltaTracker;
@@ -13,6 +15,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -58,9 +61,20 @@ public class ClientWorldViewEvents {
 
     @SubscribeEvent
     public static void modifyFov(ComputeFovModifierEvent event) {
+        float modifier = event.getFovModifier();
         if (ClientDataHolder.shouldModifyView()) {
-            event.setNewFovModifier(event.getFovModifier() / 2);
+            modifier /= 2;
+
         }
+        Player player = event.getPlayer();
+        if (player.isUsingItem()) {
+            if (player.getUseItem().is(ItemRegistries.SQUEEZER) && player.getUseItem().has(DataComponentTypeRegistries.SQUEEZER_HOLDER)) {
+                float scale = Math.min((float) player.getTicksUsingItem() / player.getUseItemRemainingTicks(), 2.0F);
+                modifier *= 1.0F - scale * 0.15F;
+            }
+        }
+
+        event.setNewFovModifier(modifier);
     }
 
     @SubscribeEvent
@@ -87,6 +101,7 @@ public class ClientWorldViewEvents {
         event.setYaw((float) ((event.getYaw() + Math.cos(renderTime /20D) * shakeIntensity)));
     }
 
+    @SuppressWarnings("UnusedAssignment")
     @SubscribeEvent
     public static void onCameraOffset(ViewportEvent.ComputeFogColor event) {
         if (getPlayer() == null) {

@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.foundation.recipe.Quality;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.EffectData;
+import io.github.hawah.shakenstir.foundation.tags.SnsFluidTags;
 import io.github.hawah.shakenstir.foundation.utils.ITranslatable;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -16,6 +17,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -62,7 +64,7 @@ public record CocktailType(Identifier id, Identifier translationKey, List<Effect
         if (!itemStacks.isEmpty() && !fluidStacks.isEmpty()){
             translatable = Component.translatable(
                     translationKey().toString(),
-                    fluidStacks.stream().max(Comparator.comparingInt(FluidStack::getAmount)).orElseThrow().getHoverName(),
+                    fluidStacks.stream().max(Comparator.comparingInt(FluidStack::getAmount)).map(FluidStack::getHoverName).orElse(Component.empty()),
                     itemStacks.getFirst().getHoverName()
             );
         } else if (!itemStacks.isEmpty()) {
@@ -72,11 +74,21 @@ public record CocktailType(Identifier id, Identifier translationKey, List<Effect
                     itemStacks.getFirst().getHoverName()
             );
         } else if (!fluidStacks.isEmpty()) {
-            translatable = Component.translatable(
-                    translationKey().toString(),
-                    fluidStacks.stream().max(Comparator.comparingInt(FluidStack::getAmount)).orElseThrow().getHoverName(),
-                    ""
-            );
+            var stacks = new ArrayList<>(fluidStacks);
+            stacks.removeIf(fluidStack -> fluidStack.is(SnsFluidTags.SPIRIT));
+            if (stacks.isEmpty()){
+                translatable = Component.translatable(
+                        translationKey().toString(),
+                        fluidStacks.stream().max(Comparator.comparingInt(FluidStack::getAmount)).map(FluidStack::getHoverName).orElse(Component.empty()),
+                        ""
+                );
+            } else {
+                translatable = Component.translatable(
+                        translationKey().toString(),
+                        fluidStacks.stream().max(Comparator.comparingInt(FluidStack::getAmount)).map(FluidStack::getHoverName).orElse(Component.empty()),
+                        stacks.stream().max(Comparator.comparingInt(FluidStack::getAmount)).map(FluidStack::getHoverName).orElse(Component.empty())
+                );
+            }
         } else {
             translatable = Component.translatable(translationKey().toString(), "", "");
         }

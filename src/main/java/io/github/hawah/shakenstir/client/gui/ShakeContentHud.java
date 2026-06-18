@@ -10,7 +10,7 @@ import io.github.hawah.shakenstir.content.block.Shaker;
 import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.ShakeContentHolder;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
-import io.github.hawah.shakenstir.foundation.BaseFluidType;
+import io.github.hawah.shakenstir.foundation.fluid.TintColorGetter;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.lib.client.render.EaseHelper;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
@@ -31,6 +31,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.client.gui.GuiLayer;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
@@ -70,7 +71,7 @@ public class ShakeContentHud implements GuiLayer {
             lastVisibleTime = renderTime;
         }
         BlockPos pos = ClientDataHolder.Picker.pos();
-        if (isVisible && (prevPos == null || !prevPos.equals(pos)) && pos != null) {
+        if (isVisible && pos != null && (prevPos == null || !prevPos.equals(pos))) {
             if (getLevel().getBlockEntity(pos) instanceof ShakeBlockEntity blockEntity) {
                 cachedBE = blockEntity;
             }
@@ -143,7 +144,7 @@ public class ShakeContentHud implements GuiLayer {
             }
         }
         return ShakeUtil.rgbWithWeight(contentHolder.fluidStacks().stream().map((stack) ->
-                Pair.of(stack.getFluidType() instanceof BaseFluidType type ? type.getTintColor() : 0xFFFFFF, stack.getAmount())
+                Pair.of(stack.getFluidType() instanceof TintColorGetter type ? type.getTintColor() : 0xFFFFFF, stack.getAmount())
         ).toList());
     }
 
@@ -158,7 +159,7 @@ public class ShakeContentHud implements GuiLayer {
         return cachedBE.getFluidAmount() / 1000F;
     }
 
-    public Level getLevel() {
+    public @Nullable Level getLevel() {
         return Minecraft.getInstance().level;
     }
 }

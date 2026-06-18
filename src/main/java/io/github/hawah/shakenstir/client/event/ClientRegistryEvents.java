@@ -14,6 +14,7 @@ import io.github.hawah.shakenstir.client.render.entity.BartenderRenderer;
 import io.github.hawah.shakenstir.client.render.item.GlasswareSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.ShakeItemSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer;
+import io.github.hawah.shakenstir.client.render.item.SqueezerSpecialRenderer;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
@@ -66,6 +67,10 @@ public class ClientRegistryEvents {
         event.register(
                 Identifier.fromNamespaceAndPath(ShakenStir.MODID, "shake_special"),
                 ShakeItemSpecialRenderer.Unbaked.MAP_CODEC
+        );
+        event.register(
+                Identifier.fromNamespaceAndPath(ShakenStir.MODID, "squeezer_special"),
+                SqueezerSpecialRenderer.Unbaked.MAP_CODEC
         );
     }
 

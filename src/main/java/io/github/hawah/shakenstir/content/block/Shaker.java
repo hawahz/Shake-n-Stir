@@ -340,16 +340,12 @@ public class Shaker extends FallingBlock implements EntityBlock, ITakeUpBlock {
         if (itemStack.getItem() instanceof SpiritBottleItem){
             if (itemStack.getCount() == 1) {
                 itemStack.remove(DataComponentTypeRegistries.SPIRIT_CONTENT);
-                if (!fluidStack.isEmpty()) {
-                    itemStack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(fluidStack));
-                }
+                itemStack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(fluidStack));
             }
             if (itemStack.getCount() > 1) {
                 itemStack = itemStack.consumeAndReturn(1, player);
                 itemStack.remove(DataComponentTypeRegistries.SPIRIT_CONTENT);
-                if (!fluidStack.isEmpty()) {
-                    itemStack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(fluidStack));
-                }
+                itemStack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(fluidStack));
                 ITakeUpBlock.holdOrAddItem(player, itemStack, level, pos);
             }
         }

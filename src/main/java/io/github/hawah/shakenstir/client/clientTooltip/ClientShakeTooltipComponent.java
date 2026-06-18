@@ -2,11 +2,11 @@ package io.github.hawah.shakenstir.client.clientTooltip;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStirClient;
-import io.github.hawah.shakenstir.content.tooltip.ShakeTooltipComponent;
 import io.github.hawah.shakenstir.content.dataComponent.ShakeContentHolder;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
-import io.github.hawah.shakenstir.foundation.BaseFluidType;
+import io.github.hawah.shakenstir.content.tooltip.ShakeTooltipComponent;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
+import io.github.hawah.shakenstir.foundation.fluid.TintColorGetter;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import io.github.hawah.shakenstir.util.Textures;
@@ -188,7 +188,7 @@ public record ClientShakeTooltipComponent(ShakeContentHolder contentHolder, int 
             }
         }
         return ShakeUtil.rgbWithWeight(contentHolder().fluidStacks().stream().map((stack) ->
-                Pair.of(stack.getFluidType() instanceof BaseFluidType type ? type.getTintColor() : 0xFFFFFF, stack.getAmount())
+                Pair.of(stack.getFluidType() instanceof TintColorGetter type ? type.getTintColor() : 0xFFFFFF, stack.getAmount())
         ).toList());
     }
 

@@ -11,6 +11,7 @@ import io.github.hawah.shakenstir.client.itemConditionals.WarpedMintDisplay;
 import io.github.hawah.shakenstir.client.render.item.GlasswareSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.ShakeItemSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.SpiritBottleSpecialRenderer;
+import io.github.hawah.shakenstir.client.render.item.SqueezerSpecialRenderer;
 import io.github.hawah.shakenstir.content.block.*;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
@@ -108,11 +109,22 @@ public class ModModelProvider extends ModelProvider {
 //        registerCustomBlockModel(blockModels, "block/bubble_liquid", BlockRegistries.BUBBLE_LIQUID.get());
 
         generateIceCube(itemModels);
+        generateSqueezer(itemModels);
         generateCabinet(blockModels, itemModels);
         generateDistiller(blockModels, itemModels);
         generateMenu(blockModels, itemModels);
         generateMintCrop(blockModels);
 //        generateLongDrinkGlassware(itemModels);
+    }
+
+    private void generateSqueezer(ItemModelGenerators itemModels) {
+        ItemModel.Unbaked unbaked = ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(ItemRegistries.SQUEEZER.get()));
+        ItemModel.Unbaked specialModel = ItemModelUtils.specialModel(
+                ModelLocationUtils.getModelLocation(ItemRegistries.SQUEEZER.get()),
+                new SqueezerSpecialRenderer.Unbaked()
+        );
+        ItemModel.Unbaked model = ItemModelUtils.composite(specialModel, unbaked);
+        itemModels.itemModelOutput.accept(ItemRegistries.SQUEEZER.get(), model);
     }
 
     public void generateMintCrop(BlockModelGenerators blockModelGenerators) {

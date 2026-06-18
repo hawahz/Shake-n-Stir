@@ -78,6 +78,10 @@ public class SpiritBlockEntity extends BlockEntity {
 
     }
 
+    public boolean isEmpty() {
+        return fluidStacks.getFirst().isEmpty();
+    }
+
     public ResourceHandler<FluidResource> getFluidHandler() {
         return fluidHandler;
     }
@@ -129,6 +133,12 @@ public class SpiritBlockEntity extends BlockEntity {
                 markChanged();
                 return insert;
             }
+            if (fluidStacks.getFirst().isEmpty()) {
+                int insert = Math.min(1000 - getAmountAsInt(index), amount);
+                fluidStacks.set(index, resource.toStack(insert));
+                markChanged();
+                return insert;
+            }
             return 0;
         }
 
@@ -148,6 +158,8 @@ public class SpiritBlockEntity extends BlockEntity {
     };
 
     protected void markChanged() {
-        setChanged(getLevel(), getBlockPos(), getBlockState());
+        if (getLevel() != null) {
+            setChanged(getLevel(), getBlockPos(), getBlockState());
+        }
     }
 }

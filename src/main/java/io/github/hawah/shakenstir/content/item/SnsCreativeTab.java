@@ -30,6 +30,7 @@ public class SnsCreativeTab {
             .displayItems((params, output) -> {
                 output.accept(ItemRegistries.SHAKER.get());
                 output.accept(ItemRegistries.SHAKER_LID.get());
+                output.accept(ItemRegistries.SQUEEZER.get());
                 output.accept(ItemRegistries.ICE_CUBE.get());
                 output.accept(ItemRegistries.BOTTLE.get());
                 output.accept(ItemRegistries.GIN.get());

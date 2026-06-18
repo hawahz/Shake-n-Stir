@@ -40,6 +40,7 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add(ItemRegistries.DIALOGUE_EDITOR.get(), "Dialogue Editor");
         add(ItemRegistries.MINT.get(), "Mint");
         add(ItemRegistries.STACKED_MINT.get(), "Stacked Mint");
+        add(ItemRegistries.SQUEEZER.get(), "Squeezer");
         add("itemGroup.shakenstir", "Shake n Stir");
         add("itemGroup." + MODID + ".tab", "Shake n Stir");
         add("itemGroup." + MODID + ".tab.bar", "Shake n Stir - Bar");

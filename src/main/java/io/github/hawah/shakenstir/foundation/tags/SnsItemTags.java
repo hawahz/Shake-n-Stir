@@ -13,6 +13,8 @@ public class SnsItemTags {
 
     public static final TagKey<Item> SWEET = common("sweets");
 
+    public static final TagKey<Item> SWEET_FRUIT = common("sweet_fruits");
+
     public static final TagKey<Item> BITTER = common("bitters");
 
     public static final TagKey<Item> BUBBLE_LIKE = common("bubbles");
@@ -26,6 +28,9 @@ public class SnsItemTags {
     public static final TagKey<Item> DRINK_DECORATION = sns("drink_decorations");
     public static final TagKey<Item> BLOCK_LIKE_DRINK_DECORATION = sns("block_like_drink_decorations");
     public static final TagKey<Item> ITEM_LIKE_DRINK_DECORATION = sns("item_like_drink_decorations");
+    public static final TagKey<Item> SQUEEZABLE = sns("squeezables");
+
+    public static final TagKey<Item> LEMON = sns("lemon");
 
     private static TagKey<Item> common(String name) {
         return ItemTags.create(Identifier.fromNamespaceAndPath("c", name));

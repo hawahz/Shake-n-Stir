@@ -204,6 +204,16 @@ public class DataComponentTypeRegistries {
             builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
     );
 
+    public static final DataComponentType<SingleItemComponent> FRUIT_DATA = register(
+            "fruit_data",
+            builder -> builder.persistent(SingleItemComponent.CODEC).networkSynchronized(SingleItemComponent.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<SingleItemComponent> SQUEEZER_HOLDER = register(
+            "squeezer_holder",
+            builder -> builder.persistent(SingleItemComponent.CODEC).networkSynchronized(SingleItemComponent.STREAM_CODEC)
+    );
+
     public static void register(IEventBus eventBus) {
         DATA_COMPONENT.register(eventBus);
     }

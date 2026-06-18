@@ -4,13 +4,14 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.hawah.shakenstir.foundation.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.IFluidDataHolder;
 import io.github.hawah.shakenstir.content.dataComponent.IItemDataHolder;
 import io.github.hawah.shakenstir.content.dataComponent.ShakeProductDeferredName;
 import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.foundation.data.SnsRecipeHolder;
+import io.github.hawah.shakenstir.foundation.fluid.TintColorGetter;
 import io.github.hawah.shakenstir.foundation.recipe.IScoreSortedRecipe;
 import io.github.hawah.shakenstir.foundation.recipe.Quality;
 import io.github.hawah.shakenstir.foundation.recipe.RecipeTypeRegistries;
@@ -20,7 +21,6 @@ import io.github.hawah.shakenstir.foundation.recipe.datapack.cocktaileType.Cockt
 import io.github.hawah.shakenstir.foundation.recipe.datapack.cocktaileType.CocktailTypes;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.spirit.SpiritData;
 import io.github.hawah.shakenstir.foundation.recipe.ingredient.FluidIngredient;
-import io.github.hawah.shakenstir.foundation.BaseFluidType;
 import io.github.hawah.shakenstir.foundation.recipeRecord.ServerRecipeHelper;
 import io.github.hawah.shakenstir.foundation.tags.SnsFluidTags;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
@@ -265,7 +265,7 @@ public record ShakeRecipe(
                 .filter(Objects::nonNull)
                 .toList();
         int rgb = ShakeUtil.rgbWithWeight(recipeInput.fluidStacks().stream().map((stack) ->
-                Pair.of(stack.getFluidType() instanceof BaseFluidType type ? type.getTintColor() : 0xFFFFFF, stack.getAmount())
+                Pair.of(stack.getFluidType() instanceof TintColorGetter type ? type.getTintColor() : 0xFFFFFF, stack.getAmount())
         ).toList());
         resultItem.set(DataComponents.DYED_COLOR, new DyedItemColor(rgb));
         resultItem.set(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY, quality);
@@ -323,7 +323,7 @@ public record ShakeRecipe(
             resultItem.set(DataComponents.ITEM_NAME, name);
         }
         int rgb = ShakeUtil.rgbWithWeight(input.fluidStacks().stream().map((stack) ->
-                Pair.of(stack.getFluidType() instanceof BaseFluidType type ? type.getTintColor() : 0xFFFFFF, stack.getAmount())
+                Pair.of(stack.getFluidType() instanceof TintColorGetter type ? type.getTintColor() : 0xFFFFFF, stack.getAmount())
         ).toList());
         resultItem.set(DataComponents.DYED_COLOR, new DyedItemColor(rgb));
         return resultItem;

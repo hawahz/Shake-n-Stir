@@ -1,7 +1,8 @@
 package io.github.hawah.shakenstir.content.fluid;
 
 import io.github.hawah.shakenstir.ShakenStir;
-import io.github.hawah.shakenstir.foundation.BaseFluidType;
+import io.github.hawah.shakenstir.foundation.fluid.BaseFluidType;
+import io.github.hawah.shakenstir.foundation.fluid.JuiceFluidType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.neoforged.bus.api.IEventBus;
@@ -41,7 +42,8 @@ public class FluidTypeRegistries {
     public static final DeferredHolder<FluidType, FluidType> BITTERS_FLUID_TYPE = register("bitters_fluid_type", 0x04270e, 0, FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
     public static final DeferredHolder<FluidType, FluidType> SUCROSE_SYRUP_FLUID_TYPE = register("sugarsyrup_fluid_type", 0x9bdbff, 0, FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
     public static final DeferredHolder<FluidType, FluidType> HONEY_FLUID_TYPE = register("honey_fluid_type", 0xFFB300, 0, FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
-    public static final DeferredHolder<FluidType, FluidType> JUICE_FLUID_TYPE = register("juice_fluid_type", 0xFF8C00, 0, FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
+    public static final DeferredHolder<FluidType, FluidType> JUICE_FLUID_TYPE = registerJuice("juice_fluid_type", 0xFF8C00, FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
+    public static final DeferredHolder<FluidType, FluidType> SWEET_JUICE_FLUID_TYPE = registerJuice("sweet_juice_fluid_type", 0xFF8C00, FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
     public static final DeferredHolder<FluidType, FluidType> LEMONADE_FLUID_TYPE = register("lemonade_fluid_type", 0xFFFF66, 0, FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
 
 
@@ -60,6 +62,11 @@ public class FluidTypeRegistries {
     private static DeferredHolder<FluidType, FluidType> register(String name, int color, int alcohol, FluidType.Properties properties) {
         return FLUID_TYPES.register(name, () -> new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, MY_FLUID_RL,
                 color, new Vector3f(224f / 255f, 56f / 255f, 208f / 255f), properties, alcohol));
+    }
+
+    private static DeferredHolder<FluidType, FluidType> registerJuice(String name, int color, FluidType.Properties properties) {
+        return FLUID_TYPES.register(name, () -> new JuiceFluidType(WATER_STILL_RL, WATER_FLOWING_RL, MY_FLUID_RL,
+                color, new Vector3f(224f / 255f, 56f / 255f, 208f / 255f), properties));
     }
     // 记得注册到总线
     public static void register(IEventBus eventBus) {
