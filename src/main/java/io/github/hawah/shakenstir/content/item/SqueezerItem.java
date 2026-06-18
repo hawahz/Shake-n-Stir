@@ -24,18 +24,32 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 public class SqueezerItem extends Item {
     public SqueezerItem(Properties properties) {
-        super(properties.rarity(Rarity.UNCOMMON));
+        super(
+                properties.stacksTo(1)
+                        .durability(80)
+                        .rarity(Rarity.UNCOMMON)
+                        .repairable(Tags.Items.INGOTS_IRON)
+        );
     }
 
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack itemInHand = player.getItemInHand(hand);
+        int damageValue = itemInHand.getDamageValue();
+        int maxDamage = itemInHand.getMaxDamage();
+        if (damageValue + 1 == maxDamage) {
+            player.swing(hand);
+            player.playSound(SoundEvents.ITEM_BREAK.value());
+            player.getCooldowns().addCooldown(itemInHand, 20);
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
+        }
         InteractionHand otherHand = hand.equals(InteractionHand.MAIN_HAND) ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
         ItemStack other = player.getItemInHand(otherHand).copy();
         if (!other.isEmpty() && other.is(SnsItemTags.SQUEEZABLE)) {
@@ -166,6 +180,9 @@ public class SqueezerItem extends Item {
                     }
                 }
             }
+        }
+        if (entity instanceof Player player){
+            itemStack.hurtWithoutBreaking(1, player);
         }
 
         return super.finishUsingItem(itemStack, level, entity);

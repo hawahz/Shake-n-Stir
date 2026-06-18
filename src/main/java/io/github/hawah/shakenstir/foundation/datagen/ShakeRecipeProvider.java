@@ -26,6 +26,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -101,7 +102,6 @@ public class ShakeRecipeProvider extends RecipeProvider {
                 .build()
                 .unlockedBy("has_spirit", this.has(SnsItemTags.SPIRIT))
                 .save(output, getName("colada_product"));
-        ;
     }
 
     public static String getName(String name) {
@@ -174,12 +174,19 @@ public class ShakeRecipeProvider extends RecipeProvider {
         }
 
         public Builder withFluid(TagKey<Fluid> tag) {
-            this.fluidIngredients.add(FluidIngredient.of(fluids.getOrThrow(tag), 250));
-            return this;
+            return withFluid(tag, 250);
         }
 
         public Builder withFluid(TagKey<Fluid> tag, int amount) {
-            this.fluidIngredients.add(FluidIngredient.of(fluids.getOrThrow(tag), amount));
+            FluidIngredient fi = FluidIngredient.of(fluids.getOrThrow(tag), amount);
+            for (int i = 0; i < this.fluidIngredients.size(); i++) {
+                FluidIngredient existing = this.fluidIngredients.get(i);
+                if (existing.fluidId().equals(fi.fluidId())) {
+                    this.fluidIngredients.set(i, FluidIngredient.of(fluids.getOrThrow(tag), existing.amount() + fi.amount()));
+                    return this;
+                }
+            }
+            this.fluidIngredients.add(fi);
             return this;
         }
 
@@ -212,7 +219,7 @@ public class ShakeRecipeProvider extends RecipeProvider {
         public MultiBuilder orWith(TagKey<Fluid> fluidTag, TagKey<Item> tag) {
             MultiBuilder multiBuilder = new MultiBuilder();
             Builder builder = new Builder(this).withFluid(fluidTag);
-            with(tag);
+            with(tag).withFluid(Tags.Fluids.WATER);
             multiBuilder.builders.add(this);
             multiBuilder.builders.add(builder);
             return multiBuilder;
@@ -295,6 +302,7 @@ public class ShakeRecipeProvider extends RecipeProvider {
         }
     }
 
+    @SuppressWarnings({"UnusedReturnValue", "unused"})
     abstract class AbstractBuilder<Self extends AbstractBuilder<Self>> {
         public abstract Self result(Supplier<Item> result);
         public abstract Self patch(DataComponentPatch patch);
@@ -310,6 +318,7 @@ public class ShakeRecipeProvider extends RecipeProvider {
         public abstract MultiBuilder orWith(SnsSharedTags tags);
     }
 
+    @SuppressWarnings("unused")
     class MultiRecipeBuilder {
 
         private final List<RecipeBuilder> recipeBuilders = new ArrayList<>();
@@ -348,6 +357,7 @@ public class ShakeRecipeProvider extends RecipeProvider {
         }
     }
 
+    @SuppressWarnings("unused")
     static class WarpedId{
         int idx = 0;
         public WarpedId() {

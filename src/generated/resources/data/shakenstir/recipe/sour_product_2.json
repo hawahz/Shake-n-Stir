@@ -8,6 +8,10 @@
     {
       "amount": 250,
       "fluidId": "#c:sweets"
+    },
+    {
+      "amount": 250,
+      "fluidId": "#c:water"
     }
   ],
   "inputItems": [

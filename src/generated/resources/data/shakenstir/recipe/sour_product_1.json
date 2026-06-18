@@ -7,6 +7,10 @@
     },
     {
       "amount": 250,
+      "fluidId": "#c:water"
+    },
+    {
+      "amount": 250,
       "fluidId": "#c:sours"
     }
   ],

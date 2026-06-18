@@ -1,8 +1,9 @@
 package io.github.hawah.shakenstir.content.item;
 
-import io.github.hawah.shakenstir.content.tooltip.WarpedMintTooltip;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.WarpedMint;
+import io.github.hawah.shakenstir.content.tooltip.WarpedMintTooltip;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
@@ -79,7 +80,10 @@ public class StackedMintItem extends Item {
                         slot.set(warpedMint.contents().getFirst());
                     } else {
                         self.set(DataComponentTypeRegistries.WARPED_MINT, warpedMint);
+                        select = Mth.clamp(select, 0, warpedMint.variety() - 1);
+                        self.set(DataComponentTypeRegistries.SELECT_MINT, select);
                     }
+
                     return true;
                 }
             }

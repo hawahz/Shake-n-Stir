@@ -4,6 +4,10 @@
     {
       "amount": 500,
       "fluidId": "#c:spirits"
+    },
+    {
+      "amount": 500,
+      "fluidId": "#c:water"
     }
   ],
   "inputItems": [

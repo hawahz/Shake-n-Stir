@@ -87,6 +87,7 @@ public class GlasswareRenderer {
             if ((itemStack.has(DataComponentTypeRegistries.DECORATE_MODEL) && (decorateModel = itemStack.get(DataComponentTypeRegistries.DECORATE_MODEL)) != null) ||
                     ((decorateModel = GlasswareDecorations.maps.entrySet().stream().filter(entry -> entry.getKey().test(itemStack)).map(Map.Entry::getValue).findAny().orElse(null)) != null)) {
                 Optional<IModel<?>> model = Models.getModel(decorateModel);
+                model.ifPresent(selector::select);
                 float scale = 1;
                 selector.submit(poseStack, scale, submitNodeCollector, () -> lightCoords);
             } else if (itemStack.is(SnsItemTags.BLOCK_LIKE_DRINK_DECORATION) && itemStack.getItem() instanceof BlockItem modelProvider) {

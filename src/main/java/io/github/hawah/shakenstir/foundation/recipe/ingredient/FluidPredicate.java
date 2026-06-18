@@ -13,7 +13,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.HolderSetCodec;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.player.StackedContents;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 
@@ -39,8 +38,6 @@ public class FluidPredicate implements Predicate<FluidStack>, StackedContents.In
             values.unwrap().ifRight(directValues -> {
                 if (directValues.isEmpty()) {
                     throw new UnsupportedOperationException("Ingredients can't be empty");
-                } else if (directValues.contains(Items.AIR.builtInRegistryHolder())) {
-                    throw new UnsupportedOperationException("Ingredient can't contain air");
                 }
             });
         this.values = values;
@@ -54,5 +51,13 @@ public class FluidPredicate implements Predicate<FluidStack>, StackedContents.In
     @Override
     public boolean acceptsItem(Holder<Fluid> item) {
         return this.values.contains(item);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FluidPredicate that = (FluidPredicate) o;
+        return values.toString().equals(that.values.toString());
     }
 }

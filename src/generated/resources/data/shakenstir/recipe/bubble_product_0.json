@@ -1,6 +1,11 @@
 {
   "type": "shakenstir:shake_recipe",
-  "inputFluids": [],
+  "inputFluids": [
+    {
+      "amount": 250,
+      "fluidId": "#c:water"
+    }
+  ],
   "inputItems": [
     "#c:bubbles"
   ],
