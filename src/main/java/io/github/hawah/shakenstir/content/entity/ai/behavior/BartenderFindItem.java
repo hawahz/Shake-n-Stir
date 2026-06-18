@@ -56,11 +56,13 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
         PICK_UP
     }
     public static final int SEARCH_TIME = 20;
+    private int tryTimes = 0;
 
     @Override
     protected void start(ServerLevel level, BartenderEntity body, long timestamp) {
         itemToFind.clear();
         itemToFind.addAll(getItemToFind(body));
+        tryTimes = 0;
         body.getBrain().eraseMemory(MemoryModuleType.VISITED_BLOCK_POSITIONS);
     }
 
@@ -72,7 +74,12 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
         }
         boolean isTargetValidNow = pickTarget(level, body);
         if (target == null) {
-            this.doStop(level, body, timestamp);
+            if (tryTimes >= 3) {
+                this.doStop(level, body, timestamp);
+            } else {
+                tryTimes++;
+                body.getBrain().eraseMemory(MemoryModuleType.VISITED_BLOCK_POSITIONS);
+            }
         } else if (isTargetValidNow) {
             if (state.equals(TransportItemState.TRAVELLING)) {
                 this.onTravelToTarget(this.target, level, body);

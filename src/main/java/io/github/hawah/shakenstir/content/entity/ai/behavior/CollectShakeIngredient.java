@@ -1,11 +1,16 @@
 package io.github.hawah.shakenstir.content.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
+import com.mojang.datafixers.util.Pair;
 import io.github.hawah.shakenstir.content.blockEntity.CabinetBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.dataComponent.SingleItemComponent;
 import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
 import io.github.hawah.shakenstir.content.entity.BartenderEntity;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
+import io.github.hawah.shakenstir.content.fluid.FluidTypeRegistries;
+import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.foundation.fluid.JuiceFluidType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
@@ -55,6 +60,7 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
     TransportItemState state = TransportItemState.TRAVELLING;
     List<ItemStack> wanderingItems = new ArrayList<>();
     List<FluidStack> wanderingFluids = new ArrayList<>();
+    private int tryTimes = 0;
 
     @Override
     protected boolean timedOut(long timestamp) {
@@ -67,10 +73,41 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
         body.getBrain().getMemory(Memories.RECIPE.get()).ifPresent(recipe -> {
             wanderingItems.clear();
             wanderingItems.addAll(recipe.requiredItems().stream().map(ItemStack::copy).toList());
+            wanderingItems.addAll(
+                    recipe.requiredFluids()
+                            .stream()
+                            .filter(f -> f.getFluidType() instanceof JuiceFluidType)
+                            .map(f -> Pair.of(Optional.ofNullable(f.get(DataComponentTypeRegistries.FRUIT_DATA)), f.amount()))
+                            .filter(p -> p.getFirst().isPresent())
+                            .map(p -> p.mapFirst(Optional::get).mapFirst(SingleItemComponent::itemStack))
+                            .map(p -> {
+                                ItemStack first = p.getFirst().copy();
+                                first.setCount(p.getSecond()/100);
+                                return first;
+                            })
+                            .filter(itemStack -> !itemStack.isEmpty())
+                            .map(ItemStack::copy)
+                            .toList()
+            );
+            int lemonCounts = recipe.requiredFluids()
+                    .stream()
+                    .filter(f -> f.is(FluidTypeRegistries.LEMONADE_FLUID_TYPE.get()))
+                    .mapToInt(FluidStack::amount)
+                    .sum() / 100;
+            if (lemonCounts > 0) {
+                wanderingItems.add(new ItemStack(ItemRegistries.LEMON.get(), lemonCounts));
+            }
             wanderingFluids.clear();
-            wanderingFluids.addAll(recipe.requiredFluids().stream().map(FluidStack::copy).toList());
+            wanderingFluids.addAll(
+                    recipe.requiredFluids()
+                            .stream()
+                            .map(FluidStack::copy)
+                            .filter(fluidStack -> !(fluidStack.getFluidType() instanceof JuiceFluidType) && !fluidStack.is(FluidTypeRegistries.LEMONADE_FLUID_TYPE.get()))
+                            .toList()
+            );
         });
         checkAndUpdateCarriedItem(body);
+        tryTimes = 0;
     }
 
     private void checkAndUpdateCarriedItem(BartenderEntity body) {
@@ -146,7 +183,13 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
         }
         boolean isTargetValidNow = pickTarget(level, body);
         if (target == null) {
-            this.doStop(level, body, timestamp);
+            if (tryTimes < 3) {
+                tryTimes++;
+            } else {
+                body.getBrain().eraseMemory(MemoryModuleType.VISITED_BLOCK_POSITIONS);
+                body.getBrain().eraseMemory(Memories.RECIPE.get());
+                this.doStop(level, body, timestamp);
+            }
         } else if (isTargetValidNow) {
             if (state.equals(TransportItemState.TRAVELLING)) {
                 this.onTravelToTarget(this.target, level, body);
@@ -173,14 +216,15 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
     boolean hasNeededItem = false;
 
     private void onReachedTarget(TakeUpItemTarget target, ServerLevel level, BartenderEntity body) {
-        if (!this.isWithinTargetDistance(1.0, target, level, body, body.getEyePosition())) {
+        double dy = Math.abs(target.pos().getY() - body.position().y());
+        if (!this.isWithinTargetDistance(dy + 1.0, target, level, body, body.getEyePosition())) {
             this.onStartTravelling(body);
         } else {
             if (this.ticksSinceReachingTarget == 0) {
                 hasNeededItem = extractRequiredItemFromTarget(target, body);
             }
             this.ticksSinceReachingTarget++;
-            if (this.ticksSinceReachingTarget >= (hasNeededItem? SEARCH_TIME: 2)) {
+            if (this.ticksSinceReachingTarget >= (hasNeededItem? SEARCH_TIME: 0)) {
 
                 this.ticksSinceReachingTarget = 0;
                 setVisitedBlockPos(body, body.level(), target.pos);
@@ -303,7 +347,8 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
     }
 
     private void onTravelToTarget(TakeUpItemTarget target, ServerLevel level, BartenderEntity body) {
-        if (this.isWithinTargetDistance(getInteractionRange(body), target, level, body, body.getEyePosition())) {
+        double dy = Math.abs(target.pos().getY() - body.position().y());
+        if (this.isWithinTargetDistance(getInteractionRange(body) + dy, target, level, body, body.getEyePosition())) {
             this.startOnReachedTargetInteraction(target, body);
         } else {
             this.walkTowardsTarget(body);
@@ -331,6 +376,7 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
     private boolean isWithinTargetDistance(
             double distance, TakeUpItemTarget target, Level level, BartenderEntity body, Vec3 fromPos
     ) {
+        
         AABB boundingBox = body.getBoundingBox();
         AABB movedBoundBox = AABB.ofSize(fromPos, boundingBox.getXsize(), boundingBox.getYsize(), boundingBox.getZsize());
         return target.state.getCollisionShape(level, target.pos).bounds().inflate(distance, 0.5, distance).move(target.pos).intersects(movedBoundBox);
