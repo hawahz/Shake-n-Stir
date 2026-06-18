@@ -2,7 +2,6 @@ package io.github.hawah.shakenstir.client.render.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
-import com.mojang.math.Transformation;
 import com.mojang.serialization.MapCodec;
 import io.github.hawah.shakenstir.content.block.SpiritBlock;
 import io.github.hawah.shakenstir.lib.client.render.EaseHelper;
@@ -10,6 +9,7 @@ import io.github.hawah.shakenstir.lib.client.render.toolkit.Animation;
 import io.github.hawah.shakenstir.lib.client.render.toolkit.AnimationPlayer;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.BlockModelResolver;
@@ -18,9 +18,7 @@ import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import org.joml.Matrix4f;
 import org.joml.Quaternionf;
-import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.jspecify.annotations.Nullable;
 
@@ -30,11 +28,11 @@ import java.util.function.Consumer;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class SpiritBottleSpecialRenderer implements SpecialModelRenderer<SpiritBottleSpecialRenderer.RenderState> {
-    public static final Matrix4f ARM_TRANSFORM = new Matrix4f(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5403024f, -0.84147114f, 0.0f, 0.0f, 0.84147114f, 0.5403024f, 0.0f, 0.9000001f, 0.12046755f, 0.95270944f, 1.0f);
     public static final int POWER = 2;
 
     public AnimationPlayer animationPlayer = new AnimationPlayer();
 
+    @SuppressWarnings("UnusedAssignment")
     public SpiritBottleSpecialRenderer() {
         Animation<Double> swingY = animationPlayer.registerAnimation("swingY", 0.0);
         int i = 4;
@@ -69,20 +67,24 @@ public class SpiritBottleSpecialRenderer implements SpecialModelRenderer<SpiritB
 
     }
 
-    private float storage = 0;
-
     @Override
     public void submit(@Nullable RenderState argument, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, int overlayCoords, boolean hasFoil, int outlineColor) {
-        if (!(argument.itemStack().getItem() instanceof BlockItem blockItem) || blockItem.getBlock().defaultBlockState().getOptionalValue(SpiritBlock.FACING).isEmpty()) {
+        if (argument == null || !(argument.itemStack().getItem() instanceof BlockItem blockItem) || blockItem.getBlock().defaultBlockState().getOptionalValue(SpiritBlock.FACING).isEmpty()) {
             return;
         }
+        LocalPlayer player = Minecraft.getInstance().player;
+
+        if (player == null) {
+            return;
+        }
+
         poseStack.pushPose();
         BlockModelResolver blockModelResolver = Minecraft.getInstance().getBlockModelResolver();
         BlockModelRenderState blockModelRenderState = new BlockModelRenderState();
         blockModelResolver.update(blockModelRenderState, blockItem.getBlock().defaultBlockState().setValue(SpiritBlock.FACING, Direction.NORTH), BlockDisplayContext.create());
 
 
-        float cooldownPercent = Minecraft.getInstance().player.getCooldowns().getCooldownPercent(Minecraft.getInstance().player.getMainHandItem(), AnimationTickHolder.getPartialTicks());
+        float cooldownPercent = player.getCooldowns().getCooldownPercent(player.getMainHandItem(), AnimationTickHolder.getPartialTicks());
         float process = (1-cooldownPercent) * 20;
 
 
@@ -93,26 +95,6 @@ public class SpiritBottleSpecialRenderer implements SpecialModelRenderer<SpiritB
             poseStack.translate(0, swingY, -0.2);
             poseStack.mulPose(new Quaternionf(0, 0, swingZRot, 1));
         }
-
-
-        poseStack.pushPose();
-
-        if (argument.local() && argument.localFirstPerson()) {
-
-            poseStack.mulPose(new Transformation(
-                    new Vector3f(0, 5.25F / 16, -0.75F / 16),
-                    new Quaternionf(),
-                    new Vector3f(0.74609F, 0.74609F, 0.74609F),
-                    new Quaternionf()
-            ));
-            poseStack.mulPose(new Matrix4f(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.1f, 0.10000002f, -0.3f, 1.0f));
-        } else {
-            poseStack.translate(0.5, 0.5, 0.5);
-            poseStack.translate(-1.4901161E-8f, 0.20000002f, 0.2f);
-            poseStack.mulPose(new Quaternionf().rotateLocalX(0.0f).rotateLocalY( 0.0f).rotateLocalZ( 0.0f));
-            poseStack.scale(0.62092125F, 0.62092125F, 0.62092125F);
-            poseStack.translate(-0.5, -0.5, -0.5);
-        }
         blockModelRenderState.submit(
                 poseStack,
                 submitNodeCollector,
@@ -120,7 +102,6 @@ public class SpiritBottleSpecialRenderer implements SpecialModelRenderer<SpiritB
                 overlayCoords,
                 outlineColor
         );
-        poseStack.popPose();
         poseStack.popPose();
 
     }

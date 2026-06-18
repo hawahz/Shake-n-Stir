@@ -1,4 +1,4 @@
-package io.github.hawah.shakenstir.content.blockEntity;
+package io.github.hawah.shakenstir.foundation.block;
 
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;

@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.content.blockEntity;
 
 import io.github.hawah.shakenstir.content.block.Cabinet;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.foundation.block.AutoUpdateBlockEntity;
 import io.github.hawah.shakenstir.foundation.item.SpiritBottleItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
@@ -139,7 +140,10 @@ public class CabinetBlockEntity extends AutoUpdateBlockEntity implements ItemOwn
 
     @Override
     public Level level() {
-        return level;
+        if (level != null) {
+            return level;
+        }
+        throw new RuntimeException();
     }
 
     @Override

@@ -7,6 +7,7 @@ import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.model.Models;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.GlasswareItem;
+import io.github.hawah.shakenstir.foundation.block.AutoUpdateBlockEntity;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundInsertDecorationPacket;
 import io.github.hawah.shakenstir.lib.StreamCodecUtil;
 import io.github.hawah.shakenstir.lib.networking.Networking;
@@ -59,7 +60,6 @@ public class GlasswareBlockEntity extends AutoUpdateBlockEntity {
 
     // Client Animation
     public final Vector2f oPosition = new Vector2f();
-    public float oRotation = 0;
     public float oHeight = 0;
     public final Vector2f position = new Vector2f();
     public float height = 0;
@@ -71,10 +71,6 @@ public class GlasswareBlockEntity extends AutoUpdateBlockEntity {
 
     public int getColor() {
         return (contentComponents.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFFFF))).rgb();
-    }
-
-    public boolean hasContent() {
-        return !contentComponents.isEmpty();
     }
 
     public boolean insertDecoration(Decoration decoration) {

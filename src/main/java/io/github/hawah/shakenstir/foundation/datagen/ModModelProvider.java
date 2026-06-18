@@ -44,6 +44,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -51,7 +52,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 @SuppressWarnings({"DuplicatedCode", "ExtractMethodRecommender", "unused", "SameParameterValue"})
 @ParametersAreNonnullByDefault
@@ -335,7 +335,7 @@ public class ModModelProvider extends ModelProvider {
         );
     }
 
-    private static void generateSpirit(BlockModelGenerators blockModels, ItemModelGenerators itemModels, Supplier<SpiritBlock> block, DeferredItem<SpiritBottleItem> item, String root) {
+    private static void generateSpirit(BlockModelGenerators blockModels, ItemModelGenerators itemModels, DeferredBlock<SpiritBlock> block, DeferredItem<SpiritBottleItem> item, String root) {
         blockModels.blockStateOutput.accept(
                 MultiVariantGenerator.dispatch(
                         block.get()
@@ -360,7 +360,7 @@ public class ModModelProvider extends ModelProvider {
                 )
         );
         ItemModel.Unbaked flatModel = ItemModelUtils.plainModel(itemModels.createFlatItemModel(item.get(), ModelTemplates.FLAT_ITEM));
-        ItemModel.Unbaked otherModel = ItemModelUtils.specialModel(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "gin"), new SpiritBottleSpecialRenderer.Unbaked());
+        ItemModel.Unbaked otherModel = ItemModelUtils.specialModel(ShakenStir.asResource("block/"+root), new SpiritBottleSpecialRenderer.Unbaked());
         itemModels.itemModelOutput.accept(item.get(), ItemModelGenerators.createFlatModelDispatch(flatModel, otherModel));
     }
 

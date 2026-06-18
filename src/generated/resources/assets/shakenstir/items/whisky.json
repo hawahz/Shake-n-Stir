@@ -17,7 +17,7 @@
     ],
     "fallback": {
       "type": "minecraft:special",
-      "base": "shakenstir:gin",
+      "base": "shakenstir:block/whisky",
       "model": {
         "type": "shakenstir:spirit_special"
       }

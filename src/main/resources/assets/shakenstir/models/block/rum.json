@@ -47,5 +47,26 @@
 			}
 		}
 	],
-	"display": {}
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [16.27, -18.42, 7.92],
+			"translation": [-0.75, 3.25, 0],
+			"scale": [0.57813, 0.57813, 0.57813]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [16.27, -18.42, 7.92],
+			"translation": [-0.75, 3.25, 0],
+			"scale": [0.57813, 0.57813, 0.57813]
+		},
+		"firstperson_righthand": {
+			"rotation": [0, -17, 0],
+			"translation": [0, 5, 0],
+			"scale": [0.30469, 0.30469, 0.30469]
+		},
+		"firstperson_lefthand": {
+			"rotation": [0, -17, 0],
+			"translation": [0, 5, 0],
+			"scale": [0.30469, 0.30469, 0.30469]
+		}
+	}
 }
