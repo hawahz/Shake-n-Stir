@@ -72,6 +72,7 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         ;
         this.tag(SnsItemTags.SQUEEZABLE)
                 .addTag(Tags.Items.FOODS_FRUIT)
+                .addTag(Tags.Items.FOODS_BERRY)
                 ;
         this.tag(SnsItemTags.DRINK_DECORATION)
                 .addTags(SnsItemTags.BLOCK_LIKE_DRINK_DECORATION, SnsItemTags.ITEM_LIKE_DRINK_DECORATION)

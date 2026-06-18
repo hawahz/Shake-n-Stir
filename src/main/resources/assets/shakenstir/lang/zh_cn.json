@@ -145,8 +145,9 @@
   "item.shakenstir.lemon_sapling": "柠檬树苗",
   "item.shakenstir.mint_seed": "薄荷芽",
   "fluid_type.shakenstir.honey_fluid_type": "蜂蜜",
-  "fluid_type.shakenstir.juice_fluid_type": "果汁",
+  "fluid_type.shakenstir.juice_fluid_type": "汁",
   "fluid_type.shakenstir.lemonade_fluid_type": "柠檬汁",
   "fluid_type.shakenstir.sugarsyrup_fluid_type": "蔗糖糖浆",
-  "item.shakenstir.squeezer": "挤汁器"
+  "item.shakenstir.squeezer": "挤汁器",
+  "fluid_type.shakenstir.sweet_juice_fluid_type": "汁"
 }

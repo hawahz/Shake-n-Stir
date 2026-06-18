@@ -37,6 +37,8 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
                 .addTag(BlockTags.SIGNS)
                 .add(BlockRegistries.BAR_MENU_BLOCK.get())
                 .addTag(BlockTags.CANDLES)
+                .add(BlockRegistries.LONG_DRINK_GLASSWARE.get())
+                .add(BlockRegistries.SHORT_DRINK_GLASSWARE.get())
         ;
 
         this.tag(BlockTags.MINEABLE_WITH_AXE)

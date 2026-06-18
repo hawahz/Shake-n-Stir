@@ -53,7 +53,11 @@ public class SqueezerItem extends Item {
         InteractionHand otherHand = hand.equals(InteractionHand.MAIN_HAND) ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
         ItemStack other = player.getItemInHand(otherHand).copy();
         if (!other.isEmpty() && other.is(SnsItemTags.SQUEEZABLE)) {
+            int count = other.getCount();
             itemInHand.set(DataComponentTypeRegistries.SQUEEZER_HOLDER, new SingleItemComponent(other.split(1)));
+            if (player.hasInfiniteMaterials()) {
+                other.setCount(count);
+            }
             player.setItemInHand(otherHand, other);
         }
         player.startUsingItem(hand);

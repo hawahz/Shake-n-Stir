@@ -3,6 +3,8 @@
     "#minecraft:air",
     "#minecraft:signs",
     "shakenstir:bar_menu",
-    "#minecraft:candles"
+    "#minecraft:candles",
+    "shakenstir:long_drink_glassware",
+    "shakenstir:short_drink_glassware"
   ]
 }

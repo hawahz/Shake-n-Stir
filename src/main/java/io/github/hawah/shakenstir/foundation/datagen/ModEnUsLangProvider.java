@@ -76,6 +76,7 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add(FluidTypeRegistries.BITTERS_FLUID_TYPE.get().getDescriptionId(), "Bitters");
         add(FluidTypeRegistries.LEMONADE_FLUID_TYPE.get().getDescriptionId(), "Lemonade");
         add(FluidTypeRegistries.JUICE_FLUID_TYPE.get().getDescriptionId(), "Juice");
+        add(FluidTypeRegistries.SWEET_JUICE_FLUID_TYPE.get().getDescriptionId(), "Juice");
         add(FluidTypeRegistries.HONEY_FLUID_TYPE.get().getDescriptionId(), "Honey");
         add(FluidTypeRegistries.SUCROSE_SYRUP_FLUID_TYPE.get().getDescriptionId(), "Sucrose Syrup");
 

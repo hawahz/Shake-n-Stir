@@ -100,7 +100,7 @@ public record ShakeRecipe(
         );
         resultItem.set(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY, quality);
         List<ItemStack> items = recipeInput.items();
-        List<FluidStack> fluidStacks = new ArrayList<>(recipeInput.fluidStacks());
+        List<FluidStack> fluidStacks = new ArrayList<>(recipeInput.fluidStacks().stream().map(FluidStack::copy).toList());
         List<Consumable> consumables = new ArrayList<>(items.stream()
                 .filter(itemStack -> itemStack.has(DataComponents.CONSUMABLE))
                 .map(itemStack -> itemStack.get(DataComponents.CONSUMABLE))

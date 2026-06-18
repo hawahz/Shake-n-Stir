@@ -54,6 +54,7 @@ public class ModFluidTagsProvider extends FluidTagsProvider {
 
         this.tag(SnsFluidTags.SWEET)
                 .addTag(Tags.Fluids.HONEY)
+                .add(FluidRegistries.SWEET_JUICE_SOURCE.get())
                 .add(FluidRegistries.SUCROSE_SYRUP_SOURCE.get())
         ;
 
@@ -69,6 +70,7 @@ public class ModFluidTagsProvider extends FluidTagsProvider {
         ;
         this.tag(SnsFluidTags.JUICE)
                 .add(FluidRegistries.JUICE_SOURCE.get())
+                .add(FluidRegistries.SWEET_JUICE_SOURCE.get())
                 .addTag(SnsFluidTags.LEMONADE)
         ;
     }
