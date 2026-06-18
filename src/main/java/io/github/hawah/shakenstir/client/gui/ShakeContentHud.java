@@ -4,13 +4,13 @@ import com.mojang.blaze3d.platform.Window;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
+import io.github.hawah.shakenstir.client.render.ClientFluidColorGetter;
 import io.github.hawah.shakenstir.client.render.general.GuiShakeRenderer;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.block.Shaker;
 import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.ShakeContentHolder;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
-import io.github.hawah.shakenstir.foundation.fluid.TintColorGetter;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.lib.client.render.EaseHelper;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
@@ -144,7 +144,7 @@ public class ShakeContentHud implements GuiLayer {
             }
         }
         return ShakeUtil.rgbWithWeight(contentHolder.fluidStacks().stream().map((stack) ->
-                Pair.of(stack.getFluidType() instanceof TintColorGetter type ? type.getTintColor() : 0xFFFFFF, stack.getAmount())
+                Pair.of(ClientFluidColorGetter.getColor(stack), stack.getAmount())
         ).toList());
     }
 

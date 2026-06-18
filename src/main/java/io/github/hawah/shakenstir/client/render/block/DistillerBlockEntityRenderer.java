@@ -2,11 +2,11 @@ package io.github.hawah.shakenstir.client.render.block;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
+import io.github.hawah.shakenstir.client.render.ClientFluidColorGetter;
 import io.github.hawah.shakenstir.client.render.LiquidRenderer;
 import io.github.hawah.shakenstir.client.render.block.renderstate.DistillerBlockEntityRenderState;
 import io.github.hawah.shakenstir.content.block.Distiller;
 import io.github.hawah.shakenstir.content.blockEntity.DistillerBlockEntity;
-import io.github.hawah.shakenstir.foundation.fluid.TintColorGetter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -115,12 +115,7 @@ public class DistillerBlockEntityRenderer implements BlockEntityRenderer<Distill
         float height = state.product.getAmount() / (float) DistillerBlockEntity.MAX_PRODUCT_FLUID_CAPACITY;
 
         poseStack.pushPose();
-        int color;
-        if (state.product.getFluidType() instanceof TintColorGetter type) {
-            color = type.getTintColor();
-        } else {
-            color = biomeWaterColor;
-        }
+        int color = ClientFluidColorGetter.getColor(state.product);
         float SCALE_PRODUCT = 4.6F/16F;
         float SCALE_PRODUCT_H = 6F/16F;
 
