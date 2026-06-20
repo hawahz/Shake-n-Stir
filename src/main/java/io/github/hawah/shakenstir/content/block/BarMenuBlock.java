@@ -153,8 +153,13 @@ public class BarMenuBlock extends HorizontalDirectionalBlock implements EntityBl
                             break;
                         }
                     }
-                
+
+
                     if (hasAll) {
+                        boolean success = bartender.alertCustomerOrdered(player);
+                        if (!success) {
+                            return InteractionResult.FAIL;
+                        }
                         // 消耗物品
                         for (ItemStack cost : itemStacks) {
                             int remaining = cost.getCount();
@@ -167,7 +172,7 @@ public class BarMenuBlock extends HorizontalDirectionalBlock implements EntityBl
                                 }
                             }
                         }
-                        bartender.alertCustomerOrdered(player);
+
                         return InteractionResult.SUCCESS;
                     }
                 }

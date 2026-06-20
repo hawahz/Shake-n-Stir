@@ -1,5 +1,6 @@
 package io.github.hawah.shakenstir.content.entity.ai.behavior;
 
+import io.github.hawah.shakenstir.content.entity.BartenderEntity;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -12,7 +13,7 @@ import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import java.util.Optional;
 
 public class SetLookAndInteractNew {
-    public static BehaviorControl<LivingEntity> create(EntityType<?> type, int interactionRange) {
+    public static BehaviorControl<BartenderEntity> create(EntityType<?> type, int interactionRange) {
         int interactionRangeSqr = interactionRange * interactionRange;
         return BehaviorBuilder.create(
                 i -> i.group(

@@ -1,9 +1,12 @@
 package io.github.hawah.shakenstir.client.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
+import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.client.animation.BartenderAnimation;
 import net.minecraft.client.animation.KeyframeAnimation;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -18,10 +21,16 @@ import net.minecraft.util.Util;
 import net.minecraft.world.entity.HumanoidArm;
 import org.intellij.lang.annotations.MagicConstant;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
+@SuppressWarnings("unused")
 public class BartenderModel extends HumanoidModel<BartenderRenderState> {
+    public static final ModelLayerLocation LOCATION = new ModelLayerLocation(ShakenStir.asResource("bartender"), "main");
+
     protected static final String LEFT_SLEEVE = "left_sleeve";
     protected static final String RIGHT_SLEEVE = "right_sleeve";
     protected static final String LEFT_PANTS = "left_pants";

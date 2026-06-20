@@ -11,8 +11,8 @@ import java.util.HashMap;
 public enum Textures {
     NUMBER_SPRITE("textures/gui/general.png", 0, 0, 11, 12, 0),
     KEYMAP("textures/gui/keys.png", 0, 0, 16, 16, 5, 0, 16, 0, 32, 0, 48, 0, 64, 0, 80),
-    SHAKE_HUD_FRONT("textures/gui/shake_hud.png", 82, 10, 58, 83, 0),
-    SHAKE_HUD_OUTSIDE("textures/gui/shake_hud.png", 11, 10, 58, 83, 0),
+    SHAKE_HUD_FRONT("textures/gui/shake_hud.png", 82, 137, 58, 110, 0),
+    SHAKE_HUD_OUTSIDE("textures/gui/shake_hud.png", 11, 10, 58, 86, 0),
     SHAKE_HUD_INSIDE("textures/gui/shake_hud.png", 11, 96, 58, 83, 0),
     ICE_HUD_0("textures/gui/shake_hud.png", 145, 10,15, 16 , 0),
     ICE_HUD_1("textures/gui/shake_hud.png", 160, 10,8, 17 , 0),

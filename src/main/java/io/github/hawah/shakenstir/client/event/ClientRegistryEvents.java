@@ -5,11 +5,15 @@ import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.clientTooltip.ClientShakeTooltipComponent;
 import io.github.hawah.shakenstir.client.clientTooltip.ClientWarpedMintTooltip;
 import io.github.hawah.shakenstir.client.hanlder.MenuHUD;
-import io.github.hawah.shakenstir.client.itemConditionals.*;
+import io.github.hawah.shakenstir.client.itemConditionals.HasCup;
+import io.github.hawah.shakenstir.client.itemConditionals.MintSize;
+import io.github.hawah.shakenstir.client.itemConditionals.Warped;
+import io.github.hawah.shakenstir.client.itemConditionals.WarpedMintDisplay;
 import io.github.hawah.shakenstir.client.model.Models;
 import io.github.hawah.shakenstir.client.model.glassware.GlasswareQuadCollection;
 import io.github.hawah.shakenstir.client.model.glassware.GlasswareUnbakedModelLoader;
 import io.github.hawah.shakenstir.client.render.block.*;
+import io.github.hawah.shakenstir.client.render.entity.BartenderModel;
 import io.github.hawah.shakenstir.client.render.entity.BartenderRenderer;
 import io.github.hawah.shakenstir.client.render.item.GlasswareSpecialRenderer;
 import io.github.hawah.shakenstir.client.render.item.ShakeItemSpecialRenderer;
@@ -32,6 +36,8 @@ import net.minecraft.client.color.block.BlockTintSource;
 import net.minecraft.client.entity.ClientAvatarEntity;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.core.BlockPos;
@@ -83,6 +89,13 @@ public class ClientRegistryEvents {
 //                ),
 //                BlockRegistries.SHAKE_BLOCK.get()
 //        );
+    }
+
+    @SubscribeEvent
+    public static void registerLayerDefinition(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(
+                BartenderModel.LOCATION, () -> LayerDefinition.create(BartenderModel.createMesh(CubeDeformation.NONE, true), 64, 64)
+        );
     }
 
     @SubscribeEvent

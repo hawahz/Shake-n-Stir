@@ -152,12 +152,12 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         this.entityData.set(DATA_SHOULDER_PARROT_LEFT, convertParrotVariant(variant));
     }
 
-    public void alertCustomerOrdered(Player customer) {
+    public boolean alertCustomerOrdered(Player customer) {
         if (getBrain().getActiveNonCoreActivity().map(activity -> Activities.PRODUCT.get().equals(activity)).orElse(false)) {
-            return;
+            return false;
         }
         if (getBrain().checkMemory(Memories.RECIPES_TODO.get(), MemoryStatus.VALUE_PRESENT)) {
-            return;
+            return false;
         }
         getBrain().setMemory(MemoryModuleType.INTERACTION_TARGET, customer);
         this.getBrain().getMemory(Memories.MENU.get()).ifPresent(
@@ -194,6 +194,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
                     }
                 }
         );
+        return true;
     }
 
     @Override

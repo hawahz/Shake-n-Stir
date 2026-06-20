@@ -38,7 +38,7 @@ public record ClientShakeTooltipComponent(ShakeContentHolder contentHolder, int 
 
     @Override
     public int getHeight(Font font) {
-        return Textures.SHAKE_HUD_FRONT.getHeight() + offsetY;
+        return (canLookThrough? Textures.SHAKE_HUD_OUTSIDE.getHeight(): Textures.SHAKE_HUD_FRONT.getHeight()) + offsetY;
     }
 
     @Override

@@ -94,7 +94,7 @@ public class ShakeContentHud implements GuiLayer {
                 Textures.SHAKE_HUD_FRONT.blit(
                         guiGraphics,
                         x,
-                        y,
+                        y - 24,
                         255,
                         255,
                         255,

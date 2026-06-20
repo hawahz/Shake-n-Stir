@@ -1,12 +1,14 @@
 package io.github.hawah.shakenstir.content.item;
 
 import io.github.hawah.shakenstir.ShakenStir;
+import io.github.hawah.shakenstir.client.model.Models;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.MintSizeComponent;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
@@ -42,9 +44,13 @@ public class SnsCreativeTab {
                 output.accept(ItemRegistries.BUBBLE.get());
                 output.accept(ItemRegistries.TONIC.get());
                 output.accept(ItemRegistries.BITTERS.get());
-                output.accept(createLongDrink("collins_glass"));
-                output.accept(createShortDrink("martini_glass"));
-                output.accept(createShortDrink("margarita_glass"));
+                Models.glasswareModels.keySet().stream()
+                        .map(Identifier::getPath)
+                        .map(SnsCreativeTab::createShortDrink)
+                        .forEach(output::accept);
+//                output.accept(createLongDrink("collins_glass"));
+//                output.accept(createShortDrink("martini_glass"));
+//                output.accept(createShortDrink("margarita_glass"));
                 output.accept(ItemRegistries.LEMON.get());
                 output.accept(ItemRegistries.LEMON_SLICE.get());
                 output.accept(ItemRegistries.SOBERING_TEA.get());
