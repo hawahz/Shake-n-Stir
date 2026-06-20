@@ -56,6 +56,7 @@ import org.jspecify.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -100,6 +101,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
 
     private Component speakingComponent = null;
     private int speakingRemainingTicks = 0;
+    private final LinkedList<QueuedMessage> queuedSpeaks = new LinkedList<>();
 
     public BartenderEntity(EntityType<BartenderEntity> type, Level level) {
         super(type, level);
@@ -385,6 +387,8 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
             if (speakingRemainingTicks <= 0) {
                 speakingComponent = null;
                 speakingRemainingTicks = 0;
+                // Dequeue next message if available
+                tryDequeueNext();
             }
         }
     }
@@ -459,59 +463,153 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     }
 
     /**
-     * Client-side only. Display a speech bubble above this entity on the local client.
+     * Immediately set the current speaking message and broadcast to tracking clients if server-side.
+     */
+    private void setSpeakingImmediate(Component message, int remainingTicks, boolean broadcast) {
+        this.speakingComponent = message;
+        this.speakingRemainingTicks = Math.max(0, remainingTicks);
+        if (broadcast && !level().isClientSide()) {
+            PacketDistributor.sendToPlayersTrackingEntity(
+                    this,
+                    new ClientboundBartenderSpeakPacket(getId(), message, remainingTicks)
+            );
+        }
+    }
+
+    /**
+     * Try to dequeue the next message from the queue. If nothing is currently speaking and
+     * the queue is non-empty, pop the head and display it (with broadcast if server-side).
+     */
+    private void tryDequeueNext() {
+        if (speakingRemainingTicks <= 0 && !queuedSpeaks.isEmpty()) {
+            QueuedMessage next = queuedSpeaks.pollFirst();
+            if (next != null) {
+                boolean broadcast = !level().isClientSide();
+                setSpeakingImmediate(next.message(), next.remainingTicks(), broadcast);
+            }
+        }
+    }
+
+    /**
+     * Client-side only. Display a speech bubble above this entity on the local client
+     * (overwrite mode: clears queue, replaces current message immediately).
      * If announce is true, also sends a C2S packet so the server can broadcast to all players.
      *
-     * @param message       the Component (Chat Component) to display
-     * @param announce      if true, request the server to broadcast this message to all tracking clients
+     * @param message        the Component (Chat Component) to display
+     * @param announce       if true, request the server to broadcast this message to all tracking clients
      * @param remainingTicks how many ticks the message should remain visible
      */
     public void speakClient(Component message, boolean announce, int remainingTicks) {
-        this.speakingComponent = message;
-        this.speakingRemainingTicks = Math.max(0, remainingTicks);
-        if (announce && level().isClientSide()) {
-            Networking.sendToServer(new ServerboundBartenderSpeakAnnouncePacket(getId(), message, remainingTicks));
+        speakClient(message, announce, remainingTicks, false);
+    }
+
+    /**
+     * Client-side only. Display a speech bubble above this entity on the local client.
+     * If announce is true, also sends a C2S packet so the server can broadcast to all players.
+     *
+     * @param message        the Component (Chat Component) to display
+     * @param announce       if true, request the server to broadcast this message to all tracking clients
+     * @param remainingTicks how many ticks the message should remain visible
+     * @param enqueue        if true, append to queue; if false, overwrite immediately and clear queue
+     */
+    public void speakClient(Component message, boolean announce, int remainingTicks, boolean enqueue) {
+        if (enqueue) {
+            queuedSpeaks.add(new QueuedMessage(message, remainingTicks));
+            if (speakingRemainingTicks <= 0) {
+                tryDequeueNext();
+            }
+            if (announce && level().isClientSide()) {
+                Networking.sendToServer(new ServerboundBartenderSpeakAnnouncePacket(getId(), message, remainingTicks, true));
+            }
+        } else {
+            queuedSpeaks.clear();
+            setSpeakingImmediate(message, remainingTicks, false);
+            if (announce && level().isClientSide()) {
+                Networking.sendToServer(new ServerboundBartenderSpeakAnnouncePacket(getId(), message, remainingTicks, false));
+            }
         }
+    }
+
+    /**
+     * Server-side only. Broadcasts a speech bubble to ALL players currently tracking this entity
+     * (overwrite mode: clears queue, replaces current message immediately).
+     *
+     * @param message        the Component (Chat Component) to display
+     * @param remainingTicks how many ticks the message should remain visible
+     */
+    public void speakServer(Component message, int remainingTicks) {
+        speakServer(message, remainingTicks, false);
     }
 
     /**
      * Server-side only. Broadcasts a speech bubble to ALL players currently tracking this entity.
      *
-     * @param message       the Component (Chat Component) to display
+     * @param message        the Component (Chat Component) to display
      * @param remainingTicks how many ticks the message should remain visible
+     * @param enqueue        if true, append to queue; if false, overwrite immediately and clear queue
      */
-    public void speakServer(Component message, int remainingTicks) {
+    public void speakServer(Component message, int remainingTicks, boolean enqueue) {
         if (level().isClientSide()) {
             return;
         }
-        this.speakingComponent = message;
-        this.speakingRemainingTicks = Math.max(0, remainingTicks);
-        PacketDistributor.sendToPlayersTrackingEntity(
-                this,
-                new ClientboundBartenderSpeakPacket(getId(), message, remainingTicks)
-        );
+        if (enqueue) {
+            queuedSpeaks.add(new QueuedMessage(message, remainingTicks));
+            if (speakingRemainingTicks <= 0) {
+                tryDequeueNext();
+            }
+            // No immediate broadcast for queued message; it will broadcast when dequeued
+        } else {
+            queuedSpeaks.clear();
+            setSpeakingImmediate(message, remainingTicks, true);
+        }
+    }
+
+    /**
+     * Server-side only. Sends a speech bubble to a specific list of players only
+     * (overwrite mode: clears queue, replaces current message immediately).
+     *
+     * @param message        the Component (Chat Component) to display
+     * @param targets        the list of players who should see the message
+     * @param remainingTicks how many ticks the message should remain visible
+     */
+    public void speakServer(Component message, List<Player> targets, int remainingTicks) {
+        speakServer(message, targets, remainingTicks, false);
     }
 
     /**
      * Server-side only. Sends a speech bubble to a specific list of players only.
      *
-     * @param message       the Component (Chat Component) to display
-     * @param targets       the list of players who should see the message
+     * @param message        the Component (Chat Component) to display
+     * @param targets        the list of players who should see the message
      * @param remainingTicks how many ticks the message should remain visible
+     * @param enqueue        if true, append to queue; if false, overwrite immediately and clear queue
      */
-    public void speakServer(Component message, List<Player> targets, int remainingTicks) {
+    public void speakServer(Component message, List<Player> targets, int remainingTicks, boolean enqueue) {
         if (level().isClientSide()) {
             return;
         }
-        this.speakingComponent = message;
-        this.speakingRemainingTicks = Math.max(0, remainingTicks);
-        ClientboundBartenderSpeakPacket packet = new ClientboundBartenderSpeakPacket(getId(), message, remainingTicks);
-        for (Player player : targets) {
-            if (player instanceof ServerPlayer serverPlayer) {
-                Networking.sendToPlayer(packet, serverPlayer);
+        if (enqueue) {
+            queuedSpeaks.add(new QueuedMessage(message, remainingTicks));
+            if (speakingRemainingTicks <= 0) {
+                tryDequeueNext();
+            }
+        } else {
+            queuedSpeaks.clear();
+            this.speakingComponent = message;
+            this.speakingRemainingTicks = Math.max(0, remainingTicks);
+            ClientboundBartenderSpeakPacket packet = new ClientboundBartenderSpeakPacket(getId(), message, remainingTicks);
+            for (Player player : targets) {
+                if (player instanceof ServerPlayer serverPlayer) {
+                    Networking.sendToPlayer(packet, serverPlayer);
+                }
             }
         }
     }
+
+    /**
+     * A queued dialogue message with its display duration.
+     */
+    public record QueuedMessage(Component message, int remainingTicks) {}
 
     public enum AnimState implements StringRepresentable {
         DEFAULT("idle"),

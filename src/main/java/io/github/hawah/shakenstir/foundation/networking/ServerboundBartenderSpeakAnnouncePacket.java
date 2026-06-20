@@ -12,7 +12,8 @@ import net.minecraft.server.level.ServerPlayer;
 public record ServerboundBartenderSpeakAnnouncePacket(
         int entityId,
         Component message,
-        int remainingTicks
+        int remainingTicks,
+        boolean enqueue
 ) implements ClientToServerPacket {
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundBartenderSpeakAnnouncePacket> STREAM_CODEC = StreamCodec.composite(
@@ -22,13 +23,15 @@ public record ServerboundBartenderSpeakAnnouncePacket(
             ServerboundBartenderSpeakAnnouncePacket::message,
             ByteBufCodecs.INT,
             ServerboundBartenderSpeakAnnouncePacket::remainingTicks,
+            ByteBufCodecs.BOOL,
+            ServerboundBartenderSpeakAnnouncePacket::enqueue,
             ServerboundBartenderSpeakAnnouncePacket::new
     );
 
     @Override
     public void handle(ServerPlayer serverPlayer) {
         if (serverPlayer.level().getEntity(entityId) instanceof BartenderEntity bartender) {
-            bartender.speakServer(message, remainingTicks);
+            bartender.speakServer(message, remainingTicks, enqueue);
         }
     }
 
