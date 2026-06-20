@@ -1,6 +1,7 @@
 package io.github.hawah.shakenstir.client.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.dataAttachment.DataAttachmentTypeRegistries;
 import io.github.hawah.shakenstir.content.entity.BartenderEntity;
@@ -31,6 +32,10 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, BartenderRenderState, BartenderModel> {
 
     private static final int SPEAK_FADE_OUT_TICKS = 10;
@@ -174,6 +179,7 @@ public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, Bar
 
         state.speaking = entity.getSpeakingComponent();
         state.speakingRemainingTicks = entity.getSpeakingRemainingTicks();
+        state.hasQueuedSpeak = entity.hasQueuedSpeak();
 
         HumanoidMobRenderer.extractHumanoidRenderState(entity, state, partialTicks, this.itemModelResolver);
     }
@@ -191,8 +197,14 @@ public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, Bar
             return;
         }
 
-        // Compute fade-out alpha: linearly fade over last SPEAK_FADE_OUT_TICKS ticks
-        float alpha = Math.clamp((float) state.speakingRemainingTicks / SPEAK_FADE_OUT_TICKS, 0.0F, 1.0F);
+        // Compute fade-out alpha: linearly fade over last SPEAK_FADE_OUT_TICKS ticks.
+        // Skip fade-out if a next message is queued, keeping fully opaque until switch.
+        float alpha;
+        if (state.hasQueuedSpeak) {
+            alpha = 1.0F;
+        } else {
+            alpha = Math.clamp((float) state.speakingRemainingTicks / SPEAK_FADE_OUT_TICKS, 0.0F, 1.0F);
+        }
         int alphaByte = (int) (alpha * 255);
         int textColor = (alphaByte << 24) | 0x00FFFFFF;
 

@@ -89,6 +89,9 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     protected static final EntityDataAccessor<Optional<EntityReference<LivingEntity>>> DATA_OWNERUUID_ID = SynchedEntityData.defineId(
             BartenderEntity.class, EntityDataSerializers.OPTIONAL_LIVING_ENTITY_REFERENCE
     );
+    public static final EntityDataAccessor<Boolean> DATA_HAS_QUEUED_SPEAK = SynchedEntityData.defineId(
+            BartenderEntity.class, EntityDataSerializers.BOOLEAN
+    );
 
     public static final Brain.Provider<BartenderEntity> BRAIN_PROVIDER = Brain.provider(
             BartenderAi.getSensors(),
@@ -129,6 +132,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         builder.define(DATA_SHOULDER_PARROT_RIGHT, OptionalInt.empty());
         builder.define(DATA_SHOULDER_PARROT_LEFT, OptionalInt.empty());
         builder.define(DATA_OWNERUUID_ID, Optional.empty());
+        builder.define(DATA_HAS_QUEUED_SPEAK, false);
     }
 
     @Override
@@ -463,6 +467,24 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     }
 
     /**
+     * Whether there is a next message waiting in the queue (synced via EntityData).
+     */
+    public boolean hasQueuedSpeak() {
+        return entityData.get(DATA_HAS_QUEUED_SPEAK);
+    }
+
+    /**
+     * Synchronize the DATA_HAS_QUEUED_SPEAK entity data with the actual queue state.
+     * Must be called after any queuedSpeaks mutation.
+     */
+    private void syncQueueState() {
+        boolean hasQueued = !queuedSpeaks.isEmpty();
+        if (entityData.get(DATA_HAS_QUEUED_SPEAK) != hasQueued) {
+            entityData.set(DATA_HAS_QUEUED_SPEAK, hasQueued);
+        }
+    }
+
+    /**
      * Immediately set the current speaking message and broadcast to tracking clients if server-side.
      */
     private void setSpeakingImmediate(Component message, int remainingTicks, boolean broadcast) {
@@ -487,6 +509,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
                 boolean broadcast = !level().isClientSide();
                 setSpeakingImmediate(next.message(), next.remainingTicks(), broadcast);
             }
+            syncQueueState();
         }
     }
 
@@ -515,6 +538,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     public void speakClient(Component message, boolean announce, int remainingTicks, boolean enqueue) {
         if (enqueue) {
             queuedSpeaks.add(new QueuedMessage(message, remainingTicks));
+            syncQueueState();
             if (speakingRemainingTicks <= 0) {
                 tryDequeueNext();
             }
@@ -523,6 +547,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
             }
         } else {
             queuedSpeaks.clear();
+            syncQueueState();
             setSpeakingImmediate(message, remainingTicks, false);
             if (announce && level().isClientSide()) {
                 Networking.sendToServer(new ServerboundBartenderSpeakAnnouncePacket(getId(), message, remainingTicks, false));
@@ -554,12 +579,14 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         }
         if (enqueue) {
             queuedSpeaks.add(new QueuedMessage(message, remainingTicks));
+            syncQueueState();
             if (speakingRemainingTicks <= 0) {
                 tryDequeueNext();
             }
             // No immediate broadcast for queued message; it will broadcast when dequeued
         } else {
             queuedSpeaks.clear();
+            syncQueueState();
             setSpeakingImmediate(message, remainingTicks, true);
         }
     }
@@ -590,11 +617,13 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         }
         if (enqueue) {
             queuedSpeaks.add(new QueuedMessage(message, remainingTicks));
+            syncQueueState();
             if (speakingRemainingTicks <= 0) {
                 tryDequeueNext();
             }
         } else {
             queuedSpeaks.clear();
+            syncQueueState();
             this.speakingComponent = message;
             this.speakingRemainingTicks = Math.max(0, remainingTicks);
             ClientboundBartenderSpeakPacket packet = new ClientboundBartenderSpeakPacket(getId(), message, remainingTicks);

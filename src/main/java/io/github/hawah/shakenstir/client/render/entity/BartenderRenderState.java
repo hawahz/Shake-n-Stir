@@ -14,6 +14,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class BartenderRenderState extends HumanoidRenderState implements IStateProvider {
     public PlayerSkin skin = DefaultPlayerSkin.getDefaultSkin();
     public float capeFlap;
@@ -60,5 +61,6 @@ public class BartenderRenderState extends HumanoidRenderState implements IStateP
 
     public Component speaking = null;
     public int speakingRemainingTicks = 0;
+    public boolean hasQueuedSpeak = false;
 
 }

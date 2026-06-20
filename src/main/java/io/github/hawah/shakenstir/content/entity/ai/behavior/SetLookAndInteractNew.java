@@ -9,7 +9,6 @@ import net.minecraft.world.entity.ai.behavior.BehaviorControl;
 import net.minecraft.world.entity.ai.behavior.EntityTracker;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.List;
@@ -27,12 +26,18 @@ public class SetLookAndInteractNew {
                         )
                         .apply(
                                 i,
-                                (lookTarget, ignoredEntity, interactionTarget, nearestEntities) -> (level, body, timestamp) -> {
-                                    Optional<LivingEntity> closest = i.<NearestVisibleLivingEntities>get(nearestEntities)
-                                            .findClosest(e -> !i.tryGet(ignoredEntity).map(ignored -> ignored.contains(e)).orElse(false) && e.distanceToSqr(body) <= interactionRangeSqr && e.is(type));
+                                (lookTarget, ignoredEntity, interactionTarget, nearestEntities) -> (_, body, _) -> {
+                                    Optional<LivingEntity> closest = i.get(nearestEntities)
+                                            .findClosest(e ->
+                                                    !i.tryGet(ignoredEntity)
+                                                            .map(ignored -> ignored.contains(e))
+                                                            .orElse(false) &&
+                                                    e.distanceToSqr(body) <= interactionRangeSqr &&
+                                                    e.is(type)
+                                            );
                                     Optional<LivingEntity> closestFallback = Optional.empty();
                                     if (closest.isEmpty()) {
-                                        closestFallback = i.<NearestVisibleLivingEntities>get(nearestEntities)
+                                        closestFallback = i.get(nearestEntities)
                                                 .findClosest(e -> e.distanceToSqr(body) <= interactionRangeSqr && e.is(type));
                                         if (closestFallback.isEmpty()) {
                                             return false;
@@ -42,7 +47,7 @@ public class SetLookAndInteractNew {
                                     interactionTarget.set(closestEntity);
                                     lookTarget.set(new EntityTracker(closestEntity, true));
                                     if (closestEntity instanceof Player player) {
-                                        body.speakServer(Component.literal("Hello ").append(player.getDisplayName()), List.of(player), 20 * 3, true);
+                                        body.speakServer(Component.literal("Hello ").append(player.getDisplayName()), List.of(player), 20 * 1);
                                         body.speakServer(Component.literal("Do you want a cup of drink?"), List.of(player), 20 * 3, true);
                                     }
                                     return true;
