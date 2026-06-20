@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.client.render.entity;
 
 import io.github.hawah.shakenstir.client.animation.AnimationStateMachine;
 import io.github.hawah.shakenstir.content.entity.BartenderEntity;
+import net.minecraft.network.chat.Component;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.resources.DefaultPlayerSkin;
@@ -57,6 +58,6 @@ public class BartenderRenderState extends HumanoidRenderState implements IStateP
 
     public List<ItemStackRenderState> inventory = new ArrayList<>();
 
-    public String speaking = "";
+    public Component speaking = null;
 
 }

@@ -170,6 +170,8 @@ public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, Bar
                 entity
         );
 
+        state.speaking = entity.getSpeakingComponent();
+
         HumanoidMobRenderer.extractHumanoidRenderState(entity, state, partialTicks, this.itemModelResolver);
     }
 
@@ -181,12 +183,12 @@ public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, Bar
         if (state.nameTagAttachment == null) {
             return;
         }
-        String str = state.speaking;
-        if (str.isEmpty()) {
+        Component speaking = state.speaking;
+        if (speaking == null) {
             return;
         }
-        FormattedCharSequence text = Component.literal(str).getVisualOrderText();
-        int width = getFont().width(str);
+        FormattedCharSequence text = speaking.getVisualOrderText();
+        int width = getFont().width(speaking);
         Vec3 nameTagAttachment = state.nameTagAttachment;
 
         poseStack.pushPose();
@@ -208,7 +210,7 @@ public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, Bar
         submitNodeCollector.submitCustomGeometry(
                 poseStack,
                 RenderTypes.text(ShakenStir.asResource("textures/entity/speak_bubble.png")),
-                new ConversationRenderer(state, getFont(), str)
+                new ConversationRenderer(state, getFont(), speaking)
         );
         poseStack.popPose();
     }

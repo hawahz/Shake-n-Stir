@@ -4,13 +4,14 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.network.chat.Component;
 
 import java.util.function.BiConsumer;
 
 record ConversationRenderer(
         BartenderRenderState state,
         Font font,
-        String text
+        Component text
 ) implements SubmitNodeCollector.CustomGeometryRenderer {
 
     @Override

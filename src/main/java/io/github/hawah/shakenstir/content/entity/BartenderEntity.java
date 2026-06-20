@@ -9,13 +9,16 @@ import io.github.hawah.shakenstir.client.animation.ShakeAnimationState;
 import io.github.hawah.shakenstir.client.gui.DialogueEditorScreen;
 import io.github.hawah.shakenstir.client.render.entity.BartenderModel;
 import io.github.hawah.shakenstir.content.blockEntity.BarMenuBlockEntity;
-import io.github.hawah.shakenstir.foundation.data.SnsRecipeStack;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.entity.ai.activity.Activities;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.item.MenuItem;
+import io.github.hawah.shakenstir.foundation.data.SnsRecipeStack;
+import io.github.hawah.shakenstir.foundation.networking.ClientboundBartenderSpeakPacket;
+import io.github.hawah.shakenstir.foundation.networking.ServerboundBartenderSpeakAnnouncePacket;
 import io.github.hawah.shakenstir.lib.client.gui.ScreenOpener;
+import io.github.hawah.shakenstir.lib.networking.Networking;
 import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
@@ -23,6 +26,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -47,6 +51,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.scores.PlayerTeam;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -92,6 +97,9 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     private final NonNullList<ItemStack> inventory = NonNullList.withSize(24, ItemStack.EMPTY);
     public float readyShakeAmount = 0;
     public float readyShakeAmountO = 0;
+
+    private Component speakingComponent = null;
+    private int speakingRemainingTicks = 0;
 
     public BartenderEntity(EntityType<BartenderEntity> type, Level level) {
         super(type, level);
@@ -253,6 +261,9 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack itemInHand = player.getItemInHand(hand);
+        if (level().isClientSide()) {
+            speakClient(Component.literal("Hello ").append(player.getDisplayName()), true, 20);
+        }
         if (getOwner() != null && player.is(getOwner())) {
             if (itemInHand.has(DataComponentTypeRegistries.BAR_AREA)) {
                 player.sendOverlayMessage(Component.literal("Set work area success"));
@@ -371,6 +382,14 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     public void tick() {
         super.tick();
         updateReady();
+        // Speaking countdown
+        if (speakingRemainingTicks > 0) {
+            speakingRemainingTicks--;
+            if (speakingRemainingTicks <= 0) {
+                speakingComponent = null;
+                speakingRemainingTicks = 0;
+            }
+        }
     }
 
     float pleaseAmount = 0;
@@ -426,6 +445,68 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
 
     public void startShaking() {
         setState(AnimState.READY_TO_SHAKE);
+    }
+
+    /**
+     * Get the current speaking Component, or null if not speaking.
+     */
+    public @Nullable Component getSpeakingComponent() {
+        return speakingComponent;
+    }
+
+    /**
+     * Client-side only. Display a speech bubble above this entity on the local client.
+     * If announce is true, also sends a C2S packet so the server can broadcast to all players.
+     *
+     * @param message       the Component (Chat Component) to display
+     * @param announce      if true, request the server to broadcast this message to all tracking clients
+     * @param remainingTicks how many ticks the message should remain visible
+     */
+    public void speakClient(Component message, boolean announce, int remainingTicks) {
+        this.speakingComponent = message;
+        this.speakingRemainingTicks = Math.max(0, remainingTicks);
+        if (announce && level().isClientSide()) {
+            Networking.sendToServer(new ServerboundBartenderSpeakAnnouncePacket(getId(), message, remainingTicks));
+        }
+    }
+
+    /**
+     * Server-side only. Broadcasts a speech bubble to ALL players currently tracking this entity.
+     *
+     * @param message       the Component (Chat Component) to display
+     * @param remainingTicks how many ticks the message should remain visible
+     */
+    public void speakServer(Component message, int remainingTicks) {
+        if (level().isClientSide()) {
+            return;
+        }
+        this.speakingComponent = message;
+        this.speakingRemainingTicks = Math.max(0, remainingTicks);
+        PacketDistributor.sendToPlayersTrackingEntity(
+                this,
+                new ClientboundBartenderSpeakPacket(getId(), message, remainingTicks)
+        );
+    }
+
+    /**
+     * Server-side only. Sends a speech bubble to a specific list of players only.
+     *
+     * @param message       the Component (Chat Component) to display
+     * @param targets       the list of players who should see the message
+     * @param remainingTicks how many ticks the message should remain visible
+     */
+    public void speakServer(Component message, List<Player> targets, int remainingTicks) {
+        if (level().isClientSide()) {
+            return;
+        }
+        this.speakingComponent = message;
+        this.speakingRemainingTicks = Math.max(0, remainingTicks);
+        ClientboundBartenderSpeakPacket packet = new ClientboundBartenderSpeakPacket(getId(), message, remainingTicks);
+        for (Player player : targets) {
+            if (player instanceof ServerPlayer serverPlayer) {
+                Networking.sendToPlayer(packet, serverPlayer);
+            }
+        }
     }
 
     public enum AnimState implements StringRepresentable {
