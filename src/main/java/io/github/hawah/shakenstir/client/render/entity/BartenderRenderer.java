@@ -33,6 +33,8 @@ import net.minecraft.world.phys.Vec3;
 
 public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, BartenderRenderState, BartenderModel> {
 
+    private static final int SPEAK_FADE_OUT_TICKS = 10;
+
     static final PlayerSkin SKIN = create("entity/bartender", PlayerModelType.SLIM);
 
     public BartenderRenderer(EntityRendererProvider.Context context) {
@@ -171,6 +173,7 @@ public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, Bar
         );
 
         state.speaking = entity.getSpeakingComponent();
+        state.speakingRemainingTicks = entity.getSpeakingRemainingTicks();
 
         HumanoidMobRenderer.extractHumanoidRenderState(entity, state, partialTicks, this.itemModelResolver);
     }
@@ -187,6 +190,12 @@ public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, Bar
         if (speaking == null) {
             return;
         }
+
+        // Compute fade-out alpha: linearly fade over last SPEAK_FADE_OUT_TICKS ticks
+        float alpha = Math.clamp((float) state.speakingRemainingTicks / SPEAK_FADE_OUT_TICKS, 0.0F, 1.0F);
+        int alphaByte = (int) (alpha * 255);
+        int textColor = (alphaByte << 24) | 0x00FFFFFF;
+
         FormattedCharSequence text = speaking.getVisualOrderText();
         int width = getFont().width(speaking);
         Vec3 nameTagAttachment = state.nameTagAttachment;
@@ -202,7 +211,7 @@ public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, Bar
                 false,
                 Font.DisplayMode.POLYGON_OFFSET,
                 state.lightCoords,
-                -1,
+                textColor,
                 0,
                 0
         );
@@ -210,7 +219,7 @@ public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, Bar
         submitNodeCollector.submitCustomGeometry(
                 poseStack,
                 RenderTypes.text(ShakenStir.asResource("textures/entity/speak_bubble.png")),
-                new ConversationRenderer(state, getFont(), speaking)
+                new ConversationRenderer(state, getFont(), speaking, alphaByte)
         );
         poseStack.popPose();
     }

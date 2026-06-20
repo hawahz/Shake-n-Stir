@@ -261,9 +261,6 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack itemInHand = player.getItemInHand(hand);
-        if (level().isClientSide()) {
-            speakClient(Component.literal("Hello ").append(player.getDisplayName()), true, 20);
-        }
         if (getOwner() != null && player.is(getOwner())) {
             if (itemInHand.has(DataComponentTypeRegistries.BAR_AREA)) {
                 player.sendOverlayMessage(Component.literal("Set work area success"));
@@ -452,6 +449,13 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
      */
     public @Nullable Component getSpeakingComponent() {
         return speakingComponent;
+    }
+
+    /**
+     * Get the remaining display ticks for the current speech bubble.
+     */
+    public int getSpeakingRemainingTicks() {
+        return speakingRemainingTicks;
     }
 
     /**

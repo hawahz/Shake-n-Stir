@@ -11,11 +11,16 @@ import java.util.function.BiConsumer;
 record ConversationRenderer(
         BartenderRenderState state,
         Font font,
-        Component text
+        Component text,
+        int alpha
 ) implements SubmitNodeCollector.CustomGeometryRenderer {
+
+    private static final int WHITE_RGB = 0x00FFFFFF;
 
     @Override
     public void render(PoseStack.Pose pose, VertexConsumer buffer) {
+
+        final int color = (alpha << 24) | WHITE_RGB;
 
         final int textWidth = font.width(text);
         final int textHeight = font.lineHeight;
@@ -61,22 +66,22 @@ record ConversationRenderer(
             float v1 = uv[3];
 
             buffer.addVertex(pose, x0, y1, 0)
-                    .setColor(-1)
+                    .setColor(color)
                     .setUv(u0, v1)
                     .setLight(state.lightCoords);
 
             buffer.addVertex(pose, x1, y1, 0)
-                    .setColor(-1)
+                    .setColor(color)
                     .setUv(u1, v1)
                     .setLight(state.lightCoords);
 
             buffer.addVertex(pose, x1, y0, 0)
-                    .setColor(-1)
+                    .setColor(color)
                     .setUv(u1, v0)
                     .setLight(state.lightCoords);
 
             buffer.addVertex(pose, x0, y0, 0)
-                    .setColor(-1)
+                    .setColor(color)
                     .setUv(u0, v0)
                     .setLight(state.lightCoords);
         };
