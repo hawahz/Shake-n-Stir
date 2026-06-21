@@ -762,24 +762,20 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     }
 
     /**
-     * 根据呈现模式将对话文本发送到客户端。
-     * - SINGLE：合并所有 texts 为一条，通过 speakServer 一次性发出
-     * - QUEUE：每条 text 依次压入队列，逐条播放
+     * 将选中的对话文本发送到客户端。
+     * 如果文本包含 [BR] (case‑insensitive) 标记，则在标记处拆分，每个拆分段依次排入队列逐条播放；
+     * 否则作为单条气泡一次性播放。
      */
     private void deliverDialogue(ServerLevel level, DialogueManager.SelectionResult result) {
-        List<Component> texts = DialogueManager.resolveTextsForPresentation(
-                result.entry(), level, this, null
-        );
+        List<Component> segments = DialogueManager.splitByBrMarkers(result.text());
 
-        if (texts.isEmpty()) return;
-
-        if (result.entry().getPresentationMode() == DialogueEntry.PresentationMode.SINGLE) {
-            // 单次完整呈现
-            speakServer(texts.get(0), 120, false);
+        if (segments.size() == 1) {
+            // 无 [BR] 标记：单条气泡
+            speakServer(segments.get(0), 100, false);
         } else {
-            // 队列分割呈现
-            for (Component text : texts) {
-                speakServer(text, 80, true);
+            // 有 [BR] 标记：拆分为多条依次排入队列
+            for (Component segment : segments) {
+                speakServer(segment, 80, true);
             }
         }
     }
@@ -864,12 +860,12 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
             return false;
         }
 
-        Component result = DialogueManager.selectDialogue(
+        DialogueManager.SelectionResult result = DialogueManager.selectDialogueResult(
                 dialogueData, serverLevel, this, player, dialoguePlayedTracker
         );
 
-        if (result != null) {
-            speakServer(result, durationTicks);
+        if (result.hasResult()) {
+            deliverDialogue(serverLevel, result);
             return true;
         }
         return false;

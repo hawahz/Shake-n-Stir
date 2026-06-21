@@ -51,34 +51,6 @@ public record DialogueEntry(UUID id, List<Condition> conditions, List<Component>
         return new DialogueEntry(UUID.randomUUID(), conditions, texts, frequency);
     }
 
-    /**
-     * 检测此条目的对话呈现模式 (Presentation Mode)。
-     * 读取第一条文本的前缀标记：
-     * <ul><li>[SINGLE] — 将所有 texts 合并为一条完整对话</li>
-     * <li>[QUEUE]  — 将每条 text 依次压入队列</li>
-     * <li>无标记   — 默认 QUEUE 模式</li></ul>
-     */
-    public PresentationMode getPresentationMode() {
-        if (texts.isEmpty()) return PresentationMode.QUEUE;
-        String first = texts.get(0).getString();
-        if (first.startsWith("[SINGLE]")) return PresentationMode.SINGLE;
-        if (first.startsWith("[QUEUE]")) return PresentationMode.QUEUE;
-        return PresentationMode.QUEUE;
-    }
-
-    /** 去除第一条文本中的呈现模式标记后的纯文本。 */
-    public Component getFirstTextWithoutMarker() {
-        if (texts.isEmpty()) return Component.empty();
-        String raw = texts.get(0).getString();
-        if (raw.startsWith("[SINGLE]") || raw.startsWith("[QUEUE]")) {
-            int idx = raw.indexOf(']') + 1;
-            return Component.literal(raw.substring(idx).trim());
-        }
-        return texts.get(0);
-    }
-
-    public enum PresentationMode { SINGLE, QUEUE }
-
     public static final Codec<DialogueEntry> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.STRING.fieldOf("id").xmap(UUID::fromString, UUID::toString).forGetter(DialogueEntry::id),
             Condition.CODEC.listOf().fieldOf("conditions").forGetter(DialogueEntry::conditions),

@@ -4,7 +4,6 @@ import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.content.entity.BartenderEntity;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
@@ -167,54 +166,22 @@ public class DialogueManager {
     }
 
     /**
-     * 根据 DialogueEntry 的呈现模式，将文本拆分为要发送的 Component 列表。
-     * - SINGLE 模式：所有 texts 合并为一条
-     * - QUEUE 模式：每条 text 独立
-     * 会进行变量替换并去除标记前缀。
+     * 根据 [BR] 标记（不区分大小写）将选中的对话文本拆分为多个独立气泡。
+     * 如果文本不包含 [BR]，则返回仅包含原文本的单元素列表。
+     * 每个拆分段会被 trim 处理。
      */
-    public static List<Component> resolveTextsForPresentation(
-            DialogueEntry entry,
-            ServerLevel level,
-            BartenderEntity bartender,
-            @Nullable Player player
-    ) {
+    public static List<Component> splitByBrMarkers(Component text) {
+        String raw = text.getString();
+        // 大小写不敏感的 [BR] 拆分
+        String[] parts = raw.split("(?i)\\[BR\\]");
         List<Component> result = new ArrayList<>();
-        if (entry.getPresentationMode() == DialogueEntry.PresentationMode.SINGLE) {
-            MutableComponent merged = Component.empty();
-            for (Component text : entry.texts()) {
-                String raw = text.getString();
-                // 去掉首条文本的标记前缀
-                if (raw.startsWith("[SINGLE]") || raw.startsWith("[QUEUE]")) {
-                    int idx = raw.indexOf(']') + 1;
-                    raw = raw.substring(idx).trim();
-                }
-                if (!raw.isEmpty()) {
-                    MutableComponent part = Component.literal(raw);
-                    if (!merged.getString().isEmpty()) merged.append(" ");
-                    merged.append(part);
-                }
-            }
-            if (!merged.getString().isEmpty()) {
-                result.add(substituteVariables(merged, level, bartender, player));
-            }
-        } else {
-            // QUEUE 模式
-            boolean first = true;
-            for (Component text : entry.texts()) {
-                String raw = text.getString();
-                if (first) {
-                    first = false;
-                    if (raw.startsWith("[QUEUE]")) {
-                        int idx = raw.indexOf(']') + 1;
-                        raw = raw.substring(idx).trim();
-                    }
-                }
-                if (!raw.isEmpty()) {
-                    result.add(substituteVariables(Component.literal(raw), level, bartender, player));
-                }
+        for (String part : parts) {
+            String trimmed = part.trim();
+            if (!trimmed.isEmpty()) {
+                result.add(Component.literal(trimmed));
             }
         }
-        return result;
+        return result.isEmpty() ? List.of(text) : result;
     }
 
     // ========================

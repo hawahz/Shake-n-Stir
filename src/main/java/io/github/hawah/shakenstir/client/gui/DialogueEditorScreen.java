@@ -89,7 +89,6 @@ public class DialogueEditorScreen extends BaseScreen {
     private EditBox txtFrequency;
     private Button btnCondType;
     private Button btnCondOp;
-    private Button btnPresentMode;
 
     // ===================== 区域边界（每次 init/渲染计算） =====================
 
@@ -123,7 +122,7 @@ public class DialogueEditorScreen extends BaseScreen {
 
         int btnY = guiTop + WIN_HEIGHT - 25;
 
-        // -- 条目元数据控件（频率 + 呈现模式） --
+        // -- 条目元数据控件（频率） --
         txtFrequency = new EditBox(font, guiLeft + EDIT_PANEL_X + 5, condEditorY - 20, 40, 16, Component.literal("freq"));
         txtFrequency.setMaxLength(4);
         txtFrequency.setFilter(s -> s.matches("[0-9]*")); // 仅数字
@@ -132,10 +131,6 @@ public class DialogueEditorScreen extends BaseScreen {
         Button btnApplyFreq = Button.builder(Component.literal("SetFreq"), btn -> commitFrequency())
                 .pos(guiLeft + EDIT_PANEL_X + 50, condEditorY - 20).size(50, 16).build();
         addSortedRenderWidget(btnApplyFreq);
-
-        btnPresentMode = Button.builder(getPresentModeLabel(), btn -> togglePresentMode())
-                .pos(guiLeft + EDIT_PANEL_X + 105, condEditorY - 20).size(80, 16).build();
-        addSortedRenderWidget(btnPresentMode);
 
         // -- 条件编辑控件 --
         btnCondType = Button.builder(getCondTypeLabel(), btn -> cycleCondType())
@@ -540,7 +535,6 @@ public class DialogueEditorScreen extends BaseScreen {
             txtDialogueText.setValue("");
             txtFrequency.setValue("");
             updateCondButtonLabels();
-            btnPresentMode.setMessage(Component.literal("Mode: ?"));
             return;
         }
 
@@ -548,9 +542,6 @@ public class DialogueEditorScreen extends BaseScreen {
 
         // 频率
         txtFrequency.setValue(String.valueOf(entry.frequency()));
-
-        // 呈现模式
-        btnPresentMode.setMessage(getPresentModeLabel());
 
         if (selectedCondIndex >= 0 && selectedCondIndex < entry.conditions().size()) {
             Condition cond = entry.conditions().get(selectedCondIndex);
@@ -738,38 +729,6 @@ public class DialogueEditorScreen extends BaseScreen {
             dirty = true;
         } catch (NumberFormatException ignored) {
         }
-    }
-
-    /** 切换呈现模式 */
-    private void togglePresentMode() {
-        if (selectedEntryIndex < 0 || selectedEntryIndex >= editingData.size()) return;
-        DialogueEntry entry = editingData.getEntries().get(selectedEntryIndex);
-        if (entry.texts().isEmpty()) return;
-
-        DialogueEntry.PresentationMode current = entry.getPresentationMode();
-        String newMarker = (current == DialogueEntry.PresentationMode.SINGLE) ? "[QUEUE]" : "[SINGLE]";
-
-        List<Component> mutableTexts = new ArrayList<>(entry.texts());
-        String firstRaw = mutableTexts.get(0).getString();
-        // 替换或添加标记
-        if (firstRaw.startsWith("[SINGLE]") || firstRaw.startsWith("[QUEUE]")) {
-            int idx = firstRaw.indexOf(']') + 1;
-            firstRaw = newMarker + firstRaw.substring(idx);
-        } else {
-            firstRaw = newMarker + " " + firstRaw;
-        }
-        mutableTexts.set(0, Component.literal(firstRaw));
-
-        replaceEntry(new DialogueEntry(entry.id(), entry.conditions(), mutableTexts, entry.frequency()));
-        refreshAllEditFields();
-        dirty = true;
-    }
-
-    private Component getPresentModeLabel() {
-        if (selectedEntryIndex < 0 || selectedEntryIndex >= editingData.size())
-            return Component.literal("Mode: ?");
-        DialogueEntry entry = editingData.getEntries().get(selectedEntryIndex);
-        return Component.literal("Mode: " + entry.getPresentationMode().name());
     }
 
     // ===================== 条目操作 =====================
