@@ -48,6 +48,7 @@ import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.parrot.Parrot;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -112,6 +113,13 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     private final DialogueManager.PlayedTracker dialoguePlayedTracker = new DialogueManager.PlayedTracker();
     /** 已交互过的玩家 UUID 集合 - 用于判断交互历史条件 */
     private final Set<UUID> interactedPlayers = new HashSet<>();
+
+    /** 对话冷却计时 (Dialogue Cooldown Ticks) - 两次自动对话触发之间的最小间隔 */
+    private int dialogueCooldownTicks = 0;
+    /** 上一帧的 AI 活动名称，用于检测状态变化 */
+    private String lastAiActivity = "";
+    /** 环境对话周期计时 (Ambient Dialogue Timer) - 无状态变化时的周期性对话 */
+    private int ambientDialogueTimer = 0;
 
     public BartenderEntity(EntityType<BartenderEntity> type, Level level) {
         super(type, level);
@@ -235,7 +243,22 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         profiler.push("bartenderBrain");
         this.getBrain().tick((ServerLevel)this.level(), this);
         profiler.pop();
+
+        // 记录当前活动，用于检测状态变化
+        String previousActivity = this.getBrain().getActiveNonCoreActivity()
+                .map(Activity::getName).orElse("idle");
+
         BartenderAi.updateActivity(this);
+
+        // 检测 AI 活动是否发生了变化
+        String currentActivity = this.getBrain().getActiveNonCoreActivity()
+                .map(Activity::getName).orElse("idle");
+
+        if (!currentActivity.equals(previousActivity) || !currentActivity.equals(lastAiActivity)) {
+            // AI 活动发生切换，尝试触发状态变化对话
+            tryTriggerDialogueOnStateChange(level, currentActivity);
+        }
+        lastAiActivity = currentActivity;
     }
 
     public AnimState getState() {
@@ -394,6 +417,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     public void tick() {
         super.tick();
         updateReady();
+
         // Speaking countdown
         if (speakingRemainingTicks > 0) {
             speakingRemainingTicks--;
@@ -402,6 +426,24 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
                 speakingRemainingTicks = 0;
                 // Dequeue next message if available
                 tryDequeueNext();
+            }
+        }
+
+        // 对话冷却计时与服务端环境对话
+        if (!level().isClientSide() && level() instanceof ServerLevel serverLevel) {
+            // 冷却倒计时
+            if (dialogueCooldownTicks > 0) {
+                dialogueCooldownTicks--;
+            }
+
+            // 周期性环境对话（每 10~20 秒随机触发一次）
+            if (!dialogueData.isEmpty() && dialogueCooldownTicks <= 0) {
+                ambientDialogueTimer++;
+                int ambientInterval = 200 + level().getRandom().nextInt(400); // 10~30 秒
+                if (ambientDialogueTimer >= ambientInterval) {
+                    ambientDialogueTimer = 0;
+                    tryTriggerAmbientDialogue(serverLevel);
+                }
             }
         }
     }
@@ -668,6 +710,48 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     }
 
     // ========================
+    //  对话 Tick 触发逻辑
+    // ========================
+
+    /**
+     * 当 AI 活动状态发生变化时触发对话。
+     * 使用 enqueue=true 避免打断当前正在显示的对话。
+     */
+    private void tryTriggerDialogueOnStateChange(ServerLevel level, String newActivity) {
+        if (dialogueData.isEmpty()) return;
+        if (dialogueCooldownTicks > 0) return;
+
+        // 尝试匹配并说话（enqueue 模式，不打断当前对话）
+        Component result = DialogueManager.selectDialogue(
+                dialogueData, level, this, null, dialoguePlayedTracker
+        );
+
+        if (result != null) {
+            speakServer(result, 100, true); // enqueue=true, 100 ticks (~5s) display
+            dialogueCooldownTicks = 100;    // 5 秒冷却
+            ambientDialogueTimer = 0;       // 重置环境对话计时器
+        }
+    }
+
+    /**
+     * 周期性环境对话（无状态变化时的随机闲聊）。
+     * 同样使用 enqueue 模式。
+     */
+    private void tryTriggerAmbientDialogue(ServerLevel level) {
+        if (dialogueData.isEmpty()) return;
+        if (dialogueCooldownTicks > 0) return;
+
+        Component result = DialogueManager.selectDialogue(
+                dialogueData, level, this, null, dialoguePlayedTracker
+        );
+
+        if (result != null) {
+            speakServer(result, 80, true);  // enqueue=true, 80 ticks (~4s) display
+            dialogueCooldownTicks = 60;     // 3 秒冷却
+        }
+    }
+
+    // ========================
     //  对话数据 (Dialogue Data) 存取与管理
     // ========================
 
@@ -681,9 +765,18 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     /**
      * 设置对话数据 (Dialogue Data)。
      * 在服务端设置后会自动持久化；在客户端设置则仅用于编辑预览。
+     * 如果数据内容发生变化（如编辑器保存），会重置已播放追踪器。
      */
     public void setDialogueData(DialogueData data) {
-        this.dialogueData = data;
+        if (!this.dialogueData.equals(data)) {
+            this.dialogueData = data;
+            // 对话数据被更新（如编辑器保存），重置已播放追踪器使所有对话重新可用
+            if (!level().isClientSide()) {
+                dialoguePlayedTracker.clear();
+                dialogueCooldownTicks = 0;
+                ambientDialogueTimer = 0;
+            }
+        }
     }
 
     /**

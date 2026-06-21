@@ -20,14 +20,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 对话编辑器界面 (Dialogue Editor Screen)，支持对 DialogueData → DialogueEntry → Condition / Text
+ * 对话编辑器界面 (Dialogue Editor Screen)，支持对 DialogueData -> DialogueEntry -> Condition / Text
  * 三层嵌套数据结构的逐层选择与完整编辑。
  *
  * <p>交互功能：
  * <ul>
- *     <li>左侧条目列表：点击选中条目，滚动浏览，高亮显示</li>
- *     <li>右侧条件列表：点击选中条件，循环切换类型/操作符，编辑值</li>
- *     <li>右侧文本列表：点击选中文本条目，编辑内容</li>
+ *     <li>左侧条目列表：点击选中条目，滚动浏览，高亮显示，含条件摘要+文本截断预览</li>
+ *     <li>右侧条件列表：点击选中条件，显示 [type] [op] [value] 预览，循环切换类型/操作符，编辑值</li>
+ *     <li>右侧文本列表：点击选中文本条目，显示截断文本预览，编辑内容</li>
  *     <li>底栏：条目增删、复制/粘贴、保存</li>
  * </ul>
  */
@@ -53,6 +53,12 @@ public class DialogueEditorScreen extends BaseScreen {
     private static final int TEXT_COLOR = 0xFF_CCCCCC;
     private static final int HEADER_COLOR = 0xFF_FFEE88;
     private static final int LABEL_COLOR = 0xFF_AAAAAA;
+    /** 预览文字颜色 - 较暗的灰色，与选中高亮色区分 */
+    private static final int PREVIEW_COLOR = 0xFF_8A8A8A;
+    /** 预览文字 alpha */
+    private static final int PREVIEW_ALPHA = 230;
+    /** 预览文字最大字符数 */
+    private static final int MAX_PREVIEW_CHARS = 28;
 
     // ===================== 数据 =====================
     private final BartenderEntity entity;
@@ -115,7 +121,7 @@ public class DialogueEditorScreen extends BaseScreen {
 
         int btnY = guiTop + WIN_HEIGHT - 25;
 
-        // ── 条件编辑控件 ──
+        // -- 条件编辑控件 --
         btnCondType = Button.builder(getCondTypeLabel(), btn -> cycleCondType())
                 .pos(guiLeft + EDIT_PANEL_X + 5, condEditorY).size(80, 16).build();
         addSortedRenderWidget(btnCondType);
@@ -141,7 +147,7 @@ public class DialogueEditorScreen extends BaseScreen {
                 .pos(guiLeft + EDIT_PANEL_X + 120, condBtnY).size(55, 16).build();
         addSortedRenderWidget(btnEditCond);
 
-        // ── 文本编辑控件 ──
+        // -- 文本编辑控件 --
         txtDialogueText = new EditBox(font, guiLeft + EDIT_PANEL_X + 5, textEditorY, 175, 16, Component.literal("text"));
         txtDialogueText.setMaxLength(128);
         addSortedRenderWidget(txtDialogueText);
@@ -159,7 +165,7 @@ public class DialogueEditorScreen extends BaseScreen {
                 .pos(guiLeft + EDIT_PANEL_X + 120, textBtnY).size(55, 16).build();
         addSortedRenderWidget(btnEditText);
 
-        // ── 底栏按钮 ──
+        // -- 底栏按钮 --
         Button btnSave = Button.builder(Component.literal("Save"), btn -> saveAndClose())
                 .pos(guiLeft + WIN_WIDTH - 60, btnY).size(50, 20).build();
         addSortedRenderWidget(btnSave);
@@ -234,43 +240,34 @@ public class DialogueEditorScreen extends BaseScreen {
 
     @Override
     protected void renderWindowPre(GuiGraphicsExtractor g, int mouseX, int mouseY, float partialTick) {
-        // ── 整体背景 ──
+        // -- 整体背景 --
         fillRect(g, guiLeft, guiTop, guiLeft + WIN_WIDTH, guiTop + WIN_HEIGHT, BG_DARK);
         fillRect(g, guiLeft + 1, guiTop + 1, guiLeft + WIN_WIDTH - 1, guiTop + WIN_HEIGHT - 1, BG_MID);
 
-        // ── 标题栏 ──
+        // -- 标题栏 --
         fillRect(g, guiLeft, guiTop, guiLeft + WIN_WIDTH, guiTop + 16, BG_LIGHT);
         g.horizontalLine(guiLeft, guiLeft + WIN_WIDTH, guiTop + 16, LINE_COLOR);
 
-        // ── 左侧/右侧分隔线 ──
+        // -- 左侧/右侧分隔线 --
         int divX = guiLeft + ENTRY_LIST_WIDTH;
         fillRect(g, divX, guiTop + 16, divX + 2, guiTop + WIN_HEIGHT - 32, LINE_COLOR);
 
-        // ── 条目列表标题 ──
+        // -- 条目列表标题 --
         fillRect(g, entryListX, guiTop + 18, entryListX + entryListW, guiTop + 22, BG_LIGHT);
 
-        // ── 右侧面板 ──
-        String entryLabel = (selectedEntryIndex >= 0 && selectedEntryIndex < editingData.size())
-                ? "Entry #" + (selectedEntryIndex + 1) : "No entry selected";
-        // 使用 tooltip 方式显示标签 —— 这里用填充色块代替文字
-
-        // ── 绘制条目列表 ──
+        // -- 绘制三个列表 --
         drawEntryList(g);
-
-        // ── 绘制条件列表 ──
         drawConditionList(g);
-
-        // ── 绘制文本列表 ──
         drawTextList(g);
 
-        // ── 加载状态 ──
+        // -- 加载状态 --
         if (!dataReceived) {
             fillRect(g, guiLeft + EDIT_PANEL_X + 5, guiTop + 40,
                     guiLeft + EDIT_PANEL_X + 105, guiTop + 56, 0x88_000000);
         }
     }
 
-    // ──────── 条目列表渲染 ────────
+    // ===================== 条目列表渲染 =====================
 
     private void drawEntryList(GuiGraphicsExtractor g) {
         List<DialogueEntry> entries = editingData.getEntries();
@@ -286,10 +283,41 @@ public class DialogueEditorScreen extends BaseScreen {
                 g.horizontalLine(entryListX, entryListX + entryListW, y, 0xFF_88CC88);
                 g.horizontalLine(entryListX, entryListX + entryListW, y + ROW_HEIGHT - 2, 0xFF_88CC88);
             }
+            // 预览文字：条件摘要 + 首条对话截断
+            drawEntryPreview(g, entries.get(i), entryListX + 3, y + 1);
         }
     }
 
-    // ──────── 条件列表渲染 ────────
+    /**
+     * 绘制条目的预览文本：条件摘要（前2个条件的紧凑表示） + 第一条对话文本截断。
+     */
+    private void drawEntryPreview(GuiGraphicsExtractor g, DialogueEntry entry, int x, int y) {
+        StringBuilder sb = new StringBuilder();
+        // 条件摘要
+        List<Condition> conds = entry.conditions();
+        if (!conds.isEmpty()) {
+            sb.append('[');
+            int maxConds = Math.min(2, conds.size());
+            for (int ci = 0; ci < maxConds; ci++) {
+                if (ci > 0) sb.append(',');
+                sb.append(conds.get(ci).type().getSerializedName());
+                sb.append('=');
+                sb.append(conds.get(ci).value());
+            }
+            if (conds.size() > 2) sb.append(",..");
+            sb.append("] ");
+        }
+        // 第一条对话文本截断
+        if (!entry.texts().isEmpty()) {
+            String firstText = entry.texts().get(0).getString();
+            sb.append(truncateText(firstText, MAX_PREVIEW_CHARS - sb.length()));
+        }
+        if (sb.length() > 0) {
+            g.textWithBackdrop(font, Component.literal(sb.toString()), x, y, PREVIEW_ALPHA, PREVIEW_COLOR);
+        }
+    }
+
+    // ===================== 条件列表渲染 =====================
 
     private void drawConditionList(GuiGraphicsExtractor g) {
         if (selectedEntryIndex < 0 || selectedEntryIndex >= editingData.size()) return;
@@ -310,12 +338,17 @@ public class DialogueEditorScreen extends BaseScreen {
                 g.horizontalLine(condListX, condListX + condListW, y, 0xFF_88CC88);
                 g.horizontalLine(condListX, condListX + condListW, y + ROW_HEIGHT - 1, 0xFF_88CC88);
             }
+            // 预览文字: "#N [type] [op] [value]"
+            Condition cond = conds.get(i);
+            String condPreview = "#" + i + " " + cond.type().getSerializedName()
+                    + " " + cond.operator() + " \"" + cond.value() + "\"";
+            g.textWithBackdrop(font, Component.literal(condPreview), condListX + 4, y + 1, PREVIEW_ALPHA, PREVIEW_COLOR);
         }
         // 底部线
         g.horizontalLine(condListX, condListX + condListW, condListY + condListH, LINE_COLOR);
     }
 
-    // ──────── 文本列表渲染 ────────
+    // ===================== 文本列表渲染 =====================
 
     private void drawTextList(GuiGraphicsExtractor g) {
         if (selectedEntryIndex < 0 || selectedEntryIndex >= editingData.size()) return;
@@ -336,17 +369,29 @@ public class DialogueEditorScreen extends BaseScreen {
                 g.horizontalLine(textListX, textListX + textListW, y, 0xFF_88CC88);
                 g.horizontalLine(textListX, textListX + textListW, y + ROW_HEIGHT - 1, 0xFF_88CC88);
             }
+            // 预览文字: "#N 截断文本..."
+            String raw = texts.get(i).getString();
+            String textPreview = "#" + i + " " + truncateText(raw, MAX_PREVIEW_CHARS);
+            g.textWithBackdrop(font, Component.literal(textPreview), textListX + 4, y + 1, PREVIEW_ALPHA, PREVIEW_COLOR);
         }
         // 底部线
         g.horizontalLine(textListX, textListX + textListW, textListY + textListH, LINE_COLOR);
     }
 
-    // ──────── 填充矩形工具 ────────
+    // ===================== 工具方法 =====================
 
     private static void fillRect(GuiGraphicsExtractor g, int x1, int y1, int x2, int y2, int color) {
         for (int y = y1; y < y2; y++) {
             g.horizontalLine(x1, x2, y, color);
         }
+    }
+
+    /**
+     * 截断文本，超过最大长度则添加 "..."。
+     */
+    private static String truncateText(String text, int maxLen) {
+        if (text.length() <= maxLen) return text;
+        return text.substring(0, Math.max(1, maxLen - 3)) + "...";
     }
 
     // ===================== 鼠标交互 =====================
@@ -403,14 +448,12 @@ public class DialogueEditorScreen extends BaseScreen {
         int my = (int) y;
         int delta = (int) scrollY;
 
-        // 条目列表滚轮
         if (clickInRect(mx, my, entryListX, entryListY, entryListW, entryListH)) {
             int maxScroll = Math.max(0, editingData.size() - entryListVisible);
             entryListScroll = clamp(entryListScroll - delta, 0, maxScroll);
             return true;
         }
 
-        // 条件列表滚轮
         if (selectedEntryIndex >= 0
                 && clickInRect(mx, my, condListX, condListY, condListW, condListH)) {
             DialogueEntry entry = editingData.getEntries().get(selectedEntryIndex);
@@ -419,7 +462,6 @@ public class DialogueEditorScreen extends BaseScreen {
             return true;
         }
 
-        // 文本列表滚轮
         if (selectedEntryIndex >= 0
                 && clickInRect(mx, my, textListX, textListY, textListW, textListH)) {
             DialogueEntry entry = editingData.getEntries().get(selectedEntryIndex);
@@ -433,7 +475,6 @@ public class DialogueEditorScreen extends BaseScreen {
 
     @Override
     public boolean keyPressed(KeyEvent event) {
-        // ESC 关闭
         if (event.key() == 256) {
             onClose();
             return true;
@@ -464,22 +505,19 @@ public class DialogueEditorScreen extends BaseScreen {
     private void selectCondition(int index) {
         if (index == selectedCondIndex) return;
         selectedCondIndex = index;
-        selectedTextIndex = -1; // 取消文本选中
+        selectedTextIndex = -1;
         refreshAllEditFields();
     }
 
     private void selectText(int index) {
         if (index == selectedTextIndex) return;
         selectedTextIndex = index;
-        selectedCondIndex = -1; // 取消条件选中
+        selectedCondIndex = -1;
         refreshAllEditFields();
     }
 
     // ===================== 编辑字段刷新 =====================
 
-    /**
-     * 刷新所有编辑字段：条件类型/操作符按钮、条件值输入框、文本输入框。
-     */
     private void refreshAllEditFields() {
         if (selectedEntryIndex < 0 || selectedEntryIndex >= editingData.size()) {
             txtCondValue.setValue("");
@@ -490,7 +528,6 @@ public class DialogueEditorScreen extends BaseScreen {
 
         DialogueEntry entry = editingData.getEntries().get(selectedEntryIndex);
 
-        // ── 条件编辑字段 ──
         if (selectedCondIndex >= 0 && selectedCondIndex < entry.conditions().size()) {
             Condition cond = entry.conditions().get(selectedCondIndex);
             txtCondValue.setValue(cond.value());
@@ -501,7 +538,6 @@ public class DialogueEditorScreen extends BaseScreen {
         }
         updateCondButtonLabels();
 
-        // ── 文本编辑字段 ──
         if (selectedTextIndex >= 0 && selectedTextIndex < entry.texts().size()) {
             txtDialogueText.setValue(entry.texts().get(selectedTextIndex).getString());
         } else {
