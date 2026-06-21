@@ -11,13 +11,13 @@ import io.github.hawah.shakenstir.client.render.entity.BartenderModel;
 import io.github.hawah.shakenstir.content.blockEntity.BarMenuBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dialogue.DialogueData;
+import io.github.hawah.shakenstir.content.dialogue.DialogueEntry;
 import io.github.hawah.shakenstir.content.dialogue.DialogueManager;
 import io.github.hawah.shakenstir.content.entity.ai.activity.Activities;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.item.MenuItem;
 import io.github.hawah.shakenstir.foundation.data.SnsRecipeStack;
-import io.github.hawah.shakenstir.foundation.networking.ClientboundBartenderDialogueSyncPacket;
 import io.github.hawah.shakenstir.foundation.networking.ClientboundBartenderSpeakPacket;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundBartenderDialogueRequestPacket;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundBartenderSpeakAnnouncePacket;
@@ -120,6 +120,9 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     private String lastAiActivity = "";
     /** 环境对话周期计时 (Ambient Dialogue Timer) - 无状态变化时的周期性对话 */
     private int ambientDialogueTimer = 0;
+
+    /** 物品寻找已用时间 (Search Elapsed Ticks) - 供 SEARCH_TIME 条件使用 */
+    private int searchElapsedTicks = 0;
 
     public BartenderEntity(EntityType<BartenderEntity> type, Level level) {
         super(type, level);
@@ -259,6 +262,13 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
             tryTriggerDialogueOnStateChange(level, currentActivity);
         }
         lastAiActivity = currentActivity;
+
+        // 更新物品寻找计时器
+        if (getBrain().checkMemory(Memories.ITEM_TO_FIND.get(), MemoryStatus.VALUE_PRESENT)) {
+            searchElapsedTicks++;
+        } else {
+            searchElapsedTicks = 0;
+        }
     }
 
     public AnimState getState() {
@@ -716,38 +726,61 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     /**
      * 当 AI 活动状态发生变化时触发对话。
      * 使用 enqueue=true 避免打断当前正在显示的对话。
+     * 根据条目的呈现模式（SINGLE/QUEUE）决定合并或拆分发送。
      */
     private void tryTriggerDialogueOnStateChange(ServerLevel level, String newActivity) {
         if (dialogueData.isEmpty()) return;
         if (dialogueCooldownTicks > 0) return;
 
-        // 尝试匹配并说话（enqueue 模式，不打断当前对话）
-        Component result = DialogueManager.selectDialogue(
+        DialogueManager.SelectionResult result = DialogueManager.selectDialogueResult(
                 dialogueData, level, this, null, dialoguePlayedTracker
         );
 
-        if (result != null) {
-            speakServer(result, 100, true); // enqueue=true, 100 ticks (~5s) display
-            dialogueCooldownTicks = 100;    // 5 秒冷却
-            ambientDialogueTimer = 0;       // 重置环境对话计时器
+        if (result.hasResult()) {
+            deliverDialogue(level, result);
+            dialogueCooldownTicks = 100 * result.cooldownMultiplier();
+            ambientDialogueTimer = 0;
         }
     }
 
     /**
      * 周期性环境对话（无状态变化时的随机闲聊）。
-     * 同样使用 enqueue 模式。
+     * 同样使用 enqueue 并根据呈现模式处理。
      */
     private void tryTriggerAmbientDialogue(ServerLevel level) {
         if (dialogueData.isEmpty()) return;
         if (dialogueCooldownTicks > 0) return;
 
-        Component result = DialogueManager.selectDialogue(
+        DialogueManager.SelectionResult result = DialogueManager.selectDialogueResult(
                 dialogueData, level, this, null, dialoguePlayedTracker
         );
 
-        if (result != null) {
-            speakServer(result, 80, true);  // enqueue=true, 80 ticks (~4s) display
-            dialogueCooldownTicks = 60;     // 3 秒冷却
+        if (result.hasResult()) {
+            deliverDialogue(level, result);
+            dialogueCooldownTicks = 60 * result.cooldownMultiplier();
+        }
+    }
+
+    /**
+     * 根据呈现模式将对话文本发送到客户端。
+     * - SINGLE：合并所有 texts 为一条，通过 speakServer 一次性发出
+     * - QUEUE：每条 text 依次压入队列，逐条播放
+     */
+    private void deliverDialogue(ServerLevel level, DialogueManager.SelectionResult result) {
+        List<Component> texts = DialogueManager.resolveTextsForPresentation(
+                result.entry(), level, this, null
+        );
+
+        if (texts.isEmpty()) return;
+
+        if (result.entry().getPresentationMode() == DialogueEntry.PresentationMode.SINGLE) {
+            // 单次完整呈现
+            speakServer(texts.get(0), 120, false);
+        } else {
+            // 队列分割呈现
+            for (Component text : texts) {
+                speakServer(text, 80, true);
+            }
         }
     }
 
@@ -805,6 +838,14 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
      */
     public Set<UUID> getInteractedPlayers() {
         return Collections.unmodifiableSet(interactedPlayers);
+    }
+
+    /**
+     * 获取物品寻找已用时间 (Search Elapsed Ticks)。
+     * 供 SEARCH_TIME 条件和 {search_elapsed_ticks} 变量使用。
+     */
+    public int getSearchElapsedTicks() {
+        return searchElapsedTicks;
     }
 
     /**
