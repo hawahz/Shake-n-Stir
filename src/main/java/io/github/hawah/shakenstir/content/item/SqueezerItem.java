@@ -73,7 +73,7 @@ public class SqueezerItem extends Item {
     public boolean releaseUsing(ItemStack itemStack, Level level, LivingEntity entity, int remainingTime) {
         ItemStack fruit = itemStack.getOrDefault(DataComponentTypeRegistries.SQUEEZER_HOLDER, SingleItemComponent.EMPTY).itemStack();
         itemStack.remove(DataComponentTypeRegistries.SQUEEZER_HOLDER);
-        if (!fruit.isEmpty() && entity instanceof Player player) {
+        if (!fruit.isEmpty() && entity instanceof Player player && !player.hasInfiniteMaterials()) {
             player.addItem(fruit);
         }
         return super.releaseUsing(itemStack, level, entity, remainingTime);
