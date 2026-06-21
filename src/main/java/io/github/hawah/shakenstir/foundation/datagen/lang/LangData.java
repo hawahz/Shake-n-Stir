@@ -112,6 +112,43 @@ public enum LangData {
     ADVANCEMENT_DRINK_PARALYSIS_PROTECT_TITLE("advancements.shakenstir.drink.protected_by_paralysis.title", "Saved by the Freeze", 0),
     ADVANCEMENT_DRINK_PARALYSIS_PROTECT_DESC("advancements.shakenstir.drink.protected_by_paralysis.description", "Survive lethal damage thanks to paralysis.", 0),
 
+    // ======================== Dialogue Editor GUI ========================
+    GUI_DIALOGUE_EDITOR_TITLE("gui.dialogue_editor.title", "Dialogue Editor", 0),
+    GUI_DIALOGUE_EDITOR_BTN_SAVE("gui.dialogue_editor.btn.save", "Save", 0),
+    GUI_DIALOGUE_EDITOR_BTN_COPY("gui.dialogue_editor.btn.copy", "Copy", 0),
+    GUI_DIALOGUE_EDITOR_BTN_PASTE("gui.dialogue_editor.btn.paste", "Paste", 0),
+    GUI_DIALOGUE_EDITOR_BTN_ADD_ENTRY("gui.dialogue_editor.btn.add_entry", "+ Entry", 0),
+    GUI_DIALOGUE_EDITOR_BTN_DEL_ENTRY("gui.dialogue_editor.btn.del_entry", "- Entry", 0),
+    GUI_DIALOGUE_EDITOR_BTN_ADD_COND("gui.dialogue_editor.btn.add_cond", "+Cond", 0),
+    GUI_DIALOGUE_EDITOR_BTN_DEL_COND("gui.dialogue_editor.btn.del_cond", "-Cond", 0),
+    GUI_DIALOGUE_EDITOR_BTN_ADD_TEXT("gui.dialogue_editor.btn.add_text", "+Text", 0),
+    GUI_DIALOGUE_EDITOR_BTN_DEL_TEXT("gui.dialogue_editor.btn.del_text", "-Text", 0),
+    GUI_DIALOGUE_EDITOR_BTN_APPLY("gui.dialogue_editor.btn.apply", "Apply", 0),
+    GUI_DIALOGUE_EDITOR_BTN_SET_FREQ("gui.dialogue_editor.btn.set_freq", "SetFreq", 0),
+    GUI_DIALOGUE_EDITOR_BTN_HELP("gui.dialogue_editor.btn.help", "[?]", 0),
+    GUI_DIALOGUE_EDITOR_FREQ("gui.dialogue_editor.freq", "freq", 0),
+    GUI_DIALOGUE_EDITOR_COND_VAL("gui.dialogue_editor.cond_val", "val", 0),
+    GUI_DIALOGUE_EDITOR_TEXT("gui.dialogue_editor.text", "text", 0),
+    GUI_DIALOGUE_EDITOR_COND_TYPE("gui.dialogue_editor.cond_type", "Type: %s", 1),
+    GUI_DIALOGUE_EDITOR_COND_OP("gui.dialogue_editor.cond_op", "Op: %s", 1),
+    GUI_DIALOGUE_EDITOR_COND_TYPE_UNKNOWN("gui.dialogue_editor.cond_type_unknown", "Type: ?", 0),
+    GUI_DIALOGUE_EDITOR_ENTRY("gui.dialogue_editor.entry", "Entry #%s", 1),
+    GUI_DIALOGUE_EDITOR_NO_ENTRY("gui.dialogue_editor.no_entry", "No entry selected", 0),
+    GUI_DIALOGUE_EDITOR_LOADING("gui.dialogue_editor.loading", "Loading...", 0),
+    GUI_DIALOGUE_EDITOR_MSG_COPIED("gui.dialogue_editor.msg.copied", "Copied %s dialogue entries", 1),
+    GUI_DIALOGUE_EDITOR_MSG_PASTED("gui.dialogue_editor.msg.pasted", "Pasted %s dialogue entries", 1),
+    GUI_DIALOGUE_EDITOR_MSG_CLIPBOARD_EMPTY("gui.dialogue_editor.msg.clipboard_empty", "Clipboard is empty!", 0),
+    GUI_DIALOGUE_EDITOR_MSG_UNSAVED("gui.dialogue_editor.msg.unsaved", "Unsaved changes. Use 'Save' to apply.", 0),
+
+    // ======================== Placeholder Help ========================
+    GUI_DIALOGUE_HELP_TITLE("gui.dialogue_editor.help.title", "Placeholders", 0),
+    GUI_DIALOGUE_HELP_PLAYER_NAME("gui.dialogue_editor.help.player_name", "{player_name} - current interacting player name", 0),
+    GUI_DIALOGUE_HELP_RECIPE_NAME("gui.dialogue_editor.help.recipe_name", "{recipe_name} - current recipe display name", 0),
+    GUI_DIALOGUE_HELP_SEARCH_ITEM("gui.dialogue_editor.help.search_item_name", "{search_item_name} - item being searched for", 0),
+    GUI_DIALOGUE_HELP_SEARCH_TICKS("gui.dialogue_editor.help.search_elapsed_ticks", "{search_elapsed_ticks} - ticks spent searching", 0),
+    GUI_DIALOGUE_HELP_ACTIVITY("gui.dialogue_editor.help.current_activity", "{current_activity} - current AI activity name", 0),
+    GUI_DIALOGUE_HELP_BR("gui.dialogue_editor.help.br_marker", "[BR] - splits text into multiple speech bubbles", 0),
+
     ;
 
     public final String key;

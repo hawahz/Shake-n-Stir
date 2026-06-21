@@ -5,6 +5,7 @@ import io.github.hawah.shakenstir.content.dialogue.ConditionType;
 import io.github.hawah.shakenstir.content.dialogue.DialogueData;
 import io.github.hawah.shakenstir.content.dialogue.DialogueEntry;
 import io.github.hawah.shakenstir.content.entity.BartenderEntity;
+import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundBartenderDialogueUpdatePacket;
 import io.github.hawah.shakenstir.lib.client.gui.BaseScreen;
 import io.github.hawah.shakenstir.lib.networking.Networking;
@@ -13,6 +14,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -83,6 +85,9 @@ public class DialogueEditorScreen extends BaseScreen {
     private int editingCondTypeIdx = 0;
     private int editingCondOpIdx = 0;
 
+    // ===================== 帮助面板状态 =====================
+    private boolean helpVisible = false;
+
     // ===================== Widgets =====================
     private EditBox txtCondValue;
     private EditBox txtDialogueText;
@@ -105,7 +110,7 @@ public class DialogueEditorScreen extends BaseScreen {
     private int textEditorY;
 
     public DialogueEditorScreen(BartenderEntity entity) {
-        super(Component.literal("Dialogue Editor"));
+        super(LangData.GUI_DIALOGUE_EDITOR_TITLE.get());
         this.entity = entity;
         this.editingData = entity.getDialogueData();
         this.dataReceived = !editingData.isEmpty();
@@ -123,14 +128,20 @@ public class DialogueEditorScreen extends BaseScreen {
         int btnY = guiTop + WIN_HEIGHT - 25;
 
         // -- 条目元数据控件（频率） --
-        txtFrequency = new EditBox(font, guiLeft + EDIT_PANEL_X + 5, condEditorY - 20, 40, 16, Component.literal("freq"));
+        txtFrequency = new EditBox(font, guiLeft + EDIT_PANEL_X + 5, condEditorY - 20, 40, 16,
+                LangData.GUI_DIALOGUE_EDITOR_FREQ.get());
         txtFrequency.setMaxLength(4);
         txtFrequency.setFilter(s -> s.matches("[0-9]*")); // 仅数字
         addSortedRenderWidget(txtFrequency);
 
-        Button btnApplyFreq = Button.builder(Component.literal("SetFreq"), btn -> commitFrequency())
+        Button btnApplyFreq = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_SET_FREQ.get(), btn -> commitFrequency())
                 .pos(guiLeft + EDIT_PANEL_X + 50, condEditorY - 20).size(50, 16).build();
         addSortedRenderWidget(btnApplyFreq);
+
+        // -- 帮助按钮 --
+        Button btnHelp = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_HELP.get(), btn -> { helpVisible = !helpVisible; })
+                .pos(guiLeft + EDIT_PANEL_X + 110, condEditorY - 20).size(30, 16).build();
+        addSortedRenderWidget(btnHelp);
 
         // -- 条件编辑控件 --
         btnCondType = Button.builder(getCondTypeLabel(), btn -> cycleCondType())
@@ -141,59 +152,61 @@ public class DialogueEditorScreen extends BaseScreen {
                 .pos(guiLeft + EDIT_PANEL_X + 90, condEditorY).size(45, 16).build();
         addSortedRenderWidget(btnCondOp);
 
-        txtCondValue = new EditBox(font, guiLeft + EDIT_PANEL_X + 140, condEditorY, 40, 16, Component.literal("val"));
+        txtCondValue = new EditBox(font, guiLeft + EDIT_PANEL_X + 140, condEditorY, 40, 16,
+                LangData.GUI_DIALOGUE_EDITOR_COND_VAL.get());
         txtCondValue.setMaxLength(32);
         addSortedRenderWidget(txtCondValue);
 
         int condBtnY = condEditorY + 18;
-        Button btnAddCond = Button.builder(Component.literal("+Cond"), btn -> addCondition())
+        Button btnAddCond = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_ADD_COND.get(), btn -> addCondition())
                 .pos(guiLeft + EDIT_PANEL_X + 5, condBtnY).size(50, 16).build();
         addSortedRenderWidget(btnAddCond);
 
-        Button btnDelCond = Button.builder(Component.literal("-Cond"), btn -> deleteCondition())
+        Button btnDelCond = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_DEL_COND.get(), btn -> deleteCondition())
                 .pos(guiLeft + EDIT_PANEL_X + 60, condBtnY).size(50, 16).build();
         addSortedRenderWidget(btnDelCond);
 
-        Button btnEditCond = Button.builder(Component.literal("Apply"), btn -> commitConditionEdit())
+        Button btnEditCond = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_APPLY.get(), btn -> commitConditionEdit())
                 .pos(guiLeft + EDIT_PANEL_X + 120, condBtnY).size(55, 16).build();
         addSortedRenderWidget(btnEditCond);
 
         // -- 文本编辑控件 --
-        txtDialogueText = new EditBox(font, guiLeft + EDIT_PANEL_X + 5, textEditorY, 175, 16, Component.literal("text"));
+        txtDialogueText = new EditBox(font, guiLeft + EDIT_PANEL_X + 5, textEditorY, 175, 16,
+                LangData.GUI_DIALOGUE_EDITOR_TEXT.get());
         txtDialogueText.setMaxLength(128);
         addSortedRenderWidget(txtDialogueText);
 
         int textBtnY = textEditorY + 18;
-        Button btnAddText = Button.builder(Component.literal("+Text"), btn -> addText())
+        Button btnAddText = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_ADD_TEXT.get(), btn -> addText())
                 .pos(guiLeft + EDIT_PANEL_X + 5, textBtnY).size(50, 16).build();
         addSortedRenderWidget(btnAddText);
 
-        Button btnDelText = Button.builder(Component.literal("-Text"), btn -> deleteText())
+        Button btnDelText = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_DEL_TEXT.get(), btn -> deleteText())
                 .pos(guiLeft + EDIT_PANEL_X + 60, textBtnY).size(50, 16).build();
         addSortedRenderWidget(btnDelText);
 
-        Button btnEditText = Button.builder(Component.literal("Apply"), btn -> commitTextEdit())
+        Button btnEditText = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_APPLY.get(), btn -> commitTextEdit())
                 .pos(guiLeft + EDIT_PANEL_X + 120, textBtnY).size(55, 16).build();
         addSortedRenderWidget(btnEditText);
 
         // -- 底栏按钮 --
-        Button btnSave = Button.builder(Component.literal("Save"), btn -> saveAndClose())
+        Button btnSave = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_SAVE.get(), btn -> saveAndClose())
                 .pos(guiLeft + WIN_WIDTH - 60, btnY).size(50, 20).build();
         addSortedRenderWidget(btnSave);
 
-        Button btnCopy = Button.builder(Component.literal("Copy"), btn -> copyToClipboard())
+        Button btnCopy = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_COPY.get(), btn -> copyToClipboard())
                 .pos(guiLeft + EDIT_PANEL_X + 60, btnY).size(50, 20).build();
         addSortedRenderWidget(btnCopy);
 
-        Button btnPaste = Button.builder(Component.literal("Paste"), btn -> pasteFromClipboard())
+        Button btnPaste = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_PASTE.get(), btn -> pasteFromClipboard())
                 .pos(guiLeft + EDIT_PANEL_X + 115, btnY).size(50, 20).build();
         addSortedRenderWidget(btnPaste);
 
-        Button btnAddEntry = Button.builder(Component.literal("+ Entry"), btn -> addNewEntry())
+        Button btnAddEntry = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_ADD_ENTRY.get(), btn -> addNewEntry())
                 .pos(guiLeft + 5, btnY).size(60, 20).build();
         addSortedRenderWidget(btnAddEntry);
 
-        Button btnDelEntry = Button.builder(Component.literal("- Entry"), btn -> deleteSelectedEntry())
+        Button btnDelEntry = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_DEL_ENTRY.get(), btn -> deleteSelectedEntry())
                 .pos(guiLeft + 70, btnY).size(60, 20).build();
         addSortedRenderWidget(btnDelEntry);
 
@@ -276,6 +289,36 @@ public class DialogueEditorScreen extends BaseScreen {
             fillRect(g, guiLeft + EDIT_PANEL_X + 5, guiTop + 40,
                     guiLeft + EDIT_PANEL_X + 105, guiTop + 56, 0x88_000000);
         }
+
+        // -- 占位符帮助提示 --
+        if (helpVisible) {
+            drawPlaceholderHelp(g, mouseX, mouseY);
+        }
+    }
+
+    // ===================== 占位符帮助面板 =====================
+
+    /** 缓存的帮助文本列表，避免每帧重新构建 */
+    private static List<Component> cachedHelpLines = null;
+
+    private static List<Component> getHelpLines() {
+        if (cachedHelpLines == null) {
+            cachedHelpLines = List.of(
+                    LangData.GUI_DIALOGUE_HELP_TITLE.get().withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
+                    LangData.GUI_DIALOGUE_HELP_PLAYER_NAME.get(),
+                    LangData.GUI_DIALOGUE_HELP_RECIPE_NAME.get(),
+                    LangData.GUI_DIALOGUE_HELP_SEARCH_ITEM.get(),
+                    LangData.GUI_DIALOGUE_HELP_SEARCH_TICKS.get(),
+                    LangData.GUI_DIALOGUE_HELP_ACTIVITY.get(),
+                    LangData.GUI_DIALOGUE_HELP_BR.get()
+            );
+        }
+        return cachedHelpLines;
+    }
+
+    private void drawPlaceholderHelp(GuiGraphicsExtractor g, int mouseX, int mouseY) {
+        g.setTooltipForNextFrame(font, getHelpLines(), java.util.Optional.empty(),
+                guiLeft + EDIT_PANEL_X + 5, guiTop + 35);
     }
 
     // ===================== 条目列表渲染 =====================
@@ -567,12 +610,13 @@ public class DialogueEditorScreen extends BaseScreen {
 
     private Component getCondTypeLabel() {
         if (editingCondTypeIdx < 0 || editingCondTypeIdx >= ConditionType.values().length)
-            return Component.literal("Type: ?");
-        return Component.literal("Type: " + ConditionType.values()[editingCondTypeIdx].getSerializedName());
+            return LangData.GUI_DIALOGUE_EDITOR_COND_TYPE_UNKNOWN.get();
+        return LangData.GUI_DIALOGUE_EDITOR_COND_TYPE.get(
+                ConditionType.values()[editingCondTypeIdx].getSerializedName());
     }
 
     private Component getCondOpLabel() {
-        return Component.literal("Op: " + getOpString(editingCondOpIdx));
+        return LangData.GUI_DIALOGUE_EDITOR_COND_OP.get(getOpString(editingCondOpIdx));
     }
 
     // ===================== 操作符辅助方法 =====================
@@ -783,7 +827,7 @@ public class DialogueEditorScreen extends BaseScreen {
         clipboard = editingData;
         if (minecraft != null && minecraft.player != null) {
             minecraft.player.sendSystemMessage(
-                    Component.literal("Copied " + editingData.size() + " dialogue entries")
+                    LangData.GUI_DIALOGUE_EDITOR_MSG_COPIED.get(String.valueOf(editingData.size()))
             );
         }
     }
@@ -791,7 +835,7 @@ public class DialogueEditorScreen extends BaseScreen {
     private void pasteFromClipboard() {
         if (clipboard == null) {
             if (minecraft != null && minecraft.player != null) {
-                minecraft.player.sendSystemMessage(Component.literal("Clipboard is empty!"));
+                minecraft.player.sendSystemMessage(LangData.GUI_DIALOGUE_EDITOR_MSG_CLIPBOARD_EMPTY.get());
             }
             return;
         }
@@ -806,7 +850,7 @@ public class DialogueEditorScreen extends BaseScreen {
         refreshAllEditFields();
         if (minecraft != null && minecraft.player != null) {
             minecraft.player.sendSystemMessage(
-                    Component.literal("Pasted " + editingData.size() + " dialogue entries")
+                    LangData.GUI_DIALOGUE_EDITOR_MSG_PASTED.get(String.valueOf(editingData.size()))
             );
         }
     }
@@ -823,9 +867,7 @@ public class DialogueEditorScreen extends BaseScreen {
     @Override
     public void onClose() {
         if (dirty && minecraft != null && minecraft.player != null) {
-            minecraft.player.sendSystemMessage(
-                    Component.literal("Unsaved changes. Use 'Save' to apply.")
-            );
+            minecraft.player.sendSystemMessage(LangData.GUI_DIALOGUE_EDITOR_MSG_UNSAVED.get());
         }
         super.onClose();
     }

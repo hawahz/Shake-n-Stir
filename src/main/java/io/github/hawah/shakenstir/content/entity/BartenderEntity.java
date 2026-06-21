@@ -11,7 +11,6 @@ import io.github.hawah.shakenstir.client.render.entity.BartenderModel;
 import io.github.hawah.shakenstir.content.blockEntity.BarMenuBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dialogue.DialogueData;
-import io.github.hawah.shakenstir.content.dialogue.DialogueEntry;
 import io.github.hawah.shakenstir.content.dialogue.DialogueManager;
 import io.github.hawah.shakenstir.content.entity.ai.activity.Activities;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
@@ -732,8 +731,11 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         if (dialogueData.isEmpty()) return;
         if (dialogueCooldownTicks > 0) return;
 
+        Player player = (Player) getBrain().getMemory(MemoryModuleType.INTERACTION_TARGET)
+                .filter(e -> e instanceof Player).orElse(null);
+
         DialogueManager.SelectionResult result = DialogueManager.selectDialogueResult(
-                dialogueData, level, this, null, dialoguePlayedTracker
+                dialogueData, level, this, player, dialoguePlayedTracker
         );
 
         if (result.hasResult()) {
@@ -751,8 +753,11 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         if (dialogueData.isEmpty()) return;
         if (dialogueCooldownTicks > 0) return;
 
+        Player player = (Player) getBrain().getMemory(MemoryModuleType.INTERACTION_TARGET)
+                .filter(e -> e instanceof Player).orElse(null);
+
         DialogueManager.SelectionResult result = DialogueManager.selectDialogueResult(
-                dialogueData, level, this, null, dialoguePlayedTracker
+                dialogueData, level, this, player, dialoguePlayedTracker
         );
 
         if (result.hasResult()) {
