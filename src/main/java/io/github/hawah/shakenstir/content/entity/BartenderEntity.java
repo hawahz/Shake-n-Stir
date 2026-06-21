@@ -68,16 +68,16 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
 
     public static final EntityDataAccessor<Integer> DATA_ACCESSOR =
             SynchedEntityData.defineId(
-                    // The class of the entity.
+                    // 实体的类
                     BartenderEntity.class,
-                    // The entity data accessor type.
+                    // 实体数据访问器 (EntityDataAccessor) 类型
                     EntityDataSerializers.INT
             );
     public static final EntityDataAccessor<Integer> ANIM_ACCESSOR =
             SynchedEntityData.defineId(
-                    // The class of the entity.
+                    // 实体的类
                     BartenderEntity.class,
-                    // The entity data accessor type.
+                    // 实体数据访问器 (EntityDataAccessor) 类型
                     EntityDataSerializers.INT
             );
     private static final EntityDataAccessor<OptionalInt> DATA_SHOULDER_PARROT_RIGHT = SynchedEntityData.defineId(
@@ -453,29 +453,29 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     }
 
     /**
-     * Get the current speaking Component, or null if not speaking.
+     * 获取当前正在显示的对话组件 (Component)，如果未显示则返回 null。
      */
     public @Nullable Component getSpeakingComponent() {
         return speakingComponent;
     }
 
     /**
-     * Get the remaining display ticks for the current speech bubble.
+     * 获取当前对话气泡的剩余显示刻数。
      */
     public int getSpeakingRemainingTicks() {
         return speakingRemainingTicks;
     }
 
     /**
-     * Whether there is a next message waiting in the queue (synced via EntityData).
+     * 是否有下一条消息在队列中等待（通过实体数据同步）。
      */
     public boolean hasQueuedSpeak() {
         return entityData.get(DATA_HAS_QUEUED_SPEAK);
     }
 
     /**
-     * Synchronize the DATA_HAS_QUEUED_SPEAK entity data with the actual queue state.
-     * Must be called after any queuedSpeaks mutation.
+     * 将 DATA_HAS_QUEUED_SPEAK 实体数据与实际的队列状态同步。
+     * 必须在任何 queuedSpeaks 队列变更后调用。
      */
     private void syncQueueState() {
         boolean hasQueued = !queuedSpeaks.isEmpty();
@@ -485,7 +485,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     }
 
     /**
-     * Immediately set the current speaking message and broadcast to tracking clients if server-side.
+     * 立即设置当前正在显示的对话消息，如果是服务端则广播给所有追踪客户端。
      */
     private void setSpeakingImmediate(Component message, int remainingTicks, boolean broadcast) {
         this.speakingComponent = message;
@@ -499,8 +499,8 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     }
 
     /**
-     * Try to dequeue the next message from the queue. If nothing is currently speaking and
-     * the queue is non-empty, pop the head and display it (with broadcast if server-side).
+     * 尝试从队列中出队下一条消息。如果当前没有正在显示的消息且队列非空，
+     * 则弹出队首消息并显示（如果是服务端则广播）。
      */
     private void tryDequeueNext() {
         if (speakingRemainingTicks <= 0 && !queuedSpeaks.isEmpty()) {
@@ -514,26 +514,51 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     }
 
     /**
-     * Client-side only. Display a speech bubble above this entity on the local client
-     * (overwrite mode: clears queue, replaces current message immediately).
-     * If announce is true, also sends a C2S packet so the server can broadcast to all players.
+     * 通用入口：显示对话气泡。自动根据当前逻辑端委托到 speakClient（客户端）或 speakServer（服务端）。
+     * 使用覆盖模式（清空队列，立即替换当前消息）。
      *
-     * @param message        the Component (Chat Component) to display
-     * @param announce       if true, request the server to broadcast this message to all tracking clients
-     * @param remainingTicks how many ticks the message should remain visible
+     * @param message        要显示的组件 (Chat Component)
+     * @param remainingTicks 消息应显示的刻数
+     */
+    public void speak(Component message, int remainingTicks) {
+        speak(message, remainingTicks, false);
+    }
+
+    /**
+     * 通用入口：显示对话气泡。自动根据当前逻辑端委托到 speakClient（客户端）或 speakServer（服务端）。
+     *
+     * @param message        要显示的组件 (Chat Component)
+     * @param remainingTicks 消息应显示的刻数
+     * @param enqueue        如果为 true，追加到队列尾部；如果为 false，立即覆盖并清空队列
+     */
+    public void speak(Component message, int remainingTicks, boolean enqueue) {
+        if (level().isClientSide()) {
+            speakClient(message, false, remainingTicks, enqueue);
+        } else {
+            speakServer(message, remainingTicks, enqueue);
+        }
+    }
+
+    /**
+     * 仅客户端。在本地客户端显示此实体上方的对话气泡（覆盖模式：清空队列，立即替换当前消息）。
+     * 如果 announce 为 true，还会发送 C2S 包让服务端广播给所有玩家。
+     *
+     * @param message        要显示的组件 (Chat Component)
+     * @param announce       如果为 true，请求服务端将此消息广播给所有追踪客户端
+     * @param remainingTicks 消息应显示的刻数
      */
     public void speakClient(Component message, boolean announce, int remainingTicks) {
         speakClient(message, announce, remainingTicks, false);
     }
 
     /**
-     * Client-side only. Display a speech bubble above this entity on the local client.
-     * If announce is true, also sends a C2S packet so the server can broadcast to all players.
+     * 仅客户端。在本地客户端显示此实体上方的对话气泡。
+     * 如果 announce 为 true，还会发送 C2S 包让服务端广播给所有玩家。
      *
-     * @param message        the Component (Chat Component) to display
-     * @param announce       if true, request the server to broadcast this message to all tracking clients
-     * @param remainingTicks how many ticks the message should remain visible
-     * @param enqueue        if true, append to queue; if false, overwrite immediately and clear queue
+     * @param message        要显示的组件 (Chat Component)
+     * @param announce       如果为 true，请求服务端将此消息广播给所有追踪客户端
+     * @param remainingTicks 消息应显示的刻数
+     * @param enqueue        如果为 true，追加到队列尾部；如果为 false，立即覆盖并清空队列
      */
     public void speakClient(Component message, boolean announce, int remainingTicks, boolean enqueue) {
         if (enqueue) {
@@ -556,22 +581,21 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     }
 
     /**
-     * Server-side only. Broadcasts a speech bubble to ALL players currently tracking this entity
-     * (overwrite mode: clears queue, replaces current message immediately).
+     * 仅服务端。向所有当前追踪此实体的玩家广播对话气泡（覆盖模式：清空队列，立即替换当前消息）。
      *
-     * @param message        the Component (Chat Component) to display
-     * @param remainingTicks how many ticks the message should remain visible
+     * @param message        要显示的组件 (Chat Component)
+     * @param remainingTicks 消息应显示的刻数
      */
     public void speakServer(Component message, int remainingTicks) {
         speakServer(message, remainingTicks, false);
     }
 
     /**
-     * Server-side only. Broadcasts a speech bubble to ALL players currently tracking this entity.
+     * 仅服务端。向所有当前追踪此实体的玩家广播对话气泡。
      *
-     * @param message        the Component (Chat Component) to display
-     * @param remainingTicks how many ticks the message should remain visible
-     * @param enqueue        if true, append to queue; if false, overwrite immediately and clear queue
+     * @param message        要显示的组件 (Chat Component)
+     * @param remainingTicks 消息应显示的刻数
+     * @param enqueue        如果为 true，追加到队列尾部；如果为 false，立即覆盖并清空队列
      */
     public void speakServer(Component message, int remainingTicks, boolean enqueue) {
         if (level().isClientSide()) {
@@ -583,7 +607,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
             if (speakingRemainingTicks <= 0) {
                 tryDequeueNext();
             }
-            // No immediate broadcast for queued message; it will broadcast when dequeued
+            // 排队的消息不会立即广播；它将在出队时广播
         } else {
             queuedSpeaks.clear();
             syncQueueState();
@@ -592,24 +616,23 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     }
 
     /**
-     * Server-side only. Sends a speech bubble to a specific list of players only
-     * (overwrite mode: clears queue, replaces current message immediately).
+     * 仅服务端。仅向指定的玩家列表发送对话气泡（覆盖模式：清空队列，立即替换当前消息）。
      *
-     * @param message        the Component (Chat Component) to display
-     * @param targets        the list of players who should see the message
-     * @param remainingTicks how many ticks the message should remain visible
+     * @param message        要显示的组件 (Chat Component)
+     * @param targets        应该看到消息的玩家列表
+     * @param remainingTicks 消息应显示的刻数
      */
     public void speakServer(Component message, List<Player> targets, int remainingTicks) {
         speakServer(message, targets, remainingTicks, false);
     }
 
     /**
-     * Server-side only. Sends a speech bubble to a specific list of players only.
+     * 仅服务端。仅向指定的玩家列表发送对话气泡。
      *
-     * @param message        the Component (Chat Component) to display
-     * @param targets        the list of players who should see the message
-     * @param remainingTicks how many ticks the message should remain visible
-     * @param enqueue        if true, append to queue; if false, overwrite immediately and clear queue
+     * @param message        要显示的组件 (Chat Component)
+     * @param targets        应该看到消息的玩家列表
+     * @param remainingTicks 消息应显示的刻数
+     * @param enqueue        如果为 true，追加到队列尾部；如果为 false，立即覆盖并清空队列
      */
     public void speakServer(Component message, List<Player> targets, int remainingTicks, boolean enqueue) {
         if (level().isClientSide()) {
@@ -636,7 +659,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     }
 
     /**
-     * A queued dialogue message with its display duration.
+     * 排队的对话消息及其显示时长。
      */
     public record QueuedMessage(Component message, int remainingTicks) {}
 
