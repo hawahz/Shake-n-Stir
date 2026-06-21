@@ -729,7 +729,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
      */
     private void tryTriggerDialogueOnStateChange(ServerLevel level, String newActivity) {
         if (dialogueData.isEmpty()) return;
-        if (dialogueCooldownTicks > 0) return;
+        if (dialogueCooldownTicks > 0 && !newActivity.equals("work")) return;
 
         Player player = (Player) getBrain().getMemory(MemoryModuleType.INTERACTION_TARGET)
                 .filter(e -> e instanceof Player).orElse(null);

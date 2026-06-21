@@ -23,6 +23,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.Ease;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
@@ -205,6 +206,9 @@ public class BartenderRenderer extends LivingEntityRenderer<BartenderEntity, Bar
         } else {
             alpha = Math.clamp((float) state.speakingRemainingTicks / SPEAK_FADE_OUT_TICKS, 0.0F, 1.0F);
         }
+
+        alpha = Ease.inCirc(alpha);
+
         int alphaByte = (int) (alpha * 255);
         int textColor = (alphaByte << 24) | 0x00FFFFFF;
 
