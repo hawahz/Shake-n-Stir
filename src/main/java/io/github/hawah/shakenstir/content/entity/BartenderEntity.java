@@ -10,12 +10,16 @@ import io.github.hawah.shakenstir.client.gui.DialogueEditorScreen;
 import io.github.hawah.shakenstir.client.render.entity.BartenderModel;
 import io.github.hawah.shakenstir.content.blockEntity.BarMenuBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.dialogue.DialogueData;
+import io.github.hawah.shakenstir.content.dialogue.DialogueManager;
 import io.github.hawah.shakenstir.content.entity.ai.activity.Activities;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.item.MenuItem;
 import io.github.hawah.shakenstir.foundation.data.SnsRecipeStack;
+import io.github.hawah.shakenstir.foundation.networking.ClientboundBartenderDialogueSyncPacket;
 import io.github.hawah.shakenstir.foundation.networking.ClientboundBartenderSpeakPacket;
+import io.github.hawah.shakenstir.foundation.networking.ServerboundBartenderDialogueRequestPacket;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundBartenderSpeakAnnouncePacket;
 import io.github.hawah.shakenstir.lib.client.gui.ScreenOpener;
 import io.github.hawah.shakenstir.lib.networking.Networking;
@@ -55,11 +59,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.*;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -105,6 +105,13 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     private Component speakingComponent = null;
     private int speakingRemainingTicks = 0;
     private final LinkedList<QueuedMessage> queuedSpeaks = new LinkedList<>();
+
+    /** 对话数据 (Dialogue Data) - 存储所有对话条目及其条件配置 */
+    private DialogueData dialogueData = DialogueData.EMPTY;
+    /** 已播放索引追踪器 (Played Index Tracker) - 用于无重复播放机制 */
+    private final DialogueManager.PlayedTracker dialoguePlayedTracker = new DialogueManager.PlayedTracker();
+    /** 已交互过的玩家 UUID 集合 - 用于判断交互历史条件 */
+    private final Set<UUID> interactedPlayers = new HashSet<>();
 
     public BartenderEntity(EntityType<BartenderEntity> type, Level level) {
         super(type, level);
@@ -256,12 +263,16 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     protected void readAdditionalSaveData(ValueInput input) {
         super.readAdditionalSaveData(input);
         ContainerHelper.loadAllItems(input, inventory);
+        // 加载对话数据
+        loadDialogueData(input);
     }
 
     @Override
     protected void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);
         ContainerHelper.saveAllItems(output, inventory);
+        // 保存对话数据
+        saveDialogueData(output);
     }
 
     @Override
@@ -293,13 +304,11 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
                 return InteractionResult.SUCCESS;
             } else if (itemInHand.has(DataComponentTypeRegistries.DIALOGUE)) {
                 if (level().isClientSide()) {
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            ScreenOpener.open(new DialogueEditorScreen(BartenderEntity.this));
-                        }
-                    }.run();
+                    // 客户端：请求服务端同步对话数据后打开编辑器
+                    Networking.sendToServer(new ServerboundBartenderDialogueRequestPacket(getId()));
+                    ScreenOpener.open(new DialogueEditorScreen(BartenderEntity.this));
                 }
+                markPlayerInteracted(player.getUUID());
                 return InteractionResult.SUCCESS;
             }
         }
@@ -655,6 +664,169 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
                     Networking.sendToPlayer(packet, serverPlayer);
                 }
             }
+        }
+    }
+
+    // ========================
+    //  对话数据 (Dialogue Data) 存取与管理
+    // ========================
+
+    /**
+     * 获取当前对话数据 (Dialogue Data)。
+     */
+    public DialogueData getDialogueData() {
+        return dialogueData;
+    }
+
+    /**
+     * 设置对话数据 (Dialogue Data)。
+     * 在服务端设置后会自动持久化；在客户端设置则仅用于编辑预览。
+     */
+    public void setDialogueData(DialogueData data) {
+        this.dialogueData = data;
+    }
+
+    /**
+     * 获取已播放索引追踪器 (Played Index Tracker)。
+     */
+    public DialogueManager.PlayedTracker getDialoguePlayedTracker() {
+        return dialoguePlayedTracker;
+    }
+
+    /**
+     * 记录玩家与酒保发生过交互。
+     */
+    public void markPlayerInteracted(UUID playerUUID) {
+        interactedPlayers.add(playerUUID);
+    }
+
+    /**
+     * 检查指定玩家是否曾与该酒保交互过。
+     */
+    public boolean hasInteractedWith(UUID playerUUID) {
+        return interactedPlayers.contains(playerUUID);
+    }
+
+    /**
+     * 获取已交互玩家集合。
+     */
+    public Set<UUID> getInteractedPlayers() {
+        return Collections.unmodifiableSet(interactedPlayers);
+    }
+
+    /**
+     * 服务端评估对话条件并触发对话气泡显示。
+     * 向指定玩家发送匹配的对话（如果没有匹配则不做任何事）。
+     *
+     * @param player 触发对话的玩家
+     * @param durationTicks 对话气泡显示的刻数
+     * @return 是否成功匹配并发送了对话
+     */
+    public boolean evaluateAndSpeak(Player player, int durationTicks) {
+        if (level().isClientSide() || !(level() instanceof ServerLevel serverLevel)) {
+            return false;
+        }
+        if (dialogueData.isEmpty()) {
+            return false;
+        }
+
+        Component result = DialogueManager.selectDialogue(
+                dialogueData, serverLevel, this, player, dialoguePlayedTracker
+        );
+
+        if (result != null) {
+            speakServer(result, durationTicks);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 向服务端请求同步对话数据到客户端。
+     * 由客户端在打开 DialogueEditorScreen 时调用。
+     */
+    public void requestDialogueSyncFromServer() {
+        // 此方法在客户端调用时发 C2S 请求包；
+        // 实际同步通过交互时触发的 S2C 包完成。
+        // 目前通过 mobInteract 中直接请求同步。
+    }
+
+    /**
+     * 从 NBT (ValueInput) 加载对话数据。
+     */
+    private void loadDialogueData(ValueInput input) {
+        String raw = input.getString("DialogueData").orElse("");
+        if (!raw.isEmpty()) {
+            try {
+                var json = com.google.gson.JsonParser.parseString(raw);
+                var result = DialogueData.CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE, json);
+                this.dialogueData = result.resultOrPartial(err ->
+                        com.mojang.logging.LogUtils.getLogger().error("Failed to load dialogue data: {}", err)
+                ).orElse(DialogueData.EMPTY);
+            } catch (Exception e) {
+                com.mojang.logging.LogUtils.getLogger().error("Failed to parse dialogue data JSON", e);
+                this.dialogueData = DialogueData.EMPTY;
+            }
+        }
+
+        // 加载已播放索引
+        int playedCount = input.getInt("DialoguePlayedCount").orElse(0);
+        Map<UUID, BitSet> loadedPlayed = new HashMap<>();
+        for (int i = 0; i < playedCount; i++) {
+            String key = input.getString("DialoguePlayedKey_" + i).orElse("");
+            String bits = input.getString("DialoguePlayedBits_" + i).orElse("");
+            if (!key.isEmpty() && !bits.isEmpty()) {
+                try {
+                    UUID uuid = UUID.fromString(key);
+                    byte[] bytes = Base64.getDecoder().decode(bits);
+                    loadedPlayed.put(uuid, BitSet.valueOf(bytes));
+                } catch (Exception ignored) {
+                }
+            }
+        }
+        dialoguePlayedTracker.loadFromRaw(loadedPlayed);
+
+        // 加载已交互玩家
+        int interactedCount = input.getInt("DialogueInteractedCount").orElse(0);
+        interactedPlayers.clear();
+        for (int i = 0; i < interactedCount; i++) {
+            String uuidStr = input.getString("DialogueInteracted_" + i).orElse("");
+            if (!uuidStr.isEmpty()) {
+                try {
+                    interactedPlayers.add(UUID.fromString(uuidStr));
+                } catch (Exception ignored) {
+                }
+            }
+        }
+    }
+
+    /**
+     * 保存对话数据到 NBT (ValueOutput)。
+     */
+    private void saveDialogueData(ValueOutput output) {
+        var result = DialogueData.CODEC.encodeStart(com.mojang.serialization.JsonOps.INSTANCE, dialogueData);
+        String raw = result.resultOrPartial(err ->
+                com.mojang.logging.LogUtils.getLogger().error("Failed to serialize dialogue data: {}", err)
+        ).map(com.google.gson.JsonElement::toString).orElse("");
+        output.putString("DialogueData", raw);
+
+        // 保存已播放索引
+        Map<UUID, BitSet> playedData = dialoguePlayedTracker.getRawData();
+        output.putInt("DialoguePlayedCount", playedData.size());
+        int idx = 0;
+        for (var entry : playedData.entrySet()) {
+            output.putString("DialoguePlayedKey_" + idx, entry.getKey().toString());
+            byte[] bytes = entry.getValue().toByteArray();
+            output.putString("DialoguePlayedBits_" + idx, Base64.getEncoder().encodeToString(bytes));
+            idx++;
+        }
+
+        // 保存已交互玩家
+        output.putInt("DialogueInteractedCount", interactedPlayers.size());
+        int interactedIdx = 0;
+        for (UUID uuid : interactedPlayers) {
+            output.putString("DialogueInteracted_" + interactedIdx, uuid.toString());
+            interactedIdx++;
         }
     }
 
