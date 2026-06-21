@@ -272,6 +272,13 @@ public class DialogueEditorScreen extends BaseScreen {
         fillRect(g, guiLeft, guiTop, guiLeft + WIN_WIDTH, guiTop + 16, BG_LIGHT);
         g.horizontalLine(guiLeft, guiLeft + WIN_WIDTH, guiTop + 16, LINE_COLOR);
 
+        g.text(
+                minecraft.font,
+                LangData.GUI_DIALOGUE_EDITOR_TITLE.get(),
+                guiLeft + 6, guiTop + 8 - minecraft.font.lineHeight/2,
+                0xFFFFFFFF
+        );
+
         // -- 左侧/右侧分隔线 --
         int divX = guiLeft + ENTRY_LIST_WIDTH;
         fillRect(g, divX, guiTop + 16, divX + 2, guiTop + WIN_HEIGHT - 32, LINE_COLOR);
