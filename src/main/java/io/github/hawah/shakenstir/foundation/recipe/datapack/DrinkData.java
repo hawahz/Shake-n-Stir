@@ -9,7 +9,7 @@ import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.recipe.Quality;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.cocktaileType.CocktailType;
-import io.github.hawah.shakenstir.foundation.recipe.datapack.spirit.SpiritData;
+import io.github.hawah.shakenstir.foundation.recipe.datapack.spirit.FluidData;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import io.github.hawah.shakenstir.foundation.tags.SnsFluidTags;
 import net.minecraft.ChatFormatting;
@@ -45,8 +45,8 @@ import java.util.function.Consumer;
 @SuppressWarnings("unused")
 public record DrinkData(
         CocktailType type,
-        SpiritData base,
-        List<SpiritData> extraSpirit,
+        FluidData base,
+        List<FluidData> extraSpirit,
         List<IngredientData> extraIngredients,
         Quality quality,
         List<Consumable> consumables,
@@ -54,8 +54,8 @@ public record DrinkData(
 ) implements TooltipProvider {
     public static final Codec<DrinkData> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             CocktailType.CODEC.fieldOf("type").forGetter(DrinkData::type),
-            SpiritData.CODEC.fieldOf("base").forGetter(DrinkData::base),
-            SpiritData.CODEC.listOf().fieldOf("extra_spirits").forGetter(DrinkData::extraSpirit),
+            FluidData.CODEC.fieldOf("base").forGetter(DrinkData::base),
+            FluidData.CODEC.listOf().fieldOf("extra_spirits").forGetter(DrinkData::extraSpirit),
             IngredientData.CODEC.listOf().fieldOf("extra_ingredients").forGetter(DrinkData::extraIngredients),
             Quality.CODEC.fieldOf("quality").forGetter(DrinkData::quality),
             Consumable.CODEC.listOf().optionalFieldOf("consumables", List.of()).forGetter(DrinkData::consumables),
@@ -64,8 +64,8 @@ public record DrinkData(
 
     public static final StreamCodec<RegistryFriendlyByteBuf, DrinkData> STREAM_CODEC = StreamCodec.composite(
             CocktailType.STREAM_CODEC, DrinkData::type,
-            SpiritData.STREAM_CODEC, DrinkData::base,
-            SpiritData.STREAM_CODEC.apply(ByteBufCodecs.list()), DrinkData::extraSpirit,
+            FluidData.STREAM_CODEC, DrinkData::base,
+            FluidData.STREAM_CODEC.apply(ByteBufCodecs.list()), DrinkData::extraSpirit,
             IngredientData.STREAM_CODEC.apply(ByteBufCodecs.list()), DrinkData::extraIngredients,
             Quality.STREAM_CODEC, DrinkData::quality,
             Consumable.STREAM_CODEC.apply(ByteBufCodecs.list()), DrinkData::consumables,
@@ -74,7 +74,7 @@ public record DrinkData(
     );
 
     @SuppressWarnings("unused")
-    public DrinkData(CocktailType type, SpiritData base, List<SpiritData> extraSpirit, List<IngredientData> extraIngredients, Quality quality, int coldLevel) {
+    public DrinkData(CocktailType type, FluidData base, List<FluidData> extraSpirit, List<IngredientData> extraIngredients, Quality quality, int coldLevel) {
         this(type, base, extraSpirit, extraIngredients, quality, List.of(), coldLevel);
     }
 

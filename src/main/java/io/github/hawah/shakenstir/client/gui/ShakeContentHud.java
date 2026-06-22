@@ -34,6 +34,8 @@ import net.neoforged.neoforge.client.gui.GuiLayer;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import static io.github.hawah.shakenstir.client.gui.MC.getPlayer;
+
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class ShakeContentHud implements GuiLayer {
@@ -49,6 +51,9 @@ public class ShakeContentHud implements GuiLayer {
 
     public static boolean isVisible() {
         if (ClientDataHolder.Picker.type().equals(HitResult.Type.MISS)) {
+            return false;
+        }
+        if (Minecraft.getInstance().options.hideGui || ( getPlayer() != null && getPlayer().isSpectator())) {
             return false;
         }
         boolean visible = BlockRegistries.SHAKE_BLOCK.get().equals(ClientDataHolder.Picker.block().orElse(null));

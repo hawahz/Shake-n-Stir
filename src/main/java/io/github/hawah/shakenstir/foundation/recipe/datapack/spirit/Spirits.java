@@ -34,33 +34,33 @@ public class Spirits {
             MobEffects.HASTE, MobEffects.MINING_FATIGUE
     );
 
-    public static final ResourceKey<SpiritData> BRANDY = spiritKey("brandy");
-    public static final ResourceKey<SpiritData> GIN = spiritKey("gin");
-    public static final ResourceKey<SpiritData> RUM = spiritKey("rum");
-    public static final ResourceKey<SpiritData> VODKA = spiritKey("vodka");
-    public static final ResourceKey<SpiritData> WHISKEY = spiritKey("whiskey");
-    public static final ResourceKey<SpiritData> TEQUILA = spiritKey("tequila");
+    public static final ResourceKey<FluidData> BRANDY = fluidKey("brandy");
+    public static final ResourceKey<FluidData> GIN = fluidKey("gin");
+    public static final ResourceKey<FluidData> RUM = fluidKey("rum");
+    public static final ResourceKey<FluidData> VODKA = fluidKey("vodka");
+    public static final ResourceKey<FluidData> WHISKEY = fluidKey("whiskey");
+    public static final ResourceKey<FluidData> TEQUILA = fluidKey("tequila");
 
-    private static final Map<ResourceKey<SpiritData>, SpiritData> ENTRIES = new LinkedHashMap<>();
+    private static final Map<ResourceKey<FluidData>, FluidData> ENTRIES = new LinkedHashMap<>();
 
     static {
-        ENTRIES.put(BRANDY, new SpiritData(FluidRegistries.BRANDY_SOURCE, BRANDY_EFFECT));
-        ENTRIES.put(GIN, new SpiritData(FluidRegistries.GIN_SOURCE, GIN_EFFECT));
-        ENTRIES.put(RUM, new SpiritData(FluidRegistries.RUM_SOURCE, RUM_EFFECT));
-        ENTRIES.put(VODKA, new SpiritData(FluidRegistries.VODKA_SOURCE, VODKA_EFFECT));
-        ENTRIES.put(WHISKEY, new SpiritData(FluidRegistries.WHISKY_SOURCE, WHISKEY_EFFECT));
-        ENTRIES.put(TEQUILA, new SpiritData(FluidRegistries.TEQUILA_SOURCE, TEQUILA_EFFECT));
+        ENTRIES.put(BRANDY, new FluidData(FluidRegistries.BRANDY_SOURCE, BRANDY_EFFECT, 250));
+        ENTRIES.put(GIN, new FluidData(FluidRegistries.GIN_SOURCE, GIN_EFFECT, 250));
+        ENTRIES.put(RUM, new FluidData(FluidRegistries.RUM_SOURCE, RUM_EFFECT, 250));
+        ENTRIES.put(VODKA, new FluidData(FluidRegistries.VODKA_SOURCE, VODKA_EFFECT, 250));
+        ENTRIES.put(WHISKEY, new FluidData(FluidRegistries.WHISKY_SOURCE, WHISKEY_EFFECT, 250));
+        ENTRIES.put(TEQUILA, new FluidData(FluidRegistries.TEQUILA_SOURCE, TEQUILA_EFFECT, 250));
     }
 
-    public static ResourceKey<SpiritData> spiritKey(String name) {
-        return ResourceKey.create(Registries.SPIRIT_REGISTRY_KEY, ShakenStir.asResource(name));
+    public static ResourceKey<FluidData> fluidKey(String name) {
+        return ResourceKey.create(Registries.FLUID_REGISTRY_KEY, ShakenStir.asResource(name));
     }
 
-    public static void forEachEntry(BiConsumer<ResourceKey<SpiritData>, SpiritData> consumer) {
+    public static void forEachEntry(BiConsumer<ResourceKey<FluidData>, FluidData> consumer) {
         ENTRIES.forEach(consumer);
     }
 
-    public static Optional<SpiritData> getBuiltIn(Holder<Fluid> fluidType) {
+    public static Optional<FluidData> getBuiltIn(Holder<Fluid> fluidType) {
         return ENTRIES.values().stream()
                 .filter(data -> data.fluidType().equals(fluidType))
                 .findFirst();

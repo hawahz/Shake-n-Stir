@@ -41,7 +41,7 @@ public class ModDatapackGenerator {
                                     DeathMessageType.DEFAULT)
                             );
                         })
-                        .add(Registries.SPIRIT_REGISTRY_KEY, bootstrap ->
+                        .add(Registries.FLUID_REGISTRY_KEY, bootstrap ->
                             Spirits.forEachEntry(bootstrap::register)
                         )
                         .add(Registries.COCKTAIL_REGISTRY_KEY, bootstrap ->

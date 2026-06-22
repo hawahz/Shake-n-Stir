@@ -214,6 +214,11 @@ public class DataComponentTypeRegistries {
             builder -> builder.persistent(SingleItemComponent.CODEC).networkSynchronized(SingleItemComponent.STREAM_CODEC)
     );
 
+    public static final DataComponentType<SingleItemComponent> ITEM_CONTENT = register(
+            "item_content",
+            builder -> builder.persistent(SingleItemComponent.CODEC).networkSynchronized(SingleItemComponent.STREAM_CODEC)
+    );
+
     public static void register(IEventBus eventBus) {
         DATA_COMPONENT.register(eventBus);
     }

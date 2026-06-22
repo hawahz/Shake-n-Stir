@@ -4,7 +4,7 @@ import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.DrinkData;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.IngredientData;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.cocktaileType.CocktailType;
-import io.github.hawah.shakenstir.foundation.recipe.datapack.spirit.SpiritData;
+import io.github.hawah.shakenstir.foundation.recipe.datapack.spirit.FluidData;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -14,13 +14,13 @@ import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 @EventBusSubscriber
 public class Registries {
 
-    public static final ResourceKey<Registry<SpiritData>> SPIRIT_REGISTRY_KEY = ResourceKey.createRegistryKey(ShakenStir.asResource("spirit"));
+    public static final ResourceKey<Registry<FluidData>> FLUID_REGISTRY_KEY = ResourceKey.createRegistryKey(ShakenStir.asResource("fluid"));
     public static final ResourceKey<Registry<IngredientData>> INGREDIENT_REGISTRY_KEY = ResourceKey.createRegistryKey(ShakenStir.asResource("ingredient"));
     public static final ResourceKey<Registry<CocktailType>> COCKTAIL_REGISTRY_KEY = ResourceKey.createRegistryKey(ShakenStir.asResource("cocktail"));
     public static final ResourceKey<Registry<DrinkData>> DRINK_REGISTRY_KEY = ResourceKey.createRegistryKey(ShakenStir.asResource("drink"));
     public static final ResourceKey<Registry<ConsumableDesc>> CONSUMABLE_DESC = ResourceKey.createRegistryKey(ShakenStir.asResource("consumable_desc"));
 
-//    public static final Registry<SpiritData> SPIRIT_REGISTRY = new RegistryBuilder<>(SPIRIT_REGISTRY_KEY).sync(true).defaultKey(ShakenStir.asResource("empty")).create();
+//    public static final Registry<FluidData> FLUID_REGISTRY = new RegistryBuilder<>(FLUID_REGISTRY_KEY).sync(true).defaultKey(ShakenStir.asResource("empty")).create();
 //    public static final Registry<IngredientData> INGREDIENT_REGISTRY = new RegistryBuilder<>(INGREDIENT_REGISTRY_KEY).sync(true).defaultKey(ShakenStir.asResource("empty")).create();
 //    public static final Registry<CocktailType> COCKTAIL_REGISTRY = new RegistryBuilder<>(COCKTAIL_REGISTRY_KEY).sync(true).defaultKey(ShakenStir.asResource("empty")).create();
 //    public static final Registry<DrinkData> DRINK_REGISTRY = new RegistryBuilder<>(DRINK_REGISTRY_KEY).sync(true).defaultKey(ShakenStir.asResource("empty")).create();
@@ -28,9 +28,9 @@ public class Registries {
     @SubscribeEvent
     public static void registerDatapackRegistries(DataPackRegistryEvent.NewRegistry event) {
         event.dataPackRegistry(
-                SPIRIT_REGISTRY_KEY,
-                SpiritData.CODEC,
-                SpiritData.CODEC
+                FLUID_REGISTRY_KEY,
+                FluidData.CODEC,
+                FluidData.CODEC
         );
         event.dataPackRegistry(
                 INGREDIENT_REGISTRY_KEY,

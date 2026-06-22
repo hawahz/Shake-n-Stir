@@ -8,6 +8,7 @@ import io.github.hawah.shakenstir.content.dataComponent.*;
 import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.data.SnsRecipeHolder;
+import io.github.hawah.shakenstir.foundation.fluid.ItemFluidType;
 import io.github.hawah.shakenstir.foundation.fluid.JuiceFluidType;
 import io.github.hawah.shakenstir.foundation.fluid.TintColorGetter;
 import io.github.hawah.shakenstir.foundation.recipe.IScoreSortedRecipe;
@@ -17,7 +18,7 @@ import io.github.hawah.shakenstir.foundation.recipe.datapack.DrinkData;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.EffectData;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.cocktaileType.CocktailType;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.cocktaileType.CocktailTypes;
-import io.github.hawah.shakenstir.foundation.recipe.datapack.spirit.SpiritData;
+import io.github.hawah.shakenstir.foundation.recipe.datapack.spirit.FluidData;
 import io.github.hawah.shakenstir.foundation.recipe.ingredient.FluidIngredient;
 import io.github.hawah.shakenstir.foundation.recipeRecord.ServerRecipeHelper;
 import io.github.hawah.shakenstir.foundation.tags.SnsFluidTags;
@@ -108,8 +109,17 @@ public record ShakeRecipe(
                 .toList());
         consumables.addAll(
                 fluidStacks.stream()
-                        .filter(stack -> stack.typeHolder() instanceof JuiceFluidType)
+                        .filter(stack -> stack.getFluidType() instanceof JuiceFluidType)
                         .map(stack -> stack.getOrDefault(DataComponentTypeRegistries.FRUIT_DATA, SingleItemComponent.EMPTY).itemStack())
+                        .map(itemStack -> Optional.ofNullable(itemStack.get(DataComponents.CONSUMABLE)))
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .toList()
+        );
+        consumables.addAll(
+                fluidStacks.stream()
+                        .filter(stack -> stack.getFluidType() instanceof ItemFluidType)
+                        .map(stack -> stack.getOrDefault(DataComponentTypeRegistries.ITEM_CONTENT, SingleItemComponent.EMPTY).itemStack())
                         .map(itemStack -> Optional.ofNullable(itemStack.get(DataComponents.CONSUMABLE)))
                         .filter(Optional::isPresent)
                         .map(Optional::get)
@@ -130,13 +140,13 @@ public record ShakeRecipe(
 
             resultItem.set(DataComponentTypeRegistries.DRINK_DATA, new DrinkData(
                     resultItem.getOrDefault(DataComponentTypeRegistries.COCKTAIL_TYPE, CocktailType.EMPTY),
-                    SpiritData.get(
+                    FluidData.get(
                             level,
                             base
                     ),
                     fluidStacks.stream()
-                            .map(fluidStack ->  SpiritData.getOr(level, fluidStack.typeHolder(), () ->
-                                    new SpiritData(fluidStack.typeHolder(), EffectData.EMPTY)
+                            .map(fluidStack ->  FluidData.getOr(level, fluidStack.typeHolder(), () ->
+                                    new FluidData(fluidStack.typeHolder(), EffectData.EMPTY, fluidStack.getAmount())
                             )).toList(),
                     List.of(),
                     quality,
@@ -271,6 +281,24 @@ public record ShakeRecipe(
                 .map(itemStack -> itemStack.get(DataComponents.CONSUMABLE))
                 .filter(Objects::nonNull)
                 .toList();
+        consumables.addAll(
+                recipeInput.fluidStacks().stream()
+                        .filter(stack -> stack.getFluidType() instanceof JuiceFluidType)
+                        .map(stack -> stack.getOrDefault(DataComponentTypeRegistries.FRUIT_DATA, SingleItemComponent.EMPTY).itemStack())
+                        .map(itemStack -> Optional.ofNullable(itemStack.get(DataComponents.CONSUMABLE)))
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .toList()
+        );
+        consumables.addAll(
+                recipeInput.fluidStacks().stream()
+                        .filter(stack -> stack.getFluidType() instanceof ItemFluidType)
+                        .map(stack -> stack.getOrDefault(DataComponentTypeRegistries.ITEM_CONTENT, SingleItemComponent.EMPTY).itemStack())
+                        .map(itemStack -> Optional.ofNullable(itemStack.get(DataComponents.CONSUMABLE)))
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .toList()
+        );
         int rgb = ShakeUtil.rgbWithWeight(recipeInput.fluidStacks().stream().map((stack) ->
                 Pair.of(stack.getFluidType() instanceof TintColorGetter type ? type.getTintColor() : 0xFFFFFF, stack.getAmount())
         ).toList());
@@ -278,7 +306,7 @@ public record ShakeRecipe(
         resultItem.set(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY, quality);
         resultItem.set(DataComponentTypeRegistries.DRINK_DATA, new DrinkData(
                 resultItem.getOrDefault(DataComponentTypeRegistries.COCKTAIL_TYPE, CocktailType.EMPTY),
-                SpiritData.get(
+                FluidData.get(
                         level,
                         recipeInput.fluidStacks()
                                 .stream()
