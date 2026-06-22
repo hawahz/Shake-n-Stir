@@ -41,6 +41,8 @@ public class FluidRegistries {
     public static final DeferredHolder<Fluid, FlowingFluid> SWEET_JUICE_FLOWING     =   FLUIDS.register("sweet_juice_fluid_flow", () ->          new BaseFlowingFluid.Flowing(FluidRegistries.   SWEET_JUICE_PROPERTIES));
     public static final DeferredHolder<Fluid, FlowingFluid> LEMONADE_SOURCE         =   FLUIDS.register("lemonade_fluid", () ->            new BaseFlowingFluid.Source(FluidRegistries.    LEMONADE_PROPERTIES));
     public static final DeferredHolder<Fluid, FlowingFluid> LEMONADE_FLOWING        =   FLUIDS.register("lemonade_fluid_flow", () ->       new BaseFlowingFluid.Flowing(FluidRegistries.   LEMONADE_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> ITEM_SOURCE             =   FLUIDS.register("item_fluid", () ->                new BaseFlowingFluid.Source(FluidRegistries.    ITEM_PROPERTIES));
+    public static final DeferredHolder<Fluid, FlowingFluid> ITEM_FLOWING            =   FLUIDS.register("item_fluid_flow", () ->           new BaseFlowingFluid.Flowing(FluidRegistries.   ITEM_PROPERTIES));
 
     // 定义流体的属性s
     // 这个流体的属性要传入的内容比较多，我们挨个介绍，我们使用了BaseFlowingFluid的Properties内部类创建对应的Properties，其中第一个参数是对应的流体的类体类型FluidType，然后第二个参数是对应的source流体，第三个参数是flow流体，都是我们刚刚写过的，看起来比较绕，大家自己理清下关系。
@@ -159,6 +161,14 @@ public class FluidRegistries {
             FluidTypeRegistries.LEMONADE_FLUID_TYPE,
             FluidRegistries.LEMONADE_SOURCE,
             FluidRegistries.LEMONADE_FLOWING
+    );//.bucket(ModItems.MY_FLUID_BUCKET)
+    //            .slopeFindDistance(2)
+    //            .levelDecreasePerBlock(2)
+    //            .block(BlockRegistries.GIN_LIQUID);
+    private static final BaseFlowingFluid.Properties ITEM_PROPERTIES = new BaseFlowingFluid.Properties(
+            FluidTypeRegistries.ITEM_FLUID_TYPE,
+            FluidRegistries.ITEM_SOURCE,
+            FluidRegistries.ITEM_FLOWING
     );//.bucket(ModItems.MY_FLUID_BUCKET)
     //            .slopeFindDistance(2)
     //            .levelDecreasePerBlock(2)

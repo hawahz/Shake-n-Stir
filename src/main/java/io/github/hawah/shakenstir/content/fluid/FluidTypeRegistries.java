@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.content.fluid;
 
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.foundation.fluid.BaseFluidType;
+import io.github.hawah.shakenstir.foundation.fluid.ItemFluidType;
 import io.github.hawah.shakenstir.foundation.fluid.JuiceFluidType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
@@ -45,6 +46,7 @@ public class FluidTypeRegistries {
     public static final DeferredHolder<FluidType, FluidType> JUICE_FLUID_TYPE = registerJuice("juice_fluid_type", 0xFF8C00, FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
     public static final DeferredHolder<FluidType, FluidType> SWEET_JUICE_FLUID_TYPE = registerJuice("sweet_juice_fluid_type", 0xFF8C00, FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
     public static final DeferredHolder<FluidType, FluidType> LEMONADE_FLUID_TYPE = register("lemonade_fluid_type", 0xFFFF66, 0, FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
+    public static final DeferredHolder<FluidType, FluidType> ITEM_FLUID_TYPE = registerItem("item_fluid_type", 0xE8D5B7, FluidType.Properties.create().lightLevel(2).density(15).viscosity(5).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK.value()));
 
 
     // 这个是我们自己写的注册的方法
@@ -66,6 +68,11 @@ public class FluidTypeRegistries {
 
     private static DeferredHolder<FluidType, FluidType> registerJuice(String name, int color, FluidType.Properties properties) {
         return FLUID_TYPES.register(name, () -> new JuiceFluidType(WATER_STILL_RL, WATER_FLOWING_RL, MY_FLUID_RL,
+                color, new Vector3f(224f / 255f, 56f / 255f, 208f / 255f), properties));
+    }
+
+    private static DeferredHolder<FluidType, FluidType> registerItem(String name, int color, FluidType.Properties properties) {
+        return FLUID_TYPES.register(name, () -> new ItemFluidType(WATER_STILL_RL, WATER_FLOWING_RL, MY_FLUID_RL,
                 color, new Vector3f(224f / 255f, 56f / 255f, 208f / 255f), properties));
     }
     // 记得注册到总线

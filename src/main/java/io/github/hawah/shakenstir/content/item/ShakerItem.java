@@ -7,9 +7,12 @@ import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.IItemDataHolder;
 import io.github.hawah.shakenstir.content.dataComponent.ShakeContentHolder;
+import io.github.hawah.shakenstir.content.dataComponent.SingleItemComponent;
 import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
+import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import io.github.hawah.shakenstir.content.tooltip.ShakeTooltipComponent;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
+import io.github.hawah.shakenstir.foundation.fluid.ItemFluidType;
 import io.github.hawah.shakenstir.foundation.item.IFluidContainer;
 import io.github.hawah.shakenstir.foundation.item.IPickMarkedItem;
 import io.github.hawah.shakenstir.foundation.item.PriorityBlockItem;
@@ -18,6 +21,7 @@ import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.lib.networking.Networking;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
@@ -252,6 +256,50 @@ public class ShakerItem extends PriorityBlockItem implements IPickMarkedItem {
                 );
                 return true;
             }
+        }
+        if (!other.isEmpty() && other.has(DataComponents.CONSUMABLE) && other.getCraftingRemainder() != null) {
+            int amount = 250;
+            ArrayList<FluidStack> fluidStacks = new ArrayList<>(ShakeUtil.getFluidStacks(self));
+            int sum = fluidStacks.stream().mapToInt(FluidStack::getAmount).sum();
+
+            if (sum >= ShakeBlockEntity.MAX_FLUID_CAPACITY) {
+                return false;
+            }
+
+            ItemStack consumedItem = other.copyWithCount(1);
+            FluidStack itemFluidStack = new FluidStack(FluidRegistries.ITEM_SOURCE, amount);
+            itemFluidStack.set(DataComponentTypeRegistries.ITEM_CONTENT, new SingleItemComponent(consumedItem));
+
+            int find = -1;
+            for (int i = 0; i < fluidStacks.size(); i++) {
+                if (fluidStacks.get(i).getFluidType() instanceof ItemFluidType) {
+                    FluidStack existing = fluidStacks.get(i);
+                    ItemStack existingItem = existing.getOrDefault(DataComponentTypeRegistries.ITEM_CONTENT, SingleItemComponent.EMPTY).itemStack();
+                    if (ItemStack.isSameItemSameComponents(existingItem, consumedItem)) {
+                        find = i;
+                        break;
+                    }
+                }
+            }
+
+            if (find == -1) {
+                fluidStacks.add(itemFluidStack);
+            } else {
+                fluidStacks.get(find).grow(amount);
+            }
+
+            if (other.count() > 1) {
+                other.shrink(1);
+                player.addItem(other.getCraftingRemainder().create());
+            } else {
+                carriedItem.set(other.getCraftingRemainder().create());
+            }
+
+            ShakeUtil.setFluidData(self, fluidStacks);
+            player.playSound(
+                    SoundEvents.BOTTLE_FILL
+            );
+            return true;
         }
         return super.overrideOtherStackedOnMe(self, other, slot, clickAction, player, carriedItem);
     }

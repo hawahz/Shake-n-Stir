@@ -28,6 +28,8 @@ public class SnsFluidTags {
 
     public static final TagKey<Fluid> JUICE = common("juice");
 
+    public static final TagKey<Fluid> ITEM_FLUID = common("item_fluid");
+
     private static TagKey<Fluid> common(String name) {
         return FluidTags.create(Identifier.fromNamespaceAndPath("c", name));
     }
