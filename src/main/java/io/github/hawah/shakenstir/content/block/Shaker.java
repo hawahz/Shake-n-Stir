@@ -5,9 +5,12 @@ import com.mojang.serialization.MapCodec;
 import io.github.hawah.shakenstir.content.blockEntity.BlockEntityRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.content.dataComponent.SingleItemComponent;
 import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
+import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
+import io.github.hawah.shakenstir.foundation.fluid.ItemFluidType;
 import io.github.hawah.shakenstir.foundation.item.SpiritBottleItem;
 import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
@@ -15,6 +18,7 @@ import io.github.hawah.shakenstir.lib.VoxelShapeMaker;
 import io.github.hawah.shakenstir.util.AdvancementHooks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -296,7 +300,8 @@ public class Shaker extends FallingBlock implements EntityBlock, ITakeUpBlock {
     }
 
     public static boolean canInsert(ItemStack itemStack) {
-        return itemStack.is(SnsItemTags.SHAKE_PLACABLE) || itemStack.is(ItemRegistries.ICE_CUBE);
+        return itemStack.is(SnsItemTags.SHAKE_PLACABLE) || itemStack.is(ItemRegistries.ICE_CUBE)
+                || (itemStack.has(DataComponents.CONSUMABLE) && itemStack.getCraftingRemainder() != null);
     }
 
     @Override
@@ -313,6 +318,9 @@ public class Shaker extends FallingBlock implements EntityBlock, ITakeUpBlock {
             if (cap != null) {
                 return tryPourLiquid(state, level, pos, player, cap);
             }
+        }
+        if (state.getValue(FACING).equals(Direction.DOWN) && !itemStack.isEmpty() && itemStack.has(DataComponents.CONSUMABLE) && itemStack.getCraftingRemainder() != null) {
+            return tryInsertConsumableAsFluid(state, level, pos, player, itemStack);
         }
         if (state.getValue(FACING).equals(Direction.DOWN) && !itemStack.isEmpty() && canInsert(itemStack)) {
             if (level.getBlockEntity(pos) instanceof ShakeBlockEntity blockEntity) {
@@ -420,6 +428,46 @@ public class Shaker extends FallingBlock implements EntityBlock, ITakeUpBlock {
                 1
         );
         return InteractionResult.SUCCESS;
+    }
+
+    private static InteractionResult tryInsertConsumableAsFluid(BlockState state, Level level, BlockPos pos, Player player, ItemStack itemStack) {
+        if (state.getValue(FACING).equals(Direction.UP) || player.isShiftKeyDown())
+            return InteractionResult.TryEmptyHandInteraction.TRY_WITH_EMPTY_HAND;
+
+        if (level.getBlockEntity(pos, BlockEntityRegistries.SHAKE_BLOCK_ENTITY.get()).orElse(null) instanceof ShakeBlockEntity shakeBlockEntity) {
+            int amount = 250;
+            ItemStack consumedItem = itemStack.copyWithCount(1);
+            FluidStack itemFluidStack = new FluidStack(FluidRegistries.ITEM_SOURCE, amount);
+            itemFluidStack.set(DataComponentTypeRegistries.ITEM_CONTENT, new SingleItemComponent(consumedItem));
+
+            boolean success = shakeBlockEntity.pourLiquid(itemFluidStack, player.isCreative());
+            if (!success) {
+                return InteractionResult.TryEmptyHandInteraction.TRY_WITH_EMPTY_HAND;
+            }
+
+            if (!player.isCreative()) {
+                if (itemStack.getCount() > 1) {
+                    itemStack.shrink(1);
+                    player.addItem(itemStack.getCraftingRemainder().create());
+                } else {
+                    ItemStack remainder = itemStack.getCraftingRemainder().create();
+                    itemStack.shrink(1);
+                    ITakeUpBlock.holdOrAddItem(player, remainder, level, pos);
+                }
+            }
+
+            level.playSound(
+                    null,
+                    pos,
+                    SoundEvents.BOTTLE_EMPTY,
+                    SoundSource.BLOCKS,
+                    1,
+                    1
+            );
+            player.getCooldowns().addCooldown(itemStack, 10);
+            return InteractionResult.SUCCESS;
+        }
+        return InteractionResult.TryEmptyHandInteraction.TRY_WITH_EMPTY_HAND;
     }
 
 

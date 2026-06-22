@@ -6,13 +6,17 @@ import io.github.hawah.shakenstir.content.block.Shaker;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.IFluidDataHolder;
 import io.github.hawah.shakenstir.content.dataComponent.IItemDataHolder;
+import io.github.hawah.shakenstir.content.dataComponent.SingleItemComponent;
+import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.block.AutoUpdateBlockEntity;
+import io.github.hawah.shakenstir.foundation.fluid.ItemFluidType;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.util.FluidStackWithSlot;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -108,6 +112,34 @@ public class ShakeBlockEntity extends AutoUpdateBlockEntity implements ItemOwner
     public boolean putItem(ItemStack itemStack, Player player) {
         if (itemStack.isEmpty() || holdingProduct()) {
             return false;
+        }
+        if (itemStack.has(DataComponents.CONSUMABLE) && itemStack.getCraftingRemainder() != null) {
+            int amount = 250;
+            ItemStack consumedItem = itemStack.copyWithCount(1);
+            FluidStack itemFluidStack = new FluidStack(FluidRegistries.ITEM_SOURCE, amount);
+            itemFluidStack.set(DataComponentTypeRegistries.ITEM_CONTENT, new SingleItemComponent(consumedItem));
+
+            boolean success = pourLiquid(itemFluidStack, player.isCreative());
+            if (success && !player.isCreative()) {
+                if (itemStack.getCount() > 1) {
+                    itemStack.shrink(1);
+                    player.addItem(itemStack.getCraftingRemainder().create());
+                } else {
+                    ItemStack remainder = itemStack.getCraftingRemainder().create();
+                    itemStack.shrink(1);
+                    player.addItem(remainder);
+                }
+            }
+            level().playSound(
+                    null,
+                    worldPosition,
+                    SoundEvents.BOTTLE_EMPTY,
+                    SoundSource.BLOCKS,
+                    1.0F,
+                    1.0F
+            );
+            markChanged();
+            return success;
         }
         if (itemStack.is(ItemRegistries.ICE_CUBE)) {
             if (iceCubeCounts < 3) {
