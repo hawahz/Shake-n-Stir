@@ -1,5 +1,8 @@
 package io.github.hawah.shakenstir.client.gui;
 
+import com.google.gson.JsonElement;
+import com.mojang.logging.LogUtils;
+import com.mojang.serialization.JsonOps;
 import io.github.hawah.shakenstir.content.dialogue.Condition;
 import io.github.hawah.shakenstir.content.dialogue.ConditionType;
 import io.github.hawah.shakenstir.content.dialogue.DialogueData;
@@ -9,6 +12,7 @@ import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundBartenderDialogueUpdatePacket;
 import io.github.hawah.shakenstir.lib.client.gui.BaseScreen;
 import io.github.hawah.shakenstir.lib.networking.Networking;
+import io.github.hawah.shakenstir.util.Paths;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -16,8 +20,11 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import org.slf4j.Logger;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +42,8 @@ import java.util.List;
  */
 @ParametersAreNonnullByDefault
 public class DialogueEditorScreen extends BaseScreen {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     // ===================== 布局常量 =====================
     private static final int WIN_WIDTH = 400;
@@ -94,6 +103,9 @@ public class DialogueEditorScreen extends BaseScreen {
     private EditBox txtFrequency;
     private Button btnCondType;
     private Button btnCondOp;
+    // TODO: 人工审查 - 2026-06-22 - 新增导出功能控件：文件名输入框 + 导出按钮
+    private EditBox txtExportFilename;
+    private Button btnExport;
 
     // ===================== 区域边界（每次 init/渲染计算） =====================
 
@@ -128,87 +140,121 @@ public class DialogueEditorScreen extends BaseScreen {
         int btnY = guiTop + WIN_HEIGHT - 25;
 
         // -- 条目元数据控件（频率） --
-        txtFrequency = new EditBox(font, guiLeft + EDIT_PANEL_X + 5, condEditorY - 20, 40, 16,
+        int BUTTON_HEIGHT = 16;
+        txtFrequency = new EditBox(font, guiLeft + EDIT_PANEL_X + 5, condEditorY - 20, 40, BUTTON_HEIGHT,
                 LangData.GUI_DIALOGUE_EDITOR_FREQ.get());
         txtFrequency.setMaxLength(4);
         txtFrequency.setFilter(s -> s.matches("[0-9]*")); // 仅数字
         addSortedRenderWidget(txtFrequency);
 
         Button btnApplyFreq = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_SET_FREQ.get(), btn -> commitFrequency())
-                .pos(guiLeft + EDIT_PANEL_X + 50, condEditorY - 20).size(50, 16).build();
+                .pos(guiLeft + EDIT_PANEL_X + 50, condEditorY - 20).size(50, BUTTON_HEIGHT).build();
         addSortedRenderWidget(btnApplyFreq);
 
         // -- 帮助按钮 --
         Button btnHelp = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_HELP.get(), btn -> { helpVisible = !helpVisible; })
-                .pos(guiLeft + EDIT_PANEL_X + 110, condEditorY - 20).size(30, 16).build();
+                .pos(guiLeft + EDIT_PANEL_X + 110, condEditorY - 20).size(30, BUTTON_HEIGHT).build();
         addSortedRenderWidget(btnHelp);
 
         // -- 条件编辑控件 --
         btnCondType = Button.builder(getCondTypeLabel(), btn -> cycleCondType())
-                .pos(guiLeft + EDIT_PANEL_X + 5, condEditorY).size(80, 16).build();
+                .pos(guiLeft + EDIT_PANEL_X + 5, condEditorY).size(80, BUTTON_HEIGHT).build();
         addSortedRenderWidget(btnCondType);
 
         btnCondOp = Button.builder(getCondOpLabel(), btn -> cycleCondOp())
-                .pos(guiLeft + EDIT_PANEL_X + 90, condEditorY).size(45, 16).build();
+                .pos(guiLeft + EDIT_PANEL_X + 90, condEditorY).size(45, BUTTON_HEIGHT).build();
         addSortedRenderWidget(btnCondOp);
 
-        txtCondValue = new EditBox(font, guiLeft + EDIT_PANEL_X + 140, condEditorY, 40, 16,
+        txtCondValue = new EditBox(font, guiLeft + EDIT_PANEL_X + 140, condEditorY, 40, BUTTON_HEIGHT,
                 LangData.GUI_DIALOGUE_EDITOR_COND_VAL.get());
         txtCondValue.setMaxLength(32);
         addSortedRenderWidget(txtCondValue);
 
         int condBtnY = condEditorY + 18;
         Button btnAddCond = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_ADD_COND.get(), btn -> addCondition())
-                .pos(guiLeft + EDIT_PANEL_X + 5, condBtnY).size(50, 16).build();
+                .pos(guiLeft + EDIT_PANEL_X + 5, condBtnY)
+                .size(50, BUTTON_HEIGHT)
+                .build();
         addSortedRenderWidget(btnAddCond);
 
         Button btnDelCond = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_DEL_COND.get(), btn -> deleteCondition())
-                .pos(guiLeft + EDIT_PANEL_X + 60, condBtnY).size(50, 16).build();
+                .pos(guiLeft + EDIT_PANEL_X + 60, condBtnY)
+                .size(50, BUTTON_HEIGHT)
+                .build();
         addSortedRenderWidget(btnDelCond);
 
         Button btnEditCond = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_APPLY.get(), btn -> commitConditionEdit())
-                .pos(guiLeft + EDIT_PANEL_X + 120, condBtnY).size(55, 16).build();
+                .pos(guiLeft + EDIT_PANEL_X + 120, condBtnY)
+                .size(55, BUTTON_HEIGHT)
+                .build();
         addSortedRenderWidget(btnEditCond);
 
         // -- 文本编辑控件 --
-        txtDialogueText = new EditBox(font, guiLeft + EDIT_PANEL_X + 5, textEditorY, 175, 16,
+        txtDialogueText = new EditBox(font, guiLeft + EDIT_PANEL_X + 5, textEditorY, 175, BUTTON_HEIGHT,
                 LangData.GUI_DIALOGUE_EDITOR_TEXT.get());
         txtDialogueText.setMaxLength(128);
         addSortedRenderWidget(txtDialogueText);
 
         int textBtnY = textEditorY + 18;
         Button btnAddText = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_ADD_TEXT.get(), btn -> addText())
-                .pos(guiLeft + EDIT_PANEL_X + 5, textBtnY).size(50, 16).build();
+                .pos(guiLeft + EDIT_PANEL_X + 5, textBtnY)
+                .size(50, BUTTON_HEIGHT)
+                .build();
         addSortedRenderWidget(btnAddText);
 
         Button btnDelText = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_DEL_TEXT.get(), btn -> deleteText())
-                .pos(guiLeft + EDIT_PANEL_X + 60, textBtnY).size(50, 16).build();
+                .pos(guiLeft + EDIT_PANEL_X + 60, textBtnY)
+                .size(50, BUTTON_HEIGHT)
+                .build();
         addSortedRenderWidget(btnDelText);
 
         Button btnEditText = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_APPLY.get(), btn -> commitTextEdit())
-                .pos(guiLeft + EDIT_PANEL_X + 120, textBtnY).size(55, 16).build();
+                .pos(guiLeft + EDIT_PANEL_X + 120, textBtnY)
+                .size(55, BUTTON_HEIGHT)
+                .build();
         addSortedRenderWidget(btnEditText);
 
         // -- 底栏按钮 --
         Button btnSave = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_SAVE.get(), btn -> saveAndClose())
-                .pos(guiLeft + WIN_WIDTH - 60, btnY).size(50, 20).build();
+                .pos(guiLeft + WIN_WIDTH - 60, btnY)
+                .size(50, 20)
+                .build();
         addSortedRenderWidget(btnSave);
 
         Button btnCopy = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_COPY.get(), btn -> copyToClipboard())
-                .pos(guiLeft + EDIT_PANEL_X + 60, btnY).size(50, 20).build();
+                .pos(guiLeft + EDIT_PANEL_X + 60, btnY)
+                .size(50, 20).build();
         addSortedRenderWidget(btnCopy);
 
         Button btnPaste = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_PASTE.get(), btn -> pasteFromClipboard())
-                .pos(guiLeft + EDIT_PANEL_X + 115, btnY).size(50, 20).build();
+                .pos(guiLeft + EDIT_PANEL_X + 115, btnY)
+                .size(50, 20)
+                .build();
         addSortedRenderWidget(btnPaste);
 
         Button btnAddEntry = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_ADD_ENTRY.get(), btn -> addNewEntry())
-                .pos(guiLeft + 5, btnY).size(60, 20).build();
+                .pos(guiLeft + 5, btnY)
+                .size(60, 20)
+                .build();
         addSortedRenderWidget(btnAddEntry);
 
         Button btnDelEntry = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_DEL_ENTRY.get(), btn -> deleteSelectedEntry())
-                .pos(guiLeft + 70, btnY).size(60, 20).build();
+                .pos(guiLeft + 70, btnY)
+                .size(60, 20)
+                .build();
         addSortedRenderWidget(btnDelEntry);
+
+        // TODO: 人工审查 - 2026-06-22 - 新增导出功能：文件名输入框 + 导出按钮，置于底栏左下角
+        // -- 导出控件（底栏左侧） --
+        txtExportFilename = new EditBox(font, guiLeft + 135, btnY, 60, 20,
+                LangData.GUI_DIALOGUE_EDITOR_EXPORT_FILENAME.get());
+        txtExportFilename.setMaxLength(64);
+        txtExportFilename.setHint(LangData.GUI_DIALOGUE_EDITOR_EXPORT_FILENAME.get());
+        addSortedRenderWidget(txtExportFilename);
+
+        btnExport = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_EXPORT.get(), btn -> exportToFile())
+                .pos(guiLeft + 197, btnY).size(32, 20).build();
+        addSortedRenderWidget(btnExport);
 
         finishRegister();
         refreshAllEditFields();
@@ -863,6 +909,53 @@ public class DialogueEditorScreen extends BaseScreen {
     }
 
     // ===================== 保存与关闭 =====================
+
+    // TODO: 人工审查 - 2026-06-22 - 新增导出到文件方法，序列化 editingData 为 JSON 并保存到 CONVERSATION_DIR
+    /**
+     * 将当前编辑的对话数据导出为 JSON 文件，保存到 {@code ./shakenstir/bartender/conversation/} 目录。
+     * 文件名从 {@code txtExportFilename} 获取，为空则使用 "untitled"。
+     */
+    private void exportToFile() {
+        String rawName = txtExportFilename.getValue().trim();
+        String fileName = rawName.isEmpty() ? "untitled" : rawName;
+
+        try {
+            java.nio.file.Path dir = Paths.CONVERSATION_DIR;
+            Files.createDirectories(dir);
+
+            java.nio.file.Path filePath = dir.resolve(fileName + ".json");
+
+            var encodeResult = DialogueData.CODEC.encodeStart(JsonOps.INSTANCE, editingData);
+            JsonElement json = encodeResult.resultOrPartial(err ->
+                    LOGGER.error("Failed to encode DialogueData for export: {}", err)
+            ).orElse(null);
+
+            if (json == null) {
+                if (minecraft != null && minecraft.player != null) {
+                    minecraft.player.sendSystemMessage(
+                            LangData.GUI_DIALOGUE_EDITOR_MSG_EXPORT_FAILED.get("Serialization error")
+                    );
+                }
+                return;
+            }
+
+            Files.writeString(filePath, json.toString());
+
+            LOGGER.info("Exported dialogue data to: {}", filePath);
+            if (minecraft != null && minecraft.player != null) {
+                minecraft.player.sendSystemMessage(
+                        LangData.GUI_DIALOGUE_EDITOR_MSG_EXPORT_SUCCESS.get(fileName + ".json")
+                );
+            }
+        } catch (IOException e) {
+            LOGGER.error("Failed to export dialogue data", e);
+            if (minecraft != null && minecraft.player != null) {
+                minecraft.player.sendSystemMessage(
+                        LangData.GUI_DIALOGUE_EDITOR_MSG_EXPORT_FAILED.get(e.getMessage())
+                );
+            }
+        }
+    }
 
     private void saveAndClose() {
         entity.setDialogueData(editingData);

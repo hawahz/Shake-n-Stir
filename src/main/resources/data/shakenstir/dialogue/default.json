@@ -1,0 +1,43 @@
+[
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "conditions": [
+      {
+        "type": "weather",
+        "operator": "is",
+        "value": "clear"
+      }
+    ],
+    "texts": [
+      "What a beautiful day!",
+      "The weather is perfect for a drink."
+    ],
+    "frequency": 1
+  },
+  {
+    "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+    "conditions": [
+      {
+        "type": "weather",
+        "operator": "is",
+        "value": "rain"
+      }
+    ],
+    "texts": [
+      "Stay dry out there!",
+      "A little rain never hurt anyone.",
+      "Perfect weather for a warm cocktail."
+    ],
+    "frequency": 1
+  },
+  {
+    "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+    "conditions": [],
+    "texts": [
+      "Welcome to the bar!",
+      "What can I get for you today?",
+      "Take a seat and relax."
+    ],
+    "frequency": 3
+  }
+]
