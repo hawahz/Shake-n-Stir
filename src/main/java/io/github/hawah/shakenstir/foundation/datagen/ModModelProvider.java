@@ -81,6 +81,7 @@ public class ModModelProvider extends ModelProvider {
         generateScroll(itemModels);
         // Basic single variant model
         registerCustomBlockModel(blockModels, "block/shaker_lid", BlockRegistries.SHAKE_LID_BLOCK.get());
+        generateIneberryGrass(blockModels, itemModels);
         generateBarCounterModel(blockModels, itemModels);
         generateShaker(blockModels, itemModels);
         generateSpirit(blockModels, itemModels, BlockRegistries.GIN, ItemRegistries.GIN, "gin");
@@ -115,6 +116,11 @@ public class ModModelProvider extends ModelProvider {
         generateMenu(blockModels, itemModels);
         generateMintCrop(blockModels);
 //        generateLongDrinkGlassware(itemModels);
+    }
+
+    private static void generateIneberryGrass(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
+        registerCustomBlockModel(blockModels, "block/ineberry_grass", BlockRegistries.INEBERRY_GRASS.get());
+//        itemModels.itemModelOutput.accept(ItemRegistries.INEBERRY_GRASS.get(), );
     }
 
     private void generateSqueezer(ItemModelGenerators itemModels) {
