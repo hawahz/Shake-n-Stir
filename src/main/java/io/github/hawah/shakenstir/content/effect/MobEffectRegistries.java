@@ -18,7 +18,7 @@ public class MobEffectRegistries {
     public static final DeferredHolder<MobEffect, FallDownEffect> FALL_DOWN = register("fall_down", FallDownEffect::new, MobEffectCategory.HARMFUL, 0xFF0000);
     public static final DeferredHolder<MobEffect, LemonEffect> LEMON = register("lemon", LemonEffect::new, MobEffectCategory.NEUTRAL, 0xFF0000);
     public static final DeferredHolder<MobEffect, ParalysisEffect> PARALYSIS = register("paralysis", ParalysisEffect::new, MobEffectCategory.BENEFICIAL, 0x659fff);
-    public static final DeferredHolder<MobEffect, MisdirectionEffect> MISDIRECTION = register("misdirection", MisdirectionEffect::new, MobEffectCategory.BENEFICIAL, 0xb6ff00);
+    public static final DeferredHolder<MobEffect, DummyMobEffect> MISDIRECTION = register("misdirection", DummyMobEffect::new, MobEffectCategory.BENEFICIAL, 0xb6ff00);
 
     public static <T extends MobEffect> DeferredHolder<MobEffect, T> register(String name, BiFunction<MobEffectCategory, Integer, T> factory, MobEffectCategory category, int color ) {
         return MOB_EFFECTS.register(name, () -> factory.apply(category, color));
