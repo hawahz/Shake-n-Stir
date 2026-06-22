@@ -1,5 +1,7 @@
 package io.github.hawah.shakenstir.foundation.datagen;
 
+// TODO: 人工审查 - 2026-06-22 (Added Misdirection effect lang entry)
+
 import io.github.hawah.shakenstir.content.damageType.SnsDamageType;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
 import io.github.hawah.shakenstir.content.fluid.FluidTypeRegistries;
@@ -91,6 +93,7 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add(MobEffectRegistries.FALL_DOWN.get().getDescriptionId(), "Fall Down");
         add(MobEffectRegistries.LEMON.get().getDescriptionId(), "Lemon");
         add(MobEffectRegistries.PARALYSIS.get().getDescriptionId(), "Paralysis");
+        add(MobEffectRegistries.MISDIRECTION.get().getDescriptionId(), "Misdirection");
 
         add("death.attack." + SnsDamageType.PARALYSIS.identifier(), "When %s reacted, he has already dead.");
         add("death.attack." + SnsDamageType.PARALYSIS.identifier() + ".player", "When %s reacted, he has already been killed by %s");
