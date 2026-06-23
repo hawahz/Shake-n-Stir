@@ -7,7 +7,6 @@ import io.github.hawah.shakenstir.content.entity.BartenderEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -104,7 +103,6 @@ public class BarMenuBlock extends HorizontalDirectionalBlock implements EntityBl
         return new BarMenuBlockEntity(worldPosition, blockState);
     }
 
-    public static final Identifier CONTENTS = Identifier.withDefaultNamespace("contents");
     @Override
     protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
         BlockEntity blockEntity = params.getOptionalParameter(LootContextParams.BLOCK_ENTITY);

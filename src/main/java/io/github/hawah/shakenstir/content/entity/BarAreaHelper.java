@@ -112,6 +112,12 @@ public class BarAreaHelper {
                         .lazyDiscard(500)
                         .finish();
             }
+            for (BlockPos blockPos : counterCluster) {
+                Outliner.getInstance().chaseBox(blockPos, blockPos, blockPos)
+                        .lazyDiscard(500)
+                        .setRGBA(1, 1, 0, 1)
+                        .finish();
+            }
         }
         return new BarData(counterCluster.stream().toList(), bartenderArea.stream().toList(), level.dimension());
     }
