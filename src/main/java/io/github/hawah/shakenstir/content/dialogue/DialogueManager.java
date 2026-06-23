@@ -359,7 +359,8 @@ public class DialogueManager {
             case WEATHER -> evaluateWeather(condition, level);
             case NEARBY_PLAYERS -> evaluateNearbyPlayers(condition, level, bartender);
             case INTERACTION_HISTORY -> evaluateInteractionHistory(condition, bartender, player);
-            case AI_BRAIN_STATE, CURRENT_ACTIVITY -> evaluateCurrentActivity(condition, bartender, activityContext);
+            // TODO: 人工审查 - 2026-06-23 - 合并 AI_BRAIN_STATE 与 CURRENT_ACTIVITY 条件类型
+            case CURRENT_ACTIVITY -> evaluateCurrentActivity(condition, bartender, activityContext);
             case SEARCH_TIME -> evaluateSearchTime(condition, bartender);
         };
     }
@@ -392,6 +393,8 @@ public class DialogueManager {
 
     // ---- Nearby Players ----
 
+    // TODO: 人工审查 - 2026-06-23 - NEARBY_PLAYERS/SEARCH_TIME 改为数值不等式运算符
+    //   evaluateNearbyPlayers 已使用 evaluateNumericCondition 和 Integer.parseInt，支持 >= <= == > < 运算符
     private static boolean evaluateNearbyPlayers(Condition condition, ServerLevel level, BartenderEntity bartender) {
         int nearbyCount = (int) level.players().stream()
                 .filter(p -> p.distanceToSqr(bartender) <= 64.0)
@@ -436,6 +439,8 @@ public class DialogueManager {
 
     // ---- Search Time ----
 
+    // TODO: 人工审查 - 2026-06-23 - NEARBY_PLAYERS/SEARCH_TIME 改为数值不等式运算符
+    //   evaluateSearchTime 已使用 evaluateNumericCondition 和 Integer.parseInt，支持 >= <= == > < 运算符
     /**
      * 评估物品寻找耗时条件，读取 BartenderEntity 中追踪的 searchElapsedTicks。
      */

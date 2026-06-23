@@ -16,9 +16,10 @@ public enum ConditionType implements StringRepresentable {
     NEARBY_PLAYERS("nearby_players"),
     /** 交互历史 (Interaction History) - 值: "first_time" / "returning" */
     INTERACTION_HISTORY("interaction_history"),
-    /** AI 大脑当前活动 (AI Brain State/Activity) - 值: Activity 名称 */
-    AI_BRAIN_STATE("ai_brain_state"),
-    /** 当前活动判断 (Current Activity) - 操作符: is, 值: 活动名称 */
+    // TODO: 人工审查 - 2026-06-23 - 合并 AI_BRAIN_STATE 与 CURRENT_ACTIVITY 条件类型
+    //   AI_BRAIN_STATE 已删除，统一使用 CURRENT_ACTIVITY 作为唯一的活动判断条件类型。
+    //   旧 JSON 配置中引用 "ai_brain_state" 的条目需手动迁移为 "current_activity"。
+    /** 当前活动判断 (Current Activity) - 操作符: is / is_not, 值: 活动名称 */
     CURRENT_ACTIVITY("current_activity"),
     /** 物品寻找耗时 (Search Time) - 操作符: >= | <= | == | > | <, 值: tick 数 */
     SEARCH_TIME("search_time"),

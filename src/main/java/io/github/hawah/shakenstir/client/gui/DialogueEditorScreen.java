@@ -200,18 +200,19 @@ public class DialogueEditorScreen extends BaseScreen {
         btnCondTypeRef = btnCondType;
         addSortedRenderWidget(btnCondType);
 
+        // TODO: 人工审查 - 2026-06-23 - 运算符下拉选择按钮：宽度 55px 适配 is_not，显示 "▼" 指示下拉行为
         btnCondOp = Button.builder(getCondOpLabel(), btn -> cycleCondOp())
-                .pos(guiLeft + EDIT_PANEL_X + 90, condEditorY).size(45, BUTTON_HEIGHT).build();
+                .pos(guiLeft + EDIT_PANEL_X + 90, condEditorY).size(55, BUTTON_HEIGHT).build();
         addSortedRenderWidget(btnCondOp);
 
-        txtCondValue = new EditBox(font, guiLeft + EDIT_PANEL_X + 140, condEditorY, 40, BUTTON_HEIGHT,
+        txtCondValue = new EditBox(font, guiLeft + EDIT_PANEL_X + 150, condEditorY, 40, BUTTON_HEIGHT,
                 LangData.GUI_DIALOGUE_EDITOR_COND_VAL.get());
         txtCondValue.setMaxLength(32);
         addSortedRenderWidget(txtCondValue);
 
         // 天气值循环按钮（初始隐藏，仅当 WEATHER 类型选中时显示）
         btnWeatherValue = Button.builder(getWeatherValueLabel(), btn -> cycleWeatherValue())
-                .pos(guiLeft + EDIT_PANEL_X + 140, condEditorY).size(50, BUTTON_HEIGHT).build();
+                .pos(guiLeft + EDIT_PANEL_X + 150, condEditorY).size(50, BUTTON_HEIGHT).build();
         btnWeatherValue.visible = false;
         addSortedRenderWidget(btnWeatherValue);
 
@@ -841,9 +842,9 @@ public class DialogueEditorScreen extends BaseScreen {
         txtFrequency.setEditable(hasEntry);
         btnApplyFreq.active = hasEntry;
 
-        // 条件编辑控件：需要选中条件
+        // 条件编辑控件：需要选中条件；单运算符类型（如 INTERACTION_HISTORY）仅显示不可切换
         btnCondType.active = hasCond;
-        btnCondOp.active = hasCond;
+        btnCondOp.active = hasCond && getCurrentOpArray().length > 1;
         txtCondValue.setEditable(hasCond);
         btnWeatherValue.active = hasCond;
         // 条件增删按钮始终可用（只要有条目选中）
@@ -870,8 +871,10 @@ public class DialogueEditorScreen extends BaseScreen {
                 ConditionType.values()[editingCondTypeIdx].getSerializedName());
     }
 
+    // TODO: 人工审查 - 2026-06-23 - 运算符标签改用 "▼" 指示下拉行为，直接显示运算符符号
     private Component getCondOpLabel() {
-        return LangData.GUI_DIALOGUE_EDITOR_COND_OP.get(getOpString(editingCondOpIdx));
+        String op = getOpString(editingCondOpIdx);
+        return Component.literal(op + " ▼");
     }
 
     // ===================== 操作符辅助方法 =====================
@@ -900,6 +903,7 @@ public class DialogueEditorScreen extends BaseScreen {
         return getOpArrayForType(entry.conditions().get(selectedCondIndex).type());
     }
 
+    // TODO: 人工审查 - 2026-06-23 - NEARBY_PLAYERS/SEARCH_TIME 改为数值不等式运算符：确认运算符数组正确
     private static String[] getOpArrayForType(ConditionType type) {
         return switch (type) {
             case NEARBY_PLAYERS, SEARCH_TIME -> OPS_NUMERIC;
@@ -967,11 +971,34 @@ public class DialogueEditorScreen extends BaseScreen {
     }
 
     /** 根据当前条件类型切换天气按钮和文本输入框的可见性 */
+    // TODO: 人工审查 - 2026-06-23 - NEARBY_PLAYERS/SEARCH_TIME 改为数值不等式运算符：数字输入过滤
     private void updateWeatherVisibility() {
         boolean isWeather = (editingCondTypeIdx >= 0 && editingCondTypeIdx < ConditionType.values().length
                 && ConditionType.values()[editingCondTypeIdx] == ConditionType.WEATHER);
         btnWeatherValue.visible = isWeather;
         txtCondValue.visible = !isWeather;
+        // 同步更新输入过滤：数值类型仅接受整数
+        updateCondValueFilter();
+    }
+
+    /**
+     * 根据当前条件类型动态设置值输入框的过滤规则。
+     * 数值类条件（NEARBY_PLAYERS、SEARCH_TIME）仅接受整数输入（支持负号前缀）；
+     * 其他类型不设过滤，允许自由文本输入。
+     */
+    private void updateCondValueFilter() {
+        if (editingCondTypeIdx < 0 || editingCondTypeIdx >= ConditionType.values().length) {
+            txtCondValue.setFilter(s -> true);
+            return;
+        }
+        ConditionType currentType = ConditionType.values()[editingCondTypeIdx];
+        if (currentType == ConditionType.NEARBY_PLAYERS || currentType == ConditionType.SEARCH_TIME) {
+            // 仅接受整数输入（可选负号前缀）
+            txtCondValue.setFilter(s -> s.isEmpty() || s.matches("-?[0-9]*"));
+        } else {
+            // 其他类型：无过滤
+            txtCondValue.setFilter(s -> true);
+        }
     }
 
     /** 将触发模式和事件类型的编辑状态提交到当前选中的条目 */
