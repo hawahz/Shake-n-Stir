@@ -32,7 +32,7 @@ public class PutMenu {
                         )
                         .apply(
                                 i,
-                                (barMemory, menu, interactionTarget) -> (level, body, timestamp) -> {
+                                (barMemory, menu, interactionTarget) -> (level, body, _) -> {
                                     body.tryGetOnHand(ItemRegistries.MENU);
                                     if (isHoldingMenu(body)) {
                                         BarData barData = i.get(barMemory);
@@ -45,7 +45,7 @@ public class PutMenu {
                                             if (blockItem.place(new BlockPlaceContext(level, null, InteractionHand.MAIN_HAND, item, blockHitResult)).consumesAction()) {
                                                 menu.set(new GlobalPos(barData.dimension(), pos));
                                                 body.swing(InteractionHand.MAIN_HAND, true);
-                                                item.shrink(1);
+                                                item.remove(DataComponentTypeRegistries.PLACER);
                                                 return true;
                                             }
                                             return false;
