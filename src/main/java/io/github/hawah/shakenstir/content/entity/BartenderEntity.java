@@ -396,7 +396,12 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
                 if (level().isClientSide()) {
                     // 客户端：请求服务端同步对话数据后打开编辑器
                     Networking.sendToServer(new ServerboundBartenderDialogueRequestPacket(getId()));
-                    ScreenOpener.open(new DialogueEditorScreen(BartenderEntity.this));
+                    new Runnable(){
+                        @Override
+                        public void run() {
+                            ScreenOpener.open(new DialogueEditorScreen(BartenderEntity.this));
+                        }
+                    }.run();
                 }
                 markPlayerInteracted(player.getUUID());
                 return InteractionResult.SUCCESS;
