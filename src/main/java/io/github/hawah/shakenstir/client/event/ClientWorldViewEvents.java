@@ -1,7 +1,6 @@
 package io.github.hawah.shakenstir.client.event;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
 import io.github.hawah.shakenstir.client.render.GlasswareOutlineRenderer;
@@ -23,7 +22,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.*;
 
-import java.io.IOException;
+import java.lang.ref.WeakReference;
 
 import static io.github.hawah.shakenstir.client.event.MC.getLevel;
 import static io.github.hawah.shakenstir.client.event.MC.getPlayer;
@@ -33,7 +32,7 @@ public class ClientWorldViewEvents {
     public static final float FOG_LERP = 0.01F;
     private static double cameraRoll = 0;
     private static double shakeIntensity = 0;
-    private static ClientLevel previousLevel = null;
+    private static WeakReference<ClientLevel> previousLevel = new WeakReference<>(null);
     private static float cr = -1;
     private static float cg = -1;
     private static float cb = -1;
@@ -120,18 +119,11 @@ public class ClientWorldViewEvents {
         float deltaTicks = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
         float lerp = (float) (FOG_LERP * deltaTicks / 0.68);
 
-        if ((cr < 0 || cg < 0 || cb < 0) || previousLevel != getLevel()) {
+        if ((cr < 0 || cg < 0 || cb < 0) || previousLevel.get() != getLevel()) {
             cr = r = event.getRed();
             cg = g = event.getGreen();
             cb = b = event.getBlue();
-            if (previousLevel != null) {
-                try {
-                    previousLevel.close();
-                } catch (IOException e) {
-                    LogUtils.getLogger().error("Failed to close level", e);
-                }
-            }
-            previousLevel = getLevel();
+            previousLevel = new WeakReference<>(getLevel());
         }
 
         if (getPlayer().hasEffect(MobEffectRegistries.DRUNK) && getPlayer().getEffect(MobEffectRegistries.DRUNK).getAmplifier() >= 3) {
