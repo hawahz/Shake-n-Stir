@@ -99,7 +99,9 @@ public class DialogueManager {
 
     /**
      * 评估所有条件，选择一条合适的对话（返回完整结果，含条目信息用于呈现模式判断）。
+     * 仅考虑 {@link DialogueTriggerMode#POLLING} 模式的条目。
      */
+    // TODO: 人工审查 - 2026-06-23 - selectDialogueResult 仅过滤 POLLING 模式条目，事件驱动型分离到 selectEventDialogueResult
     public static SelectionResult selectDialogueResult(
             DialogueData data,
             ServerLevel level,
@@ -113,9 +115,10 @@ public class DialogueManager {
 
         RandomSource random = level.getRandom();
 
-        // 第一步：筛选所有满足条件的条目
+        // 第一步：筛选所有满足条件的 POLLING 模式条目
         List<DialogueEntry> matchedEntries = new ArrayList<>();
         for (DialogueEntry entry : data.entries()) {
+            if (entry.triggerMode() != DialogueTriggerMode.POLLING) continue;
             if (evaluateAllConditions(entry.conditions(), level, bartender, player)) {
                 matchedEntries.add(entry);
             }
@@ -136,7 +139,7 @@ public class DialogueManager {
         }
 
         if (unplayed.isEmpty()) {
-            return new SelectionResult(selected, selected.texts().get(0), selected.frequency());
+            return new SelectionResult(selected, selected.texts().getFirst(), selected.frequency());
         }
 
         int chosenIndex = unplayed.get(random.nextInt(unplayed.size()));
@@ -148,6 +151,75 @@ public class DialogueManager {
         Component substituted = substituteVariables(rawText, level, bartender, player);
 
         return new SelectionResult(selected, substituted, selected.frequency());
+    }
+
+    // TODO: 人工审查 - 2026-06-23 - 新增事件驱动型对话选择方法
+    //   仅考虑 EVENT_DRIVEN 模式且 eventType 匹配的条目，直接选取第一个匹配项（不进行加权随机）
+    // TODO: 人工审查 - 2026-06-24 - 新增 activityContext 参数，用于在活动切换事件中准确传递旧/新活动名称
+
+    /**
+     * 事件驱动型对话选择（Event-driven Dialogue Selection）。
+     * 在特定游戏事件发生时调用，直接选取第一个匹配当前事件和条件的条目，不进行加权随机选择。
+     *
+     * @param data            对话数据
+     * @param level           服务端世界
+     * @param bartender       酒保实体
+     * @param player          触发玩家（可为 null）
+     * @param tracker         已播放索引追踪器
+     * @param eventType       当前触发的事件类型
+     * @param activityContext 显式活动上下文（用于 LEAVE_ACTIVITY / ENTER_ACTIVITY 事件，null 则从 Brain 实时获取）
+     * @return 选择结果，无匹配时返回 EMPTY
+     */
+    public static SelectionResult selectEventDialogueResult(
+            DialogueData data,
+            ServerLevel level,
+            BartenderEntity bartender,
+            @Nullable Player player,
+            PlayedTracker tracker,
+            DialogueEventType eventType,
+            @Nullable String activityContext
+    ) {
+        if (data.isEmpty()) {
+            return SelectionResult.EMPTY;
+        }
+
+        RandomSource random = level.getRandom();
+
+        // 第一步：筛选匹配事件类型且条件满足的 EVENT_DRIVEN 条目
+        DialogueEntry matched = null;
+        for (DialogueEntry entry : data.entries()) {
+            if (entry.triggerMode() != DialogueTriggerMode.EVENT_DRIVEN) continue;
+            if (entry.eventType() != eventType) continue;
+            if (evaluateAllConditions(entry.conditions(), level, bartender, player, activityContext)) {
+                matched = entry;
+                break; // 直接选取第一个匹配的条目
+            }
+        }
+
+        if (matched == null) {
+            return SelectionResult.EMPTY;
+        }
+
+        // 第二步：在该条目中从未播放的文本里随机选择
+        List<Integer> unplayed = tracker.getUnplayedIndices(matched.id(), matched.texts().size());
+        if (unplayed.isEmpty()) {
+            tracker.resetPlayed(matched.id());
+            unplayed = tracker.getUnplayedIndices(matched.id(), matched.texts().size());
+        }
+
+        if (unplayed.isEmpty()) {
+            return new SelectionResult(matched, matched.texts().getFirst(), matched.frequency());
+        }
+
+        int chosenIndex = unplayed.get(random.nextInt(unplayed.size()));
+        tracker.markPlayed(matched.id(), chosenIndex);
+
+        Component rawText = matched.texts().get(chosenIndex);
+
+        // 第三步：动态变量替换（传入活动上下文以正确替换 {current_activity}）
+        Component substituted = substituteVariables(rawText, level, bartender, player, activityContext);
+
+        return new SelectionResult(matched, substituted, matched.frequency());
     }
 
     /**
@@ -193,7 +265,7 @@ public class DialogueManager {
      * 权重 = 1 / frequency，频率越高越不易被选中。
      */
     private static DialogueEntry weightedRandomSelect(List<DialogueEntry> entries, RandomSource random) {
-        if (entries.size() == 1) return entries.get(0);
+        if (entries.size() == 1) return entries.getFirst();
 
         double totalWeight = 0;
         double[] weights = new double[entries.size()];
@@ -210,7 +282,7 @@ public class DialogueManager {
                 return entries.get(i);
             }
         }
-        return entries.get(entries.size() - 1);
+        return entries.getLast();
     }
 
     // ========================
@@ -221,13 +293,29 @@ public class DialogueManager {
      * 替换对话文本中的占位符变量为实时游戏数据。
      */
     public static Component substituteVariables(Component template, ServerLevel level, BartenderEntity bartender, @Nullable Player player) {
+        return substituteVariables(template, level, bartender, player, null);
+    }
+
+    // TODO: 人工审查 - 2026-06-24 - 新增接受 activityContext 的重载方法，用于事件驱动对话在活动切换时准确替换 {current_activity}
+    /**
+     * 替换对话文本中的占位符变量，使用显式活动上下文替代从 Brain 实时获取的活动名。
+     *
+     * @param template        模板文本
+     * @param level           服务端世界
+     * @param bartender       酒保实体
+     * @param player          玩家（可为 null）
+     * @param activityContext 显式活动名称（null 则从 Brain 实时获取）
+     */
+    public static Component substituteVariables(Component template, ServerLevel level, BartenderEntity bartender,
+                                                 @Nullable Player player, @Nullable String activityContext) {
         String text = template.getString();
         if (!text.contains("{")) return template; // 快速路径
 
         text = text.replace("{player_name}", player != null ? player.getName().getString() : "stranger");
         text = text.replace("{current_activity}",
-                bartender.getBrain().getActiveNonCoreActivity()
-                        .map(Activity::getName).orElse("idle"));
+                activityContext != null ? activityContext
+                        : bartender.getBrain().getActiveNonCoreActivity()
+                                .map(Activity::getName).orElse("idle"));
         text = text.replace("{search_elapsed_ticks}",
                 String.valueOf(bartender.getSearchElapsedTicks()));
 
@@ -261,19 +349,31 @@ public class DialogueManager {
     // ========================
 
     private static boolean evaluateCondition(Condition condition, ServerLevel level, BartenderEntity bartender, @Nullable Player player) {
+        return evaluateCondition(condition, level, bartender, player, null);
+    }
+
+    // TODO: 人工审查 - 2026-06-24 - 新增接受 activityContext 的重载，用于事件驱动对话中准确评估 CURRENT_ACTIVITY 条件
+    private static boolean evaluateCondition(Condition condition, ServerLevel level, BartenderEntity bartender,
+                                              @Nullable Player player, @Nullable String activityContext) {
         return switch (condition.type()) {
             case WEATHER -> evaluateWeather(condition, level);
             case NEARBY_PLAYERS -> evaluateNearbyPlayers(condition, level, bartender);
             case INTERACTION_HISTORY -> evaluateInteractionHistory(condition, bartender, player);
-            case AI_BRAIN_STATE, CURRENT_ACTIVITY -> evaluateCurrentActivity(condition, bartender);
+            case AI_BRAIN_STATE, CURRENT_ACTIVITY -> evaluateCurrentActivity(condition, bartender, activityContext);
             case SEARCH_TIME -> evaluateSearchTime(condition, bartender);
         };
     }
 
     private static boolean evaluateAllConditions(List<Condition> conditions, ServerLevel level, BartenderEntity bartender, @Nullable Player player) {
+        return evaluateAllConditions(conditions, level, bartender, player, null);
+    }
+
+    // TODO: 人工审查 - 2026-06-24 - 新增接受 activityContext 的重载
+    private static boolean evaluateAllConditions(List<Condition> conditions, ServerLevel level, BartenderEntity bartender,
+                                                  @Nullable Player player, @Nullable String activityContext) {
         if (conditions.isEmpty()) return true;
         for (Condition condition : conditions) {
-            if (!evaluateCondition(condition, level, bartender, player)) {
+            if (!evaluateCondition(condition, level, bartender, player, activityContext)) {
                 return false;
             }
         }
@@ -315,8 +415,22 @@ public class DialogueManager {
     // ---- AI Brain State / Current Activity ----
 
     private static boolean evaluateCurrentActivity(Condition condition, BartenderEntity bartender) {
-        String current = bartender.getBrain().getActiveNonCoreActivity()
-                .map(Activity::getName).orElse("idle");
+        return evaluateCurrentActivity(condition, bartender, null);
+    }
+
+    // TODO: 人工审查 - 2026-06-24 - 新增接受 activityContext 的重载，用于事件驱动对话在活动切换时使用正确的活动上下文
+    /**
+     * 评估当前活动条件。如果 activityContext 非空则直接使用；否则从 Brain 实时获取。
+     */
+    private static boolean evaluateCurrentActivity(Condition condition, BartenderEntity bartender,
+                                                    @Nullable String activityContext) {
+        String current;
+        if (activityContext != null) {
+            current = activityContext;
+        } else {
+            current = bartender.getBrain().getActiveNonCoreActivity()
+                    .map(Activity::getName).orElse("idle");
+        }
         return evaluateStringCondition(condition, current);
     }
 
