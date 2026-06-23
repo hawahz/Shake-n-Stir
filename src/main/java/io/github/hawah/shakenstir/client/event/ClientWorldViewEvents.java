@@ -119,10 +119,11 @@ public class ClientWorldViewEvents {
         float deltaTicks = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
         float lerp = (float) (FOG_LERP * deltaTicks / 0.68);
 
-        if ((cr < 0 || cg < 0 || cb < 0) || previousLevel.get() != getLevel()) {
+        if ((cr < 0 || cg < 0 || cb < 0) || !previousLevel.refersTo(getLevel())) {
             cr = r = event.getRed();
             cg = g = event.getGreen();
             cb = b = event.getBlue();
+            previousLevel.clear();
             previousLevel = new WeakReference<>(getLevel());
         }
 
