@@ -871,10 +871,11 @@ public class DialogueEditorScreen extends BaseScreen {
                 ConditionType.values()[editingCondTypeIdx].getSerializedName());
     }
 
-    // TODO: 人工审查 - 2026-06-23 - 运算符标签改用 "▼" 指示下拉行为，直接显示运算符符号
+    // TODO: 人工审查 - 2026-06-23 - 运算符标签仅显示运算符符号本身，已去除 "▼" 下拉指示器
+    // TODO: 人工审查 - 2026-06-23 - getCurrentOpArray 改用 editingCondTypeIdx，使运算符跟随编辑缓冲区而非已保存条件
     private Component getCondOpLabel() {
         String op = getOpString(editingCondOpIdx);
-        return Component.literal(op + " ▼");
+        return Component.literal(op);
     }
 
     // ===================== 操作符辅助方法 =====================
@@ -896,11 +897,11 @@ public class DialogueEditorScreen extends BaseScreen {
         return 0;
     }
 
+    // TODO: 人工审查 - 2026-06-23 - getCurrentOpArray 改用 editingCondTypeIdx 而非从已保存条件读取类型，
+    //   确保运算符按钮标签和循环逻辑实时跟随编辑缓冲区中当前选中的条件类型
     private String[] getCurrentOpArray() {
-        if (selectedEntryIndex < 0 || selectedEntryIndex >= editingData.size()) return OPS_STRING;
-        DialogueEntry entry = editingData.getEntries().get(selectedEntryIndex);
-        if (selectedCondIndex < 0 || selectedCondIndex >= entry.conditions().size()) return OPS_STRING;
-        return getOpArrayForType(entry.conditions().get(selectedCondIndex).type());
+        if (editingCondTypeIdx < 0 || editingCondTypeIdx >= ConditionType.values().length) return OPS_STRING;
+        return getOpArrayForType(ConditionType.values()[editingCondTypeIdx]);
     }
 
     // TODO: 人工审查 - 2026-06-23 - NEARBY_PLAYERS/SEARCH_TIME 改为数值不等式运算符：确认运算符数组正确
