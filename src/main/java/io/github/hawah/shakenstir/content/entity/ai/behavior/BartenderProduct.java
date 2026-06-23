@@ -5,7 +5,6 @@ import com.mojang.authlib.GameProfile;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
-import io.github.hawah.shakenstir.foundation.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
 import io.github.hawah.shakenstir.content.entity.BartenderEntity;
@@ -13,9 +12,11 @@ import io.github.hawah.shakenstir.content.entity.ai.memory.BarData;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
 import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.foundation.data.SnsRecipeHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.core.NonNullList;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -176,25 +177,31 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
                         if (!(level.getBlockEntity(pos) instanceof GlasswareBlockEntity be)) {
                             return;
                         }
-                        // Compute direction from bartender to glassware, place on far edge
+                        // TODO: 人工审查 - 2026-06-23 用PutMenu的BlockStateProperties.HORIZONTAL_FACING迭代方式替换原来基于Direction.Axis的xWeight/zWeight判断
+                        // 原逻辑：手动计算below.relative(X±1/Z±1)的BAR_COUNTER_BLOCK数量，zWeight>xWeight决定朝向
+                        // 新逻辑：遍历水平四方向，用getStepZ/getStepX统计northSouthRank/eastWestRank，与PutMenu对齐
                         BlockPos below = pos.below();
 
-                        int xWeight = (level.getBlockState(below.relative(Direction.Axis.X, 1)).is(BlockRegistries.BAR_COUNTER_BLOCK))? 1: 0;
-                        xWeight += (level.getBlockState(below.relative(Direction.Axis.X, -1)).is(BlockRegistries.BAR_COUNTER_BLOCK))? 1: 0;
-                        int zWeight = (level.getBlockState(below.relative(Direction.Axis.Z, 1)).is(BlockRegistries.BAR_COUNTER_BLOCK))? 1: 0;
-                        zWeight += (level.getBlockState(below.relative(Direction.Axis.Z, -1)).is(BlockRegistries.BAR_COUNTER_BLOCK))? 1: 0;
+                        int northSouthRank = 0;
+                        int eastWestRank = 0;
+                        for (Direction dir : BlockStateProperties.HORIZONTAL_FACING.getPossibleValues()) {
+                            if (level.getBlockState(below.relative(dir)).is(BlockRegistries.BAR_COUNTER_BLOCK)) {
+                                eastWestRank += Math.abs(dir.getStepZ());
+                                northSouthRank += Math.abs(dir.getStepX());
+                            }
+                        }
 
                         Vec3 blockCenter = Vec3.atCenterOf(pos);
                         double dx = blockCenter.x() - body.getX();
                         double dz = blockCenter.z() - body.getZ();
 
                         float localX, localZ;
-                        if (zWeight > xWeight) {
-                            localX = dx > 0 ? 1.0F : 0.0F;
-                            localZ = 0.5F;
-                        } else {
+                        if (northSouthRank >= eastWestRank) {
                             localX = 0.5F;
                             localZ = dz > 0 ? 1.0F : 0.0F;
+                        } else {
+                            localX = dx > 0 ? 1.0F : 0.0F;
+                            localZ = 0.5F;
                         }
                         body.setState(BartenderEntity.AnimState.PLEASE);
                         be.moveTo(localX, localZ);
