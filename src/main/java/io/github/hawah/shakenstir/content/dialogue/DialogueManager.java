@@ -409,9 +409,11 @@ public class DialogueManager {
 
     // ---- Interaction History ----
 
+    // TODO: 人工审查 - 2026-06-23 - INTERACTION_HISTORY 值改为 empty/present，替代旧的 first_time/returning
+    //   "empty" = 从未与该玩家交互过（首次互动），"present" = 曾经与该玩家交互过（回头客）
     private static boolean evaluateInteractionHistory(Condition condition, BartenderEntity bartender, @Nullable Player player) {
-        if (player == null) return "first_time".equals(condition.value());
-        String state = bartender.hasInteractedWith(player.getUUID()) ? "returning" : "first_time";
+        if (player == null) return "empty".equals(condition.value());
+        String state = bartender.hasInteractedWith(player.getUUID()) ? "present" : "empty";
         return evaluateStringCondition(condition, state);
     }
 

@@ -100,6 +100,8 @@ public class DialogueEditorScreen extends BaseScreen {
     private int editingEventTypeIdx = 0;
     /** 天气值循环索引（0=clear, 1=rain, 2=thunder） */
     private int editingWeatherIdx = 0;
+    // TODO: 人工审查 - 2026-06-23 - 新增交互历史值循环索引（0=empty, 1=present）
+    private int editingInteractionIdx = 0;
 
     // ===================== 帮助面板状态 =====================
     private boolean helpVisible = false;
@@ -117,6 +119,8 @@ public class DialogueEditorScreen extends BaseScreen {
     private Button btnTriggerMode;
     private Button btnEventType;
     private Button btnWeatherValue;
+    // TODO: 人工审查 - 2026-06-23 - 新增交互历史值下拉按钮
+    private Button btnInteractionValue;
     // 条件编辑区按钮引用（用于禁用逻辑）
     private Button btnAddCond;
     private Button btnDelCond;
@@ -215,6 +219,12 @@ public class DialogueEditorScreen extends BaseScreen {
                 .pos(guiLeft + EDIT_PANEL_X + 150, condEditorY).size(50, BUTTON_HEIGHT).build();
         btnWeatherValue.visible = false;
         addSortedRenderWidget(btnWeatherValue);
+
+        // TODO: 人工审查 - 2026-06-23 - 交互历史值下拉按钮（初始隐藏，仅当 INTERACTION_HISTORY 类型选中时显示）
+        btnInteractionValue = Button.builder(getInteractionValueLabel(), btn -> cycleInteractionValue())
+                .pos(guiLeft + EDIT_PANEL_X + 150, condEditorY).size(55, BUTTON_HEIGHT).build();
+        btnInteractionValue.visible = false;
+        addSortedRenderWidget(btnInteractionValue);
 
         int condBtnY = condEditorY + 18;
         btnAddCond = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_ADD_COND.get(), btn -> addCondition())
@@ -786,7 +796,7 @@ public class DialogueEditorScreen extends BaseScreen {
             updateCondButtonLabels();
             updateTriggerModeLabel();
             updateEventTypeLabel();
-            updateWeatherVisibility();
+            updateCondValueVisibility();
             updateDisableStates();
             return;
         }
@@ -811,12 +821,17 @@ public class DialogueEditorScreen extends BaseScreen {
             if (cond.type() == ConditionType.WEATHER) {
                 editingWeatherIdx = getWeatherIndex(cond.value());
             }
+            // TODO: 人工审查 - 2026-06-23 - 如果是交互历史类型，同步交互值索引
+            if (cond.type() == ConditionType.INTERACTION_HISTORY) {
+                editingInteractionIdx = getInteractionIndex(cond.value());
+            }
         } else {
             txtCondValue.setValue("");
         }
         updateCondButtonLabels();
         updateWeatherButtonLabel();
-        updateWeatherVisibility();
+        updateInteractionButtonLabel();
+        updateCondValueVisibility();
 
         if (selectedTextIndex >= 0 && selectedTextIndex < entry.texts().size()) {
             txtDialogueText.setValue(entry.texts().get(selectedTextIndex).getString());
@@ -847,6 +862,7 @@ public class DialogueEditorScreen extends BaseScreen {
         btnCondOp.active = hasCond && getCurrentOpArray().length > 1;
         txtCondValue.setEditable(hasCond);
         btnWeatherValue.active = hasCond;
+        btnInteractionValue.active = hasCond;
         // 条件增删按钮始终可用（只要有条目选中）
         btnAddCond.active = hasEntry;
         btnDelCond.active = hasCond;
@@ -920,7 +936,7 @@ public class DialogueEditorScreen extends BaseScreen {
         editingCondTypeIdx = (editingCondTypeIdx + 1) % ConditionType.values().length;
         editingCondOpIdx = 0;
         updateCondButtonLabels();
-        updateWeatherVisibility();
+        updateCondValueVisibility();
     }
 
     private void cycleCondOp() {
@@ -963,6 +979,37 @@ public class DialogueEditorScreen extends BaseScreen {
     /** 天气可选值列表 */
     private static final String[] WEATHER_VALUES = {"clear", "rain", "thunder"};
 
+    // TODO: 人工审查 - 2026-06-23 - 交互历史值列表（empty=首次互动, present=回头客），替代旧的 first_time/returning
+    /** 交互历史可选值列表 */
+    private static final String[] INTERACTION_VALUES = {"empty", "present"};
+
+    /** 循环切换交互历史值（empty ↔ present） */
+    private void cycleInteractionValue() {
+        editingInteractionIdx = (editingInteractionIdx + 1) % INTERACTION_VALUES.length;
+        updateInteractionButtonLabel();
+        // 自动将交互值写入条件值输入框
+        txtCondValue.setValue(INTERACTION_VALUES[editingInteractionIdx]);
+        dirty = true;
+    }
+
+    private void updateInteractionButtonLabel() {
+        btnInteractionValue.setMessage(getInteractionValueLabel());
+    }
+
+    private Component getInteractionValueLabel() {
+        if (editingInteractionIdx < 0 || editingInteractionIdx >= INTERACTION_VALUES.length)
+            return Component.literal("?");
+        return Component.literal(INTERACTION_VALUES[editingInteractionIdx]);
+    }
+
+    /** 根据交互历史值字符串获取索引 */
+    private static int getInteractionIndex(String interactionValue) {
+        for (int i = 0; i < INTERACTION_VALUES.length; i++) {
+            if (INTERACTION_VALUES[i].equalsIgnoreCase(interactionValue)) return i;
+        }
+        return 0;
+    }
+
     /** 根据天气字符串获取索引 */
     private static int getWeatherIndex(String weatherValue) {
         for (int i = 0; i < WEATHER_VALUES.length; i++) {
@@ -971,13 +1018,23 @@ public class DialogueEditorScreen extends BaseScreen {
         return 0;
     }
 
-    /** 根据当前条件类型切换天气按钮和文本输入框的可见性 */
+    /** 根据当前条件类型切换专用值选择按钮和文本输入框的可见性 */
+    // TODO: 人工审查 - 2026-06-23 - WEATHER 显示天气下拉，INTERACTION_HISTORY 显示交互下拉，其他显示文本输入框
     // TODO: 人工审查 - 2026-06-23 - NEARBY_PLAYERS/SEARCH_TIME 改为数值不等式运算符：数字输入过滤
-    private void updateWeatherVisibility() {
-        boolean isWeather = (editingCondTypeIdx >= 0 && editingCondTypeIdx < ConditionType.values().length
-                && ConditionType.values()[editingCondTypeIdx] == ConditionType.WEATHER);
+    private void updateCondValueVisibility() {
+        if (editingCondTypeIdx < 0 || editingCondTypeIdx >= ConditionType.values().length) {
+            btnWeatherValue.visible = false;
+            btnInteractionValue.visible = false;
+            txtCondValue.visible = true;
+            updateCondValueFilter();
+            return;
+        }
+        ConditionType currentType = ConditionType.values()[editingCondTypeIdx];
+        boolean isWeather = (currentType == ConditionType.WEATHER);
+        boolean isInteraction = (currentType == ConditionType.INTERACTION_HISTORY);
         btnWeatherValue.visible = isWeather;
-        txtCondValue.visible = !isWeather;
+        btnInteractionValue.visible = isInteraction;
+        txtCondValue.visible = !isWeather && !isInteraction;
         // 同步更新输入过滤：数值类型仅接受整数
         updateCondValueFilter();
     }

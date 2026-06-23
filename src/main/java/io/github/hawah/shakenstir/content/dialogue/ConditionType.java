@@ -14,7 +14,7 @@ public enum ConditionType implements StringRepresentable {
     WEATHER("weather"),
     /** 周围玩家数量 (Nearby Players) - 值: 数字字符串，配合 operator 使用 */
     NEARBY_PLAYERS("nearby_players"),
-    /** 交互历史 (Interaction History) - 值: "first_time" / "returning" */
+    /** 交互历史 (Interaction History) - 值: "empty" / "present"，操作符: is */
     INTERACTION_HISTORY("interaction_history"),
     // TODO: 人工审查 - 2026-06-23 - 合并 AI_BRAIN_STATE 与 CURRENT_ACTIVITY 条件类型
     //   AI_BRAIN_STATE 已删除，统一使用 CURRENT_ACTIVITY 作为唯一的活动判断条件类型。
