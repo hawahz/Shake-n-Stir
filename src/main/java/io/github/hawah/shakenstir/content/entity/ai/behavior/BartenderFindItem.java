@@ -258,6 +258,7 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
         return false;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public String debugString() {
         String append = String.join(",", itemToFind.stream().map(ingredient ->

@@ -6,6 +6,7 @@ import io.github.hawah.shakenstir.ShakenStir;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.core.BlockPos;
@@ -13,13 +14,13 @@ import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.ExtractLevelRenderStateEvent;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+@SuppressWarnings("unused")
 @ParametersAreNonnullByDefault
 public class Outliner {
     private static Outliner INSTANCE = null;
@@ -39,9 +40,9 @@ public class Outliner {
     }
 
     public static void renderInto(PoseStack poseStack, MultiBufferSource bufferSource, Vec3 cameraPos, DeltaTracker partialTick) {
-        if (INSTANCE == null) {
-            return;
-        }
+//        if (INSTANCE == null) {
+//            return;
+//        }
 //        INSTANCE.render(poseStack, bufferSource, cameraPos, partialTick);
 //        INSTANCE.renderOverlay(poseStack, bufferSource, cameraPos, partialTick);
     }
@@ -62,11 +63,11 @@ public class Outliner {
         return outlineElement;
     }
 
-    public OutlineElement<?> chaseThickBox(Object slot, @NonNull BlockPos first, @NonNull BlockPos second) {
+    public OutlineElement<?> chaseThickBox(Object slot, BlockPos first, BlockPos second) {
         return chaseThickBox(slot, first, second, false);
     }
 
-    public OutlineElement<?> chaseThickBox(Object slot, @NonNull BlockPos first, @NonNull BlockPos second, boolean overlay) {
+    public OutlineElement<?> chaseThickBox(Object slot, BlockPos first, BlockPos second, boolean overlay) {
         var slotHolder = overlay? overOutlines: outlines;
         if (slotHolder.containsKey(slot)) {
             OutlineElement<?> outline = slotHolder.get(slot);
@@ -81,13 +82,18 @@ public class Outliner {
     }
 
     public void render(PoseStack.Pose poseStack, MultiBufferSource bufferSource, Vec3 cameraPos, DeltaTracker partialTick) {
-        outlines.forEach((object, outlineElement) ->
+        outlines.forEach((_, outlineElement) ->
                 outlineElement.render(poseStack, bufferSource.getBuffer(
                         outlineElement instanceof ThickOutline?
-                                RenderTypes.debugQuads():
+                                getThickRenderType() :
                                 RenderTypes.lines()
                 ), cameraPos, partialTick)
         );
+    }
+
+    private static RenderType getThickRenderType() {
+
+        return RenderTypes.debugFilledBox();
     }
 
     public void renderOverlay(PoseStack poseStack, MultiBufferSource bufferSource, Vec3 cameraPos, DeltaTracker partialTick) {
@@ -100,11 +106,11 @@ public class Outliner {
 //        );
     }
 
-    public OutlineElement<?> chaseBox(Object slot, @NonNull BlockPos first, @NonNull BlockPos second) {
+    public OutlineElement<?> chaseBox(Object slot, BlockPos first, BlockPos second) {
         return chaseBox(slot, first, second, false);
     }
 
-    public OutlineElement<?> chaseBox(Object slot, @NonNull BlockPos first, @NonNull BlockPos second, boolean overlay) {
+    public OutlineElement<?> chaseBox(Object slot, BlockPos first, BlockPos second, boolean overlay) {
         var slotHolder = overlay? overOutlines: outlines;
         if (slotHolder.containsKey(slot)) {
             OutlineElement<?> outline = slotHolder.get(slot);
@@ -135,7 +141,7 @@ public class Outliner {
     }
 
     @NotNull
-    private OutlineElement<?> mulPose(@NonNull BlockPos first, @NonNull BlockPos second, OutlineElement<?> outline) {
+    private OutlineElement<?> mulPose(BlockPos first, BlockPos second, OutlineElement<?> outline) {
         outline.setPositions(
                 new Vec3(
                         Math.min(first.getX(), second.getX()),
@@ -223,7 +229,7 @@ public class Outliner {
                     } else if (outline instanceof ThickOutline) {
                         submitNodeCollector.submitCustomGeometry(
                                 poseStack,
-                                RenderTypes.debugQuads(),
+                                getThickRenderType(),
                                 (pose, buffer) ->
                                         outline.render(pose, buffer, levelRenderState.cameraRenderState.pos, renderData.partialTick())
                         );
@@ -243,5 +249,5 @@ public class Outliner {
 
     public static final ContextKey<OutlinerRenderState> OUTLINER_RENDER_STATE = ShakenStir.asContextKey("outliner_render_state");
 
-    public record OutlinerRenderState(DeltaTracker partialTick) {};
+    public record OutlinerRenderState(DeltaTracker partialTick) {}
 }

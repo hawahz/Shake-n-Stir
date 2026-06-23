@@ -83,6 +83,7 @@ public class ItemRegistries {
     public static final DeferredItem<BlockItem> LEMON_TOP_LEAVES = registerBlock("lemon_leaves_top", BlockRegistries.LEMON_TOP_LEAVES);
     public static final DeferredItem<BlockItem> LEMON_LEAVES = registerBlock("lemon_leaves_center", BlockRegistries.LEMON_LEAVES);
     public static final DeferredItem<BlockItem> LEMON_SAPLING = registerBlock("lemon_sapling", BlockRegistries.LEMON_SAPLING);
+    public static final DeferredItem<BlockItem> INEBERRY_GRASS = registerBlock("ineberry_grass", BlockRegistries.INEBERRY_GRASS);
     public static final DeferredItem<SqueezerItem> SQUEEZER = register("squeezer", SqueezerItem::new);
 
 

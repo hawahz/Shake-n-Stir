@@ -1,14 +1,20 @@
 package io.github.hawah.shakenstir.client.gui;
 
+import com.google.gson.JsonElement;
+import com.mojang.logging.LogUtils;
+import com.mojang.serialization.JsonOps;
 import io.github.hawah.shakenstir.content.dialogue.Condition;
 import io.github.hawah.shakenstir.content.dialogue.ConditionType;
 import io.github.hawah.shakenstir.content.dialogue.DialogueData;
 import io.github.hawah.shakenstir.content.dialogue.DialogueEntry;
+import io.github.hawah.shakenstir.content.dialogue.DialogueEventType;
+import io.github.hawah.shakenstir.content.dialogue.DialogueTriggerMode;
 import io.github.hawah.shakenstir.content.entity.BartenderEntity;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundBartenderDialogueUpdatePacket;
 import io.github.hawah.shakenstir.lib.client.gui.BaseScreen;
 import io.github.hawah.shakenstir.lib.networking.Networking;
+import io.github.hawah.shakenstir.util.Paths;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -16,8 +22,11 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import org.slf4j.Logger;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +44,8 @@ import java.util.List;
  */
 @ParametersAreNonnullByDefault
 public class DialogueEditorScreen extends BaseScreen {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     // ===================== 布局常量 =====================
     private static final int WIN_WIDTH = 400;
@@ -84,6 +95,13 @@ public class DialogueEditorScreen extends BaseScreen {
     // ===================== 条件编辑暂存状态 =====================
     private int editingCondTypeIdx = 0;
     private int editingCondOpIdx = 0;
+    // TODO: 人工审查 - 2026-06-23 - 新增触发模式/事件类型编辑暂存状态 + 天气值索引
+    private int editingTriggerModeIdx = 0;
+    private int editingEventTypeIdx = 0;
+    /** 天气值循环索引（0=clear, 1=rain, 2=thunder） */
+    private int editingWeatherIdx = 0;
+    // TODO: 人工审查 - 2026-06-23 - 新增交互历史值循环索引（0=empty, 1=present）
+    private int editingInteractionIdx = 0;
 
     // ===================== 帮助面板状态 =====================
     private boolean helpVisible = false;
@@ -94,6 +112,31 @@ public class DialogueEditorScreen extends BaseScreen {
     private EditBox txtFrequency;
     private Button btnCondType;
     private Button btnCondOp;
+    // TODO: 人工审查 - 2026-06-22 - 新增导出功能控件：文件名输入框 + 导出按钮
+    private EditBox txtExportFilename;
+    private Button btnExport;
+    // TODO: 人工审查 - 2026-06-23 - 新增触发模式/事件类型/天气值控件
+    private Button btnTriggerMode;
+    private Button btnEventType;
+    private Button btnWeatherValue;
+    // TODO: 人工审查 - 2026-06-23 - 新增交互历史值下拉按钮
+    private Button btnInteractionValue;
+    // 条件编辑区按钮引用（用于禁用逻辑）
+    private Button btnAddCond;
+    private Button btnDelCond;
+    private Button btnEditCond;
+    // 文本编辑区按钮引用（用于禁用逻辑）
+    private Button btnAddText;
+    private Button btnDelText;
+    private Button btnEditText;
+    // 条目元数据按钮引用（用于禁用逻辑）
+    private Button btnApplyFreq;
+    /** 条件类型切换按钮引用（用于在天气类型时动态显示天气下拉） */
+    private Button btnCondTypeRef;
+
+    // ===================== 滚动文本动画 =====================
+    /** 滚动动画计时（每 tick +1），用于溢出文本的左右滚动 */
+    private int scrollAnimTick = 0;
 
     // ===================== 区域边界（每次 init/渲染计算） =====================
 
@@ -118,6 +161,7 @@ public class DialogueEditorScreen extends BaseScreen {
 
     // ===================== 初始化 =====================
 
+    // TODO: 人工审查 - 2026-06-23 - init() 新增触发模式/事件类型/天气值按钮，保存按钮引用用于禁用逻辑
     @Override
     protected void init() {
         setTextureSize(WIN_WIDTH, WIN_HEIGHT);
@@ -126,97 +170,156 @@ public class DialogueEditorScreen extends BaseScreen {
         computeLayout();
 
         int btnY = guiTop + WIN_HEIGHT - 25;
+        int BUTTON_HEIGHT = 16;
+
+        // -- 触发模式 / 事件类型行（condListY 上方） --
+        int trigRowY = condListY - 18;
+        btnTriggerMode = Button.builder(getTriggerModeLabel(), btn -> cycleTriggerMode())
+                .pos(guiLeft + EDIT_PANEL_X + 5, trigRowY).size(85, BUTTON_HEIGHT).build();
+        addSortedRenderWidget(btnTriggerMode);
+
+        btnEventType = Button.builder(getEventTypeLabel(), btn -> cycleEventType())
+                .pos(guiLeft + EDIT_PANEL_X + 95, trigRowY).size(95, BUTTON_HEIGHT).build();
+        addSortedRenderWidget(btnEventType);
 
         // -- 条目元数据控件（频率） --
-        txtFrequency = new EditBox(font, guiLeft + EDIT_PANEL_X + 5, condEditorY - 20, 40, 16,
+        txtFrequency = new EditBox(font, guiLeft + EDIT_PANEL_X + 5, condEditorY - 20, 40, BUTTON_HEIGHT,
                 LangData.GUI_DIALOGUE_EDITOR_FREQ.get());
         txtFrequency.setMaxLength(4);
         txtFrequency.setFilter(s -> s.matches("[0-9]*")); // 仅数字
         addSortedRenderWidget(txtFrequency);
 
-        Button btnApplyFreq = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_SET_FREQ.get(), btn -> commitFrequency())
-                .pos(guiLeft + EDIT_PANEL_X + 50, condEditorY - 20).size(50, 16).build();
+        btnApplyFreq = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_SET_FREQ.get(), btn -> commitFrequency())
+                .pos(guiLeft + EDIT_PANEL_X + 50, condEditorY - 20).size(50, BUTTON_HEIGHT).build();
         addSortedRenderWidget(btnApplyFreq);
 
         // -- 帮助按钮 --
         Button btnHelp = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_HELP.get(), btn -> { helpVisible = !helpVisible; })
-                .pos(guiLeft + EDIT_PANEL_X + 110, condEditorY - 20).size(30, 16).build();
+                .pos(guiLeft + EDIT_PANEL_X + 110, condEditorY - 20).size(30, BUTTON_HEIGHT).build();
         addSortedRenderWidget(btnHelp);
 
         // -- 条件编辑控件 --
         btnCondType = Button.builder(getCondTypeLabel(), btn -> cycleCondType())
-                .pos(guiLeft + EDIT_PANEL_X + 5, condEditorY).size(80, 16).build();
+                .pos(guiLeft + EDIT_PANEL_X + 5, condEditorY).size(80, BUTTON_HEIGHT).build();
+        btnCondTypeRef = btnCondType;
         addSortedRenderWidget(btnCondType);
 
+        // TODO: 人工审查 - 2026-06-23 - 运算符下拉选择按钮：宽度 55px 适配 is_not，显示 "▼" 指示下拉行为
         btnCondOp = Button.builder(getCondOpLabel(), btn -> cycleCondOp())
-                .pos(guiLeft + EDIT_PANEL_X + 90, condEditorY).size(45, 16).build();
+                .pos(guiLeft + EDIT_PANEL_X + 90, condEditorY).size(55, BUTTON_HEIGHT).build();
         addSortedRenderWidget(btnCondOp);
 
-        txtCondValue = new EditBox(font, guiLeft + EDIT_PANEL_X + 140, condEditorY, 40, 16,
+        txtCondValue = new EditBox(font, guiLeft + EDIT_PANEL_X + 150, condEditorY, 40, BUTTON_HEIGHT,
                 LangData.GUI_DIALOGUE_EDITOR_COND_VAL.get());
         txtCondValue.setMaxLength(32);
         addSortedRenderWidget(txtCondValue);
 
+        // 天气值循环按钮（初始隐藏，仅当 WEATHER 类型选中时显示）
+        btnWeatherValue = Button.builder(getWeatherValueLabel(), btn -> cycleWeatherValue())
+                .pos(guiLeft + EDIT_PANEL_X + 150, condEditorY).size(50, BUTTON_HEIGHT).build();
+        btnWeatherValue.visible = false;
+        addSortedRenderWidget(btnWeatherValue);
+
+        // TODO: 人工审查 - 2026-06-23 - 交互历史值下拉按钮（初始隐藏，仅当 INTERACTION_HISTORY 类型选中时显示）
+        btnInteractionValue = Button.builder(getInteractionValueLabel(), btn -> cycleInteractionValue())
+                .pos(guiLeft + EDIT_PANEL_X + 150, condEditorY).size(55, BUTTON_HEIGHT).build();
+        btnInteractionValue.visible = false;
+        addSortedRenderWidget(btnInteractionValue);
+
         int condBtnY = condEditorY + 18;
-        Button btnAddCond = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_ADD_COND.get(), btn -> addCondition())
-                .pos(guiLeft + EDIT_PANEL_X + 5, condBtnY).size(50, 16).build();
+        btnAddCond = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_ADD_COND.get(), btn -> addCondition())
+                .pos(guiLeft + EDIT_PANEL_X + 5, condBtnY)
+                .size(50, BUTTON_HEIGHT)
+                .build();
         addSortedRenderWidget(btnAddCond);
 
-        Button btnDelCond = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_DEL_COND.get(), btn -> deleteCondition())
-                .pos(guiLeft + EDIT_PANEL_X + 60, condBtnY).size(50, 16).build();
+        btnDelCond = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_DEL_COND.get(), btn -> deleteCondition())
+                .pos(guiLeft + EDIT_PANEL_X + 60, condBtnY)
+                .size(50, BUTTON_HEIGHT)
+                .build();
         addSortedRenderWidget(btnDelCond);
 
-        Button btnEditCond = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_APPLY.get(), btn -> commitConditionEdit())
-                .pos(guiLeft + EDIT_PANEL_X + 120, condBtnY).size(55, 16).build();
+        btnEditCond = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_APPLY.get(), btn -> commitConditionEdit())
+                .pos(guiLeft + EDIT_PANEL_X + 120, condBtnY)
+                .size(55, BUTTON_HEIGHT)
+                .build();
         addSortedRenderWidget(btnEditCond);
 
         // -- 文本编辑控件 --
-        txtDialogueText = new EditBox(font, guiLeft + EDIT_PANEL_X + 5, textEditorY, 175, 16,
+        txtDialogueText = new EditBox(font, guiLeft + EDIT_PANEL_X + 5, textEditorY, 175, BUTTON_HEIGHT,
                 LangData.GUI_DIALOGUE_EDITOR_TEXT.get());
         txtDialogueText.setMaxLength(128);
         addSortedRenderWidget(txtDialogueText);
 
         int textBtnY = textEditorY + 18;
-        Button btnAddText = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_ADD_TEXT.get(), btn -> addText())
-                .pos(guiLeft + EDIT_PANEL_X + 5, textBtnY).size(50, 16).build();
+        btnAddText = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_ADD_TEXT.get(), _ -> addText())
+                .pos(guiLeft + EDIT_PANEL_X + 5, textBtnY)
+                .size(50, BUTTON_HEIGHT)
+                .build();
         addSortedRenderWidget(btnAddText);
 
-        Button btnDelText = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_DEL_TEXT.get(), btn -> deleteText())
-                .pos(guiLeft + EDIT_PANEL_X + 60, textBtnY).size(50, 16).build();
+        btnDelText = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_DEL_TEXT.get(), _ -> deleteText())
+                .pos(guiLeft + EDIT_PANEL_X + 60, textBtnY)
+                .size(50, BUTTON_HEIGHT)
+                .build();
         addSortedRenderWidget(btnDelText);
 
-        Button btnEditText = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_APPLY.get(), btn -> commitTextEdit())
-                .pos(guiLeft + EDIT_PANEL_X + 120, textBtnY).size(55, 16).build();
+        btnEditText = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_APPLY.get(), _ -> commitTextEdit())
+                .pos(guiLeft + EDIT_PANEL_X + 120, textBtnY)
+                .size(55, BUTTON_HEIGHT)
+                .build();
         addSortedRenderWidget(btnEditText);
 
         // -- 底栏按钮 --
-        Button btnSave = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_SAVE.get(), btn -> saveAndClose())
-                .pos(guiLeft + WIN_WIDTH - 60, btnY).size(50, 20).build();
+        Button btnSave = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_SAVE.get(), _ -> saveAndClose())
+                .pos(guiLeft + WIN_WIDTH - 60, btnY)
+                .size(50, 20)
+                .build();
         addSortedRenderWidget(btnSave);
 
-        Button btnCopy = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_COPY.get(), btn -> copyToClipboard())
-                .pos(guiLeft + EDIT_PANEL_X + 60, btnY).size(50, 20).build();
+        Button btnCopy = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_COPY.get(), _ -> copyToClipboard())
+                .pos(guiLeft + EDIT_PANEL_X + 60, btnY)
+                .size(50, 20).build();
         addSortedRenderWidget(btnCopy);
 
-        Button btnPaste = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_PASTE.get(), btn -> pasteFromClipboard())
-                .pos(guiLeft + EDIT_PANEL_X + 115, btnY).size(50, 20).build();
+        Button btnPaste = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_PASTE.get(), _ -> pasteFromClipboard())
+                .pos(guiLeft + EDIT_PANEL_X + 115, btnY)
+                .size(50, 20)
+                .build();
         addSortedRenderWidget(btnPaste);
 
-        Button btnAddEntry = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_ADD_ENTRY.get(), btn -> addNewEntry())
-                .pos(guiLeft + 5, btnY).size(60, 20).build();
+        Button btnAddEntry = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_ADD_ENTRY.get(), _ -> addNewEntry())
+                .pos(guiLeft + 5, btnY)
+                .size(60, 20)
+                .build();
         addSortedRenderWidget(btnAddEntry);
 
-        Button btnDelEntry = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_DEL_ENTRY.get(), btn -> deleteSelectedEntry())
-                .pos(guiLeft + 70, btnY).size(60, 20).build();
+        Button btnDelEntry = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_DEL_ENTRY.get(), _ -> deleteSelectedEntry())
+                .pos(guiLeft + 70, btnY)
+                .size(60, 20)
+                .build();
         addSortedRenderWidget(btnDelEntry);
+
+        // -- 导出控件（底栏左侧） --
+        txtExportFilename = new EditBox(font, guiLeft + 135, btnY, 60, 20,
+                LangData.GUI_DIALOGUE_EDITOR_EXPORT_FILENAME.get());
+        txtExportFilename.setMaxLength(64);
+        txtExportFilename.setHint(LangData.GUI_DIALOGUE_EDITOR_EXPORT_FILENAME.get());
+        addSortedRenderWidget(txtExportFilename);
+
+        btnExport = Button.builder(LangData.GUI_DIALOGUE_EDITOR_BTN_EXPORT.get(), _ -> exportToFile())
+                .pos(guiLeft + 197, btnY).size(32, 20).build();
+        addSortedRenderWidget(btnExport);
 
         finishRegister();
         refreshAllEditFields();
+        updateDisableStates();
     }
 
     /**
      * 预计算所有区域的边界。
      */
+    // TODO: 人工审查 - 2026-06-23 - 布局下移 18px 为触发模式/事件类型行腾出空间
     private void computeLayout() {
         // 条目列表
         entryListX = guiLeft + 5;
@@ -225,9 +328,9 @@ public class DialogueEditorScreen extends BaseScreen {
         entryListH = WIN_HEIGHT - 56;
         entryListVisible = entryListH / ROW_HEIGHT;
 
-        // 条件列表
+        // 条件列表（下移 18px 以容纳触发模式/事件类型行）
         condListX = guiLeft + EDIT_PANEL_X + 5;
-        condListY = guiTop + 42;
+        condListY = guiTop + 60;
         condListW = EDIT_PANEL_WIDTH - 10;
         condListH = 4 * ROW_HEIGHT; // 最多显示 4 行
         condListVisible = condListH / ROW_HEIGHT;
@@ -244,9 +347,11 @@ public class DialogueEditorScreen extends BaseScreen {
 
     // ===================== 每帧轮询 =====================
 
+    // TODO: 人工审查 - 2026-06-23 - tick() 新增 scrollAnimTick 递增
     @Override
     public void tick() {
         super.tick();
+        scrollAnimTick++;
         if (!dataReceived) {
             DialogueData current = entity.getDialogueData();
             if (current != null) {
@@ -256,6 +361,7 @@ public class DialogueEditorScreen extends BaseScreen {
                 this.selectedCondIndex = -1;
                 this.selectedTextIndex = -1;
                 refreshAllEditFields();
+                updateDisableStates();
             }
         }
     }
@@ -352,6 +458,7 @@ public class DialogueEditorScreen extends BaseScreen {
     /**
      * 绘制条目的预览文本：条件摘要（前2个条件的紧凑表示） + 第一条对话文本截断。
      */
+    // TODO: 人工审查 - 2026-06-23 - drawEntryPreview 使用滚动文本替代截断
     private void drawEntryPreview(GuiGraphicsExtractor g, DialogueEntry entry, int x, int y) {
         StringBuilder sb = new StringBuilder();
         // 条件摘要
@@ -368,13 +475,14 @@ public class DialogueEditorScreen extends BaseScreen {
             if (conds.size() > 2) sb.append(",..");
             sb.append("] ");
         }
-        // 第一条对话文本截断
+        // 第一条对话文本
         if (!entry.texts().isEmpty()) {
-            String firstText = entry.texts().get(0).getString();
-            sb.append(truncateText(firstText, MAX_PREVIEW_CHARS - sb.length()));
+            String firstText = entry.texts().getFirst().getString();
+            sb.append(firstText);
         }
-        if (sb.length() > 0) {
-            g.textWithBackdrop(font, Component.literal(sb.toString()), x, y, PREVIEW_ALPHA, PREVIEW_COLOR);
+        if (!sb.isEmpty()) {
+            drawScrollTextWithBackdrop(g, sb.toString(), x, y,
+                    entryListW - 8, PREVIEW_ALPHA, PREVIEW_COLOR);
         }
     }
 
@@ -403,7 +511,9 @@ public class DialogueEditorScreen extends BaseScreen {
             Condition cond = conds.get(i);
             String condPreview = "#" + i + " " + cond.type().getSerializedName()
                     + " " + cond.operator() + " \"" + cond.value() + "\"";
-            g.textWithBackdrop(font, Component.literal(condPreview), condListX + 4, y + 1, PREVIEW_ALPHA, PREVIEW_COLOR);
+            // TODO: 人工审查 - 2026-06-23 - 条件列表使用滚动文本
+            drawScrollTextWithBackdrop(g, condPreview, condListX + 4, y + 1,
+                    condListW - 8, PREVIEW_ALPHA, PREVIEW_COLOR);
         }
         // 底部线
         g.horizontalLine(condListX, condListX + condListW, condListY + condListH, LINE_COLOR);
@@ -430,10 +540,12 @@ public class DialogueEditorScreen extends BaseScreen {
                 g.horizontalLine(textListX, textListX + textListW, y, 0xFF_88CC88);
                 g.horizontalLine(textListX, textListX + textListW, y + ROW_HEIGHT - 1, 0xFF_88CC88);
             }
-            // 预览文字: "#N 截断文本..."
+            // 预览文字: "#N 文本内容..."
             String raw = texts.get(i).getString();
-            String textPreview = "#" + i + " " + truncateText(raw, MAX_PREVIEW_CHARS);
-            g.textWithBackdrop(font, Component.literal(textPreview), textListX + 4, y + 1, PREVIEW_ALPHA, PREVIEW_COLOR);
+            String textPreview = "#" + i + " " + raw;
+            // TODO: 人工审查 - 2026-06-23 - 文本列表使用滚动文本
+            drawScrollTextWithBackdrop(g, textPreview, textListX + 4, y + 1,
+                    textListW - 8, PREVIEW_ALPHA, PREVIEW_COLOR);
         }
         // 底部线
         g.horizontalLine(textListX, textListX + textListW, textListY + textListH, LINE_COLOR);
@@ -453,6 +565,98 @@ public class DialogueEditorScreen extends BaseScreen {
     private static String truncateText(String text, int maxLen) {
         if (text.length() <= maxLen) return text;
         return text.substring(0, Math.max(1, maxLen - 3)) + "...";
+    }
+
+    // TODO: 人工审查 - 2026-06-23 - 新增滚动文本绘制方法，替代截断省略号
+
+    /**
+     * 绘制可滚动的文本（Draw Scrollable Text）。
+     * 当文本宽度超过 maxWidth 时，文本将平滑左右滚动以显示完整内容；
+     * 当文本宽度不超过 maxWidth 时，正常绘制。
+     *
+     * @param g        图形上下文
+     * @param text     要绘制的文本
+     * @param x        起始 X 坐标
+     * @param y        起始 Y 坐标
+     * @param maxWidth 最大绘制宽度
+     * @param color    文本颜色
+     */
+    // TODO: 人工审查 - 2026-06-23 - GuiGraphicsExtractor API 验证 - 使用字符截断替代 scissor
+    private void drawScrollText(GuiGraphicsExtractor g, String text, int x, int y, int maxWidth, int color) {
+        int textWidth = font.width(text);
+        if (textWidth <= maxWidth) {
+            g.text(font, Component.literal(text), x, y, color);
+            return;
+        }
+        int overflow = textWidth - maxWidth;
+        int cycleLen = overflow + 40;
+        int pos = scrollAnimTick % (cycleLen * 2);
+        int offset;
+        if (pos < 30) {
+            offset = 0;
+        } else if (pos < cycleLen) {
+            offset = pos - 30;
+        } else if (pos < cycleLen + 30) {
+            offset = overflow;
+        } else {
+            offset = overflow - (pos - cycleLen - 30);
+        }
+        // 通过计算字符宽度找到可见部分的起始字符
+        int charOffset = 0;
+        int accumulatedWidth = 0;
+        while (charOffset < text.length() && accumulatedWidth < offset) {
+            accumulatedWidth += font.width(text.substring(charOffset, charOffset + 1));
+            charOffset++;
+        }
+        // 找到可见部分的结束字符
+        int visibleEnd = charOffset;
+        int visibleWidth = 0;
+        while (visibleEnd < text.length() && visibleWidth < maxWidth) {
+            visibleWidth += font.width(text.substring(visibleEnd, visibleEnd + 1));
+            visibleEnd++;
+        }
+        String visible = text.substring(charOffset, Math.min(visibleEnd, text.length()));
+        g.text(font, Component.literal(visible), x, y, color);
+    }
+
+    /**
+     * 绘制带背幕的可滚动文本（Draw Scrollable Text with Backdrop）。
+     */
+    private void drawScrollTextWithBackdrop(GuiGraphicsExtractor g, String text, int x, int y, int maxWidth,
+                                            int alpha, int color) {
+        int textWidth = font.width(text);
+        if (textWidth <= maxWidth) {
+            g.textWithBackdrop(font, Component.literal(text), x, y, alpha, color);
+            return;
+        }
+        int overflow = textWidth - maxWidth;
+        int cycleLen = overflow + 40;
+        int pos = scrollAnimTick % (cycleLen * 2);
+        int offset;
+        if (pos < 30) {
+            offset = 0;
+        } else if (pos < cycleLen) {
+            offset = pos - 30;
+        } else if (pos < cycleLen + 30) {
+            offset = overflow;
+        } else {
+            offset = overflow - (pos - cycleLen - 30);
+        }
+        // 通过计算字符宽度找到可见部分的起始和结束字符
+        int charOffset = 0;
+        int accumulatedWidth = 0;
+        while (charOffset < text.length() && accumulatedWidth < offset) {
+            accumulatedWidth += font.width(text.substring(charOffset, charOffset + 1));
+            charOffset++;
+        }
+        int visibleEnd = charOffset;
+        int visibleWidth = 0;
+        while (visibleEnd < text.length() && visibleWidth < maxWidth) {
+            visibleWidth += font.width(text.substring(visibleEnd, visibleEnd + 1));
+            visibleEnd++;
+        }
+        String visible = text.substring(charOffset, Math.min(visibleEnd, text.length()));
+        g.textWithBackdrop(font, Component.literal(visible), x, y, alpha, color);
     }
 
     // ===================== 鼠标交互 =====================
@@ -548,11 +752,12 @@ public class DialogueEditorScreen extends BaseScreen {
     }
 
     private static int clamp(int value, int min, int max) {
-        return Math.max(min, Math.min(max, value));
+        return Math.clamp(value, min, max);
     }
 
     // ===================== 选择操作 =====================
 
+    // TODO: 人工审查 - 2026-06-23 - 选择方法新增 updateDisableStates() 调用
     private void selectEntry(int index) {
         if (index == selectedEntryIndex) return;
         selectedEntryIndex = index;
@@ -561,6 +766,7 @@ public class DialogueEditorScreen extends BaseScreen {
         condListScroll = 0;
         textListScroll = 0;
         refreshAllEditFields();
+        updateDisableStates();
     }
 
     private void selectCondition(int index) {
@@ -568,6 +774,7 @@ public class DialogueEditorScreen extends BaseScreen {
         selectedCondIndex = index;
         selectedTextIndex = -1;
         refreshAllEditFields();
+        updateDisableStates();
     }
 
     private void selectText(int index) {
@@ -575,16 +782,22 @@ public class DialogueEditorScreen extends BaseScreen {
         selectedTextIndex = index;
         selectedCondIndex = -1;
         refreshAllEditFields();
+        updateDisableStates();
     }
 
     // ===================== 编辑字段刷新 =====================
 
+    // TODO: 人工审查 - 2026-06-23 - refreshAllEditFields 新增触发模式/事件类型/天气值的刷新，含动态控件可见性
     private void refreshAllEditFields() {
         if (selectedEntryIndex < 0 || selectedEntryIndex >= editingData.size()) {
             txtCondValue.setValue("");
             txtDialogueText.setValue("");
             txtFrequency.setValue("");
             updateCondButtonLabels();
+            updateTriggerModeLabel();
+            updateEventTypeLabel();
+            updateCondValueVisibility();
+            updateDisableStates();
             return;
         }
 
@@ -593,21 +806,73 @@ public class DialogueEditorScreen extends BaseScreen {
         // 频率
         txtFrequency.setValue(String.valueOf(entry.frequency()));
 
+        // 触发模式 / 事件类型
+        editingTriggerModeIdx = entry.triggerMode().ordinal();
+        editingEventTypeIdx = entry.eventType().ordinal();
+        updateTriggerModeLabel();
+        updateEventTypeLabel();
+
         if (selectedCondIndex >= 0 && selectedCondIndex < entry.conditions().size()) {
             Condition cond = entry.conditions().get(selectedCondIndex);
             txtCondValue.setValue(cond.value());
             editingCondTypeIdx = cond.type().ordinal();
             editingCondOpIdx = getOpIndex(cond);
+            // 如果是天气类型，同步天气值索引
+            if (cond.type() == ConditionType.WEATHER) {
+                editingWeatherIdx = getWeatherIndex(cond.value());
+            }
+            // TODO: 人工审查 - 2026-06-23 - 如果是交互历史类型，同步交互值索引
+            if (cond.type() == ConditionType.INTERACTION_HISTORY) {
+                editingInteractionIdx = getInteractionIndex(cond.value());
+            }
         } else {
             txtCondValue.setValue("");
         }
         updateCondButtonLabels();
+        updateWeatherButtonLabel();
+        updateInteractionButtonLabel();
+        updateCondValueVisibility();
 
         if (selectedTextIndex >= 0 && selectedTextIndex < entry.texts().size()) {
             txtDialogueText.setValue(entry.texts().get(selectedTextIndex).getString());
         } else {
             txtDialogueText.setValue("");
         }
+
+        updateDisableStates();
+    }
+
+    // TODO: 人工审查 - 2026-06-23 - 新增禁用状态更新方法
+    /** 根据当前选中状态更新所有控件的禁用/启用状态 */
+    private void updateDisableStates() {
+        boolean hasEntry = selectedEntryIndex >= 0 && selectedEntryIndex < editingData.size();
+        boolean hasCond = hasEntry && selectedCondIndex >= 0;
+        boolean hasText = hasEntry && selectedTextIndex >= 0;
+
+        // 触发模式/事件类型按钮：需要选中条目
+        btnTriggerMode.active = hasEntry;
+        btnEventType.active = hasEntry;
+
+        // 频率编辑控件：需要选中条目
+        txtFrequency.setEditable(hasEntry);
+        btnApplyFreq.active = hasEntry;
+
+        // 条件编辑控件：需要选中条件；单运算符类型（如 INTERACTION_HISTORY）仅显示不可切换
+        btnCondType.active = hasCond;
+        btnCondOp.active = hasCond && getCurrentOpArray().length > 1;
+        txtCondValue.setEditable(hasCond);
+        btnWeatherValue.active = hasCond;
+        btnInteractionValue.active = hasCond;
+        // 条件增删按钮始终可用（只要有条目选中）
+        btnAddCond.active = hasEntry;
+        btnDelCond.active = hasCond;
+        btnEditCond.active = hasCond;
+
+        // 文本编辑控件：需要选中文本
+        txtDialogueText.setEditable(hasText);
+        btnAddText.active = hasEntry;
+        btnDelText.active = hasText;
+        btnEditText.active = hasText;
     }
 
     private void updateCondButtonLabels() {
@@ -622,8 +887,11 @@ public class DialogueEditorScreen extends BaseScreen {
                 ConditionType.values()[editingCondTypeIdx].getSerializedName());
     }
 
+    // TODO: 人工审查 - 2026-06-23 - 运算符标签仅显示运算符符号本身，已去除 "▼" 下拉指示器
+    // TODO: 人工审查 - 2026-06-23 - getCurrentOpArray 改用 editingCondTypeIdx，使运算符跟随编辑缓冲区而非已保存条件
     private Component getCondOpLabel() {
-        return LangData.GUI_DIALOGUE_EDITOR_COND_OP.get(getOpString(editingCondOpIdx));
+        String op = getOpString(editingCondOpIdx);
+        return Component.literal(op);
     }
 
     // ===================== 操作符辅助方法 =====================
@@ -645,13 +913,14 @@ public class DialogueEditorScreen extends BaseScreen {
         return 0;
     }
 
+    // TODO: 人工审查 - 2026-06-23 - getCurrentOpArray 改用 editingCondTypeIdx 而非从已保存条件读取类型，
+    //   确保运算符按钮标签和循环逻辑实时跟随编辑缓冲区中当前选中的条件类型
     private String[] getCurrentOpArray() {
-        if (selectedEntryIndex < 0 || selectedEntryIndex >= editingData.size()) return OPS_STRING;
-        DialogueEntry entry = editingData.getEntries().get(selectedEntryIndex);
-        if (selectedCondIndex < 0 || selectedCondIndex >= entry.conditions().size()) return OPS_STRING;
-        return getOpArrayForType(entry.conditions().get(selectedCondIndex).type());
+        if (editingCondTypeIdx < 0 || editingCondTypeIdx >= ConditionType.values().length) return OPS_STRING;
+        return getOpArrayForType(ConditionType.values()[editingCondTypeIdx]);
     }
 
+    // TODO: 人工审查 - 2026-06-23 - NEARBY_PLAYERS/SEARCH_TIME 改为数值不等式运算符：确认运算符数组正确
     private static String[] getOpArrayForType(ConditionType type) {
         return switch (type) {
             case NEARBY_PLAYERS, SEARCH_TIME -> OPS_NUMERIC;
@@ -662,16 +931,176 @@ public class DialogueEditorScreen extends BaseScreen {
 
     // ===================== 条件编辑操作 =====================
 
+    // TODO: 人工审查 - 2026-06-23 - cycleCondType 新增天气值可见性切换
     private void cycleCondType() {
         editingCondTypeIdx = (editingCondTypeIdx + 1) % ConditionType.values().length;
         editingCondOpIdx = 0;
         updateCondButtonLabels();
+        updateCondValueVisibility();
     }
 
     private void cycleCondOp() {
         String[] ops = getCurrentOpArray();
         editingCondOpIdx = (editingCondOpIdx + 1) % ops.length;
         updateCondButtonLabels();
+    }
+
+    // TODO: 人工审查 - 2026-06-23 - 新增触发模式/事件类型/天气值循环方法
+
+    /** 循环切换触发模式 */
+    private void cycleTriggerMode() {
+        if (selectedEntryIndex < 0) return;
+        editingTriggerModeIdx = (editingTriggerModeIdx + 1) % DialogueTriggerMode.values().length;
+        // 切换触发模式时，将事件类型重置为第一个有效类型
+        if (DialogueTriggerMode.values()[editingTriggerModeIdx] == DialogueTriggerMode.POLLING) {
+            editingEventTypeIdx = DialogueEventType.NONE.ordinal();
+        }
+        updateTriggerModeLabel();
+        updateEventTypeLabel();
+        commitTriggerModeAndEventType();
+    }
+
+    /** 循环切换事件类型 */
+    private void cycleEventType() {
+        if (selectedEntryIndex < 0) return;
+        editingEventTypeIdx = (editingEventTypeIdx + 1) % DialogueEventType.values().length;
+        updateEventTypeLabel();
+        commitTriggerModeAndEventType();
+    }
+
+    /** 循环切换天气值（clear → rain → thunder → clear） */
+    private void cycleWeatherValue() {
+        editingWeatherIdx = (editingWeatherIdx + 1) % WEATHER_VALUES.length;
+        updateWeatherButtonLabel();
+        // 自动将天气值写入条件值输入框
+        txtCondValue.setValue(WEATHER_VALUES[editingWeatherIdx]);
+    }
+
+    /** 天气可选值列表 */
+    private static final String[] WEATHER_VALUES = {"clear", "rain", "thunder"};
+
+    // TODO: 人工审查 - 2026-06-23 - 交互历史值列表（empty=首次互动, present=回头客），替代旧的 first_time/returning
+    /** 交互历史可选值列表 */
+    private static final String[] INTERACTION_VALUES = {"empty", "present"};
+
+    /** 循环切换交互历史值（empty ↔ present） */
+    private void cycleInteractionValue() {
+        editingInteractionIdx = (editingInteractionIdx + 1) % INTERACTION_VALUES.length;
+        updateInteractionButtonLabel();
+        // 自动将交互值写入条件值输入框
+        txtCondValue.setValue(INTERACTION_VALUES[editingInteractionIdx]);
+        dirty = true;
+    }
+
+    private void updateInteractionButtonLabel() {
+        btnInteractionValue.setMessage(getInteractionValueLabel());
+    }
+
+    private Component getInteractionValueLabel() {
+        if (editingInteractionIdx < 0 || editingInteractionIdx >= INTERACTION_VALUES.length)
+            return Component.literal("?");
+        return Component.literal(INTERACTION_VALUES[editingInteractionIdx]);
+    }
+
+    /** 根据交互历史值字符串获取索引 */
+    private static int getInteractionIndex(String interactionValue) {
+        for (int i = 0; i < INTERACTION_VALUES.length; i++) {
+            if (INTERACTION_VALUES[i].equalsIgnoreCase(interactionValue)) return i;
+        }
+        return 0;
+    }
+
+    /** 根据天气字符串获取索引 */
+    private static int getWeatherIndex(String weatherValue) {
+        for (int i = 0; i < WEATHER_VALUES.length; i++) {
+            if (WEATHER_VALUES[i].equalsIgnoreCase(weatherValue)) return i;
+        }
+        return 0;
+    }
+
+    /** 根据当前条件类型切换专用值选择按钮和文本输入框的可见性 */
+    // TODO: 人工审查 - 2026-06-23 - WEATHER 显示天气下拉，INTERACTION_HISTORY 显示交互下拉，其他显示文本输入框
+    // TODO: 人工审查 - 2026-06-23 - NEARBY_PLAYERS/SEARCH_TIME 改为数值不等式运算符：数字输入过滤
+    private void updateCondValueVisibility() {
+        if (editingCondTypeIdx < 0 || editingCondTypeIdx >= ConditionType.values().length) {
+            btnWeatherValue.visible = false;
+            btnInteractionValue.visible = false;
+            txtCondValue.visible = true;
+            updateCondValueFilter();
+            return;
+        }
+        ConditionType currentType = ConditionType.values()[editingCondTypeIdx];
+        boolean isWeather = (currentType == ConditionType.WEATHER);
+        boolean isInteraction = (currentType == ConditionType.INTERACTION_HISTORY);
+        btnWeatherValue.visible = isWeather;
+        btnInteractionValue.visible = isInteraction;
+        txtCondValue.visible = !isWeather && !isInteraction;
+        // 同步更新输入过滤：数值类型仅接受整数
+        updateCondValueFilter();
+    }
+
+    /**
+     * 根据当前条件类型动态设置值输入框的过滤规则。
+     * 数值类条件（NEARBY_PLAYERS、SEARCH_TIME）仅接受整数输入（支持负号前缀）；
+     * 其他类型不设过滤，允许自由文本输入。
+     */
+    private void updateCondValueFilter() {
+        if (editingCondTypeIdx < 0 || editingCondTypeIdx >= ConditionType.values().length) {
+            txtCondValue.setFilter(s -> true);
+            return;
+        }
+        ConditionType currentType = ConditionType.values()[editingCondTypeIdx];
+        if (currentType == ConditionType.NEARBY_PLAYERS || currentType == ConditionType.SEARCH_TIME) {
+            // 仅接受整数输入（可选负号前缀）
+            txtCondValue.setFilter(s -> s.isEmpty() || s.matches("-?[0-9]*"));
+        } else {
+            // 其他类型：无过滤
+            txtCondValue.setFilter(s -> true);
+        }
+    }
+
+    /** 将触发模式和事件类型的编辑状态提交到当前选中的条目 */
+    private void commitTriggerModeAndEventType() {
+        if (selectedEntryIndex < 0 || selectedEntryIndex >= editingData.size()) return;
+        DialogueEntry entry = editingData.getEntries().get(selectedEntryIndex);
+        DialogueTriggerMode mode = DialogueTriggerMode.values()[editingTriggerModeIdx];
+        DialogueEventType eventType = DialogueEventType.values()[editingEventTypeIdx];
+        if (entry.triggerMode() == mode && entry.eventType() == eventType) return;
+        replaceEntryMeta(new DialogueEntry(entry.id(), entry.conditions(), entry.texts(),
+                entry.frequency(), mode, eventType));
+        dirty = true;
+    }
+
+    // ===================== 触发模式/事件类型/天气值标签方法 =====================
+
+    private void updateTriggerModeLabel() {
+        btnTriggerMode.setMessage(getTriggerModeLabel());
+    }
+
+    private void updateEventTypeLabel() {
+        btnEventType.setMessage(getEventTypeLabel());
+    }
+
+    private void updateWeatherButtonLabel() {
+        btnWeatherValue.setMessage(getWeatherValueLabel());
+    }
+
+    private Component getTriggerModeLabel() {
+        if (editingTriggerModeIdx < 0 || editingTriggerModeIdx >= DialogueTriggerMode.values().length)
+            return Component.literal("Mode: ?");
+        return Component.literal("Mode: " + DialogueTriggerMode.values()[editingTriggerModeIdx].getSerializedName());
+    }
+
+    private Component getEventTypeLabel() {
+        if (editingEventTypeIdx < 0 || editingEventTypeIdx >= DialogueEventType.values().length)
+            return Component.literal("Event: ?");
+        return Component.literal("Event: " + DialogueEventType.values()[editingEventTypeIdx].getSerializedName());
+    }
+
+    private Component getWeatherValueLabel() {
+        if (editingWeatherIdx < 0 || editingWeatherIdx >= WEATHER_VALUES.length)
+            return Component.literal("?");
+        return Component.literal(WEATHER_VALUES[editingWeatherIdx]);
     }
 
     private void addCondition() {
@@ -766,17 +1195,19 @@ public class DialogueEditorScreen extends BaseScreen {
     // ===================== 条目元数据编辑 =====================
 
     /** 提交频率修改 */
+    // TODO: 人工审查 - 2026-06-23 - commitFrequency 保留 triggerMode/eventType
     private void commitFrequency() {
         if (selectedEntryIndex < 0 || selectedEntryIndex >= editingData.size()) return;
         try {
             int newFreq = Integer.parseInt(txtFrequency.getValue());
             if (newFreq <= 0) newFreq = 1;
             DialogueEntry entry = editingData.getEntries().get(selectedEntryIndex);
-            // 直接替换，保留 conditions 和 texts
             List<DialogueEntry> mutable = new ArrayList<>(editingData.getEntries());
-            mutable.set(selectedEntryIndex, new DialogueEntry(entry.id(), entry.conditions(), entry.texts(), newFreq));
+            mutable.set(selectedEntryIndex, new DialogueEntry(entry.id(), entry.conditions(), entry.texts(),
+                    newFreq, entry.triggerMode(), entry.eventType()));
             editingData = new DialogueData(mutable);
             refreshAllEditFields();
+            updateDisableStates();
             dirty = true;
         } catch (NumberFormatException ignored) {
         }
@@ -799,6 +1230,7 @@ public class DialogueEditorScreen extends BaseScreen {
         textListScroll = 0;
         entryListScroll = Math.max(0, mutable.size() - entryListVisible);
         refreshAllEditFields();
+        updateDisableStates();
         dirty = true;
     }
 
@@ -817,14 +1249,25 @@ public class DialogueEditorScreen extends BaseScreen {
             selectedTextIndex = 0;
         }
         refreshAllEditFields();
+        updateDisableStates();
         dirty = true;
     }
 
+    // TODO: 人工审查 - 2026-06-23 - replaceEntry 保留触发模式/事件类型
     private void replaceEntry(DialogueEntry newEntry) {
         List<DialogueEntry> mutable = new ArrayList<>(editingData.getEntries());
-        // 保留原有频率
-        int freq = mutable.get(selectedEntryIndex).frequency();
-        mutable.set(selectedEntryIndex, new DialogueEntry(newEntry.id(), newEntry.conditions(), newEntry.texts(), freq));
+        DialogueEntry old = mutable.get(selectedEntryIndex);
+        mutable.set(selectedEntryIndex, new DialogueEntry(newEntry.id(), newEntry.conditions(), newEntry.texts(),
+                old.frequency(), old.triggerMode(), old.eventType()));
+        editingData = new DialogueData(mutable);
+    }
+
+    /**
+     * 替换条目的元数据（频率、触发模式、事件类型），保留条件和文本不变。
+     */
+    private void replaceEntryMeta(DialogueEntry newEntry) {
+        List<DialogueEntry> mutable = new ArrayList<>(editingData.getEntries());
+        mutable.set(selectedEntryIndex, newEntry);
         editingData = new DialogueData(mutable);
     }
 
@@ -832,7 +1275,7 @@ public class DialogueEditorScreen extends BaseScreen {
 
     private void copyToClipboard() {
         clipboard = editingData;
-        if (minecraft != null && minecraft.player != null) {
+        if (minecraft.player != null) {
             minecraft.player.sendSystemMessage(
                     LangData.GUI_DIALOGUE_EDITOR_MSG_COPIED.get(String.valueOf(editingData.size()))
             );
@@ -841,7 +1284,7 @@ public class DialogueEditorScreen extends BaseScreen {
 
     private void pasteFromClipboard() {
         if (clipboard == null) {
-            if (minecraft != null && minecraft.player != null) {
+            if (minecraft.player != null) {
                 minecraft.player.sendSystemMessage(LangData.GUI_DIALOGUE_EDITOR_MSG_CLIPBOARD_EMPTY.get());
             }
             return;
@@ -855,7 +1298,8 @@ public class DialogueEditorScreen extends BaseScreen {
         entryListScroll = 0;
         dirty = true;
         refreshAllEditFields();
-        if (minecraft != null && minecraft.player != null) {
+        updateDisableStates();
+        if (minecraft.player != null) {
             minecraft.player.sendSystemMessage(
                     LangData.GUI_DIALOGUE_EDITOR_MSG_PASTED.get(String.valueOf(editingData.size()))
             );
@@ -863,6 +1307,53 @@ public class DialogueEditorScreen extends BaseScreen {
     }
 
     // ===================== 保存与关闭 =====================
+
+    // TODO: 人工审查 - 2026-06-22 - 新增导出到文件方法，序列化 editingData 为 JSON 并保存到 CONVERSATION_DIR
+    /**
+     * 将当前编辑的对话数据导出为 JSON 文件，保存到 {@code ./shakenstir/bartender/conversation/} 目录。
+     * 文件名从 {@code txtExportFilename} 获取，为空则使用 "untitled"。
+     */
+    private void exportToFile() {
+        String rawName = txtExportFilename.getValue().trim();
+        String fileName = rawName.isEmpty() ? "untitled" : rawName;
+
+        try {
+            java.nio.file.Path dir = Paths.CONVERSATION_DIR;
+            Files.createDirectories(dir);
+
+            java.nio.file.Path filePath = dir.resolve(fileName + ".json");
+
+            var encodeResult = DialogueData.CODEC.encodeStart(JsonOps.INSTANCE, editingData);
+            JsonElement json = encodeResult.resultOrPartial(err ->
+                    LOGGER.error("Failed to encode DialogueData for export: {}", err)
+            ).orElse(null);
+
+            if (json == null) {
+                if (minecraft.player != null) {
+                    minecraft.player.sendSystemMessage(
+                            LangData.GUI_DIALOGUE_EDITOR_MSG_EXPORT_FAILED.get("Serialization error")
+                    );
+                }
+                return;
+            }
+
+            Files.writeString(filePath, json.toString());
+
+            LOGGER.info("Exported dialogue data to: {}", filePath);
+            if (minecraft.player != null) {
+                minecraft.player.sendSystemMessage(
+                        LangData.GUI_DIALOGUE_EDITOR_MSG_EXPORT_SUCCESS.get(fileName + ".json")
+                );
+            }
+        } catch (IOException e) {
+            LOGGER.error("Failed to export dialogue data", e);
+            if (minecraft.player != null) {
+                minecraft.player.sendSystemMessage(
+                        LangData.GUI_DIALOGUE_EDITOR_MSG_EXPORT_FAILED.get(e.getMessage())
+                );
+            }
+        }
+    }
 
     private void saveAndClose() {
         entity.setDialogueData(editingData);
@@ -873,14 +1364,9 @@ public class DialogueEditorScreen extends BaseScreen {
 
     @Override
     public void onClose() {
-        if (dirty && minecraft != null && minecraft.player != null) {
+        if (dirty && minecraft.player != null) {
             minecraft.player.sendSystemMessage(LangData.GUI_DIALOGUE_EDITOR_MSG_UNSAVED.get());
         }
         super.onClose();
-    }
-
-    @Override
-    public boolean isPauseScreen() {
-        return false;
     }
 }

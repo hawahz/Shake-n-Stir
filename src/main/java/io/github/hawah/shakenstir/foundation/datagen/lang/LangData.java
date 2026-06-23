@@ -139,6 +139,10 @@ public enum LangData {
     GUI_DIALOGUE_EDITOR_MSG_PASTED("gui.dialogue_editor.msg.pasted", "Pasted %s dialogue entries", 1),
     GUI_DIALOGUE_EDITOR_MSG_CLIPBOARD_EMPTY("gui.dialogue_editor.msg.clipboard_empty", "Clipboard is empty!", 0),
     GUI_DIALOGUE_EDITOR_MSG_UNSAVED("gui.dialogue_editor.msg.unsaved", "Unsaved changes. Use 'Save' to apply.", 0),
+    GUI_DIALOGUE_EDITOR_BTN_EXPORT("gui.dialogue_editor.btn.export", "Export", 0),
+    GUI_DIALOGUE_EDITOR_EXPORT_FILENAME("gui.dialogue_editor.export.filename", "filename", 0),
+    GUI_DIALOGUE_EDITOR_MSG_EXPORT_SUCCESS("gui.dialogue_editor.msg.export_success", "Exported to %s", 1),
+    GUI_DIALOGUE_EDITOR_MSG_EXPORT_FAILED("gui.dialogue_editor.msg.export_failed", "Export failed: %s", 1),
 
     // ======================== Placeholder Help ========================
     GUI_DIALOGUE_HELP_TITLE("gui.dialogue_editor.help.title", "Placeholders", 0),

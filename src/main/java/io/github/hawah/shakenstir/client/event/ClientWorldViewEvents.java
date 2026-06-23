@@ -12,6 +12,7 @@ import io.github.hawah.shakenstir.lib.client.render.outliner.Outliner;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.util.Mth;
@@ -21,6 +22,9 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.*;
 
+import java.lang.ref.WeakReference;
+
+import static io.github.hawah.shakenstir.client.event.MC.getLevel;
 import static io.github.hawah.shakenstir.client.event.MC.getPlayer;
 
 @EventBusSubscriber(Dist.CLIENT)
@@ -28,6 +32,7 @@ public class ClientWorldViewEvents {
     public static final float FOG_LERP = 0.01F;
     private static double cameraRoll = 0;
     private static double shakeIntensity = 0;
+    private static WeakReference<ClientLevel> previousLevel = new WeakReference<>(null);
     private static float cr = -1;
     private static float cg = -1;
     private static float cb = -1;
@@ -103,7 +108,7 @@ public class ClientWorldViewEvents {
 
     @SuppressWarnings("UnusedAssignment")
     @SubscribeEvent
-    public static void onCameraOffset(ViewportEvent.ComputeFogColor event) {
+    public static void modifyFogColor(ViewportEvent.ComputeFogColor event) {
         if (getPlayer() == null) {
             return;
         }
@@ -114,10 +119,12 @@ public class ClientWorldViewEvents {
         float deltaTicks = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
         float lerp = (float) (FOG_LERP * deltaTicks / 0.68);
 
-        if (cr < 0 || cg < 0 || cb < 0) {
+        if ((cr < 0 || cg < 0 || cb < 0) || !previousLevel.refersTo(getLevel())) {
             cr = r = event.getRed();
             cg = g = event.getGreen();
             cb = b = event.getBlue();
+            previousLevel.clear();
+            previousLevel = new WeakReference<>(getLevel());
         }
 
         if (getPlayer().hasEffect(MobEffectRegistries.DRUNK) && getPlayer().getEffect(MobEffectRegistries.DRUNK).getAmplifier() >= 3) {

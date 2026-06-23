@@ -3,6 +3,7 @@ package io.github.hawah.shakenstir.content.entity;
 import com.mojang.logging.LogUtils;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.Config;
+import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.client.animation.AnimationState;
 import io.github.hawah.shakenstir.client.animation.AnimationStateMachine;
 import io.github.hawah.shakenstir.client.animation.ShakeAnimationState;
@@ -11,6 +12,7 @@ import io.github.hawah.shakenstir.client.render.entity.BartenderModel;
 import io.github.hawah.shakenstir.content.blockEntity.BarMenuBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dialogue.DialogueData;
+import io.github.hawah.shakenstir.content.dialogue.DialogueEventType;
 import io.github.hawah.shakenstir.content.dialogue.DialogueManager;
 import io.github.hawah.shakenstir.content.entity.ai.activity.Activities;
 import io.github.hawah.shakenstir.content.entity.ai.memory.Memories;
@@ -22,12 +24,14 @@ import io.github.hawah.shakenstir.foundation.networking.ServerboundBartenderDial
 import io.github.hawah.shakenstir.foundation.networking.ServerboundBartenderSpeakAnnouncePacket;
 import io.github.hawah.shakenstir.lib.client.gui.ScreenOpener;
 import io.github.hawah.shakenstir.lib.networking.Networking;
+import io.github.hawah.shakenstir.util.Paths;
 import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.StringRepresentable;
@@ -59,6 +63,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.nio.file.Path;
 import java.util.*;
 
 @ParametersAreNonnullByDefault
@@ -123,6 +128,10 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     /** 物品寻找已用时间 (Search Elapsed Ticks) - 供 SEARCH_TIME 条件使用 */
     private int searchElapsedTicks = 0;
 
+    // TODO: 人工审查 - 2026-06-22 - 新增默认对话资源位置常量，用于从模组内置资源加载 fallback 对话数据
+    /** 内置默认对话资源位置 (Built-in default dialogue resource location) */
+    private static final Identifier DEFAULT_DIALOGUE_RESOURCE = ShakenStir.asResource("dialogue/default.json");
+
     public BartenderEntity(EntityType<BartenderEntity> type, Level level) {
         super(type, level);
         this.getNavigation().setCanOpenDoors(true);
@@ -130,10 +139,31 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         if (level.isClientSide()) {
             initStateMachine();
         }
+        // 尝试从文件系统加载默认对话数据（服务端与客户端均可执行）
+        tryLoadDefaultDialogueFromFile();
     }
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes().add(Attributes.MOVEMENT_SPEED, 0.5);
+    }
+
+    // TODO: 人工审查 - 2026-06-22 - 新增默认对话加载方法：先从文件系统加载 default.json，再通过 customServerAiStep 懒加载资源回退
+
+    /** 是否已尝试过资源回退加载 (Whether resource fallback loading has been attempted) */
+    private boolean defaultDialogueResourceTried = false;
+
+    /**
+     * 尝试从文件系统加载默认对话数据 (Load default dialogue from filesystem)。
+     * 读取 {@code ./shakenstir/bartender/conversation/default.json}。
+     * 在构造阶段调用，同时适用于服务端与客户端。
+     */
+    private void tryLoadDefaultDialogueFromFile() {
+        Path defaultFile = Paths.CONVERSATION_DIR.resolve("default.json");
+        DialogueData loaded = DialogueData.loadFromFile(defaultFile);
+        if (!loaded.isEmpty()) {
+            this.dialogueData = loaded;
+            LogUtils.getLogger().info("Loaded default dialogue from file: {}", defaultFile);
+        }
     }
 
     @Override
@@ -246,6 +276,21 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         this.getBrain().tick((ServerLevel)this.level(), this);
         profiler.pop();
 
+        // TODO: 人工审查 - 2026-06-22 - 首次 AI tick 时懒加载内置资源默认对话（文件系统加载失败的回退方案）
+        if (!defaultDialogueResourceTried) {
+            defaultDialogueResourceTried = true;
+            if (dialogueData.isEmpty()) {
+                DialogueData loaded = DialogueData.loadFromResource(
+                        DEFAULT_DIALOGUE_RESOURCE,
+                        level.getServer().getResourceManager()
+                );
+                if (!loaded.isEmpty()) {
+                    this.dialogueData = loaded;
+                    LogUtils.getLogger().info("Loaded default dialogue from built-in resource: {}", DEFAULT_DIALOGUE_RESOURCE);
+                }
+            }
+        }
+
         // 记录当前活动，用于检测状态变化
         String previousActivity = this.getBrain().getActiveNonCoreActivity()
                 .map(Activity::getName).orElse("idle");
@@ -259,6 +304,13 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         if (!currentActivity.equals(previousActivity) || !currentActivity.equals(lastAiActivity)) {
             // AI 活动发生切换，尝试触发状态变化对话
             tryTriggerDialogueOnStateChange(level, currentActivity);
+            // TODO: 人工审查 - 2026-06-24 - 修正事件驱动型对话触发：LEAVE 使用旧活动，ENTER 使用新活动
+            // 触发离开旧活动事件（以 previousActivity 作为条件评估上下文）
+            if (!previousActivity.equals(currentActivity)) {
+                tryTriggerEventDialogue(level, DialogueEventType.LEAVE_ACTIVITY, previousActivity);
+            }
+            // 触发进入新活动事件（以 currentActivity 作为条件评估上下文）
+            tryTriggerEventDialogue(level, DialogueEventType.ENTER_ACTIVITY, currentActivity);
         }
         lastAiActivity = currentActivity;
 
@@ -288,7 +340,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     }
 
     protected static OptionalInt convertParrotVariant(Optional<Parrot.Variant> variant) {
-        return variant.<OptionalInt>map(v -> OptionalInt.of(v.getId())).orElse(OptionalInt.empty());
+        return variant.map(v -> OptionalInt.of(v.getId())).orElse(OptionalInt.empty());
     }
 
     @Override
@@ -307,8 +359,14 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         saveDialogueData(output);
     }
 
+    // TODO: 人工审查 - 2026-06-23 - mobInteract 新增 PLAYER_INTERACT 事件驱动型对话触发
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
+        // 触发玩家交互事件驱动型对话（仅服务端）
+        if (!level().isClientSide() && level() instanceof ServerLevel serverLevel) {
+            tryTriggerEventDialogue(serverLevel, DialogueEventType.PLAYER_INTERACT, null);
+        }
+
         ItemStack itemInHand = player.getItemInHand(hand);
         if (getOwner() != null && player.is(getOwner())) {
             if (itemInHand.has(DataComponentTypeRegistries.BAR_AREA)) {
@@ -766,6 +824,37 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         }
     }
 
+    // TODO: 人工审查 - 2026-06-23 - 新增事件驱动型对话触发方法
+    //   根据事件类型调用 DialogueManager.selectEventDialogueResult 进行匹配
+    // TODO: 人工审查 - 2026-06-24 - 新增 activityName 参数，用于 LEAVE_ACTIVITY/ENTER_ACTIVITY 事件传递正确的活动上下文
+
+    /**
+     * 事件驱动型对话触发（Event-driven Dialogue Trigger）。
+     * 根据指定的事件类型，查找匹配的 EVENT_DRIVEN 条目并立即触发对话。
+     * 事件驱动型对话仅在条件满足且冷却结束时触发，触发后进入冷却。
+     *
+     * @param level        服务端世界
+     * @param eventType    触发的事件类型
+     * @param activityName 显式活动上下文（用于 LEAVE_ACTIVITY / ENTER_ACTIVITY 事件的条件评估和变量替换；{@code null} 表示从 Brain 实时获取）
+     */
+    private void tryTriggerEventDialogue(ServerLevel level, DialogueEventType eventType, @Nullable String activityName) {
+        if (dialogueData.isEmpty()) return;
+        if (dialogueCooldownTicks > 0) return;
+
+        Player player = (Player) getBrain().getMemory(MemoryModuleType.INTERACTION_TARGET)
+                .filter(e -> e instanceof Player).orElse(null);
+
+        DialogueManager.SelectionResult result = DialogueManager.selectEventDialogueResult(
+                dialogueData, level, this, player, dialoguePlayedTracker, eventType, activityName
+        );
+
+        if (result.hasResult()) {
+            deliverDialogue(level, result);
+            dialogueCooldownTicks = 60 * result.cooldownMultiplier();
+            ambientDialogueTimer = 0;
+        }
+    }
+
     /**
      * 将选中的对话文本发送到客户端。
      * 如果文本包含 [BR] (case‑insensitive) 标记，则在标记处拆分，每个拆分段依次排入队列逐条播放；
@@ -776,7 +865,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
 
         if (segments.size() == 1) {
             // 无 [BR] 标记：单条气泡
-            speakServer(segments.get(0), 100, false);
+            speakServer(segments.getFirst(), 100, false);
         } else {
             // 有 [BR] 标记：拆分为多条依次排入队列
             for (Component segment : segments) {
