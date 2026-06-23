@@ -70,7 +70,7 @@ public class ShakenStir {
 
     private void commonSetup(FMLCommonSetupEvent event) {
         // Some common setup code
-        LOGGER.info("调制饮料，改变人生");
+        LOGGER.info("欢迎回来，Jill.");
     }
 
     // Add the example block item to the building blocks tab
@@ -79,7 +79,7 @@ public class ShakenStir {
     }
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
-        LOGGER.info("HELLO from server starting");
+        LOGGER.info("调制饮料，改变人生");
     }
 
     public static Identifier asResource(String path) {

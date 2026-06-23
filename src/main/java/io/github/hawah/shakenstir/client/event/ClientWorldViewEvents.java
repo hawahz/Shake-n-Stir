@@ -1,6 +1,8 @@
 package io.github.hawah.shakenstir.client.event;
 
+import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
 import io.github.hawah.shakenstir.client.render.GlasswareOutlineRenderer;
@@ -14,7 +16,10 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
@@ -38,7 +43,7 @@ public class ClientWorldViewEvents {
     private static float cb = -1;
 
     @SubscribeEvent
-    public static void onRenderWorld(RenderLevelStageEvent.AfterTranslucentParticles event) {
+    public static void onRenderWorld(RenderLevelStageEvent.AfterLevel event) {
         ShakenStirClient.TIMER_NORMAL.warp(Minecraft.getInstance().getDeltaTracker());
     }
 
@@ -61,7 +66,56 @@ public class ClientWorldViewEvents {
         ShakenStirClient.GLASSWARE_HANDLER.submit(submitNodeCollector, poseStack, levelRenderState);
         ShakenStirClient.DECORATE_PLACE_HANDLER.submit(submitNodeCollector, poseStack, levelRenderState);
         Outliner.submit(submitNodeCollector, poseStack, levelRenderState);
+        CameraRenderState cameraRenderState = event.getLevelRenderState().cameraRenderState;
+        int r = cameraRenderState.xRot>0? (int) (cameraRenderState.xRot / 90F* 255) : 0;
+        int sign = ARGB.color(r, 0, 0);
+        event.getSubmitNodeCollector().submitCustomGeometry(
+                poseStack,
+                RenderTypes.debugQuads(),
+                (pose, buffer) -> {
+                    PoseStack stack = new PoseStack();
+                    stack.last().set(pose);
+                    bobView(cameraRenderState, stack);
+
+
+                    stack.mulPose(Axis.YN.rotationDegrees(cameraRenderState.yRot));
+                    stack.mulPose(Axis.XP.rotationDegrees(cameraRenderState.xRot));
+                    stack.translate(0, 0, 0.5F);
+                    Minecraft.getInstance().player.getYRot();
+                    PoseStack.Pose p = stack.last();
+                    Window window = Minecraft.getInstance().getWindow();
+                    float size = 1.5F/Math.min(window.getWidth(), window.getHeight());
+                    buffer.addVertex(p, -size, -size, 0)
+                            .setColor(sign);
+                    buffer.addVertex(p, size, -size, 0)
+                            .setColor(sign);
+                    buffer.addVertex(p, size, size, 0)
+                            .setColor(sign);
+                    buffer.addVertex(p, -size, size, 0)
+                            .setColor(sign);
+                }
+        );
         poseStack.popPose();
+    }
+
+    private static void bobView(CameraRenderState cameraState, PoseStack poseStack) {
+        if (cameraState.entityRenderState.isPlayer) {
+            float backwardsInterpolatedWalkDistance = cameraState.entityRenderState.backwardsInterpolatedWalkDistance;
+            float bob = cameraState.entityRenderState.bob;
+            poseStack.mulPose(Axis.YN.rotationDegrees(180 + cameraState.yRot));
+            poseStack.mulPose(Axis.XP.rotationDegrees(-cameraState.xRot));
+
+            poseStack.mulPose(Axis.XP.rotationDegrees(-Math.abs(Mth.cos(backwardsInterpolatedWalkDistance * (float) Math.PI - 0.2F) * bob) * 5.0F));
+            poseStack.mulPose(Axis.ZP.rotationDegrees(-Mth.sin(backwardsInterpolatedWalkDistance * (float) Math.PI) * bob * 3.0F));
+            poseStack.translate(
+                    -Mth.sin(backwardsInterpolatedWalkDistance * (float) Math.PI) * bob * 0.5F,
+                    Math.abs(Mth.cos(backwardsInterpolatedWalkDistance * (float) Math.PI) * bob),
+                    0.0F
+            );
+
+            poseStack.mulPose(Axis.XP.rotationDegrees(cameraState.xRot));
+            poseStack.mulPose(Axis.YN.rotationDegrees(-180 - cameraState.yRot));
+        }
     }
 
     @SubscribeEvent

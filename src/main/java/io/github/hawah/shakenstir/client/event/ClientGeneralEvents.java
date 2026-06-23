@@ -9,6 +9,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 
 import static io.github.hawah.shakenstir.client.event.MC.getLevel;
+import static io.github.hawah.shakenstir.client.event.MC.getPlayer;
 
 @EventBusSubscriber(value = Dist.CLIENT)
 public class ClientGeneralEvents {
@@ -24,6 +25,9 @@ public class ClientGeneralEvents {
         ShakenStirClient.BAR_BUILDER_HANDLER.tick();
         ShakenStirClient.MENU_HUD.tick();
         Outliner.tick();
+        if (getPlayer() == null) {
+            return;
+        }
     }
 
     public static final Identifier HOTBAR_SELECTION_SPRITE = Identifier.withDefaultNamespace("hud/hotbar_selection");

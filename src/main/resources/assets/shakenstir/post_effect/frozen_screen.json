@@ -1,0 +1,76 @@
+{
+  "targets": {
+    "froze": {"persistent": true, "clear_color": [0, 0, 0, 0]},
+    "time": {"persistent":  true, "clear_color": [1, 0, 0, 0]}
+  },
+  "passes": [
+    {
+      "vertex_shader": "minecraft:core/screenquad",
+      "fragment_shader": "shakenstir:post/blit",
+      "inputs": [
+        {
+          "sampler_name": "In",
+          "target": "minecraft:main"
+        },
+        {
+          "sampler_name": "Frozen",
+          "target": "froze"
+        },
+        {
+          "sampler_name": "GameTime",
+          "target": "time"
+        }
+      ],
+      "uniforms": {
+        "BlitConfig": [
+          {
+            "name": "lerp",
+            "type": "float",
+            "value": 0.01
+          }
+        ]
+      },
+      "output": "froze"
+    },
+    {
+      "vertex_shader": "minecraft:core/screenquad",
+      "fragment_shader": "shakenstir:post/time",
+      "inputs": [
+        {
+          "sampler_name": "In",
+          "target": "time"
+        }
+      ],
+      "uniforms": {
+        "BlitConfig": [
+          {
+            "name": "lerp",
+            "type": "float",
+            "value": 0.01
+          }
+        ]
+      },
+      "output": "time"
+    },
+    {
+      "vertex_shader": "minecraft:core/screenquad",
+      "fragment_shader": "minecraft:post/blit",
+      "inputs": [
+        {
+          "sampler_name": "In",
+          "target": "froze"
+        }
+      ],
+      "uniforms": {
+        "BlitConfig": [
+          {
+            "name": "ColorModulate",
+            "type": "vec4",
+            "value": [ 1.0, 1.0, 1.0, 1.0 ]
+          }
+        ]
+      },
+      "output": "minecraft:main"
+    }
+  ]
+}
