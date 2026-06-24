@@ -21,6 +21,7 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -160,7 +161,6 @@ public class ClientWorldViewEvents {
         event.setYaw((float) ((event.getYaw() + Math.cos(renderTime /20D) * shakeIntensity)));
     }
 
-    @SuppressWarnings("UnusedAssignment")
     @SubscribeEvent
     public static void modifyFogColor(ViewportEvent.ComputeFogColor event) {
         if (getPlayer() == null) {
@@ -174,17 +174,26 @@ public class ClientWorldViewEvents {
         float lerp = (float) (FOG_LERP * deltaTicks / 0.68);
 
         if ((cr < 0 || cg < 0 || cb < 0) || !previousLevel.refersTo(getLevel())) {
-            cr = r = event.getRed();
-            cg = g = event.getGreen();
-            cb = b = event.getBlue();
+            cr = event.getRed();
+            cg = event.getGreen();
+            cb = event.getBlue();
             previousLevel.clear();
             previousLevel = new WeakReference<>(getLevel());
         }
 
-        if (getPlayer().hasEffect(MobEffectRegistries.DRUNK) && getPlayer().getEffect(MobEffectRegistries.DRUNK).getAmplifier() >= 3) {
+        MobEffectInstance drunkEffect = getPlayer().getEffect(MobEffectRegistries.DRUNK);
+        if (drunkEffect != null && drunkEffect.getAmplifier() >= 3) {
             r = 255 / 255F;
             g = 109/255F;
             b = 120/255F;
+
+            if (drunkEffect.endsWithin(200)) {
+
+
+                r = event.getRed();
+                g = event.getGreen();
+                b = event.getBlue();
+            }
         } else {
             r = event.getRed();
             g = event.getGreen();
@@ -195,9 +204,11 @@ public class ClientWorldViewEvents {
             cg = Mth.lerp(lerp, cg, g);
             cb = Mth.lerp(lerp, cb, b);
         }
-        event.setRed    (cr);
-        event.setGreen  (cg);
-        event.setBlue   (cb);
+        if (drunkEffect != null) {
+            event.setRed(cr);
+            event.setGreen(cg);
+            event.setBlue(cb);
+        }
     }
 
     @SubscribeEvent
