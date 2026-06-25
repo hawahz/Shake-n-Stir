@@ -1,0 +1,20 @@
+{
+  "targets": {
+  },
+  "passes": [
+    {
+      "vertex_shader": "minecraft:core/screenquad",
+      "fragment_shader": "shakenstir:post/test",
+      "inputs": [
+        {
+          "sampler_name": "In",
+          "target": "minecraft:main"
+        }
+      ],
+      "uniforms": {
+
+      },
+      "output": "minecraft:main"
+    }
+  ]
+}

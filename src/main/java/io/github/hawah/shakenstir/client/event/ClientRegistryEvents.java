@@ -306,7 +306,7 @@ public class ClientRegistryEvents {
 
     @SubscribeEvent
     public static void onRegisterShaders(RegisterEntitySpectatorShadersEvent event) {
-        event.register(EntityTypeRegistries.BARTENDER.get(), ShakenStir.asResource("frozen_screen"));
+//        event.register(EntityTypeRegistries.BARTENDER.get(), ShakenStir.asResource("frozen_screen"));
     }
 
 }

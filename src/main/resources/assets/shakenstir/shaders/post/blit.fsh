@@ -1,8 +1,8 @@
 #version 330
+#moj_import <minecraft:globals.glsl>
 
 uniform sampler2D InSampler;
 uniform sampler2D FrozenSampler;
-uniform sampler2D GameTimeSampler;
 
 layout(std140) uniform BlitConfig {
     float lerp;
@@ -21,15 +21,14 @@ void main(){
     vec4 frozenColor = texture(FrozenSampler, texCoord);
     vec4 screenColor = texture(InSampler, texCoord);
     vec4 test = texture(InSampler, vec2(0.5, 0.5));
+    float gt = GameTime * 120;
     float ranVal = texCoord.x * 10 + texCoord.y;
-    vec4 gtSampler = texture(GameTimeSampler, texCoord);
-    float GameTime = gtSampler.r;
     if (frozenColor.r <= 0.1) {
         fragColor = texture(InSampler, texCoord);
     } else if (test.r >= 0) {
         fragColor = mix(screenColor, frozenColor, test.r * (1.0 - lerp));
     } else {
-        if (random(GameTime + ranVal) < 0.01) {
+        if (random(gt + ranVal) < 0.01) {
             fragColor = mix(frozenColor, screenColor, 1.0);
         } else {
             fragColor = mix(frozenColor, screenColor, lerp);

@@ -1,8 +1,9 @@
 package io.github.hawah.shakenstir.client.event;
 
-import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.framegraph.FrameGraphBuilder;
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
 import io.github.hawah.shakenstir.client.render.GlasswareOutlineRenderer;
@@ -10,17 +11,20 @@ import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.foundation.mixin.GameRendererMixin;
 import io.github.hawah.shakenstir.lib.client.render.outliner.Outliner;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.LevelTargetBundle;
+import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
-import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
+import net.minecraft.util.profiling.Profiler;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
@@ -29,6 +33,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.*;
 
 import java.lang.ref.WeakReference;
+import java.util.Objects;
 
 import static io.github.hawah.shakenstir.client.event.MC.getLevel;
 import static io.github.hawah.shakenstir.client.event.MC.getPlayer;
@@ -46,6 +51,37 @@ public class ClientWorldViewEvents {
     @SubscribeEvent
     public static void onRenderWorld(RenderLevelStageEvent.AfterLevel event) {
         ShakenStirClient.TIMER_NORMAL.warp(Minecraft.getInstance().getDeltaTracker());
+        RenderTarget mainTarget = Minecraft.getInstance().getMainRenderTarget();
+        PostChain postChain = Minecraft.getInstance().getShaderManager().getPostChain(ShakenStir.asResource("frozen_screen"), LevelTargetBundle.MAIN_TARGETS);
+        LevelRenderer levelRenderer = event.getLevelRenderer();
+        if (postChain != null) {
+            FrameGraphBuilder frame = new FrameGraphBuilder();
+            PostChain.TargetBundle targets = PostChain.TargetBundle.of(
+                    PostChain.MAIN_TARGET_ID,
+                    frame.importExternal("main", mainTarget)
+            );
+            postChain.addToFrame(frame, mainTarget.width, mainTarget.height, targets);
+
+            final ProfilerFiller profiler = Profiler.get();
+            profiler.popPush("executeFrameGraph");
+            frame.importExternal("test", 0.5F);
+            frame.execute(( (GameRendererMixin) Minecraft.getInstance().gameRenderer).getResourcePool(), new FrameGraphBuilder.Inspector() {
+                {
+                    Objects.requireNonNull(levelRenderer);
+                }
+
+                @Override
+                public void beforeExecutePass(String name) {
+                    profiler.push(name);
+                }
+
+                @Override
+                public void afterExecutePass(String name) {
+                    profiler.pop();
+                }
+            });
+            profiler.pop();
+        }
     }
 
     @SubscribeEvent
@@ -67,57 +103,11 @@ public class ClientWorldViewEvents {
         ShakenStirClient.GLASSWARE_HANDLER.submit(submitNodeCollector, poseStack, levelRenderState);
         ShakenStirClient.DECORATE_PLACE_HANDLER.submit(submitNodeCollector, poseStack, levelRenderState);
         Outliner.submit(submitNodeCollector, poseStack, levelRenderState);
-        CameraRenderState cameraRenderState = event.getLevelRenderState().cameraRenderState;
-        int r = cameraRenderState.xRot>0? (int) (cameraRenderState.xRot / 90F* 255) : 0;
-        int sign = ARGB.color(r, 0, 0);
-        event.getSubmitNodeCollector().submitCustomGeometry(
-                poseStack,
-                RenderTypes.debugQuads(),
-                (pose, buffer) -> {
-                    PoseStack stack = new PoseStack();
-                    stack.last().set(pose);
-                    bobView(cameraRenderState, stack);
-
-
-                    stack.mulPose(Axis.YN.rotationDegrees(cameraRenderState.yRot));
-                    stack.mulPose(Axis.XP.rotationDegrees(cameraRenderState.xRot));
-                    stack.translate(0, 0, 0.5F);
-                    Minecraft.getInstance().player.getYRot();
-                    PoseStack.Pose p = stack.last();
-                    Window window = Minecraft.getInstance().getWindow();
-                    float size = 1.5F/Math.min(window.getWidth(), window.getHeight());
-                    buffer.addVertex(p, -size, -size, 0)
-                            .setColor(sign);
-                    buffer.addVertex(p, size, -size, 0)
-                            .setColor(sign);
-                    buffer.addVertex(p, size, size, 0)
-                            .setColor(sign);
-                    buffer.addVertex(p, -size, size, 0)
-                            .setColor(sign);
-                }
-        );
         poseStack.popPose();
+
     }
 
-    private static void bobView(CameraRenderState cameraState, PoseStack poseStack) {
-        if (cameraState.entityRenderState.isPlayer) {
-            float backwardsInterpolatedWalkDistance = cameraState.entityRenderState.backwardsInterpolatedWalkDistance;
-            float bob = cameraState.entityRenderState.bob;
-            poseStack.mulPose(Axis.YN.rotationDegrees(180 + cameraState.yRot));
-            poseStack.mulPose(Axis.XP.rotationDegrees(-cameraState.xRot));
 
-            poseStack.mulPose(Axis.XP.rotationDegrees(-Math.abs(Mth.cos(backwardsInterpolatedWalkDistance * (float) Math.PI - 0.2F) * bob) * 5.0F));
-            poseStack.mulPose(Axis.ZP.rotationDegrees(-Mth.sin(backwardsInterpolatedWalkDistance * (float) Math.PI) * bob * 3.0F));
-            poseStack.translate(
-                    -Mth.sin(backwardsInterpolatedWalkDistance * (float) Math.PI) * bob * 0.5F,
-                    Math.abs(Mth.cos(backwardsInterpolatedWalkDistance * (float) Math.PI) * bob),
-                    0.0F
-            );
-
-            poseStack.mulPose(Axis.XP.rotationDegrees(cameraState.xRot));
-            poseStack.mulPose(Axis.YN.rotationDegrees(-180 - cameraState.yRot));
-        }
-    }
 
     @SubscribeEvent
     public static void modifyFov(ComputeFovModifierEvent event) {
