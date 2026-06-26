@@ -37,6 +37,7 @@ public enum NetworkPackets implements BasePacketPayload.PacketTypeProvider {
     BARTENDER_SPEAK(ClientboundBartenderSpeakPacket.class, ClientboundBartenderSpeakPacket.STREAM_CODEC),
     BARTENDER_DIALOGUE_SYNC(ClientboundBartenderDialogueSyncPacket.class, ClientboundBartenderDialogueSyncPacket.STREAM_CODEC),
     MOB_FALL_FLY(ClientboundMobFallFlyPacket.class, ClientboundMobFallFlyPacket.STREAM_CODEC),
+    DODGE(ClientboundDodgePacket.class, ClientboundDodgePacket.STREAM_CODEC),
 
     // Debug Only
 
