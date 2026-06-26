@@ -1,7 +1,5 @@
 package io.github.hawah.shakenstir.content.effect;
 
-// TODO: 人工审查 - 2026-06-22 (Changed DummyMobEffect → MisdirectionEffect)
-
 import io.github.hawah.shakenstir.ShakenStir;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.effect.MobEffect;

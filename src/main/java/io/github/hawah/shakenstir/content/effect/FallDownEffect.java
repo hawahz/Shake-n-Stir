@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.dataAttachment.DataAttachmentTypeRegistries;
+import io.github.hawah.shakenstir.foundation.networking.ClientboundMobFallFlyPacket;
 import io.github.hawah.shakenstir.foundation.networking.ClientboundPlayerFallDownOrRecoverPacket;
 import io.github.hawah.shakenstir.lib.ServerTaskManager;
 import io.github.hawah.shakenstir.lib.networking.Networking;
@@ -50,6 +51,7 @@ public class FallDownEffect extends AbstractRemoveHookedMobEffect{
         }
         if (mob.hasEffect(MobEffectRegistries.MISS_STEP)) {
             mob.addDeltaMovement(mob.getHeadLookAngle().normalize().multiply(5, 5, 5));
+            Networking.sendToAll(new ClientboundMobFallFlyPacket(mob.getUUID()));
         }
         if (mob.level() instanceof ServerLevel serverLevel) {
             int currentTicks = mob.tickCount;
