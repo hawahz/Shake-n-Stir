@@ -1,0 +1,10 @@
+{
+  "consumable": {
+    "on_consume_effects": [
+      {
+        "type": "minecraft:teleport_randomly"
+      }
+    ]
+  },
+  "description_key": "chorus_fruit"
+}

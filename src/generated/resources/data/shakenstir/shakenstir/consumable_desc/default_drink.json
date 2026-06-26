@@ -1,0 +1,8 @@
+{
+  "consumable": {
+    "animation": "drink",
+    "has_consume_particles": false,
+    "sound": "minecraft:entity.generic.drink"
+  },
+  "description_key": "default_drink"
+}

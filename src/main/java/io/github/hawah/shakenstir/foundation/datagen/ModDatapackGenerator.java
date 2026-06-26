@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.foundation.datagen;
 
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.damageType.SnsDamageType;
+import io.github.hawah.shakenstir.foundation.datapack.ConsumableDescs;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.EffectData;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.IngredientData;
 import io.github.hawah.shakenstir.foundation.datapack.Registries;
@@ -57,6 +58,10 @@ public class ModDatapackGenerator {
                                             )
                                     );
                                 }
+                        )
+                        .add(
+                                Registries.CONSUMABLE_DESC, bootstrap ->
+                                    ConsumableDescs.forEachEntry(bootstrap::register)
                         )
                 // Add datapack providers for other datapack entries, if applicable.
         );

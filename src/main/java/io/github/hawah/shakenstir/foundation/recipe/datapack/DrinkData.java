@@ -5,12 +5,13 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.hawah.shakenstir.content.SnsConsumables;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import io.github.hawah.shakenstir.foundation.recipe.Quality;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.cocktaileType.CocktailType;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.spirit.FluidData;
-import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
 import io.github.hawah.shakenstir.foundation.tags.SnsFluidTags;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
@@ -195,10 +196,18 @@ public record DrinkData(
                     ctx.tickRate()
             );
         }
+
         if (!moreInformation) {
             consumer.accept(LangData.SHIFT.get());
         }
         endPotion(consumer);
+        // Consumable functional hints — only shown when a localized description exists
+        if (moreInformation){
+            for (Consumable consumable : consumables()) {
+                List<Component> descriptions = SnsConsumables.getDescription(consumable, ctx.registries());
+                descriptions.forEach(consumer);
+            }
+        }
     }
 
     public static List<Pair<Holder<Attribute>, AttributeModifier>> modifiers = Lists.newArrayList();

@@ -1,0 +1,17 @@
+{
+  "consumable": {
+    "on_consume_effects": [
+      {
+        "type": "minecraft:apply_effects",
+        "effects": [
+          {
+            "duration": 100,
+            "id": "minecraft:poison",
+            "show_icon": true
+          }
+        ]
+      }
+    ]
+  },
+  "description_key": "spider_eye"
+}

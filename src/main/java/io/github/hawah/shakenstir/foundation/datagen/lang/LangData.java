@@ -48,6 +48,23 @@ public enum LangData {
     TOOLTIP_MINT_SIZE_MEDIUM("tooltip_mint_size_medium", "Medium", 0, ChatFormatting.DARK_GREEN),
     TOOLTIP_MINT_SIZE_LARGE("tooltip_mint_size_large", "Large", 0, ChatFormatting.DARK_GREEN),
 
+    // ── Consumable descriptions ────────────────────────────────────
+    CONSUMABLE_MINT                 ("consumable.mint",                  "Grants brief Paralysis", 0),
+    CONSUMABLE_DEFAULT_FOOD         ("consumable.default_food",          "Edible", 0),
+    CONSUMABLE_DEFAULT_DRINK        ("consumable.default_drink",         "Drinkable", 0),
+    CONSUMABLE_HONEY_BOTTLE         ("consumable.honey_bottle",          "Clears Poison when consumed", 0),
+    CONSUMABLE_OMINOUS_BOTTLE       ("consumable.ominous_bottle",        "An ominous substance", 0),
+    CONSUMABLE_DRIED_KELP           ("consumable.dried_kelp",            "Quick to eat", 0),
+    CONSUMABLE_CHICKEN              ("consumable.chicken",               "May cause Hunger", 0),
+    CONSUMABLE_ENCHANTED_GOLDEN_APPLE("consumable.enchanted_golden_apple", "Grants powerful effects", 0),
+    CONSUMABLE_GOLDEN_APPLE         ("consumable.golden_apple",          "Grants regeneration and absorption", 0),
+    CONSUMABLE_POISONOUS_POTATO     ("consumable.poisonous_potato",      "May cause Poison", 0),
+    CONSUMABLE_PUFFERFISH           ("consumable.pufferfish",            "Causes poison, hunger and nausea", 0),
+    CONSUMABLE_ROTTEN_FLESH         ("consumable.rotten_flesh",          "Likely to cause Hunger", 0),
+    CONSUMABLE_SPIDER_EYE           ("consumable.spider_eye",            "Causes Poison", 0),
+    CONSUMABLE_MILK_BUCKET          ("consumable.milk_bucket",           "Clears all status effects", 0),
+    CONSUMABLE_CHORUS_FRUIT         ("consumable.chorus_fruit",          "Teleports randomly when eaten", 0),
+
 
     HUD_TIP_BLACKBOARD_SELECT_FIRST_POINT("hud.blackboard_select_first_point", "Select the first point", 0),
     HUD_TIP_BLACKBOARD_SELECT_SECOND_POINT("hud.blackboard_select_second_point","Select the second point", 0),

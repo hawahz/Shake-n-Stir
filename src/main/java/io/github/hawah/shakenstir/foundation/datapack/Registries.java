@@ -47,11 +47,11 @@ public class Registries {
                 DrinkData.CODEC,
                 DrinkData.CODEC
         );
-//        event.dataPackRegistry(
-//                CONSUMABLE_DESC,
-//                ConsumableDesc.CODEC,
-//                ConsumableDesc.CODEC
-//        );
+        event.dataPackRegistry(
+                CONSUMABLE_DESC,
+                ConsumableDesc.CODEC,
+                ConsumableDesc.CODEC
+        );
     }
 //
 //    @SubscribeEvent

@@ -5,6 +5,8 @@
     "shakenstir:bar_menu",
     "#minecraft:candles",
     "shakenstir:long_drink_glassware",
-    "shakenstir:short_drink_glassware"
+    "shakenstir:short_drink_glassware",
+    "shakenstir:shaker",
+    "shakenstir:shaker_lid"
   ]
 }

@@ -1,0 +1,18 @@
+{
+  "consumable": {
+    "consume_seconds": 0.8,
+    "on_consume_effects": [
+      {
+        "type": "minecraft:apply_effects",
+        "effects": [
+          {
+            "duration": 10,
+            "id": "shakenstir:paralysis",
+            "show_icon": true
+          }
+        ]
+      }
+    ]
+  },
+  "description_key": "mint"
+}

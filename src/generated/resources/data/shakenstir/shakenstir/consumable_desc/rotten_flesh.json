@@ -1,0 +1,18 @@
+{
+  "consumable": {
+    "on_consume_effects": [
+      {
+        "type": "minecraft:apply_effects",
+        "effects": [
+          {
+            "duration": 600,
+            "id": "minecraft:hunger",
+            "show_icon": true
+          }
+        ],
+        "probability": 0.8
+      }
+    ]
+  },
+  "description_key": "rotten_flesh"
+}
