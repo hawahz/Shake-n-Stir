@@ -8,64 +8,78 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 public class DodgeEffect extends MobEffect {
+    private static final Predicate<Entity> ALWAYS_TRUE = _ -> true;
+    private static final float DODGE_SPEED = 0.8F;
+    private static final double DETECT_RANGE = 10.0;
+    private static final double VERTICAL_BOOST = 0.2;
+    private static final double MIN_HORIZONTAL_SPEED = 0.001;
+
     protected DodgeEffect(MobEffectCategory category, int color) {
         super(category, color);
     }
 
     @Override
     public boolean applyEffectTick(ServerLevel serverLevel, LivingEntity mob, int amplification) {
-        AABB detectArea = mob.getBoundingBox().inflate(10);
+        AABB detectArea = mob.getBoundingBox().inflate(DETECT_RANGE);
         List<Projectile> projectiles = serverLevel.getEntities(
                 EntityTypeTest.forClass(Projectile.class),
                 detectArea,
-                _ -> true
+                ALWAYS_TRUE
         );
-        if (!projectiles.isEmpty()) {
-            Projectile projec = null;
-            for (Projectile proj : projectiles) {
-                Vec3 delta = proj.getDeltaMovement();
-                Vec3 from = proj.position();
-                Vec3 to = from.add(proj.getDeltaMovement());
-                AABB searchArea = proj.getBoundingBox().expandTowards(delta.multiply(2, 2, 2))
-                        .inflate(2.0);
+        if (projectiles.isEmpty()) {
+            return super.applyEffectTick(serverLevel, mob, amplification);
+        }
 
-                EntityHitResult res = ProjectileUtil.getEntityHitResult(
-                        serverLevel,
-                        proj,
-                        from,
-                        to,
-                        searchArea,
-                        entity -> !entity.isSpectator() && entity.isPickable() && entity instanceof LivingEntity
-                );
-                if (res == null) {
-                    continue;
-                }
-                Entity entity = res.getEntity();
-                if (!entity.equals(mob)) {
-                    continue;
-                }
-                projec = proj;
+        // Use swept-AABB intersection instead of thin raycast:
+        // a projectile's bounding box expanded in its direction of movement
+        // is its full swept volume this tick — much more accurate than a center-line ray.
+        AABB mobBox = mob.getBoundingBox();
+        Projectile target = null;
+        for (Projectile proj : projectiles) {
+            Vec3 delta = proj.getDeltaMovement();
+            AABB sweptBox = proj.getBoundingBox().expandTowards(delta);
+            if (sweptBox.intersects(mobBox)) {
+                target = proj;
                 break;
             }
-            if (projec != null) {
-                float scale = 0.8F;
-                var delta = projec.position().subtract(mob.position())
-                        .cross(new Vec3(0, serverLevel.getRandom().nextFloat() < 0.5? 1 : -1, 0))
-                        .normalize()
-                        .multiply(scale, scale, scale);
-                mob.addDeltaMovement(delta);
-                Networking.sendToAll(new ClientboundDodgePacket(mob.getUUID(), delta));
-            }
         }
+
+        if (target != null) {
+            Vec3 projVel = target.getDeltaMovement();
+            Vec3 dodgeDir;
+
+            double horizSpeedSq = projVel.x * projVel.x + projVel.z * projVel.z;
+            if (horizSpeedSq > MIN_HORIZONTAL_SPEED * MIN_HORIZONTAL_SPEED) {
+                // Dodge perpendicular to projectile velocity in the horizontal plane.
+                // Randomly pick left or right perpendicular — both are 90° to the
+                // projectile's path and equally safe, but variety feels more natural.
+                boolean right = serverLevel.getRandom().nextBoolean();
+                dodgeDir = new Vec3(
+                        right ? -projVel.z : projVel.z,
+                        0,
+                        right ? projVel.x : -projVel.x
+                ).normalize();
+            } else {
+                // Projectile is moving almost purely vertically.
+                // Dodge in a random horizontal direction since there's no meaningful
+                // horizontal velocity to compute a perpendicular from.
+                double angle = serverLevel.getRandom().nextDouble() * 2 * Math.PI;
+                dodgeDir = new Vec3(Math.cos(angle), 0, Math.sin(angle));
+            }
+
+            var dodgeDelta = dodgeDir.scale(DODGE_SPEED).add(0, VERTICAL_BOOST, 0);
+            mob.addDeltaMovement(dodgeDelta);
+            Networking.sendToAll(new ClientboundDodgePacket(mob.getUUID(), dodgeDelta));
+        }
+
         return super.applyEffectTick(serverLevel, mob, amplification);
     }
 
