@@ -48,6 +48,9 @@ public class FallDownEffect extends AbstractRemoveHookedMobEffect{
             Networking.sendToAll(new ClientboundPlayerFallDownOrRecoverPacket(true, mob.getUUID()));
             AdvancementHooks.onFirstFallByDrunk(player);
         }
+        if (mob.hasEffect(MobEffectRegistries.MISS_STEP)) {
+            mob.addDeltaMovement(mob.getHeadLookAngle().normalize().multiply(5, 5, 5));
+        }
         if (mob.level() instanceof ServerLevel serverLevel) {
             int currentTicks = mob.tickCount;
             ServerTaskManager.createTask(

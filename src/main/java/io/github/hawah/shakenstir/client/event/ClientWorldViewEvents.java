@@ -1,9 +1,6 @@
 package io.github.hawah.shakenstir.client.event;
 
-import com.mojang.blaze3d.framegraph.FrameGraphBuilder;
-import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
 import io.github.hawah.shakenstir.client.render.GlasswareOutlineRenderer;
@@ -11,20 +8,14 @@ import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
-import io.github.hawah.shakenstir.foundation.mixin.GameRendererMixin;
 import io.github.hawah.shakenstir.lib.client.render.outliner.Outliner;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.LevelTargetBundle;
-import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.util.Mth;
-import net.minecraft.util.profiling.Profiler;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
@@ -33,7 +24,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.*;
 
 import java.lang.ref.WeakReference;
-import java.util.Objects;
 
 import static io.github.hawah.shakenstir.client.event.MC.getLevel;
 import static io.github.hawah.shakenstir.client.event.MC.getPlayer;
@@ -51,37 +41,6 @@ public class ClientWorldViewEvents {
     @SubscribeEvent
     public static void onRenderWorld(RenderLevelStageEvent.AfterLevel event) {
         ShakenStirClient.TIMER_NORMAL.warp(Minecraft.getInstance().getDeltaTracker());
-        RenderTarget mainTarget = Minecraft.getInstance().getMainRenderTarget();
-        PostChain postChain = Minecraft.getInstance().getShaderManager().getPostChain(ShakenStir.asResource("frozen_screen"), LevelTargetBundle.MAIN_TARGETS);
-        LevelRenderer levelRenderer = event.getLevelRenderer();
-        if (postChain != null) {
-            FrameGraphBuilder frame = new FrameGraphBuilder();
-            PostChain.TargetBundle targets = PostChain.TargetBundle.of(
-                    PostChain.MAIN_TARGET_ID,
-                    frame.importExternal("main", mainTarget)
-            );
-            postChain.addToFrame(frame, mainTarget.width, mainTarget.height, targets);
-
-            final ProfilerFiller profiler = Profiler.get();
-            profiler.popPush("executeFrameGraph");
-            frame.importExternal("test", 0.5F);
-            frame.execute(( (GameRendererMixin) Minecraft.getInstance().gameRenderer).getResourcePool(), new FrameGraphBuilder.Inspector() {
-                {
-                    Objects.requireNonNull(levelRenderer);
-                }
-
-                @Override
-                public void beforeExecutePass(String name) {
-                    profiler.push(name);
-                }
-
-                @Override
-                public void afterExecutePass(String name) {
-                    profiler.pop();
-                }
-            });
-            profiler.pop();
-        }
     }
 
     @SubscribeEvent
