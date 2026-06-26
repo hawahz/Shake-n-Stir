@@ -42,3 +42,4 @@ repo/
 /.claude/
 /.proxyai/
 /.qoder/
+/.codemoss/prompt.json
