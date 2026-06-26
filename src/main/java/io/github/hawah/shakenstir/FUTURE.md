@@ -9,5 +9,5 @@
 - [ ] 修改柠檬片贴图
 - [ ] 增加橘皮/柠檬皮
 - [ ] 设计并增加小刀
-- [ ] 增加DrinkData中Consumable的提示
+- [x] 增加DrinkData中Consumable的提示
 - [x] 将SpiritData变成普适的FluidData，使得不仅仅烈酒可以使用。需要修改ShakeRecipe的内容

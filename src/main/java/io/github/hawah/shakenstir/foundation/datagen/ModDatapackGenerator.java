@@ -59,11 +59,12 @@ public class ModDatapackGenerator {
                                     );
                                 }
                         )
+                        // TODO: 人工审查 - 2026-06-27 - 新增 CONSUMABLE_DESC 数据包注册表生成，将所有内置 Consumable 描述写入 JSON
                         .add(
                                 Registries.CONSUMABLE_DESC, bootstrap ->
                                     ConsumableDescs.forEachEntry(bootstrap::register)
                         )
-                // Add datapack providers for other datapack entries, if applicable.
+                // 如有需要，在此为其他数据包条目添加提供者。
         );
     }
 

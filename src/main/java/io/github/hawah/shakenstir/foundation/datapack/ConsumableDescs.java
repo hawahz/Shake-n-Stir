@@ -15,25 +15,26 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 
 /**
- * Built-in registry of {@link ConsumableDesc} entries, similar to {@code Spirits}.
+ * {@link ConsumableDesc} 条目的内置注册表，类似于 {@code Spirits}。
  * <p>
- * Provides fallback lookup when the datapack registry is unavailable (e.g. during
- * early tooltip rendering before registries are synced).
+ * 当数据包注册表不可用时（例如注册表同步前的早期工具提示渲染），
+ * 提供回退查找。
  * <p>
- * To add a new consumable description:
+ * 添加新消耗品描述的步骤：
  * <ol>
- *   <li>Add a {@code ResourceKey} constant and put it in {@link #ENTRIES}</li>
- *   <li>Add a localization entry: {@code shakenstir.consumable.<descriptionKey>}</li>
+ *   <li>添加 {@code ResourceKey} 常量并放入 {@link #ENTRIES}</li>
+ *   <li>添加本地化条目：{@code shakenstir.consumable.<descriptionKey>}</li>
  * </ol>
  */
+// TODO: 人工审查 - 2026-06-27 - 新增类；集中管理全部 Consumable → 描述键映射（14 个原版 + 1 个模组），替代 SnsConsumables 硬编码 Map；提供 datapack registry 优先 + 内置回退的查找链
 public class ConsumableDescs {
 
-    // ── Resource keys ──────────────────────────────────────────────
+    // ── 资源键 ────────────────────────────────────────────────────
 
-    // Mod consumables
+    // 模组消耗品
     public static final ResourceKey<ConsumableDesc> MINT = consumableDescKey("mint");
 
-    // Vanilla consumables
+    // 原版消耗品
     public static final ResourceKey<ConsumableDesc> DEFAULT_FOOD = consumableDescKey("default_food");
     public static final ResourceKey<ConsumableDesc> DEFAULT_DRINK = consumableDescKey("default_drink");
     public static final ResourceKey<ConsumableDesc> HONEY_BOTTLE = consumableDescKey("honey_bottle");
@@ -49,19 +50,19 @@ public class ConsumableDescs {
     public static final ResourceKey<ConsumableDesc> MILK_BUCKET = consumableDescKey("milk_bucket");
     public static final ResourceKey<ConsumableDesc> CHORUS_FRUIT = consumableDescKey("chorus_fruit");
 
-    // ── Built-in entries ───────────────────────────────────────────
+    // ── 内置条目 ──────────────────────────────────────────────────
 
     private static final Map<ResourceKey<ConsumableDesc>, ConsumableDesc> ENTRIES = new LinkedHashMap<>();
 
     static {
-        // Mod
+        // 模组
         ENTRIES.put(MINT, new ConsumableDesc(SnsConsumables.MINT, "mint"));
 
-        // Vanilla — standard (no special effects)
+        // 原版 — 标准（无特殊效果）
         ENTRIES.put(DEFAULT_FOOD, new ConsumableDesc(Consumables.DEFAULT_FOOD, "default_food"));
         ENTRIES.put(DEFAULT_DRINK, new ConsumableDesc(Consumables.DEFAULT_DRINK, "default_drink"));
 
-        // Vanilla — with effects
+        // 原版 — 带有特殊效果
         ENTRIES.put(HONEY_BOTTLE, new ConsumableDesc(Consumables.HONEY_BOTTLE, "honey_bottle"));
         ENTRIES.put(OMINOUS_BOTTLE, new ConsumableDesc(Consumables.OMINOUS_BOTTLE, "ominous_bottle"));
         ENTRIES.put(DRIED_KELP, new ConsumableDesc(Consumables.DRIED_KELP, "dried_kelp"));
@@ -76,30 +77,30 @@ public class ConsumableDescs {
         ENTRIES.put(CHORUS_FRUIT, new ConsumableDesc(Consumables.CHORUS_FRUIT, "chorus_fruit"));
     }
 
-    // ── Helpers ────────────────────────────────────────────────────
+    // ── 工具方法 ──────────────────────────────────────────────────
 
     public static ResourceKey<ConsumableDesc> consumableDescKey(String name) {
         return ResourceKey.create(Registries.CONSUMABLE_DESC, ShakenStir.asResource(name));
     }
 
-    /** Iterates all built-in entries for data generation. */
+    /** 遍历所有内置条目，用于数据生成。 */
     public static void forEachEntry(BiConsumer<ResourceKey<ConsumableDesc>, ConsumableDesc> consumer) {
         ENTRIES.forEach(consumer);
     }
 
-    // ── Lookup ─────────────────────────────────────────────────────
+    // ── 查找 ─────────────────────────────────────────────────────
 
     /**
-     * Find the description key for a Consumable, preferring the datapack registry
-     * when available and falling back to the built-in map.
+     * 查找 Consumable 对应的描述键，优先从数据包注册表中查找，
+     * 不可用时回退到内置映射。
      *
-     * @param registries the tooltip context registries (may be null)
-     * @param consumable the consumable to look up
-     * @return the description key suffix, or null if not found
+     * @param registries 工具提示上下文的注册表访问器（可为 null）
+     * @param consumable 要查找的消耗品
+     * @return 描述键后缀，未找到则返回 null
      */
     @Nullable
     public static String getDescriptionKey(@Nullable HolderLookup.Provider registries, Consumable consumable) {
-        // Try datapack registry first
+        // 优先查询数据包注册表
         if (registries != null) {
             Optional<ConsumableDesc> fromRegistry = registries.lookup(Registries.CONSUMABLE_DESC)
                     .stream()
@@ -111,14 +112,14 @@ public class ConsumableDescs {
                 return fromRegistry.get().descriptionKey();
             }
         }
-        // Fall back to built-in map
+        // 回退到内置映射
         return getBuiltIn(consumable);
     }
 
     /**
-     * Search the built-in map for a matching Consumable.
+     * 在内置映射中搜索匹配的 Consumable。
      *
-     * @return the description key suffix, or null if not found
+     * @return 描述键后缀，未找到则返回 null
      */
     @Nullable
     private static String getBuiltIn(Consumable consumable) {

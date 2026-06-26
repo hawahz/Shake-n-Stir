@@ -15,11 +15,12 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 /**
- * Custom {@link Consumable} definitions for the mod, plus tooltip description lookup.
+ * 模组自定义的 {@link Consumable} 定义，以及工具提示描述查找。
  * <p>
- * Consumable-to-description mappings are driven by the {@code shakenstir:consumable_desc}
- * datapack registry (see {@link ConsumableDescs} for built-in entries).
+ * Consumable → 描述键的映射由 {@code shakenstir:consumable_desc}
+ * 数据包注册表驱动（内置条目参见 {@link ConsumableDescs}）。
  */
+// TODO: 人工审查 - 2026-06-27 - 移除硬编码 CONSUMABLE_IDS Map，改为委托 ConsumableDescs 数据包驱动查找；getDescription 新增 HolderLookup.Provider 参数以支持 datapack registry
 public class SnsConsumables {
     public static final Consumable MINT = Consumables.defaultFood()
             .consumeSeconds(0.8F)
@@ -29,17 +30,16 @@ public class SnsConsumables {
             .build();
 
     /**
-     * Get the tooltip description component for a consumable.
-     * Returns an empty list if:
+     * 获取消耗品的工具提示描述组件。
+     * 以下情况返回空列表：
      * <ul>
-     *   <li>The consumable is not registered in the datapack registry or built-in map</li>
-     *   <li>No localization exists for the current language</li>
+     *   <li>消耗品未在数据包注册表或内置映射中注册</li>
+     *   <li>当前语言中没有对应的本地化翻译</li>
      * </ul>
-     * This ensures the tooltip is silently skipped for languages that haven't
-     * translated the description.
+     * 这样可以确保对于未翻译该描述的语言，工具提示静默跳过。
      *
-     * @param consumable the consumable to describe
-     * @param registries the tooltip context registries (may be null)
+     * @param consumable 要描述的消耗品
+     * @param registries 工具提示上下文的注册表访问器（可为 null）
      */
     public static List<Component> getDescription(Consumable consumable, @Nullable HolderLookup.Provider registries) {
         String id = ConsumableDescs.getDescriptionKey(registries, consumable);
@@ -52,7 +52,7 @@ public class SnsConsumables {
     }
 
     /**
-     * Convenience overload: always uses the built-in map (no datapack registry lookup).
+     * 便利重载：始终使用内置映射（不查询数据包注册表）。
      */
     public static List<Component> getDescription(Consumable consumable) {
         return getDescription(consumable, null);

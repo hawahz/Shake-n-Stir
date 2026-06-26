@@ -201,7 +201,8 @@ public record DrinkData(
             consumer.accept(LangData.SHIFT.get());
         }
         endPotion(consumer);
-        // Consumable functional hints — only shown when a localized description exists
+        // TODO: 人工审查 - 2026-06-27 - 新增 Consumable 功能提示；通过 SnsConsumables 查询 datapack registry 描述键，仅当前语言存在翻译时显示
+        // Consumable 功能提示 — 仅在存在本地化描述时显示
         if (moreInformation){
             for (Consumable consumable : consumables()) {
                 List<Component> descriptions = SnsConsumables.getDescription(consumable, ctx.registries());

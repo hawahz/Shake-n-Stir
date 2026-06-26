@@ -8,12 +8,13 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.component.Consumable;
 
 /**
- * A datapack-registered mapping from a {@link Consumable} to a localization key suffix.
+ * 数据包注册的 {@link Consumable} → 本地化键后缀映射。
  * <p>
- * The full localization key is: {@code shakenstir.consumable.<descriptionKey>}
+ * 完整本地化键为：{@code shakenstir.consumable.<descriptionKey>}
  * <p>
- * This allows data packs to override or add consumable tooltip descriptions.
+ * 允许数据包覆盖或添加消耗品工具提示描述。
  */
+// TODO: 人工审查 - 2026-06-27 - 从旧 Identifier consumable 字段重构为 Consumable + descriptionKey 记录，新增 CODEC/STREAM_CODEC 以支持数据包注册
 public record ConsumableDesc(Consumable consumable, String descriptionKey) {
     public static final Codec<ConsumableDesc> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Consumable.CODEC.fieldOf("consumable").forGetter(ConsumableDesc::consumable),

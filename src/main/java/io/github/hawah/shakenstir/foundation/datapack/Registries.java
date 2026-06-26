@@ -47,6 +47,7 @@ public class Registries {
                 DrinkData.CODEC,
                 DrinkData.CODEC
         );
+        // TODO: 人工审查 - 2026-06-27 - 启用 CONSUMABLE_DESC 数据包注册表，支持 Consumable → 描述键的 DataPack 配置
         event.dataPackRegistry(
                 CONSUMABLE_DESC,
                 ConsumableDesc.CODEC,

@@ -48,7 +48,8 @@ public enum LangData {
     TOOLTIP_MINT_SIZE_MEDIUM("tooltip_mint_size_medium", "Medium", 0, ChatFormatting.DARK_GREEN),
     TOOLTIP_MINT_SIZE_LARGE("tooltip_mint_size_large", "Large", 0, ChatFormatting.DARK_GREEN),
 
-    // ── Consumable descriptions ────────────────────────────────────
+    // TODO: 人工审查 - 2026-06-27 - 新增 Consumable 本地化键（1 个模组 + 14 个原版），对应数据包注册表中的 description_key 字段
+    // ── Consumable 描述 ────────────────────────────────────
     CONSUMABLE_MINT                 ("consumable.mint",                  "Grants brief Paralysis", 0),
     CONSUMABLE_DEFAULT_FOOD         ("consumable.default_food",          "Edible", 0),
     CONSUMABLE_DEFAULT_DRINK        ("consumable.default_drink",         "Drinkable", 0),
