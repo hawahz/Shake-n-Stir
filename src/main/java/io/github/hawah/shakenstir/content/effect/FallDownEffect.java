@@ -9,8 +9,10 @@ import io.github.hawah.shakenstir.foundation.networking.ClientboundPlayerFallDow
 import io.github.hawah.shakenstir.lib.ServerTaskManager;
 import io.github.hawah.shakenstir.lib.networking.Networking;
 import io.github.hawah.shakenstir.util.AdvancementHooks;
+import io.github.hawah.shakenstir.util.Cancellable;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -32,14 +34,17 @@ public class FallDownEffect extends AbstractRemoveHookedMobEffect{
     }
 
     @Override
-    public void onEffectRemoved(LivingEntity mob, int amplifier) {
+    public Cancellable onEffectRemoved(LivingEntity mob, int amplifier) {
         if (mob instanceof Player player) {
-            player.setForcedPose(null);
+            if (!player.onGround()) {
+                return Cancellable.cancel();
+            }
             if (player.level() instanceof ServerLevel) {
                 player.removeData(DataAttachmentTypeRegistries.FALL_DOWN);
                 Networking.sendToAll(new ClientboundPlayerFallDownOrRecoverPacket(false, mob.getUUID()));
             }
         }
+        return Cancellable.continua();
     }
 
     @Override
@@ -49,9 +54,11 @@ public class FallDownEffect extends AbstractRemoveHookedMobEffect{
             Networking.sendToAll(new ClientboundPlayerFallDownOrRecoverPacket(true, mob.getUUID()));
             AdvancementHooks.onFirstFallByDrunk(player);
         }
-        if (mob.hasEffect(MobEffectRegistries.MISS_STEP)) {
-            mob.addDeltaMovement(mob.getHeadLookAngle().normalize().multiply(5, 5, 5));
-            Networking.sendToAll(new ClientboundMobFallFlyPacket(mob.getUUID()));
+        MobEffectInstance effect = mob.getEffect(MobEffectRegistries.MISS_STEP);
+        if (effect != null) {
+            int ampl = effect.getAmplifier();
+            mob.addDeltaMovement(mob.getHeadLookAngle().normalize().multiply(ampl, ampl, ampl));
+            Networking.sendToAll(new ClientboundMobFallFlyPacket(mob.getUUID(), ampl));
         }
         if (mob.level() instanceof ServerLevel serverLevel) {
             int currentTicks = mob.tickCount;

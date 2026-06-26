@@ -1,5 +1,6 @@
 package io.github.hawah.shakenstir.content.effect;
 
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.content.damageType.SnsDamageType;
 import io.github.hawah.shakenstir.content.dataAttachment.DataAttachmentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataAttachment.DeferredDamageAttachment;
@@ -7,6 +8,7 @@ import io.github.hawah.shakenstir.foundation.mixin.LivingEntityAccessor;
 import io.github.hawah.shakenstir.foundation.tags.SnsDamageTags;
 import io.github.hawah.shakenstir.lib.ServerTaskManager;
 import io.github.hawah.shakenstir.util.AdvancementHooks;
+import io.github.hawah.shakenstir.util.Cancellable;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.Registries;
@@ -23,27 +25,30 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Map;
 
 @EventBusSubscriber
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ParalysisEffect extends AbstractRemoveHookedMobEffect {
     public ParalysisEffect(MobEffectCategory category, int color) {
         super(category, color);
     }
 
     @Override
-    public void onEffectRemoved(LivingEntity mob, int amplifier) {
+    public Cancellable onEffectRemoved(LivingEntity mob, int amplifier) {
         for (MobEffectInstance activeEffect : mob.getActiveEffects().stream().filter(effect -> effect.getEffect().value().getCategory().equals(MobEffectCategory.HARMFUL)).toList()) {
             activeEffect.getEffect().value().addAttributeModifiers(mob.getAttributes(), activeEffect.getAmplifier());
         }
         if (!mob.hasData(DataAttachmentTypeRegistries.DEFERRED_DEAD)) {
-            return;
+            return Cancellable.continua();
         }
         DeferredDamageAttachment data = mob.getData(DataAttachmentTypeRegistries.DEFERRED_DEAD);
         mob.removeData(DataAttachmentTypeRegistries.DEFERRED_DEAD);
         if (!data.isReady()) {
-            return;
+            return Cancellable.continua();
         }
 
         if (mob instanceof Player player) {
@@ -58,7 +63,7 @@ public class ParalysisEffect extends AbstractRemoveHookedMobEffect {
                     data.damageSourcePosition()
             ), mob.getHealth() + 1);
         }
-
+        return Cancellable.continua();
     }
 
     @Override

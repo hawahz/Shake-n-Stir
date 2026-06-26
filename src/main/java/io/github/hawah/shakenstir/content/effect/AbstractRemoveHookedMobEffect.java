@@ -1,5 +1,6 @@
 package io.github.hawah.shakenstir.content.effect;
 
+import io.github.hawah.shakenstir.util.Cancellable;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
@@ -13,7 +14,7 @@ public abstract class AbstractRemoveHookedMobEffect extends MobEffect {
         super(category, color);
     }
 
-    public abstract void onEffectRemoved(LivingEntity mob, int amplifier);
+    public abstract Cancellable onEffectRemoved(LivingEntity mob, int amplifier);
 
     @SubscribeEvent
     public static void onEffectRemoved(MobEffectEvent.Remove event) {
@@ -25,7 +26,10 @@ public abstract class AbstractRemoveHookedMobEffect extends MobEffect {
     @SubscribeEvent
     public static void onEffectExpired(MobEffectEvent.Expired event) {
         if (event.getEffectInstance() != null && event.getEffectInstance().getEffect().value() instanceof AbstractRemoveHookedMobEffect effect) {
-            effect.onEffectRemoved(event.getEntity(), event.getEffectInstance().getAmplifier());
+            var result = effect.onEffectRemoved(event.getEntity(), event.getEffectInstance().getAmplifier());
+            if (result.isCanceled()) {
+                event.setCanceled(true);
+            }
         }
     }
 }
