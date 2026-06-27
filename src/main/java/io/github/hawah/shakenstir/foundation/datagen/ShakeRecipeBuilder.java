@@ -16,12 +16,14 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Objects;
 
+@SuppressWarnings("UnusedReturnValue")
 public class ShakeRecipeBuilder implements RecipeBuilder {
     protected final ItemStackTemplate result;
     private final List<FluidIngredient> inputFluid;
     private final List<Ingredient> inputItem;
     protected String group = "";
     protected boolean showNotification = true;
+    private boolean force = false;
 
     // 提供构建配方解锁进度的通用方法。
     // 如果使用此方法，构建器还必须指定一个 `RecipeCategory` 来确定输出文件夹。
@@ -50,6 +52,11 @@ public class ShakeRecipeBuilder implements RecipeBuilder {
         return this;
     }
 
+    public ShakeRecipeBuilder force() {
+        this.force = true;
+        return this;
+    }
+
     @Override
     public ResourceKey<Recipe<?>> defaultId() {
         return RecipeBuilder.getDefaultRecipeId(this.result);
@@ -62,7 +69,8 @@ public class ShakeRecipeBuilder implements RecipeBuilder {
                 this.inputFluid,
                 this.inputItem,
                 this.result,
-                shakeTime
+                shakeTime,
+                this.force
         );
         output.accept(
                 location, recipe, this.advancementBuilder.build(output, location, this.category)

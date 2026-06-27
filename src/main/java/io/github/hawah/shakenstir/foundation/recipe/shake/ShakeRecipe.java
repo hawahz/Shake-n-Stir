@@ -53,7 +53,8 @@ public record ShakeRecipe(
         List<FluidIngredient> inputFluids,
         List<Ingredient> inputItems,
         ItemStackTemplate result,
-        int shakeTimes
+        int shakeTimes,
+        boolean force
 ) implements Recipe<ShakeRecipeInput>, IScoreSortedRecipe<ShakeRecipeInput> {
 
     public static final MapCodec<ShakeRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
@@ -61,7 +62,8 @@ public record ShakeRecipe(
             FluidIngredient.CODEC.listOf(0, 6).fieldOf("inputFluids").forGetter(ShakeRecipe::inputFluids),
             Ingredient.CODEC.listOf(0, 6).fieldOf("inputItems").forGetter(ShakeRecipe::inputItems),
             ItemStackTemplate.MAP_CODEC.fieldOf("result").forGetter(ShakeRecipe::result),
-            Codec.INT.fieldOf("shakeTimes").forGetter(ShakeRecipe::shakeTimes)
+            Codec.INT.fieldOf("shakeTimes").forGetter(ShakeRecipe::shakeTimes),
+            Codec.BOOL.optionalFieldOf("force", false).forGetter(ShakeRecipe::force)
     ).apply(inst, ShakeRecipe::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ShakeRecipe> STREAM_CODEC = StreamCodec.composite(
@@ -76,6 +78,7 @@ public record ShakeRecipe(
                     ItemStackTemplate::create
             ), ShakeRecipe::result,
             ByteBufCodecs.INT, ShakeRecipe::shakeTimes,
+            ByteBufCodecs.BOOL, ShakeRecipe::force,
             ShakeRecipe::new
     );
 
@@ -276,11 +279,11 @@ public record ShakeRecipe(
                 shaker.getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 1),
                 0
         );
-        List<Consumable> consumables = recipeInput.items().stream()
+        List<Consumable> consumables = new ArrayList<>(recipeInput.items().stream()
                 .filter(itemStack -> itemStack.has(DataComponents.CONSUMABLE))
                 .map(itemStack -> itemStack.get(DataComponents.CONSUMABLE))
                 .filter(Objects::nonNull)
-                .toList();
+                .toList());
         consumables.addAll(
                 recipeInput.fluidStacks().stream()
                         .filter(stack -> stack.getFluidType() instanceof JuiceFluidType)
@@ -338,12 +341,21 @@ public record ShakeRecipe(
                 return false; // 有配方要求的Ingredient找不到匹配
             }
         }
-        // 可选检查：是否允许输入有额外多余物品？通常配方匹配允许输入多于要求，所以不检查 remainingItems 是否空。
 
         // 2. 流体无序匹配：同样逻辑，只看流体类型和组件，忽略数量
         List<FluidStack> remainingFluids = new ArrayList<>(input.fluidStacks().stream().map(FluidStack::copy).toList());
         if (!extractFluidByRecipe(this, remainingFluids)) {
             return false;
+        }
+
+        // 3. force 配方要求完全匹配：不允许有多余的物品或流体
+        if (force) {
+            if (!remainingItems.isEmpty()) {
+                return false;
+            }
+            if (!remainingFluids.isEmpty()) {
+                return false;
+            }
         }
 
         return shakeTimes() <= input.shakeTime();
@@ -401,6 +413,11 @@ public record ShakeRecipe(
     // TODO Check Vibe Code
     @Override
     public int score(ShakeRecipeInput recipeInput) {
+        // force 配方始终获得最高评分
+        if (force) {
+            return Integer.MAX_VALUE;
+        }
+
         int score = 0;
 
         // 1. 物品匹配评分：消耗的物品越多且剩余越少，分数越高

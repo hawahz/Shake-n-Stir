@@ -137,6 +137,7 @@ public class ShakeRecipeProvider extends RecipeProvider {
         private final List<Ingredient> ingredients = new ArrayList<>();
         private final List<FluidIngredient> fluidIngredients = new ArrayList<>();
         private int shakeTime = 20;
+        private boolean force = false;
 
         public Builder() {}
         public Builder(Builder builder) {
@@ -146,6 +147,7 @@ public class ShakeRecipeProvider extends RecipeProvider {
             this.ingredients.addAll(builder.ingredients);
             this.fluidIngredients.addAll(builder.fluidIngredients);
             this.shakeTime = builder.shakeTime;
+            this.force = builder.force;
         }
 
         public Builder result(Supplier<Item> result) {
@@ -206,14 +208,23 @@ public class ShakeRecipeProvider extends RecipeProvider {
             return this;
         }
 
+        public Builder force() {
+            this.force = true;
+            return this;
+        }
+
         public ShakeRecipeBuilder build() {
-            return new ShakeRecipeBuilder(
+            ShakeRecipeBuilder recipeBuilder = new ShakeRecipeBuilder(
                     new ItemStackTemplate(result.get(), resultAmount, patch),
                     fluidIngredients,
                     ingredients,
                     shakeTime,
                     RecipeCategory.FOOD
             );
+            if (this.force) {
+                recipeBuilder.force();
+            }
+            return recipeBuilder;
         }
 
         public MultiBuilder orWith(TagKey<Fluid> fluidTag, TagKey<Item> tag) {
@@ -284,6 +295,11 @@ public class ShakeRecipeProvider extends RecipeProvider {
             return this;
         }
 
+        public MultiBuilder force() {
+            builders.forEach(AbstractBuilder::force);
+            return this;
+        }
+
         public MultiRecipeBuilder build() {
             return new MultiRecipeBuilder(builders.stream());
         }
@@ -314,6 +330,7 @@ public class ShakeRecipeProvider extends RecipeProvider {
         public abstract Self with(FluidIngredient fluidIngredient);
         public abstract Self with(DeferredHolder<Fluid, FlowingFluid> fluid, int amount);
         public abstract Self shake(int shakeTime);
+        public abstract Self force();
         public abstract MultiBuilder orWith(TagKey<Fluid> fluidTag, TagKey<Item> tag);
         public abstract MultiBuilder orWith(SnsSharedTags tags);
     }
