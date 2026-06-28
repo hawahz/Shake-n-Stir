@@ -21,7 +21,6 @@
     "requireAnnotations": true
   },
   "client": [
-    "GameRendererMixin",
     "HumanoidModelMixin",
     "LivingEntityRendererAccessor",
     "MouseHandlerMixin"

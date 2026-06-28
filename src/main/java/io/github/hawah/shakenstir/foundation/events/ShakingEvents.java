@@ -8,6 +8,7 @@ import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistr
 import io.github.hawah.shakenstir.content.entity.BartenderEntity;
 import io.github.hawah.shakenstir.content.entity.EntityTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ShakerItem;
+import io.github.hawah.shakenstir.foundation.event.SnsEventBus;
 import io.github.hawah.shakenstir.util.TooltipHandler;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -18,6 +19,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.util.AttributeTooltipContext;
@@ -121,5 +123,10 @@ public class ShakingEvents {
                 // if you want, see the source of LivingEntity#createLivingAttributes for an example.
                 BartenderEntity.createAttributes().build()
         );
+    }
+
+    @SubscribeEvent
+    public static void onServerSetup(FMLDedicatedServerSetupEvent event) {
+        SnsEventBus.initialize("io.github.hawah.shakenstir");
     }
 }

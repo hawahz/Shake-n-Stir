@@ -1,11 +1,14 @@
 package io.github.hawah.shakenstir.client.hanlder;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
-import io.github.hawah.shakenstir.client.ClickInteractions;
+import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.ClientDataHolder;
 import io.github.hawah.shakenstir.client.ClientSharedShakeParams;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ShakerItem;
+import io.github.hawah.shakenstir.foundation.event.EventHandler;
+import io.github.hawah.shakenstir.foundation.event.RegisterEvent;
+import io.github.hawah.shakenstir.foundation.event.client.LevelMouseMoveEvent;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundShakeFinishPacket;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundShakePramTransmitPacket;
 import io.github.hawah.shakenstir.foundation.tags.SnsFluidTags;
@@ -33,6 +36,7 @@ import static io.github.hawah.shakenstir.client.hanlder.MC.*;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
+@RegisterEvent
 public class ShakerHandler implements IHandler, GuiLayer {
 
     private boolean wasActive = false;
@@ -60,7 +64,7 @@ public class ShakerHandler implements IHandler, GuiLayer {
     private double oVx = 0, oVy = 0, vx = 0, vy = 0;
 
     public ShakerHandler() {
-        ClickInteractions.registerMouseMove(this::onMouseMove);
+        //ClickInteractions.registerMouseMove(this::onMouseMove);
     }
 
     @Override
@@ -200,6 +204,17 @@ public class ShakerHandler implements IHandler, GuiLayer {
         lastSentVy = 0;
         lastSendTick = AnimationTickHolder.getTicks();
     }
+    
+    @EventHandler
+    public static void onMouseMove(LevelMouseMoveEvent event) {
+        double pitch = event.getPitch();
+        double yaw = event.getYaw();
+        var result = ShakenStirClient.SHAKE_HANDLER.onMouseMove(yaw, pitch);
+        if (result.cancelled()) {
+            event.setCanceled(true);
+        }
+    }
+
     public Result onMouseMove(final double yaw, final double pitch) {
         if (!isActive()) {
             if (wasActive) {

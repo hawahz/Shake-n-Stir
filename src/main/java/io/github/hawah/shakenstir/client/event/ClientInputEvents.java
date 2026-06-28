@@ -11,6 +11,8 @@ import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistr
 import io.github.hawah.shakenstir.content.dataComponent.WarpedMint;
 import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.content.item.StackedMintItem;
+import io.github.hawah.shakenstir.foundation.event.SnsEvents;
+import io.github.hawah.shakenstir.foundation.event.client.LevelMouseMoveEvent;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundHandItemDataChangedPacket;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundTryPickItemPacket;
 import io.github.hawah.shakenstir.lib.networking.Networking;
@@ -122,6 +124,10 @@ public class ClientInputEvents {
             if (result.cancelled()) {
                 return result;
             }
+        }
+        var event = SnsEvents.post(new LevelMouseMoveEvent(yaw, pitch));
+        if (event.isCanceled()) {
+            return new Result(true);
         }
         return Result.empty();
     }

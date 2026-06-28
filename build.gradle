@@ -1,3 +1,4 @@
+//file:noinspection GrDeprecatedAPIUsage
 plugins {
     id 'java-library'
     id 'maven-publish'
@@ -152,6 +153,65 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
 sourceSets.main.resources.srcDir generateModMetadata
 // To avoid having to run "generateModMetadata" manually, make it run on every project reload
 neoForge.ideSyncTask generateModMetadata
+
+// ==================== SNS Event SPI Generation ====================
+// Scans source files for @RegisterEvent-annotated classes and generates
+// a ServiceLoader SPI file.  This replaces runtime classpath scanning.
+var generateEventSpi = tasks.register("generateEventSpi") {
+    group = "shakenstir"
+    description = "Generates META-INF/services SPI file from @RegisterEvent-annotated classes"
+    notCompatibleWithConfigurationCache("Scans source tree at execution time")
+
+    def registerAnnotation = "RegisterEvent"
+    def spiFqn = "io.github.hawah.shakenstir.foundation.event." + registerAnnotation
+    def spiPath = "META-INF/services/" + spiFqn
+
+    inputs.dir("src/main/java")
+    outputs.file(layout.buildDirectory.file("generated/sources/eventSpi/" + spiPath))
+
+    doLast {
+        def foundClasses = new ArrayList<String>()
+
+        fileTree("src/main/java").matching { include "**/*.java" }.forEach { f ->
+            f.eachLine { line ->
+                def trimmed = line.trim()
+                // Only match annotation usage (line starts with @RegisterEvent),
+                // not Javadoc references like * @RegisterEvent or {@link RegisterEvent}
+                if (trimmed.startsWith("@" + registerAnnotation)
+                        && !trimmed.contains("{")) {
+                    // Extract class name from filename
+                    def className = f.name.replaceFirst(~/\..*$/, "")
+                    if (className.contains('$')) return  // skip inner classes
+                    // Determine FQN from the package in the file
+                    def pkgMatcher = f.text =~ /(?m)^\s*package\s+([\w.]+)\s*;/
+                    def pkg = pkgMatcher.find() ? pkgMatcher.group(1) : ""
+                    def fqn = pkg.isEmpty() ? className : pkg + "." + className
+                    foundClasses.add(fqn)
+                    logger.lifecycle("  @RegisterEvent → {}", fqn)
+                }
+            }
+        }
+
+        def targetFile = layout.buildDirectory
+                .file("generated/sources/eventSpi/" + spiPath).get().asFile
+        targetFile.parentFile.mkdirs()
+        if (foundClasses.isEmpty()) {
+            targetFile.text = ""
+            logger.lifecycle("No @RegisterEvent classes found — wrote empty SPI file")
+        } else {
+            targetFile.text = foundClasses.join("\n") + "\n"
+            logger.lifecycle("Generated SPI: {} ({} classes)", targetFile.name, foundClasses.size())
+        }
+    }
+}
+
+sourceSets.main.resources.srcDir layout.buildDirectory.dir("generated/sources/eventSpi")
+neoForge.ideSyncTask generateEventSpi
+
+// Chain into compilation
+tasks.named("processResources") {
+    dependsOn generateEventSpi
+}
 
 // Example configuration to allow publishing using the maven-publish plugin
 publishing {
