@@ -48,6 +48,13 @@ import java.util.List;
  * @see EventHandler
  * @see RegisterEvent
  */
+// TODO: 人工审查 | 2026-06-29 | Claude Code | 类型:重构
+// 概述: (1) 新增 register(Class) 方法 (委托 SnsEventBus.registerHandlerClass)。
+//        (2) 新增 getHandlerCount(), getHandlerInfo() 方法 (替代旧命名)。
+//        (3) getSubscriberCount(), getSubscriberInfo() 标记 @Deprecated 向后兼容。
+//        (4) Javadoc 更新为 SPI 加载流程说明。
+// 涉及: 新增 register(), getHandlerCount(), getHandlerInfo(); 旧方法 @Deprecated
+// 原状: 仅有 post(), isInitialized(), getRegisteredEventTypeCount(), getSubscriberCount(), getSubscriberInfo()
 @SuppressWarnings("ALL")
 public final class SnsEvents {
     private SnsEvents() {

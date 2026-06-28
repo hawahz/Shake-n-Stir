@@ -34,6 +34,13 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import static io.github.hawah.shakenstir.client.hanlder.MC.*;
 
+// TODO: 人工审查 | 2026-06-29 | Claude Code | 类型:注解迁移
+// 概述: (1) 类上新增 @RegisterEvent 注解，使 Gradle generateEventSpi task 在编译期发现此类。
+//        (2) onMouseMove 方法: @SnsEvent → @EventHandler (新版处理器注解)。
+//        (3) import: SnsEvent → EventHandler + RegisterEvent。
+// 涉及: 类声明新增 @RegisterEvent; onMouseMove() 注解从 @SnsEvent 改为 @EventHandler
+// 原状: 无 @RegisterEvent 类注解; 使用 @SnsEvent 标记处理器方法;
+//       import io.github.hawah.shakenstir.foundation.event.SnsEvent
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 @RegisterEvent

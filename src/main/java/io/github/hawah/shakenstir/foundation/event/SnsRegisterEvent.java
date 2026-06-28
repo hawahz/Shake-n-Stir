@@ -35,6 +35,12 @@ import java.lang.annotation.Target;
  * @see SnsEvents
  * @see Side
  */
+// TODO: 人工审查 | 2026-06-29 | IDE Linter + Claude Code | 类型:参数改名
+// 概述: IDE Linter 将 side() 参数改为 value() (Java 注解惯例: 唯一参数用 value)。
+//        所有引用 annotation.side() 的代码已同步更新为 annotation.value()。
+//        ⚠ Javadoc 示例中仍使用 side=Side.CLIENT 旧语法，需人工更新示例。
+// 涉及: SnsEventBus.registerEventType(), SnsEventBus.registerHandlerMethods()
+// 原状: @interface SnsRegisterEvent { Side side() default Side.COMMON; }
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface SnsRegisterEvent {

@@ -37,6 +37,12 @@ import java.lang.annotation.Target;
  * @see EventPriority
  * @see Side
  */
+// TODO: 人工审查 | 2026-06-29 | Claude Code | 类型:新文件
+// 概述: 创建 @EventHandler 注解 (RetentionPolicy.RUNTIME)，替代 @SnsEvent。
+//        标记在 public static void method(Event) 上，由 SnsEventBus.registerHandlerClass()
+//        在运行时扫描并注册。支持 priority() 和 side() 参数。
+// 涉及: SnsEventBus.extractHandlerMeta() 同时支持 @EventHandler 和 @SnsEvent
+// 原状: 无 (新文件) — 此前使用 @SnsEvent (现已 @Deprecated) 作为处理器方法标记
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface EventHandler {

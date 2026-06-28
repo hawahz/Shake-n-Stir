@@ -32,6 +32,11 @@ public class ClientGeneralEvents {
         }
     }
 
+    // TODO: 人工审查 | 2026-06-29 | IDE Linter | 类型:初始化迁移
+// 概述: SnsEventBus.initialize() 被 Linter 从 ShakenStir 构造函数移至此处 (客户端初始化点)。
+//        初始化通过 SPI 加载 (EventHandlerLoader)，参数 "io.github.hawah.shakenstir" 现已废弃。
+// 涉及: onClientSetup() 新增 initialize 调用
+// 原状: 此调用原在 ShakenStir 构造函数中 (第一行); 此处原有 initialize 调用 (冗余保护, 现为主入口)
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         SnsEventBus.initialize("io.github.hawah.shakenstir");

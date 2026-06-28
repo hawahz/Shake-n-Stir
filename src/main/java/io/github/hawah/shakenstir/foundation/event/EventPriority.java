@@ -7,6 +7,11 @@ package io.github.hawah.shakenstir.foundation.event;
  * {@link #HIGHEST} → {@link #HIGH} → {@link #NORMAL} → {@link #LOW} → {@link #LOWEST}
  *
  */
+// TODO: 人工审查 | 2026-06-29 | IDE Linter | 类型:微调
+// 概述: IDE Linter 移除了 Javadoc 中的 @see SnsEvent 引用 (因 SnsEvent.java 已被删除)。
+//        此枚举现被 @EventHandler 和 @SnsEvent 共同引用 (SnsEventBus 兼容双注解)。
+// 涉及: Javadoc @see 标签调整
+// 原状: * @see SnsEvent  (该行被 Linter 删除)
 public enum EventPriority {
     /**
      * 最高优先级，最先执行。

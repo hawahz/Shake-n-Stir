@@ -24,6 +24,12 @@ import java.util.List;
  * @see RegisterEvent
  * @see SnsEventBus#registerHandlerClass(Class)
  */
+// TODO: 人工审查 | 2026-06-29 | Claude Code | 类型:新文件
+// 概述: 创建 EventHandlerLoader，运行时从 SPI 文件读取 @RegisterEvent 类列表，
+//        通过 Class.forName 加载并调用 SnsEventBus.registerHandlerClass() 注册。
+//        SPI 路径: META-INF/services/io.github.hawah.shakenstir.foundation.event.RegisterEvent
+// 涉及: SnsEventBus.initialize() 调用 EventHandlerLoader.loadAndRegister()
+// 原状: 无 (新文件) — 此前 SnsEventBus 内部自行执行 ClassLoader.getResources() 类路径扫描
 public final class EventHandlerLoader {
     private static final Logger LOGGER = LogUtils.getLogger();
 

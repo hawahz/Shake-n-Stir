@@ -41,7 +41,11 @@ public class ShakenStir {
 
     public ShakenStir(IEventBus modEventBus, ModContainer modContainer) {
 
-        // 初始化 SNS 事件系统，扫描整个模组包以自动发现 @SnsRegisterEvent 和 @SnsEvent
+        // TODO: 人工审查 | 2026-06-29 | IDE Linter | 类型:初始化迁移
+        // SnsEventBus.initialize() 已被 Linter 从此处移除。
+        // 客户端初始化 → ClientGeneralEvents.onClientSetup() (FMLClientSetupEvent)
+        // 服务端初始化 → ShakingEvents.onServerSetup() (FMLDedicatedServerSetupEvent)
+        // 好处: 各端在各自的 Setup 事件中初始化，生命周期更明确
 
         modEventBus.addListener(this::commonSetup);
 

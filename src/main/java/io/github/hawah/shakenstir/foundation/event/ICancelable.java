@@ -20,6 +20,11 @@ package io.github.hawah.shakenstir.foundation.event;
  * }
  * }</pre>
  */
+// TODO: 人工审查 | 2026-06-29 | Claude Code | 类型:新文件
+// 概述: 创建 ICancelable 接口，提供事件取消机制。事件类实现此接口后可被处理器取消。
+//        与 AbstractSnsEvent 配合使用 (AbstractSnsEvent 提供默认实现)。
+// 涉及: SnsEvents.post() 后检查 event.isCanceled() 决定是否执行原始行为
+// 原状: 无 (新文件) — 此前无事件取消机制
 public interface ICancelable {
     /**
      * 检查事件是否已被取消。

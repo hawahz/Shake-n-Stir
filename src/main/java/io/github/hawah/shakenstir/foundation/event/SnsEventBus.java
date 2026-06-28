@@ -34,6 +34,19 @@ import java.util.function.Consumer;
  * @see EventHandler
  * @see RegisterEvent
  */
+// TODO: 人工审查 | 2026-06-29 | Claude Code | 类型:重大重构
+// 概述: (1) 移除全部类路径扫描代码 (~280行): scanPackage, scanFromFileRoot, scanViaClassLoader,
+//        scanFileSystem, scanJar, scanJarFromResource, toFile, loadClass。
+//        (2) initialize() 改为通过 EventHandlerLoader SPI 加载处理器类，参数 ignored 保留向后兼容。
+//        (3) 新增 registerHandlerClass(Class), register(Class) 公共方法。
+//        (4) 重命名: Subscriber→Handler, getSubscriberCount→getHandlerCount (旧方法 @Deprecated)。
+//        (5) 改写 registerHandlerMethods: 同时支持 @EventHandler 和 @SnsEvent (extractHandlerMeta)。
+//        (6) 事件类型在处理器注册时自动注册 (REGISTERED_EVENT_TYPES.add)，无需预先扫描。
+//        (7) post() 新增 IEvent 类型门检查 (event instanceof IEvent)。
+//        (8) annotation.side() → annotation.value() 适配 @SnsRegisterEvent 参数改名。
+// 涉及: 几乎所有方法均被修改或删除；新增 HandlerResult, HandlerMeta, extractHandlerMeta 记录类型。
+// 原状: 707行含完整类路径扫描器；initialize 用 ClassLoader.getResources() 扫描包；
+//       仅支持 @SnsEvent；术语为 Subscriber；无 IEvent 类型门
 public final class SnsEventBus {
     private static final Logger LOGGER = LogUtils.getLogger();
 

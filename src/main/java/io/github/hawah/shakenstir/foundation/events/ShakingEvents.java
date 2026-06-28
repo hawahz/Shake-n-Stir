@@ -125,6 +125,11 @@ public class ShakingEvents {
         );
     }
 
+// TODO: 人工审查 | 2026-06-29 | IDE Linter | 类型:初始化迁移
+// 概述: SnsEventBus.initialize() 服务端初始化入口。与 ClientGeneralEvents.onClientSetup()
+//        分别覆盖双端。initialize() 内部仅首次调用生效 (initialized flag)。
+// 涉及: onServerSetup() 新增 initialize 调用
+// 原状: 此调用原在 ShakenStir 构造函数中; 此处原有 initialize 调用 (冗余保护, 现为主入口)
     @SubscribeEvent
     public static void onServerSetup(FMLDedicatedServerSetupEvent event) {
         SnsEventBus.initialize("io.github.hawah.shakenstir");

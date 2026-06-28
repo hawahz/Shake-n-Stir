@@ -17,6 +17,12 @@ import net.neoforged.api.distmarker.Dist;
  *
  * @see SnsRegisterEvent#value()
  */
+// TODO: 人工审查 | 2026-06-29 | Claude Code | 类型:新文件
+// 概述: 创建 Side 枚举 (COMMON/CLIENT/SERVER)，提供物理端检测与端匹配判断。
+//        通过反射获取 NeoForge FMLEnvironment.dist (回退 FMLLoader.getDist()) 确定运行时物理端。
+//        isValidForCurrentSide() 供事件类型注册和处理器注册时过滤不匹配端。
+// 涉及: SnsRegisterEvent.value(), SnsEventBus.registerEventType(), SnsEventBus.registerHandlerMethods()
+// 原状: 无 (新文件) — 此前无端感知机制
 @SuppressWarnings("BooleanMethodIsAlwaysInverted")
 public enum Side {
     COMMON,

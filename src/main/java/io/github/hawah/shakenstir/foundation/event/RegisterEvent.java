@@ -28,6 +28,12 @@ import java.lang.annotation.Target;
  * @see EventHandler
  * @see EventHandlerLoader
  */
+// TODO: 人工审查 | 2026-06-29 | Claude Code | 类型:新文件
+// 概述: 创建 @RegisterEvent 注解 (RetentionPolicy.CLASS)。标注在处理器类上，
+//        供 Gradle generateEventSpi task 在编译期扫描源文件发现，生成 SPI 文件。
+//        此注解不保留到运行时，强制走 SPI 加载路径，实现零运行时类路径扫描。
+// 涉及: build.gradle generateEventSpi task, EventHandlerLoader SPI 加载
+// 原状: 无 (新文件) — 此前无编译期发现机制，依赖 SnsEventBus 运行时 ClassLoader.getResources() 扫描
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.TYPE)
 public @interface RegisterEvent {

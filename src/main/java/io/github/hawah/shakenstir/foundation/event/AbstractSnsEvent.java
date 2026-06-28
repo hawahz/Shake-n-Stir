@@ -19,6 +19,12 @@ package io.github.hawah.shakenstir.foundation.event;
  * }
  * }</pre>
  */
+// TODO: 人工审查 | 2026-06-29 | Claude Code | 类型:接口变更
+// 概述: AbstractSnsEvent 新增 implements IEvent，以满足事件总线的 IEvent 类型门要求。
+//        所有继承 AbstractSnsEvent 的事件类自动通过 post() 时的 IEvent 检查。
+// 涉及: AbstractSnsEvent 类签名新增 IEvent 接口
+// 原状: public abstract class AbstractSnsEvent implements ICancelable
+//       (仅实现 ICancelable，未实现 IEvent)
 public abstract class AbstractSnsEvent implements IEvent, ICancelable {
     private boolean canceled = false;
 
