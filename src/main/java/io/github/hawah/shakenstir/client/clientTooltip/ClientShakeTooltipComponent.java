@@ -7,6 +7,7 @@ import io.github.hawah.shakenstir.content.dataComponent.ShakeContentHolder;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.tooltip.ShakeTooltipComponent;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
+import io.github.hawah.shakenstir.foundation.fluid.FluidConstants;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import io.github.hawah.shakenstir.util.Textures;
@@ -195,9 +196,9 @@ public record ClientShakeTooltipComponent(ShakeContentHolder contentHolder, int 
     private float getLiquidHeight() {
         for (ItemStack itemStack : contentHolder().itemStacks()) {
             if (itemStack.is(ItemRegistries.CONTENT_HOLDER)) {
-                return 70;
+                return FluidConstants.SHAKER_TOOLTIP_VISUAL_FULL_VOLUMN;
             }
         }
-        return contentHolder().fluidVolume() / 1000F * 70;
+        return (float) contentHolder().fluidVolume() / FluidConstants.BLOCK_VOLUMN * FluidConstants.SHAKER_TOOLTIP_VISUAL_FULL_VOLUMN;
     }
 }

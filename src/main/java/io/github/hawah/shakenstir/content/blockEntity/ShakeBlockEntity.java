@@ -10,7 +10,7 @@ import io.github.hawah.shakenstir.content.dataComponent.SingleItemComponent;
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.block.AutoUpdateBlockEntity;
-import io.github.hawah.shakenstir.foundation.fluid.ItemFluidType;
+import io.github.hawah.shakenstir.foundation.fluid.FluidConstants;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.util.FluidStackWithSlot;
 import net.minecraft.core.BlockPos;
@@ -38,7 +38,7 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 public class ShakeBlockEntity extends AutoUpdateBlockEntity implements ItemOwner {
     public static final int MAX_HOLD_FLUIDS = 6;
-    public static final int MAX_FLUID_CAPACITY = 1000;
+    public static final int MAX_FLUID_CAPACITY = FluidConstants.SHAKER_MAX_FLUID_CAPACITY;
     public static final int MAX_HOLD_ITEMS = 4;
 
     // Animation
@@ -74,7 +74,7 @@ public class ShakeBlockEntity extends AutoUpdateBlockEntity implements ItemOwner
                 return;
             }
             blockEntity.oAnimationHeight = blockEntity.animationHeight;
-            blockEntity.animationHeight = Mth.lerp(ShakenStirClient.ANI_DELTAF * 0.3F, blockEntity.animationHeight, blockEntity.getFluidAmount() / 1000F);
+            blockEntity.animationHeight = Mth.lerp(ShakenStirClient.ANI_DELTAF * 0.3F, blockEntity.animationHeight, (float) blockEntity.getFluidAmount() / FluidConstants.SHAKER_MAX_FLUID_CAPACITY);
             if (state.getValue(Shaker.FACING).getAxis().isHorizontal()) {
                 blockEntity.animationHeight = 0;
                 blockEntity.oAnimationHeight = 0;
@@ -114,7 +114,7 @@ public class ShakeBlockEntity extends AutoUpdateBlockEntity implements ItemOwner
             return false;
         }
         if (itemStack.has(DataComponents.CONSUMABLE) && itemStack.getCraftingRemainder() != null) {
-            int amount = 250;
+            int amount = FluidConstants.SHAKER_SINGLE_POUR_VOLUMN;
             ItemStack consumedItem = itemStack.copyWithCount(1);
             FluidStack itemFluidStack = new FluidStack(FluidRegistries.ITEM_SOURCE, amount);
             itemFluidStack.set(DataComponentTypeRegistries.ITEM_CONTENT, new SingleItemComponent(consumedItem));
@@ -212,7 +212,7 @@ public class ShakeBlockEntity extends AutoUpdateBlockEntity implements ItemOwner
             return false;
         }
         try (Transaction transaction = Transaction.openRoot()) {
-            int inserted = fluidHandler.insert(FluidResource.of(fluid), Math.min(250, fluid.amount()), transaction);
+            int inserted = fluidHandler.insert(FluidResource.of(fluid), Math.min(FluidConstants.SHAKER_SINGLE_POUR_MAX_VOLUMN, fluid.amount()), transaction);
             if (!isCreative) {
                 fluid.shrink(inserted);
             }
@@ -223,7 +223,7 @@ public class ShakeBlockEntity extends AutoUpdateBlockEntity implements ItemOwner
 
     public int getFluidAmount() {
         if (holdingProduct()) {
-            return 1000;
+            return FluidConstants.SHAKER_MAX_FLUID_CAPACITY;
         }
         int sum = 0;
         for (int i = 0; i < fluidHandler.size(); i++) {

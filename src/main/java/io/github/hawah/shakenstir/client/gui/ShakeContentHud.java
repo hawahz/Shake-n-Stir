@@ -11,6 +11,7 @@ import io.github.hawah.shakenstir.content.block.Shaker;
 import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
 import io.github.hawah.shakenstir.content.dataComponent.ShakeContentHolder;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.foundation.fluid.FluidConstants;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import io.github.hawah.shakenstir.lib.client.render.EaseHelper;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
@@ -161,7 +162,7 @@ public class ShakeContentHud implements GuiLayer {
         if (cachedBE == null) {
             return 0;
         }
-        return cachedBE.getFluidAmount() / 1000F;
+        return (float) cachedBE.getFluidAmount() / FluidConstants.BLOCK_VOLUMN;
     }
 
     public @Nullable Level getLevel() {

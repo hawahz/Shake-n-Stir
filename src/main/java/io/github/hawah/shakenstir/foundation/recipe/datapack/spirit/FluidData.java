@@ -27,7 +27,7 @@ public record FluidData(Holder<Fluid> fluidType, EffectData effectData, int amou
     public static final Codec<FluidData> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             FluidStack.FLUID_HOLDER_CODEC.fieldOf("fluid").forGetter(FluidData::fluidType),
             EffectData.CODEC.fieldOf("positive").forGetter(FluidData::effectData),
-            Codec.INT.optionalFieldOf("amount", 250).forGetter(FluidData::amount)
+            Codec.INT.optionalFieldOf("amount", 250 /*MAGIC*/).forGetter(FluidData::amount)
     ).apply(inst, FluidData::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, FluidData> STREAM_CODEC = StreamCodec.composite(

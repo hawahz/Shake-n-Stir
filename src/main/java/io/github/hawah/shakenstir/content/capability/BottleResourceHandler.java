@@ -22,7 +22,7 @@ import java.util.Objects;
 
 public final class BottleResourceHandler extends ItemAccessResourceHandler<FluidResource> {
 
-    public static final int BOTTLE_VOLUME = FluidType.BUCKET_VOLUME / (LayeredCauldronBlock.LEVEL.getPossibleValues().size() + 1);
+    public static final int BOTTLE_VOLUME = FluidType.BUCKET_VOLUME / (LayeredCauldronBlock.LEVEL.getPossibleValues().size() + 1); //MAGIC
 
     public BottleResourceHandler(ItemAccess itemAccess) {
         super(itemAccess, 1);

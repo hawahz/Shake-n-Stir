@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.content.block.Distiller;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
+import io.github.hawah.shakenstir.foundation.fluid.FluidConstants;
 import io.github.hawah.shakenstir.foundation.recipe.DistillerRecipe;
 import io.github.hawah.shakenstir.foundation.recipe.DistillerRecipeInput;
 import io.github.hawah.shakenstir.foundation.recipe.RecipeTypeRegistries;
@@ -52,8 +53,8 @@ import java.util.Optional;
 
 public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
     public static final int MAX_INPUT_ITEMS = 16;
-    public static final int MAX_INPUT_FLUID_CAPACITY = 4000;
-    public static final int MAX_PRODUCT_FLUID_CAPACITY = 4000;
+    public static final int MAX_INPUT_FLUID_CAPACITY = FluidConstants.DISTILLER_MAX_INPUT_FLUID_CAPACITY;
+    public static final int MAX_PRODUCT_FLUID_CAPACITY = FluidConstants.DISTILLER_MAX_PRODUCT_FLUID_CAPACITY;
     public static final int FUEL_MAX = 16000;
 
     public float animationHeight = 0;

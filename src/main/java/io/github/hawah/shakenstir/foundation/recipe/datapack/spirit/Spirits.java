@@ -44,12 +44,12 @@ public class Spirits {
     private static final Map<ResourceKey<FluidData>, FluidData> ENTRIES = new LinkedHashMap<>();
 
     static {
-        ENTRIES.put(BRANDY, new FluidData(FluidRegistries.BRANDY_SOURCE, BRANDY_EFFECT, 250));
-        ENTRIES.put(GIN, new FluidData(FluidRegistries.GIN_SOURCE, GIN_EFFECT, 250));
-        ENTRIES.put(RUM, new FluidData(FluidRegistries.RUM_SOURCE, RUM_EFFECT, 250));
-        ENTRIES.put(VODKA, new FluidData(FluidRegistries.VODKA_SOURCE, VODKA_EFFECT, 250));
-        ENTRIES.put(WHISKEY, new FluidData(FluidRegistries.WHISKY_SOURCE, WHISKEY_EFFECT, 250));
-        ENTRIES.put(TEQUILA, new FluidData(FluidRegistries.TEQUILA_SOURCE, TEQUILA_EFFECT, 250));
+        ENTRIES.put(BRANDY, new FluidData(FluidRegistries.BRANDY_SOURCE, BRANDY_EFFECT, 250 /*MAGIC*/));
+        ENTRIES.put(GIN, new FluidData(FluidRegistries.GIN_SOURCE, GIN_EFFECT, 250 /*MAGIC*/));
+        ENTRIES.put(RUM, new FluidData(FluidRegistries.RUM_SOURCE, RUM_EFFECT, 250 /*MAGIC*/));
+        ENTRIES.put(VODKA, new FluidData(FluidRegistries.VODKA_SOURCE, VODKA_EFFECT, 250 /*MAGIC*/));
+        ENTRIES.put(WHISKEY, new FluidData(FluidRegistries.WHISKY_SOURCE, WHISKEY_EFFECT, 250 /*MAGIC*/));
+        ENTRIES.put(TEQUILA, new FluidData(FluidRegistries.TEQUILA_SOURCE, TEQUILA_EFFECT, 250 /*MAGIC*/));
     }
 
     public static ResourceKey<FluidData> fluidKey(String name) {

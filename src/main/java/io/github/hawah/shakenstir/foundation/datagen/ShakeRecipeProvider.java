@@ -65,7 +65,7 @@ public class ShakeRecipeProvider extends RecipeProvider {
                         //.set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName(LangData.NAME_SOUR))
                         .set(DataComponentTypeRegistries.SHAKE_PRODUCT_POURABLE, Unit.INSTANCE)
                         .build())
-                .withFluid(SnsFluidTags.SPIRIT, 500)
+                .withFluid(SnsFluidTags.SPIRIT, 500 /*MAGIC*/)
                 .orWith(SnsSharedTags.SWEET)
                 .orWith(SnsSharedTags.SOUR)
                 .shake(15)
@@ -80,7 +80,7 @@ public class ShakeRecipeProvider extends RecipeProvider {
                         //.set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName(LangData.NAME_COCKTAIL))
                         .set(DataComponentTypeRegistries.SHAKE_PRODUCT_POURABLE, Unit.INSTANCE)
                         .build())
-                .withFluid(SnsFluidTags.SPIRIT, 500)
+                .withFluid(SnsFluidTags.SPIRIT, 500 /*MAGIC*/)
                 .orWith(SnsSharedTags.BITTER)
                 .orWith(SnsSharedTags.SWEET)
                 .shake(8)
@@ -95,7 +95,7 @@ public class ShakeRecipeProvider extends RecipeProvider {
                         //.set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName(LangData.NAME_COLADA))
                         .set(DataComponentTypeRegistries.SHAKE_PRODUCT_POURABLE, Unit.INSTANCE)
                         .build())
-                .withFluid(SnsFluidTags.SPIRIT, 500)
+                .withFluid(SnsFluidTags.SPIRIT, 500 /*MAGIC*/)
                 .orWith(SnsSharedTags.SWEET)
                 .orWith(SnsSharedTags.JUICE)
                 .shake(8)
@@ -176,7 +176,7 @@ public class ShakeRecipeProvider extends RecipeProvider {
         }
 
         public Builder withFluid(TagKey<Fluid> tag) {
-            return withFluid(tag, 100);
+            return withFluid(tag, 100 /*MAGIC*/);
         }
 
         public Builder withFluid(TagKey<Fluid> tag, int amount) {

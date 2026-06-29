@@ -10,7 +10,7 @@ import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
-import io.github.hawah.shakenstir.foundation.fluid.ItemFluidType;
+import io.github.hawah.shakenstir.foundation.fluid.FluidConstants;
 import io.github.hawah.shakenstir.foundation.item.SpiritBottleItem;
 import io.github.hawah.shakenstir.foundation.tags.SnsItemTags;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
@@ -435,7 +435,7 @@ public class Shaker extends FallingBlock implements EntityBlock, ITakeUpBlock {
             return InteractionResult.TryEmptyHandInteraction.TRY_WITH_EMPTY_HAND;
 
         if (level.getBlockEntity(pos, BlockEntityRegistries.SHAKE_BLOCK_ENTITY.get()).orElse(null) instanceof ShakeBlockEntity shakeBlockEntity) {
-            int amount = 250;
+            int amount = FluidConstants.SHAKER_SINGLE_POUR_VOLUMN;
             ItemStack consumedItem = itemStack.copyWithCount(1);
             FluidStack itemFluidStack = new FluidStack(FluidRegistries.ITEM_SOURCE, amount);
             itemFluidStack.set(DataComponentTypeRegistries.ITEM_CONTENT, new SingleItemComponent(consumedItem));

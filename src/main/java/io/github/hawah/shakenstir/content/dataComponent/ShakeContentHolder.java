@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
+import io.github.hawah.shakenstir.foundation.fluid.FluidConstants;
 import io.github.hawah.shakenstir.foundation.utils.ShakeUtil;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponentGetter;
@@ -30,9 +31,9 @@ public record ShakeContentHolder(
         int fluidMaxVolume,
         int itemMaxCount
 ) implements IFluidDataHolder, IItemDataHolder, TooltipProvider {
-    public static final ShakeContentHolder EMPTY = new ShakeContentHolder(NonNullList.of(FluidStack.EMPTY), NonNullList.of(ItemStack.EMPTY), 1000, 4);
+    public static final ShakeContentHolder EMPTY = new ShakeContentHolder(NonNullList.of(FluidStack.EMPTY), NonNullList.of(ItemStack.EMPTY), FluidConstants.SHAKER_MAX_FLUID_CAPACITY, 4);
     public static ShakeContentHolder of(List<FluidStack> fluidStacks, List<ItemStack> itemStacks) {
-        return new ShakeContentHolder(fluidStacks, itemStacks, 1000, 4);
+        return new ShakeContentHolder(fluidStacks, itemStacks, FluidConstants.SHAKER_MAX_FLUID_CAPACITY, 4);
     }
 
     public static final Codec<ShakeContentHolder> CODEC = RecordCodecBuilder.create(instance -> instance.group(

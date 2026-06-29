@@ -4,14 +4,11 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.content.block.BlockRegistries;
 import io.github.hawah.shakenstir.content.blockEntity.GlasswareBlockEntity;
 import io.github.hawah.shakenstir.content.blockEntity.ShakeBlockEntity;
-import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
-import io.github.hawah.shakenstir.content.dataComponent.IItemDataHolder;
-import io.github.hawah.shakenstir.content.dataComponent.ShakeContentHolder;
-import io.github.hawah.shakenstir.content.dataComponent.SingleItemComponent;
-import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
+import io.github.hawah.shakenstir.content.dataComponent.*;
 import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import io.github.hawah.shakenstir.content.tooltip.ShakeTooltipComponent;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
+import io.github.hawah.shakenstir.foundation.fluid.FluidConstants;
 import io.github.hawah.shakenstir.foundation.fluid.ItemFluidType;
 import io.github.hawah.shakenstir.foundation.item.IFluidContainer;
 import io.github.hawah.shakenstir.foundation.item.IPickMarkedItem;
@@ -200,10 +197,10 @@ public class ShakerItem extends PriorityBlockItem implements IPickMarkedItem {
             }
 
             if (find == -1) {
-                fluidStacks.add(fluidStack.split(250));
+                fluidStacks.add(fluidStack.split(FluidConstants.SHAKER_SINGLE_POUR_VOLUMN));
             } else {
-                fluidStacks.get(find).grow(250);
-                fluidStack.shrink(250);
+                fluidStacks.get(find).grow(FluidConstants.SHAKER_SINGLE_POUR_VOLUMN);
+                fluidStack.shrink(FluidConstants.SHAKER_SINGLE_POUR_VOLUMN);
             }
 
             other.set(DataComponentTypeRegistries.SPIRIT_CONTENT, fluidStack.isEmpty()? SpiritContent.EMPTY: new SpiritContent(fluidStack));
@@ -237,10 +234,10 @@ public class ShakerItem extends PriorityBlockItem implements IPickMarkedItem {
                 }
 
                 if (find == -1) {
-                    fluidStacks.add(fluidStack.split(250));
+                    fluidStacks.add(fluidStack.split(FluidConstants.SHAKER_SINGLE_POUR_VOLUMN));
                 } else {
-                    fluidStacks.get(find).grow(250);
-                    fluidStack.shrink(250);
+                    fluidStacks.get(find).grow(FluidConstants.SHAKER_SINGLE_POUR_VOLUMN);
+                    fluidStack.shrink(FluidConstants.SHAKER_SINGLE_POUR_VOLUMN);
                 }
 
                 try (Transaction trx = Transaction.openRoot()) {
@@ -258,7 +255,7 @@ public class ShakerItem extends PriorityBlockItem implements IPickMarkedItem {
             }
         }
         if (!other.isEmpty() && other.has(DataComponents.CONSUMABLE) && other.getCraftingRemainder() != null) {
-            int amount = 250;
+            int amount = FluidConstants.SHAKER_SINGLE_POUR_VOLUMN;
             ArrayList<FluidStack> fluidStacks = new ArrayList<>(ShakeUtil.getFluidStacks(self));
             int sum = fluidStacks.stream().mapToInt(FluidStack::getAmount).sum();
 

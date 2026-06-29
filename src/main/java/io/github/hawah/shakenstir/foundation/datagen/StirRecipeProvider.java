@@ -53,7 +53,7 @@ public class StirRecipeProvider extends RecipeProvider {
                         .set(DataComponentTypeRegistries.COCKTAIL_TYPE, CocktailTypes.FIZZ_VALUE)
                         //.set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName(LangData.NAME_FIZZ))
                         .build())
-                .withFluid(SnsFluidTags.SPIRIT, 500)
+                .withFluid(SnsFluidTags.SPIRIT, 500 /*MAGIC*/)
                 .orWith(SnsSharedTags.BUBBLE)
                 .build()
                 .unlockedBy("has_spirit", this.has(SnsItemTags.SPIRIT))
@@ -65,7 +65,7 @@ public class StirRecipeProvider extends RecipeProvider {
                         .set(DataComponentTypeRegistries.COCKTAIL_TYPE, CocktailTypes.TONIC_VALUE)
                         //.set(DataComponentTypeRegistries.SHAKE_PRODUCT_DEFERRED_NAME, new ShakeProductDeferredName(LangData.NAME_TONIC))
                         .build())
-                .withFluid(SnsFluidTags.SPIRIT, 500)
+                .withFluid(SnsFluidTags.SPIRIT, 500 /*MAGIC*/)
                 .orWith(SnsSharedTags.SOUR)
                 .orWith(SnsSharedTags.BUBBLE)
                 .build()
@@ -145,7 +145,7 @@ public class StirRecipeProvider extends RecipeProvider {
         }
 
         public Builder withFluid(TagKey<Fluid> tag) {
-            this.fluidIngredients.add(FluidIngredient.of(fluids.getOrThrow(tag), 250));
+            this.fluidIngredients.add(FluidIngredient.of(fluids.getOrThrow(tag), 250 /*MAGIC*/));
             return this;
         }
 

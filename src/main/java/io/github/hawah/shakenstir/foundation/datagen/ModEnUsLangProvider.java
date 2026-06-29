@@ -94,6 +94,7 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add(MobEffectRegistries.LEMON.get().getDescriptionId(), "Lemon");
         add(MobEffectRegistries.PARALYSIS.get().getDescriptionId(), "Paralysis");
         add(MobEffectRegistries.MISDIRECTION.get().getDescriptionId(), "Misdirection");
+        add(MobEffectRegistries.DODGE.get().getDescriptionId(), "Dodge");
 
         add("death.attack." + SnsDamageType.PARALYSIS.identifier(), "When %s reacted, he has already dead.");
         add("death.attack." + SnsDamageType.PARALYSIS.identifier() + ".player", "When %s reacted, he has already been killed by %s");

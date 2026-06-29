@@ -6,6 +6,7 @@ import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistr
 import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
 import io.github.hawah.shakenstir.foundation.block.DistillerPart;
 import io.github.hawah.shakenstir.foundation.block.ITakeUpBlock;
+import io.github.hawah.shakenstir.foundation.fluid.FluidConstants;
 import io.github.hawah.shakenstir.foundation.item.SpiritBottleItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -320,7 +321,7 @@ public class Distiller extends Block implements EntityBlock{
                          extract = be.getProductHandler().extract(
                                 0,
                                 be.getProductHandler().getResource(0),
-                                1000 - spiritContent.fluidStack().amount(),
+                                FluidConstants.BLOCK_VOLUMN - spiritContent.fluidStack().amount(),
                                 tx);
 
                     }

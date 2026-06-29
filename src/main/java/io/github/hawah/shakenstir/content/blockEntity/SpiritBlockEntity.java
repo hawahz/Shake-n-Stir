@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.content.block.SpiritBlock;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
+import io.github.hawah.shakenstir.foundation.fluid.FluidConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -110,7 +111,7 @@ public class SpiritBlockEntity extends BlockEntity {
 
         @Override
         public long getCapacityAsLong(int index, FluidResource resource) {
-            return 1000;
+            return FluidConstants.SPIRIT_BOTTLE_MAX_FLUID_CAPACITY;
         }
 
         @Override
@@ -124,7 +125,7 @@ public class SpiritBlockEntity extends BlockEntity {
                 return 0;
             }
             if (resource.matches(fluidStacks.getFirst())) {
-                int insert = Math.min(1000 - getAmountAsInt(index), amount);
+                int insert = Math.min(FluidConstants.SPIRIT_BOTTLE_MAX_FLUID_CAPACITY - getAmountAsInt(index), amount);
                 if (resource.matches(fluidStacks.get(index))) {
                     fluidStacks.get(index).grow(insert);
                 } else {
@@ -134,7 +135,7 @@ public class SpiritBlockEntity extends BlockEntity {
                 return insert;
             }
             if (fluidStacks.getFirst().isEmpty()) {
-                int insert = Math.min(1000 - getAmountAsInt(index), amount);
+                int insert = Math.min(FluidConstants.SPIRIT_BOTTLE_MAX_FLUID_CAPACITY - getAmountAsInt(index), amount);
                 fluidStacks.set(index, resource.toStack(insert));
                 markChanged();
                 return insert;

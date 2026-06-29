@@ -9,6 +9,7 @@ import io.github.hawah.shakenstir.content.SnsConsumables;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.foundation.datagen.lang.LangData;
+import io.github.hawah.shakenstir.foundation.fluid.FluidConstants;
 import io.github.hawah.shakenstir.foundation.recipe.Quality;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.cocktaileType.CocktailType;
 import io.github.hawah.shakenstir.foundation.recipe.datapack.spirit.FluidData;
@@ -168,7 +169,7 @@ public record DrinkData(
                 );
             }
         }
-        FluidStack fluidStack = new FluidStack(base().fluidType().value(), 250);
+        FluidStack fluidStack = new FluidStack(base().fluidType().value(), FluidConstants.BASE_AMOUNT_IN_DRINK_DATA);
         consumer.accept(LangData.TOOLTIP_TITLE_BASE.get(fluidStack.getHoverName()));
         if (moreInformation) {
             addPotionTooltip(

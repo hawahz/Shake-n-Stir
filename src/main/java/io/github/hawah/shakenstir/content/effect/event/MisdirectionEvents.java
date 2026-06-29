@@ -59,7 +59,6 @@ public final class MisdirectionEvents {
         Player player = event.getEntity();
         if (!player.hasEffect(MobEffectRegistries.MISDIRECTION)) return;
         if (player.isCreative() || player.isSpectator()) return;
-
         Level level = event.getEntity().level();
         BlockState state = level.getBlockState(event.getPos());
         if (state.isAir() || state.getDestroySpeed(level, event.getPos()) < 0) return;

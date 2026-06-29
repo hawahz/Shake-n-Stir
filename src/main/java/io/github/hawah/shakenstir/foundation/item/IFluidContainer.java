@@ -5,6 +5,7 @@ import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistr
 import io.github.hawah.shakenstir.content.dataComponent.SingleItemComponent;
 import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
 import io.github.hawah.shakenstir.content.effect.MobEffectRegistries;
+import io.github.hawah.shakenstir.foundation.fluid.FluidConstants;
 import io.github.hawah.shakenstir.foundation.fluid.TintColorGetter;
 import io.github.hawah.shakenstir.foundation.tags.SnsFluidTags;
 import net.minecraft.core.component.DataComponents;
@@ -90,7 +91,7 @@ public interface IFluidContainer {
             return itemStack;
         }
         FluidStack fluidStack = getFluidStack(itemStack);
-        itemStack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(fluidStack.copyWithAmount(fluidStack.getAmount() - 250)));
+        itemStack.set(DataComponentTypeRegistries.SPIRIT_CONTENT, new SpiritContent(fluidStack.copyWithAmount(fluidStack.getAmount() - FluidConstants.SPIRIT_DRINK_COST)));
         if (fluidStack.is(SnsFluidTags.SPIRIT)) {
             entity.addEffect(new MobEffectInstance(
                     MobEffectRegistries.DRUNK,
