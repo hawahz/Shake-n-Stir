@@ -54,7 +54,7 @@ public class SnsCreativeTab {
                 output.accept(ItemRegistries.LEMON.get());
                 output.accept(ItemRegistries.LEMON_SLICE.get());
                 output.accept(ItemRegistries.SOBERING_TEA.get());
-                output.accept(ItemRegistries.INEBERRY_GRASS.get());
+//                output.accept(ItemRegistries.INEBERRY_GRASS.get());
             })
             .build()
     );

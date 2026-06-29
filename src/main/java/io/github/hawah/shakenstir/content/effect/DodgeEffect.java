@@ -1,18 +1,24 @@
 package io.github.hawah.shakenstir.content.effect;
 
+import io.github.hawah.shakenstir.foundation.mixin.AbstractArrowAccess;
 import io.github.hawah.shakenstir.foundation.networking.ClientboundDodgePacket;
 import io.github.hawah.shakenstir.lib.networking.Networking;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 public class DodgeEffect extends MobEffect {
@@ -38,53 +44,82 @@ public class DodgeEffect extends MobEffect {
             return super.applyEffectTick(serverLevel, mob, amplification);
         }
 
-        // Use swept-AABB intersection instead of thin raycast:
-        // a projectile's bounding box expanded in its direction of movement
-        // is its full swept volume this tick — much more accurate than a center-line ray.
         AABB mobBox = mob.getBoundingBox();
-        Projectile target = null;
+        List<Danger> dangers = new ArrayList<>();
         for (Projectile proj : projectiles) {
-            Vec3 delta = proj.getDeltaMovement();
-            AABB sweptBox = proj.getBoundingBox().expandTowards(delta);
-            if (sweptBox.intersects(mobBox)) {
-                target = proj;
-                break;
+            if (proj instanceof AbstractArrow arrow && ((AbstractArrowAccess) arrow).shakeNStir$isInGround()) {
+                continue;
             }
+            Optional<Danger> danger = simulateProjectileNextFewTicks(proj, mobBox);
+            danger.ifPresent(dangers::add);
+        }
+        Vec3 avgDir = dangers.stream()
+                .map(Danger::dir)
+                .reduce(Vec3.ZERO, Vec3::add)
+                .normalize();
+        Vec3 predDodgeDir;
+        RandomSource random = serverLevel.getRandom();
+        if (avgDir.y() >= 0.99) {
+            predDodgeDir = Vec3.X_AXIS.yRot(random.nextFloat() * Mth.PI * 2).normalize();
+        } else {
+            predDodgeDir = avgDir.cross(Vec3.Y_AXIS).scale(random.nextBoolean()? 1: -1).normalize();
         }
 
-        if (target != null) {
-            Vec3 projVel = target.getDeltaMovement();
-            Vec3 dodgeDir;
+        double speed = DODGE_SPEED;
 
-            double horizSpeedSq = projVel.x * projVel.x + projVel.z * projVel.z;
-            if (horizSpeedSq > MIN_HORIZONTAL_SPEED * MIN_HORIZONTAL_SPEED) {
-                // Dodge perpendicular to projectile velocity in the horizontal plane.
-                // Randomly pick left or right perpendicular — both are 90° to the
-                // projectile's path and equally safe, but variety feels more natural.
-                boolean right = serverLevel.getRandom().nextBoolean();
-                dodgeDir = new Vec3(
-                        right ? -projVel.z : projVel.z,
-                        0,
-                        right ? projVel.x : -projVel.x
-                ).normalize();
-            } else {
-                // Projectile is moving almost purely vertically.
-                // Dodge in a random horizontal direction since there's no meaningful
-                // horizontal velocity to compute a perpendicular from.
-                double angle = serverLevel.getRandom().nextDouble() * 2 * Math.PI;
-                dodgeDir = new Vec3(Math.cos(angle), 0, Math.sin(angle));
-            }
+        mob.addDeltaMovement(predDodgeDir.scale(speed));
 
-            var dodgeDelta = dodgeDir.scale(DODGE_SPEED).add(0, VERTICAL_BOOST, 0);
-            mob.addDeltaMovement(dodgeDelta);
-            Networking.sendToAll(new ClientboundDodgePacket(mob.getUUID(), dodgeDelta));
-        }
+        Networking.sendToAll(new ClientboundDodgePacket(mob.getUUID(), predDodgeDir.scale(speed)));
 
         return super.applyEffectTick(serverLevel, mob, amplification);
     }
 
+    private static Optional<Danger> simulateProjectileNextFewTicks(Projectile projectile, AABB target) {
+        Vec3 velocity = projectile.getDeltaMovement();
+        Vec3 projPos = projectile.position();
+        Vec3 targetPos = target.getCenter();
+        if (targetPos.subtract(projPos).dot(velocity) < 0) {
+            return Optional.empty();
+        }
+        AABB detectArea = target.inflate(projectile.getBbWidth(), projectile.getBbHeight(), projectile.getBbWidth());
+        final int SIMULATE_TICKS = 5;
+        Vec3 prevPos = projPos;
+        for (int i = 0; i < SIMULATE_TICKS; i++) {
+            Vec3 curPos = prevPos.add(velocity);
+            Optional<Vec3> clip = detectArea.clip(prevPos, curPos);
+            if (clip.isPresent()) {
+                return Optional.of(new Danger(projectile, prevPos.subtract(curPos).normalize()));
+            }
+            prevPos = curPos;
+            velocity = simulateVelocity(projectile, velocity);
+        }
+        return Optional.empty();
+    }
+
+    public static Vec3 simulateVelocity(Projectile projectile, Vec3 velocity) {
+        if (projectile.isInWater()) {
+            velocity = velocity.scale(0.6F);
+        }
+        boolean physicsEnabled = !projectile.noPhysics;
+
+        if (!projectile.isInWater()) {
+            velocity = velocity.scale(0.99F);
+        }
+
+        if (physicsEnabled && !(projectile instanceof AbstractArrow arrow? ( (AbstractArrowAccess) arrow).shakeNStir$isInGround(): projectile.onGround())) {
+            double gravity = projectile.getGravity();
+            if (gravity != 0.0) {
+                velocity = velocity.add(0.0, -gravity, 0.0);
+            }
+        }
+        return velocity;
+    }
+
     @Override
     public boolean shouldApplyEffectTickThisTick(int tickCount, int amplification) {
-        return true;
+        return tickCount % 5 == 0;
+    }
+
+    record Danger(Projectile projectile, Vec3 dir) {
     }
 }
