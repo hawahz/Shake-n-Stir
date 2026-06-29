@@ -1,4 +1,4 @@
-package io.github.hawah.shakenstir.client.itemConditionals;
+package io.github.hawah.shakenstir.client.itemModelProperty;
 
 import com.mojang.serialization.MapCodec;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
@@ -9,8 +9,8 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
-public record HasCup() implements ConditionalItemModelProperty {
-    public static final MapCodec<HasCup> MAP_CODEC = MapCodec.unit(new HasCup());
+public record Warped() implements ConditionalItemModelProperty {
+    public static final MapCodec<Warped> MAP_CODEC = MapCodec.unit(new Warped());
     @Override
     public MapCodec<? extends ConditionalItemModelProperty> type() {
         return MAP_CODEC;
@@ -18,6 +18,6 @@ public record HasCup() implements ConditionalItemModelProperty {
 
     @Override
     public boolean get(ItemStack itemStack, @Nullable ClientLevel level, @Nullable LivingEntity owner, int seed, ItemDisplayContext displayContext) {
-        return itemStack.getOrDefault(DataComponentTypeRegistries.HAS_CUP, true);
+        return itemStack.has(DataComponentTypeRegistries.RECIPE_HOLDER);
     }
 }

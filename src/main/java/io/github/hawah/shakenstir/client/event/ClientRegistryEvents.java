@@ -1,15 +1,14 @@
 package io.github.hawah.shakenstir.client.event;
 
-import com.mojang.brigadier.CommandDispatcher;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.clientTooltip.ClientShakeTooltipComponent;
 import io.github.hawah.shakenstir.client.clientTooltip.ClientWarpedMintTooltip;
 import io.github.hawah.shakenstir.client.hanlder.MenuHUD;
-import io.github.hawah.shakenstir.client.itemConditionals.HasCup;
-import io.github.hawah.shakenstir.client.itemConditionals.MintSize;
-import io.github.hawah.shakenstir.client.itemConditionals.Warped;
-import io.github.hawah.shakenstir.client.itemConditionals.WarpedMintDisplay;
+import io.github.hawah.shakenstir.client.itemModelProperty.HasCup;
+import io.github.hawah.shakenstir.client.itemModelProperty.MintSize;
+import io.github.hawah.shakenstir.client.itemModelProperty.Warped;
+import io.github.hawah.shakenstir.client.itemModelProperty.WarpedMintDisplay;
 import io.github.hawah.shakenstir.client.model.Models;
 import io.github.hawah.shakenstir.client.model.glassware.GlasswareQuadCollection;
 import io.github.hawah.shakenstir.client.model.glassware.GlasswareUnbakedModelLoader;
@@ -33,18 +32,14 @@ import io.github.hawah.shakenstir.content.tooltip.ShakeTooltipComponent;
 import io.github.hawah.shakenstir.content.tooltip.WarpedMintTooltip;
 import io.github.hawah.shakenstir.foundation.utils.ContextKeys;
 import io.github.hawah.shakenstir.lib.client.gui.KeyTipHUD;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockTintSource;
 import net.minecraft.client.entity.ClientAvatarEntity;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
@@ -314,19 +309,19 @@ public class ClientRegistryEvents {
 class CommandRegister {
     @SubscribeEvent
     public static void onRegisterClientCommands(RegisterClientCommandsEvent event) {
-        CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
-
-        dispatcher.register(
-                Commands.literal("snsfrz")
-                        .executes(ctx -> {
-                            GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;
-                            if (gameRenderer.currentPostEffect() == null){
-                                gameRenderer.setPostEffect(ShakenStir.asResource("frozen_screen"));
-                            } else {
-                                gameRenderer.clearPostEffect();
-                            }
-                            return 1;
-                        })
-        );
+//        CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
+//
+//        dispatcher.register(
+//                Commands.literal("snsfrz")
+//                        .executes(ctx -> {
+//                            GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;
+//                            if (gameRenderer.currentPostEffect() == null){
+//                                gameRenderer.setPostEffect(ShakenStir.asResource("frozen_screen"));
+//                            } else {
+//                                gameRenderer.clearPostEffect();
+//                            }
+//                            return 1;
+//                        })
+//        );
     }
 }

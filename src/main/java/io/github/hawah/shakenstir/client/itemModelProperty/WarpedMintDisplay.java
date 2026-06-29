@@ -1,4 +1,4 @@
-package io.github.hawah.shakenstir.client.itemConditionals;
+package io.github.hawah.shakenstir.client.itemModelProperty;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
