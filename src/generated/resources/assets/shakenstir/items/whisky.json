@@ -16,11 +16,84 @@
       }
     ],
     "fallback": {
-      "type": "minecraft:special",
-      "base": "shakenstir:block/whisky",
-      "model": {
-        "type": "shakenstir:spirit_special"
-      }
+      "type": "minecraft:select",
+      "cases": [
+        {
+          "model": {
+            "type": "minecraft:select",
+            "cases": [
+              {
+                "model": {
+                  "type": "minecraft:select",
+                  "cases": [
+                    {
+                      "model": {
+                        "type": "minecraft:special",
+                        "base": "shakenstir:block/whisky",
+                        "model": {
+                          "type": "shakenstir:spirit_special",
+                          "display_context": "thirdperson_lefthand"
+                        }
+                      },
+                      "when": "thirdperson_lefthand"
+                    }
+                  ],
+                  "fallback": {
+                    "type": "minecraft:special",
+                    "base": "shakenstir:block/whisky",
+                    "model": {
+                      "type": "shakenstir:spirit_special",
+                      "display_context": "thirdperson_righthand"
+                    }
+                  },
+                  "property": "minecraft:display_context"
+                },
+                "when": [
+                  "thirdperson_lefthand",
+                  "thirdperson_righthand"
+                ]
+              }
+            ],
+            "fallback": {
+              "type": "minecraft:select",
+              "cases": [
+                {
+                  "model": {
+                    "type": "minecraft:special",
+                    "base": "shakenstir:block/whisky",
+                    "model": {
+                      "type": "shakenstir:spirit_special",
+                      "display_context": "firstperson_lefthand"
+                    }
+                  },
+                  "when": "firstperson_lefthand"
+                }
+              ],
+              "fallback": {
+                "type": "minecraft:special",
+                "base": "shakenstir:block/whisky",
+                "model": {
+                  "type": "shakenstir:spirit_special",
+                  "display_context": "firstperson_righthand"
+                }
+              },
+              "property": "minecraft:display_context"
+            },
+            "property": "minecraft:display_context"
+          },
+          "when": [
+            "thirdperson_lefthand",
+            "thirdperson_righthand",
+            "firstperson_lefthand",
+            "firstperson_righthand"
+          ]
+        }
+      ],
+      "fallback": {
+        "type": "minecraft:model",
+        "model": "shakenstir:item/whisky"
+      },
+      "property": "minecraft:display_context"
     },
     "property": "minecraft:display_context"
   }

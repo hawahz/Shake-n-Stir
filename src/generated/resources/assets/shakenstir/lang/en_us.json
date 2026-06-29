@@ -2,6 +2,7 @@
   "death.attack.shakenstir:paralysis": "When %s reacted, he has already dead.",
   "death.attack.shakenstir:paralysis.item": "When %s reacted, he has already dead.",
   "death.attack.shakenstir:paralysis.player": "When %s reacted, he has already been killed by %s",
+  "effect.shakenstir.dodge": "Dodge",
   "effect.shakenstir.drunk": "Drunk",
   "effect.shakenstir.fall_down": "Fall Down",
   "effect.shakenstir.lemon": "Lemon",

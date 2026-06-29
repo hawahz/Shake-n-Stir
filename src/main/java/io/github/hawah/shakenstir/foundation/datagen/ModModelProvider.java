@@ -366,8 +366,36 @@ public class ModModelProvider extends ModelProvider {
                 )
         );
         ItemModel.Unbaked flatModel = ItemModelUtils.plainModel(itemModels.createFlatItemModel(item.get(), ModelTemplates.FLAT_ITEM));
-        ItemModel.Unbaked otherModel = ItemModelUtils.specialModel(ShakenStir.asResource("block/"+root), new SpiritBottleSpecialRenderer.Unbaked());
-        itemModels.itemModelOutput.accept(item.get(), ItemModelGenerators.createFlatModelDispatch(flatModel, otherModel));
+        ItemModel.Unbaked thirdPersonRightHand = ItemModelUtils.specialModel(ShakenStir.asResource("block/"+root), new SpiritBottleSpecialRenderer.Unbaked(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND));
+        ItemModel.Unbaked thirdPersonLeftHand = ItemModelUtils.specialModel(ShakenStir.asResource("block/"+root), new SpiritBottleSpecialRenderer.Unbaked(ItemDisplayContext.THIRD_PERSON_LEFT_HAND));
+        ItemModel.Unbaked thirdPerson = ItemModelUtils.select(
+                new DisplayContext(),
+                thirdPersonRightHand,
+                ItemModelUtils.when(ItemDisplayContext.THIRD_PERSON_LEFT_HAND, thirdPersonLeftHand)
+        );
+        ItemModel.Unbaked firstPersonRightHandModel = ItemModelUtils.specialModel(ShakenStir.asResource("block/"+root), new SpiritBottleSpecialRenderer.Unbaked(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND));
+        ItemModel.Unbaked firstPersonLeftHandModel = ItemModelUtils.specialModel(ShakenStir.asResource("block/"+root), new SpiritBottleSpecialRenderer.Unbaked(ItemDisplayContext.FIRST_PERSON_LEFT_HAND));
+        ItemModel.Unbaked firstPerson = ItemModelUtils.select(
+                new DisplayContext(),
+                firstPersonRightHandModel,
+                ItemModelUtils.when(ItemDisplayContext.FIRST_PERSON_LEFT_HAND, firstPersonLeftHandModel)
+        );
+        ItemModel.Unbaked specialModels = ItemModelUtils.select(
+                new DisplayContext(),
+                firstPerson,
+                ItemModelUtils.when(List.of(ItemDisplayContext.THIRD_PERSON_LEFT_HAND, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND), thirdPerson)
+        );
+        ItemModel.Unbaked selected = ItemModelUtils.select(
+                new DisplayContext(),
+                flatModel,
+                ItemModelUtils.when(List.of(
+                        ItemDisplayContext.THIRD_PERSON_LEFT_HAND,
+                        ItemDisplayContext.THIRD_PERSON_RIGHT_HAND,
+                        ItemDisplayContext.FIRST_PERSON_LEFT_HAND,
+                        ItemDisplayContext.FIRST_PERSON_RIGHT_HAND
+                ), specialModels)
+        );
+        itemModels.itemModelOutput.accept(item.get(), ItemModelGenerators.createFlatModelDispatch(flatModel, selected));
     }
 
     private static MultiVariant getMultiVariant(String path) {
