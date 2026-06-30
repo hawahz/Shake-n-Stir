@@ -26,10 +26,12 @@ import io.github.hawah.shakenstir.content.dataAttachment.DataAttachmentTypeRegis
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.WarpedMint;
 import io.github.hawah.shakenstir.content.entity.EntityTypeRegistries;
+import io.github.hawah.shakenstir.content.fluid.FluidRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
 import io.github.hawah.shakenstir.content.item.StackedMintItem;
 import io.github.hawah.shakenstir.content.tooltip.ShakeTooltipComponent;
 import io.github.hawah.shakenstir.content.tooltip.WarpedMintTooltip;
+import io.github.hawah.shakenstir.foundation.fluid.TintColorGetter;
 import io.github.hawah.shakenstir.foundation.utils.ContextKeys;
 import io.github.hawah.shakenstir.lib.client.gui.KeyTipHUD;
 import net.minecraft.client.color.block.BlockTintSource;
@@ -39,7 +41,9 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
@@ -78,6 +82,16 @@ public class ClientRegistryEvents {
                 Identifier.fromNamespaceAndPath(ShakenStir.MODID, "squeezer_special"),
                 SqueezerSpecialRenderer.Unbaked.MAP_CODEC
         );
+    }
+
+    @SubscribeEvent
+    public static void registerFluidModel(RegisterFluidModelsEvent event) {
+        FluidModel.Unbaked model = new FluidModel.Unbaked(
+                new Material(Identifier.withDefaultNamespace("block/water_still")),
+                new Material(Identifier.withDefaultNamespace("block/water_flow")),
+                new Material(Identifier.withDefaultNamespace("block/water_overlay")),
+                (state -> state.getFluidType() instanceof TintColorGetter getter ? ARGB.color(80, getter.getTintColor()) : -1));
+        FluidRegistries.FLUIDS.getEntries().forEach(fluid -> event.register(model, fluid));
     }
 
     @SubscribeEvent

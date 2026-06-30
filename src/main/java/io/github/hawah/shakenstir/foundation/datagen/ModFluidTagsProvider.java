@@ -41,8 +41,6 @@ public class ModFluidTagsProvider extends FluidTagsProvider {
         this.tag(SnsFluidTags.SPIRIT)
                 .addTags(SnsFluidTags.GIN, SnsFluidTags.VODKA, SnsFluidTags.WHISKY, SnsFluidTags.BRANDY, SnsFluidTags.RUM, SnsFluidTags.TEQUILA);
 
-        this.tag(Tags.Fluids.HIDDEN_FROM_RECIPE_VIEWERS).addTag(SnsFluidTags.SPIRIT);
-
         this.tag(SnsFluidTags.BUBBLE_LIKE)
                 .add(FluidRegistries.BUBBLE_SOURCE.get())
                 .add(FluidRegistries.TONIC_SOURCE.get())

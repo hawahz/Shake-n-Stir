@@ -121,4 +121,8 @@ public class ShakeUtil {
 
         return ARGB.color((int) a, (int) r, (int) g, (int) b);
     }
+
+    public static boolean isEmpty(ItemStack shaker) {
+        return getFluidStacks(shaker).isEmpty();
+    }
 }

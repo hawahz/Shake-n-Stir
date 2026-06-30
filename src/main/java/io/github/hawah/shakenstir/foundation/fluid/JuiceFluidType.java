@@ -58,7 +58,8 @@ public class JuiceFluidType extends FluidType implements TintColorGetter{
 
     @Override
     public @NonNull Component getDescription(@NonNull FluidStack stack) {
-        return Component.empty().append(getFruit(stack).getHoverName()).append(super.getDescription(stack)).withColor(getTintColor());
+        ItemStack fruit = getFruit(stack);
+        return fruit.isEmpty()? Component.empty().append(super.getDescription(stack)).withColor(getTintColor()): Component.empty().append(fruit.getHoverName()).append(super.getDescription(stack)).withColor(getTintColor());
     }
 
     // 对于我们的几个纹理，如果如果想生效的话，就需要重写这个方法，在对于的方法将我们的RL的资源定位的图片返回。

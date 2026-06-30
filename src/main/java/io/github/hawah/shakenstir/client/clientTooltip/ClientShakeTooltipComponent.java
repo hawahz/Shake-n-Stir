@@ -29,6 +29,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @MethodsReturnNonnullByDefault
 public record ClientShakeTooltipComponent(ShakeContentHolder contentHolder, int iceCounts, boolean canLookThrough) implements ClientTooltipComponent {
 
+    public static final int VISUAL_HEIGHT = 75;
     public static int offsetX = 10;
     public static int offsetY = 0;
     public static double height = 0;
@@ -134,7 +135,7 @@ public record ClientShakeTooltipComponent(ShakeContentHolder contentHolder, int 
             );
         }
 
-        graphics.enableScissor(x + 8, y - 10, x + Textures.SHAKE_HUD_INSIDE.getWidth() - 8, y + 77);
+        graphics.enableScissor(x + 8, y - 10, x + Textures.SHAKE_HUD_INSIDE.getWidth() - 8, y + VISUAL_HEIGHT + 2);
 
         int iceCubeCounts = iceCounts();
         float renderTime = height == 0? 0: AnimationTickHolder.getRenderTime() / 10;
@@ -156,15 +157,15 @@ public record ClientShakeTooltipComponent(ShakeContentHolder contentHolder, int 
             // 160, 216, 239
             graphics.fill(
                     x + 8,
-                    y + 77 - 2 - (int) height,
+                    y + VISUAL_HEIGHT - (int) height,
                     x + Textures.SHAKE_HUD_INSIDE.getWidth() - 8,
-                    y + 77,
+                    y + VISUAL_HEIGHT + 2,
                     ARGB.color((int) Mth.clamp(100 * fadeIn, 0, 255), ARGB.red(rgb), ARGB.green(rgb), ARGB.blue(rgb))
             );
             graphics.horizontalLine(
                     x + 8,
                     x + Textures.SHAKE_HUD_INSIDE.getWidth() - 8,
-                    y + 77 - 2 - (int) height,
+                    y + VISUAL_HEIGHT - (int) height,
                     ARGB.color(160, 216, 239, (int) Mth.clamp(255 * fadeIn, 0, 255))
             );
         }

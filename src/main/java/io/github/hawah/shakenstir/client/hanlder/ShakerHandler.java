@@ -267,7 +267,13 @@ public class ShakerHandler implements IHandler, GuiLayer {
     }
 
     public void finish() {
-        if (shakeSuccessTimes == 0 && ShakeUtil.getFluidStacks(getItem()).stream().noneMatch(fluidStack -> fluidStack.is(SnsFluidTags.BUBBLE_LIKE))){
+        ItemStack shaker = getItem();
+        if (shakeSuccessTimes == 0 && ShakeUtil.getFluidStacks(shaker)
+                .stream()
+                .noneMatch(fluidStack -> fluidStack.is(SnsFluidTags.BUBBLE_LIKE))){
+            return;
+        }
+        if (ShakeUtil.isEmpty(shaker)) {
             return;
         }
         assert getPlayer() != null;
@@ -276,7 +282,7 @@ public class ShakerHandler implements IHandler, GuiLayer {
                 getItem(getPlayer()),
                 shakeSuccessTimes,
                 getIceMeltProcess(),
-                getItem().getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0)
+                shaker.getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0)
         ));
     }
 }
