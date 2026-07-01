@@ -42,6 +42,8 @@ public class ClientGeneralEvents {
         SnsEventBus.initialize("io.github.hawah.shakenstir");
     }
 
+
+
     public static final Identifier HOTBAR_SELECTION_SPRITE = Identifier.withDefaultNamespace("hud/hotbar_selection");
 
 }

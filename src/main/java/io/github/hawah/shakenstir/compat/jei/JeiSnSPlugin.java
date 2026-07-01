@@ -3,6 +3,7 @@ package io.github.hawah.shakenstir.compat.jei;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.compat.jei.category.ShakeCategory;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
+import io.github.hawah.shakenstir.foundation.events.ShakingEvents;
 import io.github.hawah.shakenstir.foundation.recipe.shake.ShakeRecipe;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -12,13 +13,11 @@ import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.runtime.IIngredientManager;
 import mezz.jei.api.runtime.IJeiRuntime;
-import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeMap;
 
 import java.util.List;
-import java.util.Optional;
 
 @JeiPlugin
 public class JeiSnSPlugin implements IModPlugin {
@@ -38,19 +37,21 @@ public class JeiSnSPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        RecipeManager recipeManager = Minecraft.getInstance().getSingleplayerServer().getRecipeManager();
-        // 注册具体的配方实例
+        RecipeMap recipeMap = ShakingEvents.recipeMap;
+        if (recipeMap == null) {
+            return;
+        }
 
-        List<ShakeRecipe> shakeRecipes = recipeManager.getRecipes().stream()
+        // 用 values() 遍历全部配方 + instanceof 过滤
+        // 不再用 byType(), 因为 RecipeType.simple() 的匿名类没有覆写 equals(),
+        // 导致 RecipeMap 内部用 == 比较, DeferredRegister 返回的实例匹配不上
+        List<ShakeRecipe> shakeRecipes = recipeMap.values().stream()
                 .map(RecipeHolder::value)
-                .filter(recipeHolder -> recipeHolder instanceof ShakeRecipe)
-                .map(recipe -> (Optional<ShakeRecipe>) (recipe instanceof ShakeRecipe shakeRecipe? Optional.of(shakeRecipe): Optional.empty()))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .filter(r -> r instanceof ShakeRecipe)
+                .map(r -> (ShakeRecipe) r)
                 .toList();
 
         registration.addRecipes(ShakeCategory.SHAKE_TYPE, shakeRecipes);
-
     }
 
     @Override

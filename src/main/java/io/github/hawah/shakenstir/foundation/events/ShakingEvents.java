@@ -9,6 +9,7 @@ import io.github.hawah.shakenstir.content.entity.BartenderEntity;
 import io.github.hawah.shakenstir.content.entity.EntityTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ShakerItem;
 import io.github.hawah.shakenstir.foundation.event.SnsEventBus;
+import io.github.hawah.shakenstir.foundation.recipe.RecipeTypeRegistries;
 import io.github.hawah.shakenstir.util.TooltipHandler;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -17,15 +18,19 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.item.crafting.RecipeMap;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
 import net.neoforged.neoforge.common.util.AttributeTooltipContext;
 import net.neoforged.neoforge.event.AddAttributeTooltipsEvent;
+import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.function.Consumer;
 
@@ -133,5 +138,20 @@ public class ShakingEvents {
     @SubscribeEvent
     public static void onServerSetup(FMLDedicatedServerSetupEvent event) {
         SnsEventBus.initialize("io.github.hawah.shakenstir");
+    }
+
+    public static RecipeMap recipeMap = RecipeMap.EMPTY;
+
+    @SubscribeEvent
+    public static void onRecipeUpdated(RecipesReceivedEvent event) {
+        recipeMap = event.getRecipeMap();
+    }
+
+    @SubscribeEvent
+    public static void onRecipeSend(OnDatapackSyncEvent event) {
+        RecipeTypeRegistries.RECIPE_TYPES.getEntries()
+                .stream()
+                .map(DeferredHolder::get)
+                .forEach(event::sendRecipes);
     }
 }
