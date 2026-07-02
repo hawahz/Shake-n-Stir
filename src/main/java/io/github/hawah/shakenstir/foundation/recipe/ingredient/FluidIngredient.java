@@ -3,6 +3,7 @@ package io.github.hawah.shakenstir.foundation.recipe.ingredient;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -10,6 +11,9 @@ import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.registries.DeferredHolder;
+
+import java.util.Comparator;
+import java.util.List;
 
 public record FluidIngredient(FluidPredicate fluidId, int amount) {
 
@@ -31,13 +35,14 @@ public record FluidIngredient(FluidPredicate fluidId, int amount) {
     public static FluidIngredient of(HolderSet<Fluid> fluidHolderSet, int amount) {
         return new FluidIngredient(fluidHolderSet, amount);
     }
-//    public static FluidIngredient of(Identifier fluidId, int amount) {
-//        return new FluidIngredient(HolderSet.direct(itemLike.asItem().builtInRegistryHolder()), amount);
-//    }
-//
-//    public static FluidIngredient of(Identifier fluidId) {
-//        return new FluidIngredient(List.of(fluidId), 1000);
-//    }
+
+    public List<FluidStack> getPredicates() {
+        return BuiltInRegistries.FLUID.stream()
+                .filter(f -> this.match(new FluidStack(f, 1)) != 0)
+                .map(f -> new FluidStack(f, this.amount()))
+                .sorted(Comparator.comparingInt(FluidStack::amount))
+                .toList();
+    }
 
     public static FluidIngredient of(DeferredHolder<Fluid, FlowingFluid> fluidId, int amount) {
         return new FluidIngredient(new FluidPredicate(HolderSet.direct(fluidId.get().builtInRegistryHolder())), amount);

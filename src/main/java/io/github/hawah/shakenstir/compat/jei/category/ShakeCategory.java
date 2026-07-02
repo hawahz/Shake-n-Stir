@@ -1,6 +1,5 @@
 package io.github.hawah.shakenstir.compat.jei.category;
 
-import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
@@ -30,14 +29,11 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jspecify.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class ShakeCategory implements IRecipeCategory<ShakeRecipe> {
 
     public static final Identifier UID = ShakenStir.asResource("shaker");
@@ -158,6 +154,4 @@ public class ShakeCategory implements IRecipeCategory<ShakeRecipe> {
                     }
                 }, SHAKER_OFFSET_X, SHAKER_OFFSET_Y);
     }
-
-
 }
