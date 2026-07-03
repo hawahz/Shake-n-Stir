@@ -23,20 +23,6 @@ import net.minecraft.util.Mth;
 
 import java.util.Optional;
 
-// TODO: 人工审查 | 2026-07-03 03:30 | Claude Code | 类型:新文件 — 事件系统迁移 + Map化重构
-// 概述: PlayerAnimationEventHandler 是动画系统的核心处理器类，包含两个处理器:
-//        (1) onRegisterAnimations(RegisterPlayerAnimationEvent)
-//            — 响应动画注册事件, 烘焙并注册四个默认动画 (SHAKE/READY/SHAKE_UPPER/FALL)
-//              到 Map<Identifier, KeyframeAnimation> 中。
-//              原先在 HumanoidModelMixin.init() 中的硬编码烘焙逻辑迁移至此。
-//              其他模块可编写额外的 @EventHandler 注册自定义动画。
-//        (2) onModifyPlayerPose(ModifyPlayerPoseEvent)
-//            — 响应姿态修改事件, 从 Map 中按 Identifier 获取动画并应用到模型。
-//              原先在 ThirdPersonArmFixer.onModifyModelPose() 中的逻辑迁移至此。
-//              使用 ShakeAnimationAccessor.getAnimation(Identifier) 替代旧版独立 getter。
-// 涉及: onRegisterAnimations(), onModifyPlayerPose()
-// 原状: (1) HumanoidModelMixin.init() 中四行硬编码 bake (ShakeAnimation.SHAKE.bake 等)
-//       (2) ThirdPersonArmFixer.onModifyModelPose() 静态方法 — 与 Mixin 紧耦合
 @RegisterEvent
 public class PlayerAnimationModifier {
     /** 摇晃动画 (ShakeAnimation.SHAKE) */
@@ -48,19 +34,6 @@ public class PlayerAnimationModifier {
     /** 倒地动画 (FallPose.POSE) */
     public static final Identifier ANIM_FALL = ShakenStir.asResource("fall");
 
-    // ===== 默认动画注册 =====
-
-    // TODO: 人工审查 | 2026-07-03 03:30 | Claude Code | 类型:逻辑迁移 — 动画烘焙注册
-    // 概述: onRegisterAnimations() 响应 RegisterPlayerAnimationEvent，
-    //        烘焙并注册四个默认玩家动画到事件的 Map 中。
-    //        使用 ShakeAnimationAccessor 中定义的 Identifier 常量作为 key。
-    //        其他处理器可通过 @EventHandler(priority = HIGH/LOW) 在默认动画前后注册额外动画。
-    // 涉及: 方法 onRegisterAnimations(RegisterPlayerAnimationEvent)
-    // 原状: HumanoidModelMixin.init() 中:
-    //       shakeNStir$shakeAnimation = ShakeAnimation.SHAKE.bake(root);
-    //       shakeNStir$readyAnimation = ShakeAnimation.READY.bake(root);
-    //       shakeNStir$shakeUpperAnimation = MixedShakeAnimation.SHAKE_UPPER.bake(root);
-    //       shakeNStir$fallPose = FallPose.POSE.bake(root);
     @EventHandler
     public static void onRegisterAnimations(RegisterPlayerAnimationEvent event) {
         if (event.isCanceled()) {
@@ -78,19 +51,6 @@ public class PlayerAnimationModifier {
         event.register(ANIM_FALL, FallPose.POSE.bake(root));
     }
 
-    // ===== 姿态修改处理 =====
-
-    // TODO: 人工审查 | 2026-07-03 03:30 | Claude Code | 类型:逻辑迁移 + Map化重构
-    // 概述: onModifyPlayerPose() 响应 ModifyPlayerPoseEvent，根据 HumanoidRenderState 状态
-    //        从 Map 中获取对应动画并应用到 HumanoidModel。
-    //        使用新版 shakeNStir$getAnimation(Identifier) 替代旧版独立 getter。
-    //        动画逻辑与 onModifyModelPose 完全一致:
-    //        - Shaker 使用: READY (0-10 tick), SHAKE + SHAKE_UPPER (10+ tick, 带过渡)
-    //        - FallDown: FALL (easeOutQuart 渐进)
-    //        新增事件取消检查 — 高优先级处理器可阻止默认动画执行。
-    // 涉及: 方法 onModifyPlayerPose(ModifyPlayerPoseEvent)
-    // 原状: ThirdPersonArmFixer.onModifyModelPose(HumanoidRenderState, HumanoidModel<?>)
-    //       — 使用旧版 ((ShakeAnimationAccessor) model).shakeNStir$getShakeAnimation() 等
     @EventHandler
     public static void onModifyPlayerPose(ModifyPlayerPoseEvent event) {
         // 如果事件已被更高优先级处理器取消, 跳过默认动画应用

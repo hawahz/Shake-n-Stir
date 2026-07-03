@@ -6,25 +6,6 @@ import net.minecraft.resources.Identifier;
 
 import java.util.Map;
 
-// TODO: 人工审查 | 2026-07-03 03:30 | Claude Code | 类型:接口重构 — Map化动画访问
-// 概述: ShakeAnimationAccessor 接口从四个独立方法重构为基于 Map<Identifier, KeyframeAnimation> 的统一访问。
-//        新增:
-//        (1) shakeNStir$getAnimations() → 返回动画 Map, 外部可通过 Identifier 获取任意动画
-//        (2) shakeNStir$getAnimation(Identifier) → 便捷方法, 按 key 获取单个动画
-//        旧方法 (shakeNStir$getShakeAnimation 等) 标记 @Deprecated, 内部委托到 Map,
-//        以确保 ThirdPersonArmFixer 和 DodgeEffect 等旧引用可平滑迁移。
-//        标准动画 Identifier 定义于本接口中:
-//        - ANIM_SHAKE        = shakenstir:shake         → ShakeAnimation.SHAKE
-//        - ANIM_READY        = shakenstir:ready         → ShakeAnimation.READY
-//        - ANIM_SHAKE_UPPER  = shakenstir:shake_upper   → MixedShakeAnimation.SHAKE_UPPER
-//        - ANIM_FALL         = shakenstir:fall          → FallPose.POSE
-// 涉及: 接口签名变更; 新增 getAnimations() / getAnimation(Identifier); 旧方法 @Deprecated
-// 原状: 四个独立方法:
-//        KeyframeAnimation shakeNStir$getShakeAnimation();
-//        KeyframeAnimation shakeNStir$getReadyAnimation();
-//        KeyframeAnimation shakeNStir$getShakeUpperAnimation();
-//        KeyframeAnimation shakeNStir$getFallAnimation();
-//       — 硬编码, 无法扩展 (新增动画需要修改接口和所有实现)
 @SuppressWarnings("ALL")
 public interface ShakeAnimationAccessor {
 
