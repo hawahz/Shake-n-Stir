@@ -56,7 +56,7 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
         super(BlockEntityRegistries.BAR_MENU_BLOCK_ENTITY.get(), worldPosition, blockState);
     }
 
-    private UUID placerId = null;
+    private @Nullable UUID placerId = null;
     public List<MutablePair<SnsRecipeHolder, PriceAndCount>> recipes = new ArrayList<>();
     public Identifier bkg = null;
 
@@ -173,7 +173,7 @@ public class BarMenuBlockEntity extends AutoUpdateBlockEntity {
         this.bkg = components.get(DataComponentTypeRegistries.MENU_BKG);
     }
 
-    public UUID getPlacerId() {
+    public @Nullable UUID getPlacerId() {
         return placerId;
     }
 

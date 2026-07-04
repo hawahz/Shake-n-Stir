@@ -123,6 +123,9 @@ public class BarMenuBlock extends HorizontalDirectionalBlock implements EntityBl
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (level.getBlockEntity(pos) instanceof BarMenuBlockEntity blockEntity) {
             UUID placerId = blockEntity.getPlacerId();
+            if (placerId == null) {
+                return super.useWithoutItem(state, level, pos, player, hitResult);
+            }
             Entity entity = level.getEntity(placerId);
             player.swing(InteractionHand.MAIN_HAND);
             if (entity instanceof Player playerPlacer) {

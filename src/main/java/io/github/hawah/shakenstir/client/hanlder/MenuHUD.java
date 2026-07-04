@@ -26,6 +26,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 
+import static io.github.hawah.shakenstir.client.hanlder.MC.getPlayer;
 import static io.github.hawah.shakenstir.client.hanlder.MC.level;
 
 @SuppressWarnings("resource")
@@ -114,6 +115,6 @@ public class MenuHUD extends AbstractBlockTargetHUD implements IHandler {
     }
 
     private boolean isOwner() {
-        return cachedEntity.getPlacerId().equals(Minecraft.getInstance().player.getUUID());
+        return cachedEntity.getPlacerId() != null && getPlayer() != null && cachedEntity.getPlacerId().equals(getPlayer().getUUID());
     }
 }
