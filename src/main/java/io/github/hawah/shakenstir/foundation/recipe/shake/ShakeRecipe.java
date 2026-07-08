@@ -102,6 +102,9 @@ public record ShakeRecipe(
                 mainHandItem.getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 1),
                 shakeAdditionTimes
         );
+        if (iceCount == 0) {
+            quality = Quality.getQuality(Math.min(Quality.values().length - 1, quality.ordinal() + 2));
+        }
         resultItem.set(DataComponentTypeRegistries.SHAKE_PRODUCT_QUALITY, quality);
         List<ItemStack> items = recipeInput.items();
         List<FluidStack> fluidStacks = new ArrayList<>(recipeInput.fluidStacks().stream().map(FluidStack::copy).toList());
@@ -225,7 +228,7 @@ public record ShakeRecipe(
         );
         int failTimes = mainHandItem.getOrDefault(DataComponentTypeRegistries.SHAKE_FALI_TIMES, 0);
 
-        if (result.isEmpty() || iceCount == 0) {
+        if (result.isEmpty()) {
             if (failTimes > 1) {
                 ItemStack resultItem = createSuspiciousResult(
                         past,
