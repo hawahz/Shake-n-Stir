@@ -127,8 +127,6 @@ public class BarAreaHelper {
             return 1;
         } else if (!level.getBlockState(pos.below()).isFaceSturdy(level, pos, Direction.UP)) {
             return -1;
-        } else if (!level.getBlockState(pos.above()).is(SnsBlockTags.BAR_AREA_IGNORED)) {
-            return 2;
         }
         return 0;
     }
