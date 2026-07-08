@@ -154,7 +154,7 @@ public class BartenderAi {
         public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super BartenderEntity>>> getWorkIdlePackage() {
             return ImmutableList.of(
                     getFullLookBehavior(),
-                    Pair.of(0, SetLookAndInteractNew.create(EntityType.PLAYER, 20)),
+                    Pair.of(0, SetLookAndInteractNew.create(EntityType.PLAYER, 15)),
                     Pair.of(3, new RunOne<>(
                             ImmutableMap.of(
                                     Memories.IDLING.get(), MemoryStatus.VALUE_ABSENT
@@ -193,7 +193,7 @@ public class BartenderAi {
             return ImmutableList.of(
                     Pair.of(6, PutMenu.create()),
                     Pair.of(5, ApproachingCustomer.create()),
-                    Pair.of(0, TargetValidationChecker.create(8)),
+                    Pair.of(0, TargetValidationChecker.create(20)),
                     Pair.of(0, CheckMenuValid.create()),
                     Pair.of(
                             4,
@@ -229,7 +229,7 @@ public class BartenderAi {
 
         public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super BartenderEntity>>> getIdleFrontPackage() {
             return ImmutableList.of(
-                    Pair.of(0, SetLookAndInteractNew.create(EntityType.PLAYER, 15)),
+                    Pair.of(0, SetLookAndInteractNew.create(EntityType.PLAYER, 12)),
                     Pair.of(4, new RunOne<>(
                             ImmutableList.of(
                                     Pair.of(new StartIdleFront(), 1),
