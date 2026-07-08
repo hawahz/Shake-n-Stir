@@ -1092,4 +1092,9 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
             return name;
         }
     }
+
+    @Override
+    public boolean requiresCustomPersistence() {
+        return super.requiresCustomPersistence() || this.inventory.stream().allMatch(ItemStack::isEmpty);
+    }
 }
