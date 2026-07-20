@@ -44,3 +44,4 @@ repo/
 /.qoder/
 /.codemoss/prompt.json
 /src/main/resources/assets/shakenstir/teacon/
+/.agents/
