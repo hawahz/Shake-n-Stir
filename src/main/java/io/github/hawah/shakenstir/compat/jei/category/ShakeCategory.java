@@ -143,7 +143,7 @@ public class ShakeCategory implements IRecipeCategory<ShakeRecipe> {
                     public void draw(GuiGraphicsExtractor guiGraphics, int xOffset, int yOffset) {
                         Textures.SHAKE_HUD_OUTSIDE.blit(guiGraphics, xOffset, yOffset);
                         Font font = Minecraft.getInstance().font;
-                        String text = "Shake";
+                        String text = "Shake " + recipe.shakeTimes() + " times";
                         guiGraphics.text(
                                 font,
                                 text,
@@ -151,6 +151,7 @@ public class ShakeCategory implements IRecipeCategory<ShakeRecipe> {
                                 yOffset - font.lineHeight*2,
                                 -1
                         );
+
                     }
                 }, SHAKER_OFFSET_X, SHAKER_OFFSET_Y);
     }

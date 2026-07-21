@@ -229,7 +229,7 @@ public record ShakeRecipe(
         int failTimes = mainHandItem.getOrDefault(DataComponentTypeRegistries.SHAKE_FALI_TIMES, 0);
 
         if (result.isEmpty()) {
-            if (failTimes > 1) {
+            if (failTimes >= 0) {
                 ItemStack resultItem = createSuspiciousResult(
                         past,
                         shaker,

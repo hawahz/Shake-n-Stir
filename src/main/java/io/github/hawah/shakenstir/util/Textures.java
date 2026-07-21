@@ -26,6 +26,8 @@ public enum Textures {
     EDITOR_TOOL_PENCIL("textures/gui/menu.png", 0 ,0, 16, 16, 0),
     EDITOR_TOOL_ERASER("textures/gui/menu.png", 16 ,0, 16, 16, 0),
     EDITOR_TOOL_ARROW("textures/gui/menu.png", 32 ,0, 16, 16, 0),
+    SHAKER_PROGRESS("textures/gui/shake_process.png", 0, 0, 16, 80, 0),
+    SHAKER_SLANTED("textures/gui/shake_process.png", 16, 32, 16, 16, 0)
 
 
 

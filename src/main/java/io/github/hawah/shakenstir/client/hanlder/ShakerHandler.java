@@ -18,12 +18,15 @@ import io.github.hawah.shakenstir.lib.client.render.EaseHelper;
 import io.github.hawah.shakenstir.lib.client.utils.AnimationTickHolder;
 import io.github.hawah.shakenstir.lib.networking.Networking;
 import io.github.hawah.shakenstir.util.Result;
+import io.github.hawah.shakenstir.util.Textures;
 import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.HitResult;
@@ -74,6 +77,10 @@ public class ShakerHandler implements IHandler, GuiLayer {
         //ClickInteractions.registerMouseMove(this::onMouseMove);
     }
 
+    public void successShake() {
+        shakeSuccessTimes ++;
+    }
+
     @Override
     public void tick() {
         if (!isActive()) {
@@ -109,8 +116,7 @@ public class ShakerHandler implements IHandler, GuiLayer {
         int currentTick = AnimationTickHolder.getTicks();
         if (dot < -0.125 && currentTick - lastSuccessTick > 1) {
             int shakeCubes = getItem().getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0);
-            int maxValidShakeTime = SHAKE_TICKS[Mth.clamp(shakeCubes - 1, 0, SHAKE_TICKS.length - 1)];
-            float iceMeltProcess = (float) (currentTick - firstShakeTick) / maxValidShakeTime;
+            float iceMeltProcess = getIceMeltProcess(currentTick);
             float volumeWater = shakeCubes == 0? 1.2F: EaseHelper.easeInPow(Mth.clamp(iceMeltProcess, 0, 0.8F), 6);
 
             if (shakeCubes != 0 || ShakeUtil.hasItem(getItem())){
@@ -149,10 +155,16 @@ public class ShakerHandler implements IHandler, GuiLayer {
                 );
             }
             lastSuccessTick = currentTick;
-            if (iceMeltProcess < 1) {
-                shakeSuccessTimes ++;
+            if (iceMeltProcess < 1 && shakeCubes > 0) {
+                successShake();
             }
         }
+    }
+
+    private float getIceMeltProcess(int currentTick) {
+        int iceCubes = getItem().getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0);
+        int maxValidShakeTime = SHAKE_TICKS[Mth.clamp(iceCubes - 1, 0, SHAKE_TICKS.length - 1)];
+        return (float) (currentTick - firstShakeTick) / maxValidShakeTime;
     }
 
     public double x() {
@@ -252,9 +264,12 @@ public class ShakerHandler implements IHandler, GuiLayer {
     }
 
     public float getIceMeltProcess() {
-        int shakeCubes = getItem().getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, 0);
+        int shakeCubes = getItem().getOrDefault(DataComponentTypeRegistries.SHAKE_ICE_CUBES, -1);
+        if (shakeCubes < 0) {
+            return 1;
+        }
         int maxValidShakeTime = SHAKE_TICKS[Mth.clamp(shakeCubes - 1, 0, SHAKE_TICKS.length - 1)];
-        return (float) (AnimationTickHolder.getTicks() - firstShakeTick) / maxValidShakeTime;
+        return (float) Mth.clamp((float) (AnimationTickHolder.getTicks() - firstShakeTick) / maxValidShakeTime, 0F, 1);
     }
 
     @Override
@@ -264,6 +279,79 @@ public class ShakerHandler implements IHandler, GuiLayer {
         }
         double process = AnimationTickHolder.getRenderTime() - firstShakeTick;
         double fadeInProcess = Mth.clamp(process / 20, 0, 1);
+        int width = guiGraphics.guiWidth();
+        int height = guiGraphics.guiHeight();
+        Font font = mc().font;
+        String str = String.valueOf(shakeSuccessTimes);
+        int x = (guiGraphics.guiWidth() - font.width(str)) / 2;
+        int y = guiGraphics.guiHeight() - 24 - 9 - 2 - font.lineHeight;
+        guiGraphics.text(font, str, x + 1, y, ARGB.color((int) (fadeInProcess * 255), 0xff000000), false);
+        guiGraphics.text(font, str, x - 1, y, ARGB.color((int) (fadeInProcess * 255), 0xff000000), false);
+        guiGraphics.text(font, str, x, y + 1, ARGB.color((int) (fadeInProcess * 255), 0xff000000), false);
+        guiGraphics.text(font, str, x, y - 1, ARGB.color((int) (fadeInProcess * 255), 0xff000000), false);
+        guiGraphics.text(font, str, x, y, ARGB.color((int) (fadeInProcess * 255), 0xff399a), false);
+
+        float iceMeltProcess = getIceMeltProcess();
+
+        Textures.SHAKER_PROGRESS.blit(
+                guiGraphics,
+                width * 7 / 8 - Textures.SHAKER_PROGRESS.getWidth(),
+                height/2 - Textures.SHAKER_PROGRESS.getHeight()/2,
+                ARGB.color((int) (fadeInProcess * 255), 0xffffff)
+        );
+
+        Textures.SHAKER_SLANTED.blit(
+                guiGraphics,
+                width * 7 / 8 - Textures.SHAKER_PROGRESS.getWidth() + 1,
+                height/2 - Textures.SHAKER_PROGRESS.getHeight()/2 + (int)(iceMeltProcess * 4 * 16),
+                ARGB.color((int) (fadeInProcess * 255), ARGB.linearLerp(0.8F, 0xFFFFFFFF, heatGradient(1-iceMeltProcess)))
+        );
+
+
+    }
+
+    public static int heatGradient(float progress) {
+        progress = Math.max(0f, Math.min(1f, progress));
+
+        final int[] colors = {
+                0xFF003F5B,
+                0xFF1A5F63,
+                0xFF517C65,
+                0xFF8B9572,
+                0xFFB1A372,
+                0xFFC6A354,
+                0xFFE0A136,
+                0xFFFF9913
+        };
+
+        if (progress >= 1f) {
+            return colors[colors.length - 1];
+        }
+
+        float position = progress * (colors.length - 1);
+        int index = (int) position;
+        float t = position - index;
+
+        return lerpColor(colors[index], colors[index + 1], t);
+    }
+
+    private static int lerpColor(int c1, int c2, float t) {
+        int a1 = (c1 >>> 24) & 0xFF;
+        int r1 = (c1 >>> 16) & 0xFF;
+        int g1 = (c1 >>> 8) & 0xFF;
+        int b1 = c1 & 0xFF;
+
+        int a2 = (c2 >>> 24) & 0xFF;
+        int r2 = (c2 >>> 16) & 0xFF;
+        int g2 = (c2 >>> 8) & 0xFF;
+        int b2 = c2 & 0xFF;
+
+        int a = (int) (a1 + (a2 - a1) * t);
+        int r = (int) (r1 + (r2 - r1) * t);
+        int g = (int) (g1 + (g2 - g1) * t);
+        int b = (int) (b1 + (b2 - b1) * t);
+
+        return (a << 24) | (r << 16) | (g << 8) | b;
     }
 
     public void finish() {

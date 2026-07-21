@@ -214,6 +214,7 @@ public class ClientRegistryEvents {
         event.registerAboveAll(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "distiller_hud"), ShakenStirClient.DISTILLER_HUD);
         event.registerAboveAll(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "bar_menu_hud"), ShakenStirClient.MENU_HUD);
         event.registerAboveAll(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "key_tip_hud"), new KeyTipHUD());
+        event.registerAboveAll(Identifier.fromNamespaceAndPath(ShakenStir.MODID, "shaker_handler_hud"), ShakenStirClient.SHAKE_HANDLER);
     }
 
     @SubscribeEvent
