@@ -184,11 +184,6 @@ public class Glassware extends Block implements ITakeUpBlock, EntityBlock {
     }
 
     @Override
-    protected InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        return super.useItemOn(itemStack, state, level, pos, player, hand, hitResult);
-    }
-
-    @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos worldPosition, BlockState blockState) {
         return new GlasswareBlockEntity(worldPosition, blockState);
     }

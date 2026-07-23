@@ -5,6 +5,7 @@ import com.mojang.serialization.MapCodec;
 import io.github.hawah.shakenstir.content.blockEntity.CabinetBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -88,13 +89,14 @@ public class Cabinet extends HorizontalDirectionalBlock implements EntityBlock, 
         }
         int index = getSlot(pos, hitResult, facing);
         if (level.getBlockEntity(pos) instanceof CabinetBlockEntity blockEntity) {
-            if (blockEntity.putSpirit(index, player.isCreative()? itemStack.copy(): itemStack)) {
+            if (level instanceof ServerLevel && blockEntity.putSpirit(index, player.isCreative()? itemStack.copy(): itemStack)) {
                 player.playSound(
                         SoundType.WOOD.getPlaceSound()
                 );
 
-                return InteractionResult.SUCCESS;
+                return InteractionResult.SUCCESS_SERVER;
             }
+            return InteractionResult.CONSUME;
         }
 
         return super.useItemOn(itemStack, state, level, pos, player, hand, hitResult);
