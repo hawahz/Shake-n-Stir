@@ -124,13 +124,16 @@ public class Cabinet extends HorizontalDirectionalBlock implements EntityBlock, 
         }
         int index = getSlot(pos, hitResult, facing);
         if (level.getBlockEntity(pos) instanceof CabinetBlockEntity blockEntity) {
+            if (level.isClientSide()) {
+                return InteractionResult.CONSUME;
+            }
             ItemStack itemStack = blockEntity.takeSpirit(index);
             if (!itemStack.isEmpty()) {
                 player.addItem(itemStack);
                 player.playSound(
                         SoundEvents.BOTTLE_FILL
                 );
-                return InteractionResult.SUCCESS;
+                return InteractionResult.SUCCESS_SERVER;
             }
         }
         return super.useWithoutItem(state, level, pos, player, hitResult);
