@@ -2,11 +2,12 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "p": "#minecraft:planks"
+    "p": "#minecraft:planks",
+    "s": "#minecraft:wooden_slabs"
   },
   "pattern": [
     "ppp",
-    "p p",
+    "sss",
     "ppp"
   ],
   "result": {

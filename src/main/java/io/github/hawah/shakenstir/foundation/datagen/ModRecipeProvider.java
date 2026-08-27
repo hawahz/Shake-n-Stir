@@ -106,9 +106,10 @@ public class ModRecipeProvider extends RecipeProvider {
 
         shaped(RecipeCategory.MISC, ItemRegistries.CABINET)
                 .pattern("ppp")
-                .pattern("p p")
+                .pattern("sss")
                 .pattern("ppp")
                 .define('p', ItemTags.PLANKS)
+                .define('s', ItemTags.WOODEN_SLABS)
                 .unlockedBy("has_planks", has(ItemTags.PLANKS))
                 .save(output, "cabinet");
 
