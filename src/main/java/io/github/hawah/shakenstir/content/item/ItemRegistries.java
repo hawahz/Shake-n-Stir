@@ -76,6 +76,12 @@ public class ItemRegistries {
     public static final DeferredItem<BartenderSpawner> BARTENDER_SPAWNER = register("bartender_spawner", BartenderSpawner::new);
 
     public static final DeferredItem<Item> BARTENDER_GLOVE = register("bartender_glove", Item::new, new Item.Properties().durability(20).component(DataComponentTypeRegistries.BARTENDER_GLOVE, Unit.INSTANCE));
+    // TODO: 人工审查 - 2026-09-01 - 新增两个酒保控制物品:
+    //  BARTENDER_STATUETTE (酒保雕像): 拥有者对酒保使用时切换无AI模式(不会进行任何AI计算);
+    //  FREE_POUR_VOUCHER   (免单券):   拥有者对酒保使用时切换免单模式(AI取物不消耗容器物品)。
+    //  原文件中没有这两个物品,本次为"酒保工作模式切换"功能添加。
+    public static final DeferredItem<Item> BARTENDER_STATUETTE = register("bartender_statuette", Item::new);
+    public static final DeferredItem<Item> FREE_POUR_VOUCHER = register("free_pour_voucher", Item::new);
     public static final DeferredItem<MintItem> MINT = register("mint", MintItem::new);
     public static final DeferredItem<StackedMintItem> STACKED_MINT = register("stacked_mint", StackedMintItem::new);
     public static final DeferredItem<BlockItem> MINT_SEED = registerBlock("mint_seed", BlockRegistries.MINT_PLANT);

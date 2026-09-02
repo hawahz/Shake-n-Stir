@@ -71,6 +71,9 @@ public class ModModelProvider extends ModelProvider {
         itemModels.generateFlatItem(ItemRegistries.RAG.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ItemRegistries.BARTENDER_SPAWNER.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ItemRegistries.BARTENDER_GLOVE.get(), ModelTemplates.FLAT_ITEM);
+        // TODO: 人工审查 - 2026-09-01 - 为新增的酒保雕像与免单券生成平面物品模型(与酒保手套一致)
+        itemModels.generateFlatItem(ItemRegistries.BARTENDER_STATUETTE.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ItemRegistries.FREE_POUR_VOUCHER.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ItemRegistries.BUBBLE.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ItemRegistries.TONIC.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ItemRegistries.BITTERS.get(), ModelTemplates.FLAT_ITEM);

@@ -137,18 +137,31 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
                     int toExtract = Math.min(availableCount, requiredCount);
 
                     if (toExtract > 0) {
-                        try (Transaction tx = Transaction.openRoot()) {
-                            int extracted = container.extract(i, resource, toExtract, tx);
+                        // TODO: 人工审查 - 2026-09-01 - 免单模式分支:不执行容器extract,直接复制物品而不消耗容器。
+                        //  原代码无条件通过 Transaction.extract 从容器拿取物品(消耗容器),
+                        //  本次为"免单模式"功能添加 isNoConsumeMode() 判断:
+                        //  开启时跳过事务提取,直接从容器资源复制一份放入酒保背包,容器保持不变。
+                        if (body.isNoConsumeMode()) {
+                            ItemStack copiedStack = resource.toStack(toExtract);
+                            if (body.insertItem(copiedStack)) {
+                                itemToFind.remove(j);
+                                j--;
+                                body.swing(InteractionHand.MAIN_HAND);
+                            }
+                        } else {
+                            try (Transaction tx = Transaction.openRoot()) {
+                                int extracted = container.extract(i, resource, toExtract, tx);
 
-                            if (extracted > 0) {
-                                ItemStack extractedStack = resource.toStack(extracted);
-                                itemStack.shrink(extracted);
+                                if (extracted > 0) {
+                                    ItemStack extractedStack = resource.toStack(extracted);
+                                    itemStack.shrink(extracted);
 
-                                if (body.insertItem(extractedStack)) {
-                                    itemToFind.remove(j);
-                                    j--;
-                                    tx.commit();
-                                    body.swing(InteractionHand.MAIN_HAND);
+                                    if (body.insertItem(extractedStack)) {
+                                        itemToFind.remove(j);
+                                        j--;
+                                        tx.commit();
+                                        body.swing(InteractionHand.MAIN_HAND);
+                                    }
                                 }
                             }
                         }
