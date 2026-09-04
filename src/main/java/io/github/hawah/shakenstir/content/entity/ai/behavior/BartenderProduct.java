@@ -77,8 +77,10 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
     public static final long LOOKAT_DURATION = 40L;
     /** "玻璃器皿已找到"后到开始走去倒酒之间的稳定等待 tick 数。 */
     public static final int PREPARE_WALK_DURATION = 20;
-    /** 等待外部取物 AI 找到玻璃器皿的最长时间（5 分钟）。 */
-    public static final long GLASSWARE_FIND_TIMEOUT = 5 * 20 * 60;
+    /** 等待外部取物 AI 找到玻璃器皿的最长时间（5 秒）。 */
+    // TODO: 人工审查 - 2026-09-03 - 将超时时间从 5 分钟(5 * 20 * 60 tick)缩短为 5 秒(5 * 20 tick)。
+    //  原常量值为 5 * 20 * 60,本次按需求改为 5 * 20。
+    public static final long GLASSWARE_FIND_TIMEOUT = 5 * 20;
 
     // =========================================================================
     // WaitTimer — 显式、具名的倒计时
@@ -345,9 +347,10 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
      *
      * <p><b>等待：</b>{@code ITEM_TO_FIND} 不存在 <em>且</em>
      * {@value #PREPARE_WALK_DURATION} tick 稳定等待。</p>
-     * <p><b>超时：</b>超过 {@value #GLASSWARE_FIND_TIMEOUT} tick（5 分钟）后
-     * 放弃并转入 {@link EndState}。</p>
-     * <p><b>下一状态：</b>{@link PouringState}（成功）或 {@link EndState}（超时）</p>
+     * <p><b>超时：</b>超过 {@value #GLASSWARE_FIND_TIMEOUT} tick（5 秒）后
+     * 放弃并转入 {@link EndState}；若开启寻物豁免模式({@code isSearchSkipMode()})，
+     * 则擦除待寻列表、假装已找到并转入 {@link PouringState} 继续生产。</p>
+     * <p><b>下一状态：</b>{@link PouringState}（成功或豁免跳过）或 {@link EndState}（超时）</p>
      */
     private class WaitForGlasswareState extends BartenderState {
         private final WaitTimer prepareTimer = new WaitTimer();
@@ -362,7 +365,20 @@ public class BartenderProduct extends Behavior<BartenderEntity> {
         @Override
         void tick(ServerLevel level, BartenderEntity body, long timestamp) {
             if (glasswareFindTimeout.isDone(timestamp)) {
-                timedOut = true;
+                // TODO: 人工审查 - 2026-09-03 - 寻物豁免模式分支:超时时跳过寻找、假装已找到并继续后续流程。
+                //  原代码超时后设置 timedOut=true 转入 EndState 中止整个生产流程,
+                //  本次为"寻物豁免"功能添加 isSearchSkipMode() 判断:
+                //  开启时擦除待寻物品记忆(既让外部取物AI BartenderFindItem 停止,
+                //  又使本状态将物品视为已找到),并启动稳定等待计时器,
+                //  随后正常转入 PouringState 继续后续流程;关闭时保持原行为(超时中止)。
+                if (body.isSearchSkipMode()) {
+                    body.getBrain().eraseMemory(Memories.ITEM_TO_FIND.get());
+                    if (!prepareTimer.isActive()) {
+                        prepareTimer.start(timestamp, PREPARE_WALK_DURATION);
+                    }
+                } else {
+                    timedOut = true;
+                }
                 return;
             }
 

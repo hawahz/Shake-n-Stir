@@ -137,7 +137,7 @@ public class BartenderFindItem extends Behavior<BartenderEntity> {
                     int toExtract = Math.min(availableCount, requiredCount);
 
                     if (toExtract > 0) {
-                        // TODO: 人工审查 - 2026-09-01 - 免单模式分支:不执行容器extract,直接复制物品而不消耗容器。
+                        // TODO: 人工审查 - 2026-09-03 - 免单模式分支:不执行容器extract,直接复制物品而不消耗容器。
                         //  原代码无条件通过 Transaction.extract 从容器拿取物品(消耗容器),
                         //  本次为"免单模式"功能添加 isNoConsumeMode() 判断:
                         //  开启时跳过事务提取,直接从容器资源复制一份放入酒保背包,容器保持不变。

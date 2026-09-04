@@ -97,15 +97,20 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     public static final EntityDataAccessor<Boolean> DATA_HAS_QUEUED_SPEAK = SynchedEntityData.defineId(
             BartenderEntity.class, EntityDataSerializers.BOOLEAN
     );
-    // TODO: 人工审查 - 2026-09-01 - 新增两个同步布尔标记:
+    // TODO: 人工审查 - 2026-09-03 - 新增三个同步布尔标记:
     //  DATA_AI_DISABLED: 无AI模式开关(拥有者使用酒保雕像 bartender_statuette 切换),
     //                    开启后实体的 customServerAiStep 直接返回,不进行任何AI计算;
     //  DATA_NO_CONSUME:  免单模式开关(拥有者使用免单券 free_pour_voucher 切换),
-    //                    开启后AI从容器/Capability拿取物品时不消耗对应容器
+    //                    开启后AI从容器/Capability拿取物品时不消耗对应容器;
+    //  DATA_SEARCH_SKIP: 寻物豁免开关(拥有者使用寻物豁免券 search_waiver 切换),
+    //                    开启后寻找物品超时时跳过寻找、假装已找到并继续后续流程
     public static final EntityDataAccessor<Boolean> DATA_AI_DISABLED = SynchedEntityData.defineId(
             BartenderEntity.class, EntityDataSerializers.BOOLEAN
     );
     public static final EntityDataAccessor<Boolean> DATA_NO_CONSUME = SynchedEntityData.defineId(
+            BartenderEntity.class, EntityDataSerializers.BOOLEAN
+    );
+    public static final EntityDataAccessor<Boolean> DATA_SEARCH_SKIP = SynchedEntityData.defineId(
             BartenderEntity.class, EntityDataSerializers.BOOLEAN
     );
 
@@ -191,9 +196,10 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         builder.define(DATA_SHOULDER_PARROT_LEFT, OptionalInt.empty());
         builder.define(DATA_OWNERUUID_ID, Optional.empty());
         builder.define(DATA_HAS_QUEUED_SPEAK, false);
-        // TODO: 人工审查 - 2026-09-01 - 注册无AI模式与免单模式的同步数据,默认均为关闭
+        // TODO: 人工审查 - 2026-09-03 - 注册无AI/免单/寻物豁免三种模式的同步数据,默认均为关闭
         builder.define(DATA_AI_DISABLED, false);
         builder.define(DATA_NO_CONSUME, false);
+        builder.define(DATA_SEARCH_SKIP, false);
     }
 
     @Override
@@ -201,7 +207,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         return super.hurtServer(level, source, damage);
     }
 
-    // TODO: 人工审查 - 2026-09-01 - 新增无AI模式与免单模式的存取方法。
+    // TODO: 人工审查 - 2026-09-03 - 新增无AI模式与免单模式的存取方法。
     //  原类中没有这两个开关,本次为支持"拥有者使用物品切换酒保工作模式"功能而添加。
     //  无AI模式:开启后 customServerAiStep 直接返回,Brain 不再被 tick,实体不做任何AI计算;
     //  免单模式:开启后 AI 行为(CollectShakeIngredient/BartenderFindItem/alertCustomerOrdered)
@@ -241,6 +247,25 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         this.entityData.set(DATA_NO_CONSUME, noConsume);
     }
 
+    // TODO: 人工审查 - 2026-09-03 - 新增寻物豁免模式的存取方法。
+    //  开启后 BartenderProduct.WaitForGlasswareState 在寻找物品超时时
+    //  不再转入 EndState 中止生产,而是擦除待寻列表假装已找到,继续后续流程。
+
+    /**
+     * 是否处于寻物豁免模式 (Search Skip Mode)。
+     * 开启后寻找物品超时时跳过寻找、假装已找到并继续后续流程。
+     */
+    public boolean isSearchSkipMode() {
+        return this.entityData.get(DATA_SEARCH_SKIP);
+    }
+
+    /**
+     * 设置寻物豁免模式。
+     */
+    public void setSearchSkipMode(boolean searchSkip) {
+        this.entityData.set(DATA_SEARCH_SKIP, searchSkip);
+    }
+
     @Override
     public HumanoidArm getMainArm() {
         return HumanoidArm.RIGHT;
@@ -268,7 +293,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     }
 
     public boolean alertCustomerOrdered(Player customer) {
-        // TODO: 人工审查 - 2026-09-01 - 无AI模式下不接受顾客点单,直接返回。
+        // TODO: 人工审查 - 2026-09-03 - 无AI模式下不接受顾客点单,直接返回。
         //  原方法没有此检查,本次为"无AI模式"功能添加。
         if (isAiDisabled()) {
             return false;
@@ -309,7 +334,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
                             getBrain().setMemory(Memories.RECIPES_TODO.get(), recipes);
                         }
                     }
-                    // TODO: 人工审查 - 2026-09-01 - 免单模式下不将菜单方块实体中的配方计数清零。
+                    // TODO: 人工审查 - 2026-09-03 - 免单模式下不将菜单方块实体中的配方计数清零。
                     //  原方法无条件执行 setRecipeCount(i, 0) 清空菜单中的配方计数(即消耗菜单容器)，
                     //  本次为"免单模式"功能添加 isNoConsumeMode() 判断：开启时跳过清零，菜单容器保持不变。
                     if (!isNoConsumeMode()) {
@@ -335,7 +360,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
 
     @Override
     protected void customServerAiStep(ServerLevel level) {
-        // TODO: 人工审查 - 2026-09-01 - 无AI模式守卫:开启时直接返回,跳过全部AI计算。
+        // TODO: 人工审查 - 2026-09-03 - 无AI模式守卫:开启时直接返回,跳过全部AI计算。
         //  原方法无条件执行 Brain tick / 活动更新 / 对话触发等逻辑,
         //  本次为"无AI模式"功能添加 isAiDisabled() 判断,使实体不进行任何AI计算。
         if (isAiDisabled()) {
@@ -433,7 +458,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         // 触发玩家交互事件驱动型对话（仅服务端）
-        // TODO: 人工审查 - 2026-09-01 - 无AI模式下不触发玩家交互对话。
+        // TODO: 人工审查 - 2026-09-03 - 无AI模式下不触发玩家交互对话。
         //  原代码无条件触发,本次为"无AI模式"功能添加 isAiDisabled() 判断,
         //  使雕像状态下的酒保对交互不做任何回应。
         if (!isAiDisabled() && !level().isClientSide() && level() instanceof ServerLevel serverLevel) {
@@ -479,7 +504,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
                 markPlayerInteracted(player.getUUID());
                 return InteractionResult.SUCCESS;
             } else if (itemInHand.is(ItemRegistries.BARTENDER_STATUETTE)) {
-                // TODO: 人工审查 - 2026-09-01 - 新增:拥有者使用"酒保雕像"切换无AI模式。
+                // TODO: 人工审查 - 2026-09-03 - 新增:拥有者使用"酒保雕像"切换无AI模式。
                 //  原 mobInteract 中没有此分支。每次使用切换一次开关(开↔关),不消耗手中物品。
                 boolean disabled = !isAiDisabled();
                 setAiDisabled(disabled);
@@ -487,12 +512,20 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
                         disabled ? "Bartender AI disabled" : "Bartender AI enabled"));
                 return InteractionResult.SUCCESS;
             } else if (itemInHand.is(ItemRegistries.FREE_POUR_VOUCHER)) {
-                // TODO: 人工审查 - 2026-09-01 - 新增:拥有者使用"免单券"切换免单模式。
+                // TODO: 人工审查 - 2026-09-03 - 新增:拥有者使用"免单券"切换免单模式。
                 //  原 mobInteract 中没有此分支。每次使用切换一次开关(开↔关),不消耗手中物品。
                 boolean noConsume = !isNoConsumeMode();
                 setNoConsumeMode(noConsume);
                 player.sendOverlayMessage(Component.literal(
                         noConsume ? "Bartender free pour ON" : "Bartender free pour OFF"));
+                return InteractionResult.SUCCESS;
+            } else if (itemInHand.is(ItemRegistries.SEARCH_WAIVER)) {
+                // TODO: 人工审查 - 2026-09-03 - 新增:拥有者使用"寻物豁免券"切换寻物豁免模式。
+                //  原 mobInteract 中没有此分支。每次使用切换一次开关(开↔关),不消耗手中物品。
+                boolean searchSkip = !isSearchSkipMode();
+                setSearchSkipMode(searchSkip);
+                player.sendOverlayMessage(Component.literal(
+                        searchSkip ? "Bartender search skip ON" : "Bartender search skip OFF"));
                 return InteractionResult.SUCCESS;
             }
         }
@@ -598,7 +631,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
             }
 
             // 周期性环境对话（每 10~20 秒随机触发一次）
-            // TODO: 人工审查 - 2026-09-01 - 无AI模式下不触发环境对话。
+            // TODO: 人工审查 - 2026-09-03 - 无AI模式下不触发环境对话。
             //  原条件仅检查对话数据与冷却,本次为"无AI模式"功能添加 isAiDisabled() 判断,
             //  使雕像状态下的酒保保持安静。
             if (!isAiDisabled() && !dialogueData.isEmpty() && dialogueCooldownTicks <= 0) {

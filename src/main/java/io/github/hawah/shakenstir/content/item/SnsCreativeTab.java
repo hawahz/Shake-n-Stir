@@ -75,10 +75,11 @@ public class SnsCreativeTab {
                 output.accept(ItemRegistries.BARTENDER_SPAWNER);
                 output.accept(ItemRegistries.BARTENDER_GLOVE);
                 output.accept(ItemRegistries.DIALOGUE_EDITOR);
-                // TODO: 人工审查 - 2026-09-01 - 将两个新增的酒保控制物品加入酒吧创造标签页:
-                //  酒保雕像(BARTENDER_STATUETTE)与免单券(FREE_POUR_VOUCHER)
+                // TODO: 人工审查 - 2026-09-03 - 将新增的三个酒保控制物品加入酒吧创造标签页:
+                //  酒保雕像(BARTENDER_STATUETTE)、免单券(FREE_POUR_VOUCHER)与寻物豁免券(SEARCH_WAIVER)
                 output.accept(ItemRegistries.BARTENDER_STATUETTE);
                 output.accept(ItemRegistries.FREE_POUR_VOUCHER);
+                output.accept(ItemRegistries.SEARCH_WAIVER);
             })
             .build()
     );

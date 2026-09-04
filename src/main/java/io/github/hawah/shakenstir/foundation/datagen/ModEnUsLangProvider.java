@@ -57,9 +57,10 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add(ItemRegistries.RECIPE_SCROLL.get(), "Recipe Scroll");
         add(ItemRegistries.BARTENDER_SPAWNER.get(), "Bartender's Tie");
         add(ItemRegistries.BARTENDER_GLOVE.get(), "Bartender's Glove");
-        // TODO: 人工审查 - 2026-09-01 - 为新增的酒保雕像与免单券添加英文语言条目
+        // TODO: 人工审查 - 2026-09-03 - 为新增的酒保雕像、免单券与寻物豁免券添加英文语言条目
         add(ItemRegistries.BARTENDER_STATUETTE.get(), "Bartender Statuette");
         add(ItemRegistries.FREE_POUR_VOUCHER.get(), "Free Pour Voucher");
+        add(ItemRegistries.SEARCH_WAIVER.get(), "Search Waiver");
         add(ItemRegistries.TONIC.get(), "Tonic");
         add(ItemRegistries.BITTERS.get(), "Bitters");
         add(ItemRegistries.LEMON_TOP_LEAVES.get(), "Lemon Top Leaves");

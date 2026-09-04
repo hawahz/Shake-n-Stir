@@ -43,6 +43,14 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
 
     public static final boolean SHOULD_ADD_TO_INVENTORY = true;
 
+    // TODO: 人工审查 - 2026-09-03 - 新增原料收集超时常量(5秒,与 BartenderProduct.GLASSWARE_FIND_TIMEOUT 保持一致)。
+    //  原类没有任何超时机制,容器中缺少原料时会一直寻找(visited 记忆 6000 刻过期后反复循环,永久卡住);
+    //  本次为"寻物豁免"功能补齐超时,超时后按豁免模式决定跳过或中止。
+    public static final long COLLECT_TIMEOUT = 5 * 20;
+
+    /** 本次原料收集的开始时刻(游戏刻),用于超时判断。 */
+    private long collectStartTime = 0;
+
     public CollectShakeIngredient() {
         super(
                 ImmutableMap.of(
@@ -108,6 +116,9 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
         });
         checkAndUpdateCarriedItem(body);
         tryTimes = 0;
+        // TODO: 人工审查 - 2026-09-03 - 记录本次收集的开始时刻,供 tick 中的超时判断使用。
+        //  原 start 方法没有超时计时,本次为"寻物豁免"功能添加。
+        collectStartTime = timestamp;
     }
 
     private void checkAndUpdateCarriedItem(BartenderEntity body) {
@@ -181,13 +192,38 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
             this.doStop(level, body, timestamp);
             return;
         }
+        // TODO: 人工审查 - 2026-09-03 - 原料收集超时处理:超过 COLLECT_TIMEOUT(5秒)后按豁免模式决定跳过或中止。
+        //  原代码没有任何超时机制,容器中缺少原料时会一直寻找(visited 记忆过期后反复循环,永久卡住);
+        //  本次为"寻物豁免"功能添加:开启豁免时假装原料已找到(清空待收集列表并标记配方就绪),
+        //  关闭豁免时保持原有"放弃生产"语义(擦除配方记忆)。
+        if (timestamp - collectStartTime > COLLECT_TIMEOUT) {
+            if (body.isSearchSkipMode()) {
+                wanderingItems.clear();
+                wanderingFluids.clear();
+                body.getBrain().setMemory(Memories.RECIPE_READY.get(), Unit.INSTANCE);
+            } else {
+                body.getBrain().eraseMemory(Memories.RECIPE.get());
+            }
+            this.doStop(level, body, timestamp);
+            return;
+        }
         boolean isTargetValidNow = pickTarget(level, body);
         if (target == null) {
             if (tryTimes < 3) {
                 tryTimes++;
             } else {
-                body.getBrain().eraseMemory(MemoryModuleType.VISITED_BLOCK_POSITIONS);
-                body.getBrain().eraseMemory(Memories.RECIPE.get());
+                // TODO: 人工审查 - 2026-09-03 - 放弃寻找路径的豁免处理:豁免开启时假装原料已找到并继续生产。
+                //  原代码无条件擦除配方记忆(RECIPE)中止整个生产流程,
+                //  本次为"寻物豁免"功能添加 isSearchSkipMode() 判断:
+                //  开启时清空待收集列表并标记配方就绪(RECIPE_READY),使 BartenderProduct 正常启动;
+                //  关闭时保持原行为(擦除配方记忆,中止生产)。
+                if (body.isSearchSkipMode()) {
+                    wanderingItems.clear();
+                    wanderingFluids.clear();
+                    body.getBrain().setMemory(Memories.RECIPE_READY.get(), Unit.INSTANCE);
+                } else {
+                    body.getBrain().eraseMemory(Memories.RECIPE.get());
+                }
                 this.doStop(level, body, timestamp);
             }
         } else if (isTargetValidNow) {
@@ -264,7 +300,7 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
 
                         if (toExtract > 0) {
                             success = true;
-                            // TODO: 人工审查 - 2026-09-01 - 免单模式分支:不执行容器extract,直接复制物品而不消耗容器。
+                            // TODO: 人工审查 - 2026-09-03 - 免单模式分支:不执行容器extract,直接复制物品而不消耗容器。
                             //  原代码无条件通过 Transaction.extract 从容器拿取流体(消耗容器),
                             //  本次为"免单模式"功能添加 isNoConsumeMode() 判断:
                             //  开启时跳过事务提取,直接从容器资源复制一份放入酒保背包,容器保持不变。
@@ -314,7 +350,7 @@ public class CollectShakeIngredient extends Behavior<BartenderEntity> {
 
                         if (toExtract > 0) {
                             success = true;
-                            // TODO: 人工审查 - 2026-09-01 - 免单模式分支:不执行容器extract,直接复制物品而不消耗容器。
+                            // TODO: 人工审查 - 2026-09-03 - 免单模式分支:不执行容器extract,直接复制物品而不消耗容器。
                             //  原代码无条件通过 Transaction.extract 从容器拿取物品(消耗容器),
                             //  本次为"免单模式"功能添加 isNoConsumeMode() 判断:
                             //  开启时跳过事务提取,直接从容器资源复制一份放入酒保背包,容器保持不变。
