@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.lib.client.DebugGizmoRenderer;
+import org.slf4j.Logger;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -21,6 +22,10 @@ import java.util.Map;
 
 @EventBusSubscriber(value = Dist.CLIENT)
 public class TransformWarper {
+    // TODO: 人工审查 - 2026-09-03 - 新增静态 Logger 字段,替换原内联 LOGGER 调用。
+    //  原代码每次写日志都会重新解析调用类并创建 Logger,该类的 end() 位于渲染热路径,
+    //  姿态栈异常时每帧都会触发日志,改为类级静态常量后仅创建一次。
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final Map<Object, TransformWarper> INSTANCES = new HashMap<>();
 
     public static TransformWarper instance(Object object) {
@@ -47,7 +52,7 @@ public class TransformWarper {
         try {
             poseStack.popPose();
         } catch (Exception e) {
-            LogUtils.getLogger().error("Error while applying pose matrix", e);
+            LOGGER.error("Error while applying pose matrix", e);
         } finally {
             poseStack = null;
         }
@@ -304,7 +309,7 @@ public class TransformWarper {
              try {
                  poseStack.popPose();
              } catch (Exception e) {
-                 LogUtils.getLogger().error("Error while applying pose matrix", e);
+                 LOGGER.error("Error while applying pose matrix", e);
              } finally {
                  poseStack = null;
              }

@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.lib.networking;
 
 import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.ShakenStir;
+import org.slf4j.Logger;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -15,11 +16,14 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 public class Networking {
 
+    // TODO: 人工审查 - 2026-09-03 - 新增静态 Logger 字段,替换原内联 LOGGER 调用。
+    //  原代码每次写日志都会重新解析调用类并创建 Logger,改为类级静态常量后仅创建一次。
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     public static void sendToServer(ClientToServerPacket packet) {
         if (ShakenStir.FORCE_CHECK_SIDE) {
             if (FMLEnvironment.getDist().isDedicatedServer()) {
-                LogUtils.getLogger().error("Attempted to send packet to client from server");
+                LOGGER.error("Attempted to send packet to client from server");
                 return;
             }
         }
@@ -29,7 +33,7 @@ public class Networking {
     public static void sendToPlayer(ServerToClientPacket packet, ServerPlayer player) {
         if (ShakenStir.FORCE_CHECK_SIDE) {
             if (FMLEnvironment.getDist().isClient()) {
-                LogUtils.getLogger().error("Attempted to send packet to client from client");
+                LOGGER.error("Attempted to send packet to client from client");
                 return;
             }
         }
@@ -39,7 +43,7 @@ public class Networking {
     public static void sendToAll(ServerToClientPacket packet) {
         if (ShakenStir.FORCE_CHECK_SIDE) {
             if (FMLEnvironment.getDist().isClient()) {
-                LogUtils.getLogger().error("Attempted to send packet to all client from client");
+                LOGGER.error("Attempted to send packet to all client from client");
                 return;
             }
         }

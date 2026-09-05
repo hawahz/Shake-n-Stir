@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.content.blockEntity;
 
 import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.content.block.SpiritBlock;
+import org.slf4j.Logger;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
 import io.github.hawah.shakenstir.foundation.fluid.FluidConstants;
@@ -23,6 +24,10 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 public class SpiritBlockEntity extends BlockEntity {
+
+    // TODO: 人工审查 - 2026-09-03 - 新增静态 Logger 字段,替换原内联 LOGGER 调用。
+    //  原代码每次写日志都会重新解析调用类并创建 Logger,改为类级静态常量后仅创建一次。
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     public NonNullList<FluidStack> fluidStacks = NonNullList.withSize(4, FluidStack.EMPTY);
 
@@ -50,7 +55,7 @@ public class SpiritBlockEntity extends BlockEntity {
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag var4;
-        try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(this.problemPath(), LogUtils.getLogger())) {
+        try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(this.problemPath(), LOGGER)) {
             TagValueOutput output = TagValueOutput.createWithContext(reporter, registries);
             ShakeBlockEntity.saveAllFluids(output, fluidStacks, false);
             var4 = output.buildResult();

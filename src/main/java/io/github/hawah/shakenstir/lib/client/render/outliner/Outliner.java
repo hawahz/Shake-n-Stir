@@ -3,6 +3,7 @@ package io.github.hawah.shakenstir.lib.client.render.outliner;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.ShakenStir;
+import org.slf4j.Logger;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -23,6 +24,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @SuppressWarnings("unused")
 @ParametersAreNonnullByDefault
 public class Outliner {
+    // TODO: 人工审查 - 2026-09-03 - 新增静态 Logger 字段,替换原内联 LOGGER 调用。
+    //  原代码每次写日志都会重新解析调用类并创建 Logger,该类的 box 系列方法位于渲染路径,
+    //  元素类型不匹配时可能每帧触发,改为类级静态常量后仅创建一次。
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static Outliner INSTANCE = null;
 
     private final ConcurrentHashMap<Object, OutlineElement<?>> outlines = new ConcurrentHashMap<>();
@@ -58,7 +63,7 @@ public class Outliner {
         }
         OutlineElement<?> outlineElement = slotHolder.get(slot);
         if (!(outlineElement instanceof ThickOutline)) {
-            LogUtils.getLogger().warn("Outline element is not a ThickOutline at thickBox()");
+            LOGGER.warn("Outline element is not a ThickOutline at thickBox()");
         }
         return outlineElement;
     }
@@ -72,7 +77,7 @@ public class Outliner {
         if (slotHolder.containsKey(slot)) {
             OutlineElement<?> outline = slotHolder.get(slot);
             if (!(outline instanceof ThickOutline)) {
-                LogUtils.getLogger().warn("Outline element is not a ThickOutline at chaseThickBox()   ");
+                LOGGER.warn("Outline element is not a ThickOutline at chaseThickBox()   ");
             }
             return mulPose(first, second, outline);
         }
@@ -115,7 +120,7 @@ public class Outliner {
         if (slotHolder.containsKey(slot)) {
             OutlineElement<?> outline = slotHolder.get(slot);
             if (!(outline instanceof FineOutline)) {
-                LogUtils.getLogger().warn("Outline element is not a FineOutline at chaseBox()");
+                LOGGER.warn("Outline element is not a FineOutline at chaseBox()");
             }
             return mulPose(first, second, outline);
         }
@@ -135,7 +140,7 @@ public class Outliner {
         }
         OutlineElement<?> outlineElement = slotHolder.get(slot);
         if (!(outlineElement instanceof FineOutline)) {
-            LogUtils.getLogger().warn("Outline element is not a FineOutline at box()");
+            LOGGER.warn("Outline element is not a FineOutline at box()");
         }
         return outlineElement;
     }

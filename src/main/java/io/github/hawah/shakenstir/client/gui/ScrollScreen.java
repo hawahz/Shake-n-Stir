@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.client.gui;
 
 import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.client.RecipeSyncData;
+import org.slf4j.Logger;
 import io.github.hawah.shakenstir.foundation.data.SnsRecipeHolder;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.SpiritContent;
@@ -30,6 +31,10 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import java.util.List;
 
 public class ScrollScreen extends BaseScreen {
+
+    // TODO: 人工审查 - 2026-09-03 - 新增静态 Logger 字段,替换原内联 LOGGER 调用。
+    //  原代码每次写日志都会重新解析调用类并创建 Logger,改为类级静态常量后仅创建一次。
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final Textures BACKGROUND = Textures.SCROLL_BKG;
 
@@ -274,7 +279,7 @@ public class ScrollScreen extends BaseScreen {
             Component component = snsRecipeHolder.result().get(DataComponents.ITEM_NAME);
             nameField.setSuggestion(suggestion = component.getString());
         } catch (RuntimeException e) {
-            LogUtils.getLogger().error("Error while changing page", e);
+            LOGGER.error("Error while changing page", e);
         }
     }
 

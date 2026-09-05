@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.content.block;
 
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.MapCodec;
+import org.slf4j.Logger;
 import io.github.hawah.shakenstir.ShakenStir;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -34,6 +35,9 @@ import java.util.function.Supplier;
 @SuppressWarnings({"SameParameterValue", "unused"})
 @EventBusSubscriber
 public class BlockRegistries {
+    // TODO: 人工审查 - 2026-09-03 - 新增静态 Logger 字段,替换原内联 LOGGER 调用。
+    //  原代码每次写日志都会重新解析调用类并创建 Logger,改为类级静态常量后仅创建一次。
+    private static final Logger LOGGER = LogUtils.getLogger();
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(ShakenStir.MODID);
     public static final DeferredBlock<Shaker> SHAKE_BLOCK = register("shaker", Shaker::new);
     public static final DeferredBlock<ShakerLid> SHAKE_LID_BLOCK = register("shaker_lid", ShakerLid::new);
@@ -188,7 +192,7 @@ public class BlockRegistries {
     @SubscribeEvent
     public static void commonSetup(FMLCommonSetupEvent event) {
         // Some common setup code
-        LogUtils.getLogger().info("HELLO FROM COMMON SETUP");
+        LOGGER.info("HELLO FROM COMMON SETUP");
 
         // 将柠檬树苗映射到对应的花盆方块，使原版花盆能识别
         ((FlowerPotBlock) Blocks.FLOWER_POT).addPlant(

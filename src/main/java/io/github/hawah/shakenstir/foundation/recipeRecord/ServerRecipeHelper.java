@@ -3,6 +3,7 @@ package io.github.hawah.shakenstir.foundation.recipeRecord;
 import com.google.common.collect.EvictingQueue;
 import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.foundation.data.SnsRecipeHolder;
+import org.slf4j.Logger;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.item.GlasswareItem;
 import io.github.hawah.shakenstir.content.item.ItemRegistries;
@@ -38,6 +39,10 @@ import java.util.zip.GZIPInputStream;
 
 @EventBusSubscriber
 public class ServerRecipeHelper {
+
+    // TODO: 人工审查 - 2026-09-03 - 新增静态 Logger 字段,替换原内联 LOGGER 调用。
+    //  原代码每次写日志都会重新解析调用类并创建 Logger,改为类级静态常量后仅创建一次。
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final int MAX_RECIPES = 10;
 
@@ -100,7 +105,7 @@ public class ServerRecipeHelper {
                     NbtIo.writeCompressed(data, out);
                 }
             } catch (IOException e) {
-                LogUtils.getLogger().error("Occurred Error when saving structure.", e);
+                LOGGER.error("Occurred Error when saving structure.", e);
             }
         }
     }

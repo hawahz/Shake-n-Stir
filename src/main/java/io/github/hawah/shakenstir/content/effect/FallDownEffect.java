@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.content.effect;
 
 import com.mojang.logging.LogUtils;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
+import org.slf4j.Logger;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.content.dataAttachment.DataAttachmentTypeRegistries;
 import io.github.hawah.shakenstir.foundation.networking.ClientboundMobFallFlyPacket;
@@ -23,6 +24,9 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class FallDownEffect extends AbstractRemoveHookedMobEffect{
+    // TODO: 人工审查 - 2026-09-03 - 新增静态 Logger 字段,替换原内联 LOGGER 调用。
+    //  原代码每次写日志都会重新解析调用类并创建 Logger,改为类级静态常量后仅创建一次。
+    private static final Logger LOGGER = LogUtils.getLogger();
     protected FallDownEffect(MobEffectCategory category, int color) {
         super(category, color);
         this.addAttributeModifier(
@@ -69,7 +73,7 @@ public class FallDownEffect extends AbstractRemoveHookedMobEffect{
                             try {
                                 mob.hurtServer(serverLevel, mob.damageSources().fall(), 1);
                             } catch (RuntimeException e) {
-                                LogUtils.getLogger().error("Error while applying fall damage", e);
+                                LOGGER.error("Error while applying fall damage", e);
                             }
                         }
                         }

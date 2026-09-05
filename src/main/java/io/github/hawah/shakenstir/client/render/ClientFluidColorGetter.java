@@ -3,6 +3,7 @@ package io.github.hawah.shakenstir.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.foundation.fluid.TintColorGetter;
+import org.slf4j.Logger;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
@@ -17,6 +18,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class ClientFluidColorGetter {
+
+    // TODO: 人工审查 - 2026-09-03 - 新增静态 Logger 字段,替换原内联 LOGGER 调用。
+    //  原代码每次写日志都会重新解析调用类并创建 Logger,该类的 getColor 位于渲染路径,
+    //  贴图获取失败时可能每帧触发,改为类级静态常量后仅创建一次。
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final ConcurrentMap<Fluid, Integer> cachedColor = new ConcurrentHashMap<>();
 
@@ -60,7 +66,7 @@ public class ClientFluidColorGetter {
                         |  (int) (b / count);
             }
         } catch (RuntimeException e) {
-            LogUtils.getLogger().error("Failed to get texture for fluid.", e);
+            LOGGER.error("Failed to get texture for fluid.", e);
         }
         color = pixelRGBA;
         cachedColor.put(fluid, color);

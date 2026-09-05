@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.content.entity;
 
 import com.mojang.logging.LogUtils;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
+import org.slf4j.Logger;
 import io.github.hawah.shakenstir.Config;
 import io.github.hawah.shakenstir.ShakenStir;
 import io.github.hawah.shakenstir.client.animation.AnimationState;
@@ -70,6 +71,11 @@ import java.util.*;
 @MethodsReturnNonnullByDefault
 @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "unchecked", "resource"})
 public class BartenderEntity extends AbstractInventoryMob implements OwnableEntity {
+
+    // TODO: 人工审查 - 2026-09-03 - 新增静态 Logger 字段,替换原内联 LOGGER 调用。
+    //  原代码每次写日志都会重新解析调用类并创建 Logger,其中 AnimState.from 由 updateReady 每 tick 调用,
+    //  改为类级静态常量后仅创建一次,避免每实体每刻的重复开销。
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final EntityDataAccessor<Integer> DATA_ACCESSOR =
             SynchedEntityData.defineId(
@@ -178,7 +184,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
         DialogueData loaded = DialogueData.loadFromFile(defaultFile);
         if (!loaded.isEmpty()) {
             this.dialogueData = loaded;
-            LogUtils.getLogger().info("Loaded default dialogue from file: {}", defaultFile);
+            LOGGER.info("Loaded default dialogue from file: {}", defaultFile);
         }
     }
 
@@ -381,7 +387,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
                 );
                 if (!loaded.isEmpty()) {
                     this.dialogueData = loaded;
-                    LogUtils.getLogger().info("Loaded default dialogue from built-in resource: {}", DEFAULT_DIALOGUE_RESOURCE);
+                    LOGGER.info("Loaded default dialogue from built-in resource: {}", DEFAULT_DIALOGUE_RESOURCE);
                 }
             }
         }
@@ -1114,10 +1120,10 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
                 var json = com.google.gson.JsonParser.parseString(raw);
                 var result = DialogueData.CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE, json);
                 this.dialogueData = result.resultOrPartial(err ->
-                        com.mojang.logging.LogUtils.getLogger().error("Failed to load dialogue data: {}", err)
+                        LOGGER.error("Failed to load dialogue data: {}", err)
                 ).orElse(DialogueData.EMPTY);
             } catch (Exception e) {
-                com.mojang.logging.LogUtils.getLogger().error("Failed to parse dialogue data JSON", e);
+                LOGGER.error("Failed to parse dialogue data JSON", e);
                 this.dialogueData = DialogueData.EMPTY;
             }
         }
@@ -1159,7 +1165,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
     private void saveDialogueData(ValueOutput output) {
         var result = DialogueData.CODEC.encodeStart(com.mojang.serialization.JsonOps.INSTANCE, dialogueData);
         String raw = result.resultOrPartial(err ->
-                com.mojang.logging.LogUtils.getLogger().error("Failed to serialize dialogue data: {}", err)
+                LOGGER.error("Failed to serialize dialogue data: {}", err)
         ).map(com.google.gson.JsonElement::toString).orElse("");
         output.putString("DialogueData", raw);
 
@@ -1205,7 +1211,7 @@ public class BartenderEntity extends AbstractInventoryMob implements OwnableEnti
 
         public static AnimState from(int i) {
             if (i < 0 || i >= values().length) {
-                LogUtils.getLogger().error("Invalid animation state");
+                LOGGER.error("Invalid animation state");
                 return DEFAULT;
             }
             return AnimState.values()[i];

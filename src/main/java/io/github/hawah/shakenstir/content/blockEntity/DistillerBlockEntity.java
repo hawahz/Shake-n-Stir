@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.content.blockEntity;
 
 import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.ShakenStirClient;
+import org.slf4j.Logger;
 import io.github.hawah.shakenstir.content.block.Distiller;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.foundation.fluid.FluidConstants;
@@ -52,6 +53,9 @@ import java.util.List;
 import java.util.Optional;
 
 public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
+    // TODO: 人工审查 - 2026-09-03 - 新增静态 Logger 字段,替换原内联 LOGGER 调用。
+    //  原代码每次写日志都会重新解析调用类并创建 Logger,改为类级静态常量后仅创建一次。
+    private static final Logger LOGGER = LogUtils.getLogger();
     public static final int MAX_INPUT_ITEMS = 16;
     public static final int MAX_INPUT_FLUID_CAPACITY = FluidConstants.DISTILLER_MAX_INPUT_FLUID_CAPACITY;
     public static final int MAX_PRODUCT_FLUID_CAPACITY = FluidConstants.DISTILLER_MAX_PRODUCT_FLUID_CAPACITY;
@@ -345,7 +349,7 @@ public class DistillerBlockEntity extends BlockEntity implements ItemOwner {
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag;
-        try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(this.problemPath(), LogUtils.getLogger())) {
+        try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(this.problemPath(), LOGGER)) {
             TagValueOutput output = TagValueOutput.createWithContext(reporter, registries);
             saveAdditional(output);
             tag = output.buildResult();

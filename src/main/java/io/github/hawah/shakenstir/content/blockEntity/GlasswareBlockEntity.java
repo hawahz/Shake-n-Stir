@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.content.blockEntity;
 
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
+import org.slf4j.Logger;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.hawah.shakenstir.ShakenStirClient;
 import io.github.hawah.shakenstir.client.model.Models;
@@ -43,6 +44,10 @@ import java.util.Optional;
 
 public class GlasswareBlockEntity extends AutoUpdateBlockEntity {
 
+    // TODO: 人工审查 - 2026-09-03 - 新增静态 Logger 字段,替换原内联 LOGGER 调用。
+    //  原代码每次写日志都会重新解析调用类并创建 Logger,改为类级静态常量后仅创建一次。
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     // To Save
     public final Vector2f positionRate = new Vector2f();
     public float rotation;
@@ -75,7 +80,7 @@ public class GlasswareBlockEntity extends AutoUpdateBlockEntity {
 
     public boolean insertDecoration(Decoration decoration) {
         if (level == null) {
-            LogUtils.getLogger().warn("Cannot insert decoration to non level block entity");
+            LOGGER.warn("Cannot insert decoration to non level block entity");
             return false;
         }
         this.decorationsList.add(decoration);

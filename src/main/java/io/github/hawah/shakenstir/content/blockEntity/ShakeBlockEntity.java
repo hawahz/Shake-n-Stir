@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.content.blockEntity;
 
 import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.ShakenStirClient;
+import org.slf4j.Logger;
 import io.github.hawah.shakenstir.content.block.Shaker;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.content.dataComponent.IFluidDataHolder;
@@ -37,6 +38,10 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 public class ShakeBlockEntity extends AutoUpdateBlockEntity implements ItemOwner {
+    // TODO: 人工审查 - 2026-09-03 - 新增静态 Logger 字段,替换原内联 LOGGER 调用。
+    //  原代码每次写日志都会重新解析调用类并创建 Logger,改为类级静态常量后仅创建一次。
+    //  两个内部 ResourceHandler 类中的调用亦改为引用本字段。
+    private static final Logger LOGGER = LogUtils.getLogger();
     public static final int MAX_HOLD_FLUIDS = 6;
     public static final int MAX_FLUID_CAPACITY = FluidConstants.SHAKER_MAX_FLUID_CAPACITY;
     public static final int MAX_HOLD_ITEMS = 4;
@@ -342,7 +347,7 @@ public class ShakeBlockEntity extends AutoUpdateBlockEntity implements ItemOwner
 
         private boolean checkInValid(int index) {
             if (index >= size() || index < 0) {
-                LogUtils.getLogger().warn("Invalid index: {}", index);
+                LOGGER.warn("Invalid index: {}", index);
                 return true;
             }
             return false;
@@ -420,7 +425,7 @@ public class ShakeBlockEntity extends AutoUpdateBlockEntity implements ItemOwner
 
         private boolean checkInValid(int index) {
             if (index >= size() || index < 0) {
-                LogUtils.getLogger().warn("Invalid index: {}", index);
+                LOGGER.warn("Invalid index: {}", index);
                 return true;
             }
             return false;

@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.util;
 
 import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.foundation.networking.ServerboundRequestBackgroundPacket;
+import org.slf4j.Logger;
 import io.github.hawah.shakenstir.lib.networking.Networking;
 
 import java.io.DataInputStream;
@@ -17,6 +18,9 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 public class MenuBackgroundUtils {
+    // TODO: 人工审查 - 2026-09-03 - 新增静态 Logger 字段,替换原内联 LOGGER 调用。
+    //  原代码每次写日志都会重新解析调用类并创建 Logger,改为类级静态常量后仅创建一次。
+    private static final Logger LOGGER = LogUtils.getLogger();
     public static final Path BKG_SAVE_PATH = Paths.ADDON_DIR.resolve("menuBackground");
     public static final Path BKG_SAVE_UPLOAD_PATH = Paths.ADDON_DIR.resolve("menuBackground").resolve("upload");
     public static final ConcurrentHashMap<String, DataWarper> requesters = new ConcurrentHashMap<>();
@@ -51,7 +55,7 @@ public class MenuBackgroundUtils {
                 }
             }
         } catch (IOException e) {
-            LogUtils.getLogger().error("Occurred Error when saving background.", e);
+            LOGGER.error("Occurred Error when saving background.", e);
         }
     }
 
@@ -65,7 +69,7 @@ public class MenuBackgroundUtils {
                 }
                 return Optional.of(data);
             } catch (IOException e) {
-                LogUtils.getLogger().error("Occurred Error when loading background.", e);
+                LOGGER.error("Occurred Error when loading background.", e);
             }
         }
         return Optional.empty();

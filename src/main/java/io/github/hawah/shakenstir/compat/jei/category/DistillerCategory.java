@@ -2,6 +2,7 @@ package io.github.hawah.shakenstir.compat.jei.category;
 
 import com.mojang.logging.LogUtils;
 import io.github.hawah.shakenstir.ShakenStir;
+import org.slf4j.Logger;
 import io.github.hawah.shakenstir.content.dataComponent.DataComponentTypeRegistries;
 import io.github.hawah.shakenstir.foundation.fluid.FluidConstants;
 import io.github.hawah.shakenstir.foundation.recipe.DistillerRecipe;
@@ -21,6 +22,9 @@ import java.util.List;
 
 public class DistillerCategory implements IRecipeCategory<DistillerRecipe> {
 
+    // TODO: 人工审查 - 2026-09-03 - 新增静态 Logger 字段,替换原内联 LOGGER 调用。
+    //  原代码每次写日志都会重新解析调用类并创建 Logger,改为类级静态常量后仅创建一次。
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final Identifier UID = ShakenStir.asResource("distiller");
     public static final IRecipeType<DistillerRecipe> TYPE = IRecipeType.create(UID, DistillerRecipe.class);
@@ -64,7 +68,7 @@ public class DistillerCategory implements IRecipeCategory<DistillerRecipe> {
         }
         var holder = recipe.result().get(DataComponentTypeRegistries.DEFERRED_FLUID);
         if (holder == null) {
-            LogUtils.getLogger().error("Distiller recipe has no fluid result");
+            LOGGER.error("Distiller recipe has no fluid result");
             return;
         }
         FluidStack fluidStack = holder.toFluidStack();
